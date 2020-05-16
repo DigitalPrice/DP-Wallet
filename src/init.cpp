@@ -505,7 +505,7 @@ std::string HelpMessage(HelpMessageMode mode)
     strUsage += HelpMessageOpt("-logtimestamps", strprintf(_("Prepend debug output with timestamp (default: %u)"), 1));
     if (showDebug)
     {
-        strUsage += HelpMessageOpt("-limitfreerelay=<n>", strprintf("Continuously rate-limit free transactions to <n>*1000 bytes per minute (default: %u)", 15));
+        strUsage += HelpMessageOpt("-limitfreerelay=<n>", strprintf("Continuously rate-limit free transactions to <n>*1000 bytes per minute (default: %u)", DEFAULT_LIMITFREERELAY));
         strUsage += HelpMessageOpt("-relaypriority", strprintf("Require high priority for relaying free or low-fee transactions (default: %u)", 0));
         strUsage += HelpMessageOpt("-maxsigcachesize=<n>", strprintf("Limit size of signature cache to <n> entries (default: %u)", 50000));
         strUsage += HelpMessageOpt("-maxtipage=<n>", strprintf("Maximum tip age in seconds to consider node in initial block download (default: %u)", DEFAULT_MAX_TIP_AGE));
@@ -1539,32 +1539,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     fReindex = GetBoolArg("-reindex", false);
 
-    // Upgrading to 0.8; hard-link the old blknnnn.dat files into /blocks/
-    boost::filesystem::path blocksDir = GetDataDir() / "blocks";
-    if (!boost::filesystem::exists(blocksDir))
-    {
-        boost::filesystem::create_directories(blocksDir);
-        bool linked = false;
-        for (unsigned int i = 1; i < 10000; i++) {
-            boost::filesystem::path source = GetDataDir() / strprintf("blk%04u.dat", i);
-            if (!boost::filesystem::exists(source)) break;
-            boost::filesystem::path dest = blocksDir / strprintf("blk%05u.dat", i-1);
-            try {
-                boost::filesystem::create_hard_link(source, dest);
-                LogPrintf("Hardlinked %s -> %s\n", source.string(), dest.string());
-                linked = true;
-            } catch (const boost::filesystem::filesystem_error& e) {
-                // Note: hardlink creation failing is not a disaster, it just means
-                // blocks will get re-downloaded from peers.
-                LogPrintf("Error hardlinking blk%04u.dat: %s\n", i, e.what());
-                break;
-            }
-        }
-        if (linked)
-        {
-            fReindex = true;
-        }
-    }
+    boost::filesystem::create_directories(GetDataDir() / "blocks");
 
     // block tree db settings
     int dbMaxOpenFiles = GetArg("-dbmaxopenfiles", DEFAULT_DB_MAX_OPEN_FILES);
@@ -1960,7 +1935,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             nLocalServices |= NODE_ADDRINDEX;
         if ( GetBoolArg("-spentindex", DEFAULT_SPENTINDEX) != 0 )
             nLocalServices |= NODE_SPENTINDEX;
-        fprintf(stderr,"nLocalServices %llx %d, %d\n",(long long)nLocalServices,GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX),GetBoolArg("-spentindex", DEFAULT_SPENTINDEX));
+        LogPrintf("nLocalServices %llx %d, %d\n",(long long)nLocalServices,GetBoolArg("-addressindex", DEFAULT_ADDRESSINDEX),GetBoolArg("-spentindex", DEFAULT_SPENTINDEX));
     }
     // ********************************************************* Step 10: import blocks
 

@@ -1,8 +1,10 @@
 # KomodoOcean (komodo-qt) #
 
-![](./doc/images/komodo-qt-promo-10.png)
+![Downloads](https://img.shields.io/github/downloads/TheComputerGenie/DP-Wallet/total)
 
-Komodo-Qt (KomodoOcean) is a world-first Qt native wallet for KMD ([Komodo](https://komodoplatform.com/)) and all of assetchains. It's available for three OS platforms - Windows, Linux, MacOS.
+![](./doc/images/komodo-qt-promo-2020-01.jpg)
+
+Komodo-Qt (KomodoOcean) is a world-first Qt native wallet for KMD ([Komodo](https://komodoplatform.com/)) and smartchains (assetchains). It's available for three OS platforms - Windows, Linux, MacOS.
 
 **NB!** Earlier (till 23.05.2019) we had three branches:
 
@@ -19,7 +21,7 @@ Use the following scripts to build:
 - Windows: `build-win.sh` (cross-compilation for Win)
 - MacOS: `build-mac.sh` (native build)
 
-`master` branch still can be used to build Windows version of Komodo-Qt with MSVC compiler.
+`master` branch **can't** be used anymore to build actual wallet version, but it still can be used as an example of build with MSVC compiler.  To build actual version plz use `static` branch.
 
 Visit [#wallet-ocean-qt](https://discord.gg/U5WWaJR) channel in Komodo Discord for more information.
 
@@ -33,7 +35,7 @@ sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoco
 ```
 
 ```shell
-git clone https://github.com/DeckerSU/KomodoOcean --branch static --single-branch
+git clone https://github.com/TheComputerGenie/DP-Wallet --branch static --single-branch
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
@@ -60,7 +62,7 @@ brew install protobuf
 brew install coreutils
 brew install wget
 # Clone the Komodo repo
-git clone https://github.com/DeckerSU/KomodoOcean --branch statoc --single-branch
+git clone https://github.com/TheComputerGenie/DP-Wallet --branch statoc --single-branch
 # Change master branch to other branch you wish to compile
 cd komodo
 ./zcutil/fetch-params.sh
@@ -82,7 +84,7 @@ sudo update-alternatives --config x86_64-w64-mingw32-gcc
 sudo update-alternatives --config x86_64-w64-mingw32-g++
 # (configure to use POSIX variant)
 
-git clone https://github.com/DeckerSU/KomodoOcean --branch static --single-branch
+git clone https://github.com/TheComputerGenie/DP-Wallet --branch static --single-branch
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
@@ -95,5 +97,5 @@ cd komodo
 
 ## Developers of Qt wallet ##
 
-- Main developer: [@Ocean](https://komodo-platform.slack.com/team/U8BRG09EV)
-- IT Expert / Sysengineer: [@Decker](https://komodo-platform.slack.com/messages/D5UHJMCJ3)
+- Main developer: **Ocean**
+- IT Expert / Sysengineer: **Decker**
