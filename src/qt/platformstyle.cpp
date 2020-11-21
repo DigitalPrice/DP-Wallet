@@ -22,7 +22,7 @@ static const struct {
     /** Extra padding/spacing in transactionview */
     const bool useExtraSpacing;
 } platform_styles[] = {
-    {"macosx", false, false, true},
+    {"macosx", true, true, false},
     {"windows", true, true, false},
     /* Other: linux, unix, ... */
     {"other", true, true, false}
@@ -77,8 +77,8 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
     imagesOnButtons(_imagesOnButtons),
     colorizeIcons(_colorizeIcons),
     useExtraSpacing(_useExtraSpacing),
-    singleColor(0,0,0),
-    textColor(0,0,0)
+    singleColor(227, 27, 35),
+    textColor(89,10,14)
 {
     // Determine icon highlighting color
     if (colorizeIcons) {
@@ -86,18 +86,16 @@ PlatformStyle::PlatformStyle(const QString &_name, bool _imagesOnButtons, bool _
         const QColor colorHighlightFg(QApplication::palette().color(QPalette::HighlightedText));
         const QColor colorText(QApplication::palette().color(QPalette::WindowText));
         const int colorTextLightness = colorText.lightness();
-        // QColor colorbase = QColor(0, 94, 94); // Komodo Color
-        // QColor colorbase = QColor(38, 69, 107);  // Komodo Dark Blue
-        QColor colorbase = QColor(43, 102, 128);    // Komodo Light Blue
+        QColor colorbase = QColor(227, 27, 35);    // DP red
 
         /*if (abs(colorHighlightBg.lightness() - colorTextLightness) < abs(colorHighlightFg.lightness() - colorTextLightness))
             colorbase = colorHighlightBg;
         else
             colorbase = colorHighlightFg;*/
-        singleColor = colorbase;
+        //singleColor = colorbase;
     }
     // Determine text color
-    textColor = QColor(QApplication::palette().color(QPalette::WindowText));
+    //textColor = QColor(QApplication::palette().color(QPalette::WindowText));
 }
 
 QImage PlatformStyle::SingleColorImage(const QString& filename) const

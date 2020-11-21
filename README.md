@@ -1,29 +1,25 @@
-# KomodoOcean (komodo-qt) #
+# DigitalPrice-qt #
 
-![Downloads](https://img.shields.io/github/downloads/TheComputerGenie/DP-Wallet/total)
+![Downloads](https://img.shields.io/github/downloads/DigitalPrice/DP-Wallet/total)
 
-![](./doc/images/komodo-qt-promo-2020-01.jpg)
+![](./doc/images/dp-qt-promo-2020-01.jpg)
 
-Komodo-Qt (KomodoOcean) is a world-first Qt native wallet for KMD ([Komodo](https://komodoplatform.com/)) and smartchains (assetchains). It's available for three OS platforms - Windows, Linux, MacOS.
+DigitalPrice-Qt is a world-first Qt native wallet for DP ([DigitalPrice](https://digitalprice.org/)). It's available for three OS platforms - Windows, Linux, MacOS.
 
-**NB!** Earlier (till 23.05.2019) we had three branches:
+**NB!** We have three branches:
 
 
-- [master](../../tree/master) for Windows.
-- [Linux](../../tree/Linux) for Linux.
-- [MacOS](../../tree/MacOS) for MacOS.
+- [static](../../tree/static) for tested public master.
+- [beta](../../tree/beta) for testing before release.
+- [dev](../../tree/dev) for incomplete, untested, or in-process development.
 
-Now we have only one branch [static](../../tree/static) for build static Komodo-Qt binaries from one branch for each OS.
+Only one branch ([static](../../tree/static)) is needed for building executable DigitalPrice-Qt binaries for all 3 major OSs.
 
 Use the following scripts to build:
 
 - Linux: `build-linux.sh` (native build)
 - Windows: `build-win.sh` (cross-compilation for Win)
 - MacOS: `build-mac.sh` (native build)
-
-`master` branch **can't** be used anymore to build actual wallet version, but it still can be used as an example of build with MSVC compiler.  To build actual version plz use `static` branch.
-
-Visit [#wallet-ocean-qt](https://discord.gg/U5WWaJR) channel in Komodo Discord for more information.
 
 ## How to build? ##
 
@@ -35,7 +31,7 @@ sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoco
 ```
 
 ```shell
-git clone https://github.com/TheComputerGenie/DP-Wallet --branch static --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
@@ -50,7 +46,7 @@ Ensure you have [brew](https://brew.sh) and Command Line Tools installed.
 # Install brew
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 # Install Xcode, opens a pop-up window to install CLT without installing the entire Xcode package
-xcode-select --install 
+xcode-select --install
 # Update brew and install dependencies
 brew update
 brew upgrade
@@ -62,7 +58,7 @@ brew install protobuf
 brew install coreutils
 brew install wget
 # Clone the Komodo repo
-git clone https://github.com/TheComputerGenie/DP-Wallet --branch statoc --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 # Change master branch to other branch you wish to compile
 cd komodo
 ./zcutil/fetch-params.sh
@@ -84,14 +80,14 @@ sudo update-alternatives --config x86_64-w64-mingw32-gcc
 sudo update-alternatives --config x86_64-w64-mingw32-g++
 # (configure to use POSIX variant)
 
-git clone https://github.com/TheComputerGenie/DP-Wallet --branch static --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
 ./zcutil/build-win.sh -j8
 #This can take some time.
 ```
-**komodo is experimental and a work-in-progress.** Use at your own risk.
+**DigitalPrice is experimental and a work-in-progress.** Use at your own risk.
 
 
 
