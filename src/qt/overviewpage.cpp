@@ -184,8 +184,6 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     ui->labelWatchImmature->setText(KomodoUnits::formatWithUnit(unit, watchImmatureBalance, false, KomodoUnits::separatorAlways));
     ui->labelWatchTotal->setText(KomodoUnits::formatWithUnit(unit, watchOnlyBalance + watchUnconfBalance + watchImmatureBalance, false, KomodoUnits::separatorAlways));
 
-    ui->labelPrivateBalance->setText(KomodoUnits::formatWithUnit(unit, privateBalance, false, KomodoUnits::separatorAlways));
-    ui->labelInterestBalance->setText(KomodoUnits::formatWithUnit(unit, interestBalance, false, KomodoUnits::separatorAlways));
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
@@ -197,9 +195,6 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     ui->labelImmature->setVisible(showImmature || showWatchOnlyImmature);
     ui->labelImmatureText->setVisible(showImmature || showWatchOnlyImmature);
     ui->labelWatchImmature->setVisible(showWatchOnlyImmature); // show watch-only immature balance
-    // we should show interest only for KMD, so we need to use setVisible with condition
-    ui->labelInterestBalance->setVisible(showInterest);
-    ui->labelInterestTotalText->setVisible(showInterest);
 
 }
 
