@@ -101,7 +101,7 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
     zsendCoinsMenuAction(0),
     usedSendingAddressesAction(0),
     usedReceivingAddressesAction(0),
-    usedReceivingZAddressesAction(0),
+    //usedReceivingZAddressesAction(0),
     signMessageAction(0),
     verifyMessageAction(0),
     aboutAction(0),
@@ -388,8 +388,8 @@ void KomodoOceanGUI::createActions()
     usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
     usedReceivingAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("&Receiving addresses..."), this);
     usedReceivingAddressesAction->setStatusTip(tr("Show the list of used receiving addresses and labels"));
-    usedReceivingZAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("Receiving &z-addresses..."), this);
-    usedReceivingZAddressesAction->setStatusTip(tr("Show the list of used receiving z-addresses and labels"));
+    //usedReceivingZAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("Receiving &z-addresses..."), this);
+    //usedReceivingZAddressesAction->setStatusTip(tr("Show the list of used receiving z-addresses and labels"));
 
     openAction = new QAction(platformStyle->TextColorIcon(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a komodo: URI or payment request"));
@@ -410,6 +410,9 @@ void KomodoOceanGUI::createActions()
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(showHelpMessageAction, SIGNAL(triggered()), this, SLOT(showHelpMessageClicked()));
     connect(openRPCConsoleAction, SIGNAL(triggered()), this, SLOT(showDebugWindow()));
+    setStyleSheet("background-color: lightGray;");
+    //hide all the bits that are for z addys
+    zsendCoinsAction->setVisible(false);
     // prevents an open debug window from becoming stuck/unusable on client shutdown
     connect(quitAction, SIGNAL(triggered()), rpcConsole, SLOT(hide()));
 
@@ -423,7 +426,7 @@ void KomodoOceanGUI::createActions()
         connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
         connect(usedSendingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedSendingAddresses()));
         connect(usedReceivingAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingAddresses()));
-        connect(usedReceivingZAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingZAddresses()));
+        //connect(usedReceivingZAddressesAction, SIGNAL(triggered()), walletFrame, SLOT(usedReceivingZAddresses()));
         connect(openAction, SIGNAL(triggered()), this, SLOT(openClicked()));
         connect(m_mask_values_action, &QAction::toggled, this, &KomodoOceanGUI::setPrivacy);
     }
@@ -454,7 +457,7 @@ void KomodoOceanGUI::createMenuBar()
         file->addSeparator();
         file->addAction(usedSendingAddressesAction);
         file->addAction(usedReceivingAddressesAction);
-        file->addAction(usedReceivingZAddressesAction);
+        //file->addAction(usedReceivingZAddressesAction);
         file->addSeparator();
     }
     file->addAction(quitAction);
@@ -601,7 +604,7 @@ void KomodoOceanGUI::setWalletActionsEnabled(bool enabled)
     verifyMessageAction->setEnabled(enabled);
     usedSendingAddressesAction->setEnabled(enabled);
     usedReceivingAddressesAction->setEnabled(enabled);
-    usedReceivingZAddressesAction->setEnabled(enabled);
+    //usedReceivingZAddressesAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
 }
 

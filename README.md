@@ -1,19 +1,25 @@
-# KomodoOcean (komodo-qt) #
+# DigitalPrice-qt #
 
-![Downloads](https://img.shields.io/github/downloads/DeckerSU/KomodoOcean/total)
+![Downloads](https://img.shields.io/github/downloads/DigitalPrice/DP-Wallet/total)
 
-![](./doc/images/komodo-qt-promo-2020-01.jpg)
+![](./doc/images/dp-qt-promo-2020-01.jpg)
 
-Komodo-Qt (KomodoOcean) is a world-first Qt native wallet for KMD ([Komodo](https://komodoplatform.com/)) and smartchains (assetchains). It's available for three OS platforms - Windows, Linux, MacOS.
+DigitalPrice-Qt is a world-first Qt native wallet for DP ([DigitalPrice](https://digitalprice.org/)). It's available for three OS platforms - Windows, Linux, MacOS.
 
-Use the default `static` branch and following scripts to build:
+**NB!** We have three branches:
 
-- Linux: `build.sh` (native build)
+
+- [static](../../tree/static) for tested public master.
+- [beta](../../tree/beta) for testing before release.
+- [dev](../../tree/dev) for incomplete, untested, or in-process development.
+
+Only one branch ([static](../../tree/static)) is needed for building executable DigitalPrice-Qt binaries for all 3 major OSs.
+
+Use the following scripts to build:
+
+- Linux: `build-linux.sh` (native build)
 - Windows: `build-win.sh` (cross-compilation for Win)
-- MacOS: `build-mac-cross.sh` (cross-compilation for OSX)
 - MacOS: `build-mac.sh` (native build)
-
-Visit [#wallet-ocean-qt](https://discord.gg/U5WWaJR) channel in Komodo Discord for more information.
 
 ## How to build? ##
 
@@ -25,7 +31,7 @@ sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoco
 ```
 
 ```shell
-git clone https://github.com/DeckerSU/KomodoOcean --branch static --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
@@ -33,36 +39,26 @@ cd komodo
 #This can take some time.
 ```
 
-#### OSX (Cross-compile)
 
-Before start, read the following docs: [depends](https://github.com/bitcoin/bitcoin/blob/master/depends/README.md), [macdeploy](https://github.com/bitcoin/bitcoin/blob/master/contrib/macdeploy/README.md) .
-
-Install dependencies:
-```
-sudo apt-get install curl librsvg2-bin libtiff-tools bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python3-setuptools libtinfo5 xorriso
-```
-
-Place prepared SDK file `Xcode-12.1-12A7403-extracted-SDK-with-libcxx-headers.tar.gz` in repo root, use `build-mac-cross.sh` script to build.
-
-#### OSX (Native)
+#### OSX
 Ensure you have [brew](https://brew.sh) and Command Line Tools installed.
 ```shell
 # Install brew
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 # Install Xcode, opens a pop-up window to install CLT without installing the entire Xcode package
-xcode-select --install 
+xcode-select --install
 # Update brew and install dependencies
 brew update
 brew upgrade
 brew tap discoteq/discoteq; brew install flock
 brew install autoconf autogen automake
-# brew install gcc@6
+brew install gcc@6
 brew install binutils
 brew install protobuf
 brew install coreutils
 brew install wget
 # Clone the Komodo repo
-git clone https://github.com/DeckerSU/KomodoOcean --branch static --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 # Change master branch to other branch you wish to compile
 cd komodo
 ./zcutil/fetch-params.sh
@@ -84,16 +80,16 @@ sudo update-alternatives --config x86_64-w64-mingw32-gcc
 sudo update-alternatives --config x86_64-w64-mingw32-g++
 # (configure to use POSIX variant)
 
-git clone https://github.com/DeckerSU/KomodoOcean --branch static --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
 ./zcutil/build-win.sh -j8
 #This can take some time.
 ```
-**komodo is experimental and a work-in-progress.** Use at your own risk.
+**DigitalPrice is experimental and a work-in-progress.** Use at your own risk.
 
-*p.s.* Currently only `x86_64` arch supported for MacOS, build for `Apple M1` processors unfortunately not yet supported.
+
 
 ## Developers of Qt wallet ##
 

@@ -1,0 +1,171 @@
+name: DPOcean Auto-release
+
+on:
+  push:
+    branches:
+    - static
+
+jobs:
+
+  linux-build:
+    name: Linux Build
+    runs-on: ubuntu-18.04
+    steps:
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Shortify commit sha
+        shell: bash
+        run: echo "##[set-output name=sha_short;]$(echo ${GITHUB_SHA::7})"
+        id: shortify_commit
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install deps (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -q autoconf automake bsdmainutils build-essential g++-multilib libc6-dev libcurl4-gnutls-dev libtool ncurses-dev python-zmq unzip zlib1g-dev -y
+      - name: Build (Linux)
+        run: |
+          ./zcutil/build.sh
+          mv src/qt/komodo-qt src/qt/DP-qt-linux
+          zip --junk-paths DP-qt-linux src/qt/DP-qt-linux
+      - name: Upload DP-qt-linux.zip as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: DP-qt-linux
+          path: ./DP-qt-linux.zip
+
+  Mac-build:
+    name: Mac Build
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install deps (macOS)
+        run: |
+          brew uninstall openssl@1.0.2t
+          brew uninstall python@2.7.17
+          brew untap local/openssl
+          brew untap local/python2
+          brew update
+          brew upgrade
+          brew tap discoteq/discoteq
+          brew install autoconf autogen automake
+          brew install binutils
+          brew install coreutils
+          brew install flock
+          brew install gcc@6
+          brew install protobuf
+
+      - name: Build (macOS)
+        run: |
+          ./zcutil/build-mac.sh
+          mv src/qt/komodo-qt src/qt/DP-qt-mac
+          zip --junk-paths DP-qt-mac src/qt/DP-qt-mac
+      - name: Upload DP-qt-mac.zip as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: DP-qt-mac
+          path: ./DP-qt-mac.zip
+
+  windows-build:
+    name: Windows Build (mingw)
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install deps (Windows)
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -q autoconf automake bsdmainutils build-essential g++-multilib libboost-all-dev libc6-dev libcurl4-gnutls-dev libdb++-dev libevent-dev libncurses-dev libprotobuf-dev -y
+          sudo apt-get install -q libqrencode-dev libsodium-dev libssl-dev libtool mingw-w64 ncurses-dev protobuf-compiler python-zmq software-properties-common zlib1g-dev -y
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup target add x86_64-pc-windows-gnu
+          sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+          sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+      - name: Build (Windows)
+        run: |
+          ./zcutil/build-win.sh
+          mv src/qt/komodo-qt.exe src/qt/DP-qt-win.exe
+          zip --junk-paths DP-qt-win src/qt/DP-qt-win.exe
+      - name: Upload DP-qt-win.zip as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: DP-qt-win
+          path: ./DP-qt-win.zip      
+
+  publish-release:
+      name: Publishing CD releases
+      runs-on: ubuntu-latest
+      needs: [linux-build, Mac-build, windows-build]
+      steps:
+        - name: Download DP-qt-linux.zip
+          uses: actions/download-artifact@v1
+          with:
+            name: DP-qt-linux  
+        - name: Download DP-qt-mac.zip
+          uses: actions/download-artifact@v1
+          with:
+            name: DP-qt-mac
+        - name: Download DP-qt-win.zip
+          uses: actions/download-artifact@v1
+          with:
+            name: DP-qt-win
+
+        - name: Extract branch name
+          shell: bash
+          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          id: extract_branch
+
+        - name: Shortify commit sha
+          shell: bash
+          run: echo "##[set-output name=sha_short;]$(echo ${GITHUB_SHA::7})"
+          id: shortify_commit
+
+        - name: Create Release
+          id: create_release
+          uses: actions/create-release@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            tag_name: release_${{ steps.shortify_commit.outputs.sha_short }}
+            release_name: Master Release at ${{ steps.shortify_commit.outputs.sha_short }}
+            draft: false
+            prerelease: false
+        - name: Upload Linux Release Asset
+          id: upload-linux-release-asset 
+          uses: actions/upload-release-asset@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }} 
+            asset_path: DP-qt-linux/DP-qt-linux.zip
+            asset_name: ${{ steps.shortify_commit.outputs.sha_short }}_DP_linux.zip
+            asset_content_type: application/zip
+        - name: Upload Mac Release Asset
+          id: upload-mac-release-asset 
+          uses: actions/upload-release-asset@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }} 
+            asset_path: DP-qt-mac/DP-qt-mac.zip
+            asset_name: ${{ steps.shortify_commit.outputs.sha_short }}_DP_mac.zip
+            asset_content_type: application/zip
+        - name: Upload Windows Release Asset
+          id: upload-windows-release-asset 
+          uses: actions/upload-release-asset@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }} 
+            asset_path: DP-qt-win/DP-qt-win.zip
+            asset_name: ${{ steps.shortify_commit.outputs.sha_short }}_DP_win.zip
+            asset_content_type: application/zip
