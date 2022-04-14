@@ -1,6 +1,10 @@
 # DigitalPrice-qt #
 
-![Downloads](https://img.shields.io/github/downloads/DigitalPrice/DP-Wallet/total)
+![Downloads](https://img.shields.io/github/downloads/DigitalPrice/DP-Wallet/total)  
+Releases current for:  
+[![](https://actionvirtualenvironmentsstatus.azurewebsites.net/api/status?imageName=ubuntu20&badge=1)]
+[![](https://actionvirtualenvironmentsstatus.azurewebsites.net/api/status?imageName=macos-11&badge=1)]
+[![](https://actionvirtualenvironmentsstatus.azurewebsites.net/api/status?imageName=windows-2022&badge=1)]
 
 ![](./doc/images/dp-qt-promo-2020-01.jpg)
 

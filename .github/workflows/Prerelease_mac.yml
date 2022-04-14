@@ -1,0 +1,91 @@
+name: DPOcean Auto-release MacOS
+
+on:
+  push:
+    branches:
+    - dev
+
+jobs:
+
+  Mac-build:
+    name: Mac Build
+    runs-on: macos-latest
+    steps:
+      - name: Extract branch name
+        shell: bash
+        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+        id: extract_branch
+
+      - name: Shortify commit sha
+        shell: bash
+        run: echo "##[set-output name=sha_short;]$(echo ${GITHUB_SHA::7})"
+        id: shortify_commit
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install deps (macOS)
+        run: |
+          brew update
+          brew upgrade
+          brew tap discoteq/discoteq
+          brew install autoconf autogen automake
+          brew install binutils
+          brew install coreutils
+          brew install flock
+          brew install wget
+          brew install protobuf
+
+      - name: Build (macOS)
+        run: |
+          ./zcutil/build-mac.sh
+          mv src/qt/komodo-qt src/qt/DP-qt-mac
+          zip --junk-paths DP-qt-mac src/qt/DP-qt-mac
+
+      - name: Upload DP-qt-mac.zip as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: DP-qt-mac
+          path: ./DP-qt-mac.zip     
+
+  publish-release:
+      name: Publishing CD releases
+      runs-on: ubuntu-latest
+      needs: Mac-build
+      steps: 
+        - name: Download DP-qt-mac.zip
+          uses: actions/download-artifact@v1
+          with:
+            name: DP-qt-mac
+
+        - name: Extract branch name
+          shell: bash
+          run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/heads/})"
+          id: extract_branch
+
+        - name: Shortify commit sha
+          shell: bash
+          run: echo "##[set-output name=sha_short;]$(echo ${GITHUB_SHA::7})"
+          id: shortify_commit
+
+        - name: Create Release
+          id: create_release
+          uses: actions/create-release@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            tag_name: release_${{ steps.shortify_commit.outputs.sha_short }}
+            release_name: MacOS Prerelease at ${{ steps.shortify_commit.outputs.sha_short }}
+            draft: false
+            prerelease: true
+
+        - name: Upload Mac Release Asset
+          id: upload-mac-release-asset 
+          uses: actions/upload-release-asset@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }} 
+            asset_path: DP-qt-mac/DP-qt-mac.zip
+            asset_name: ${{ steps.shortify_commit.outputs.sha_short }}_DP_mac.zip
+            asset_content_type: application/zip

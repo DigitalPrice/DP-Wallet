@@ -9,7 +9,7 @@ jobs:
 
   linux-build:
     name: Linux Build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
 
       - name: Extract branch name
@@ -29,7 +29,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get upgrade -y
-          sudo apt-get install -q autoconf automake bsdmainutils build-essential g++-multilib libc6-dev libcurl4-gnutls-dev libtool ncurses-dev python-zmq unzip zlib1g-dev -y
+          sudo apt-get install -q autoconf automake bsdmainutils build-essential g++-multilib libc6-dev libcurl4-gnutls-dev libtool ncurses-dev bison unzip zlib1g-dev -y
       - name: Build (Linux)
         run: |
           ./zcutil/build.sh
@@ -43,15 +43,11 @@ jobs:
 
   Mac-build:
     name: Mac Build
-    runs-on: macos-10.15
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
       - name: Install deps (macOS)
         run: |
-          brew uninstall openssl@1.0.2t
-          brew uninstall python@2.7.17
-          brew untap local/openssl
-          brew untap local/python2
           brew update
           brew upgrade
           brew tap discoteq/discoteq
@@ -59,7 +55,7 @@ jobs:
           brew install binutils
           brew install coreutils
           brew install flock
-          brew install gcc@6
+          brew install wget
           brew install protobuf
 
       - name: Build (macOS)
@@ -75,7 +71,7 @@ jobs:
 
   windows-build:
     name: Windows Build (mingw)
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -84,7 +80,7 @@ jobs:
           sudo apt-get update
           sudo apt-get upgrade -y
           sudo apt-get install -q autoconf automake bsdmainutils build-essential g++-multilib libboost-all-dev libc6-dev libcurl4-gnutls-dev libdb++-dev libevent-dev libncurses-dev libprotobuf-dev -y
-          sudo apt-get install -q libqrencode-dev libsodium-dev libssl-dev libtool mingw-w64 ncurses-dev protobuf-compiler python-zmq software-properties-common zlib1g-dev -y
+          sudo apt-get install -q libqrencode-dev libsodium-dev libssl-dev libtool mingw-w64 ncurses-dev protobuf-compiler software-properties-common zlib1g-dev -y
           curl https://sh.rustup.rs -sSf | sh -s -- -y
           source $HOME/.cargo/env
           rustup target add x86_64-pc-windows-gnu
