@@ -37,9 +37,10 @@ then
     HARDENING_ARG='--disable-hardening'
     shift
 fi
-
+sed -i.old -e 's|\(CURVE=ALT_BN128[ \t]*MULTICORE=\)\([0-9]\{1,\}\)|\10|' ./depends/packages/libsnark.mk
+make -C ${PWD}/depends v=1 NO_PROTON=1 HOST=x86_64-apple-darwin18 -j$(nproc --all)
 TRIPLET=`./depends/config.guess`
-PREFIX="$(pwd)/depends/$TRIPLET"
+PREFIX="$(PWD)/depends/$TRIPLET"
 
 make "$@" -C ./depends/ V=1 # NO_PROTON=1
 
@@ -53,6 +54,6 @@ CPPFLAGS="-I$PREFIX/include -arch x86_64" LDFLAGS="-L$PREFIX/lib -arch x86_64 -W
 # step will cause an error and static Qt plugins will not be linked.
 
 CXXFLAGS='-arch x86_64 -I/usr/local/Cellar/gcc\@8/8.3.0/include/c++/8.3.0/ '"-I${PREFIX}/include"' -fwrapv -fno-strict-aliasing -g0 -O2 -Wl,-undefined -Wl,dynamic_lookup' \
-./configure --prefix="${PREFIX}" --disable-bip70 --with-gui=qt5 --enable-tests=no "$HARDENING_ARG" "$LCOV_ARG"
+./configure --prefix="${PREFIX}" --disable-bip70 --with-gui=qt5 --disable-tests --disable-bench "$HARDENING_ARG" "$LCOV_ARG"
 
 make "$@" V=1 NO_GTEST=1 STATIC=1
