@@ -62,6 +62,8 @@ bool fSendFreeTransactions = false;
 bool fPayAtLeastCustomFee = true;
 #include "komodo_defs.h"
 
+const char * DEFAULT_WALLET_DAT = "wallet.dat";
+
 bool fWalletRbf = DEFAULT_WALLET_RBF;
 
 CBlockIndex *komodo_chainactive(int32_t height);
@@ -1783,48 +1785,6 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
         }
         if (fExisted || IsMine(tx) || IsFromMe(tx) || sproutNoteData.size() > 0 || saplingNoteData.size() > 0)
         {
-            /**
-             * New implementation of wallet filter code.
-             *
-             * If any vout of tx is belongs to wallet (IsMine(tx) == true) and tx
-             * is not from us, mean, if every vin not belongs to our wallet
-             * (IsFromMe(tx) == false), then tx need to be checked through wallet
-             * filter. If tx haven't any vin from trusted / whitelisted address it
-             * shouldn't be added into wallet.
-            */
-
-            if (!mapMultiArgs["-whitelistaddress"].empty())
-            {
-                if (IsMine(tx) && !tx.IsCoinBase() && !IsFromMe(tx))
-                {
-                    bool fIsFromWhiteList = false;
-                    BOOST_FOREACH(const CTxIn& txin, tx.vin)
-                    {
-                        if (fIsFromWhiteList) break;
-                        uint256 hashBlock; CTransaction prevTx; CTxDestination dest;
-                        if (GetTransaction(txin.prevout.hash, prevTx, hashBlock, true) && ExtractDestination(prevTx.vout[txin.prevout.n].scriptPubKey,dest))
-                        {
-                            BOOST_FOREACH(const std::string& strWhiteListAddress, mapMultiArgs["-whitelistaddress"])
-                            {
-                                if (EncodeDestination(dest) == strWhiteListAddress)
-                                {
-                                    fIsFromWhiteList = true;
-                                    // std::cerr << __FUNCTION__ << " tx." << tx.GetHash().ToString() << " passed wallet filter! whitelistaddress." << EncodeDestination(dest) << std::endl;
-                                    LogPrintf("tx.%s passed wallet filter! whitelistaddress.%s\n", tx.GetHash().ToString(),EncodeDestination(dest));
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (!fIsFromWhiteList)
-                    {
-                        // std::cerr << __FUNCTION__ << " tx." << tx.GetHash().ToString() << " is NOT passed wallet filter!" << std::endl;
-                        LogPrintf("tx.%s is NOT passed wallet filter!\n", tx.GetHash().ToString());
-                        return false;
-                    }
-                }
-            }
-
             CWalletTx wtx(this,tx);
 
             if (sproutNoteData.size() > 0) {
@@ -1851,6 +1811,51 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
 
 void CWallet::SyncTransaction(const CTransaction& tx, const CBlock* pblock)
 {
+    /**
+     * New implementation of wallet filter code.
+     *
+     * If any vout of tx is belongs to wallet (IsMine(tx) == true) and tx
+     * is not from us, mean, if every vin not belongs to our wallet
+     * (IsFromMe(tx) == false), then tx need to be checked through wallet
+     * filter. If tx haven't any vin from trusted / whitelisted address it
+     * shouldn't be added into wallet.
+    */
+
+    if (!mapMultiArgs["-whitelistaddress"].empty())
+    {
+        if (IsMine(tx) && !tx.IsCoinBase() && !IsFromMe(tx))
+        {
+            bool fIsFromWhiteList = false;
+
+            BOOST_FOREACH(const CTxIn& txin, tx.vin)
+            {
+                if (fIsFromWhiteList) break;
+                uint256 hashBlock; CTransaction prevTx; CTxDestination dest;
+                // GetTransaction locking cs_main inside, so this wallet filter code should be before cs_wallet locak, to save the order of locking
+                if (GetTransaction(txin.prevout.hash, prevTx, hashBlock, true) && ExtractDestination(prevTx.vout[txin.prevout.n].scriptPubKey,dest))
+                {
+                    BOOST_FOREACH(const std::string& strWhiteListAddress, mapMultiArgs["-whitelistaddress"])
+                    {
+                        if (EncodeDestination(dest) == strWhiteListAddress)
+                        {
+                            fIsFromWhiteList = true;
+                            // std::cerr << __FUNCTION__ << " tx." << tx.GetHash().ToString() << " passed wallet filter! whitelistaddress." << EncodeDestination(dest) << std::endl;
+                            LogPrintf("tx.%s passed wallet filter! whitelistaddress.%s\n", tx.GetHash().ToString(),EncodeDestination(dest));
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!fIsFromWhiteList)
+            {
+                // std::cerr << __FUNCTION__ << " tx." << tx.GetHash().ToString() << " is NOT passed wallet filter!" << std::endl;
+                LogPrintf("tx.%s is NOT passed wallet filter!\n", tx.GetHash().ToString());
+                return;
+            }
+        }
+    }
+
     LOCK(cs_wallet);
     if (!AddToWalletIfInvolvingMe(tx, pblock, true))
         return; // Not one of ours
@@ -3445,7 +3450,7 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                     !IsLockedCoin((*it).first, i) && (pcoin->vout[i].nValue > 0 || fIncludeZeroValue) &&
                     (!coinControl || !coinControl->HasSelected() || coinControl->IsSelected((*it).first, i)))
                 {
-                    if ( KOMODO_EXCHANGEWALLET == 0 )
+                    if ( !IS_MODE_EXCHANGEWALLET )
                     {
                         uint32_t locktime; int32_t txheight; CBlockIndex *tipindex;
                         if ( ASSETCHAINS_SYMBOL[0] == 0 && chainActive.LastTip() != 0 && chainActive.LastTip()->GetHeight() >= 60000 )
@@ -3636,30 +3641,20 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
         {
             setCoinsRet.insert(coin.second);
             nValueRet += coin.first;
-            //if ( KOMODO_EXCHANGEWALLET == 0 )
-            //    *interestp += pcoin->vout[i].interest;
             return true;
         }
         else if (n < nTargetValue + CENT)
         {
             vValue.push_back(coin);
             nTotalLower += n;
-            //if ( KOMODO_EXCHANGEWALLET == 0 && count < sizeof(interests)/sizeof(*interests) )
-            //{
-                //LogPrintf("count.%d %.8f\n",count,(double)pcoin->vout[i].interest/COIN);
-                //interests[count++] = pcoin->vout[i].interest;
-            //}
             if ( nTotalLower > 4*nTargetValue + CENT )
             {
-                //LogPrintf("why bother with all the utxo if we have double what is needed?\n");
                 break;
             }
         }
         else if (n < coinLowestLarger.first)
         {
             coinLowestLarger = coin;
-            //if ( KOMODO_EXCHANGEWALLET == 0 )
-            //    lowest_interest = pcoin->vout[i].interest;
         }
     }
 
@@ -3669,8 +3664,6 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
         {
             setCoinsRet.insert(vValue[i].second);
             nValueRet += vValue[i].first;
-            //if ( KOMODO_EXCHANGEWALLET == 0 && i < count )
-            //    *interestp += interests[i];
         }
         return true;
     }
@@ -3681,8 +3674,6 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
             return false;
         setCoinsRet.insert(coinLowestLarger.second);
         nValueRet += coinLowestLarger.first;
-        //if ( KOMODO_EXCHANGEWALLET == 0 )
-        //    *interestp += lowest_interest;
         return true;
     }
 
@@ -3702,8 +3693,6 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
     {
         setCoinsRet.insert(coinLowestLarger.second);
         nValueRet += coinLowestLarger.first;
-        //if ( KOMODO_EXCHANGEWALLET == 0 )
-        //    *interestp += lowest_interest;
     }
     else {
         for (unsigned int i = 0; i < vValue.size(); i++)
@@ -3711,8 +3700,6 @@ bool CWallet::SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int
             {
                 setCoinsRet.insert(vValue[i].second);
                 nValueRet += vValue[i].first;
-                //if ( KOMODO_EXCHANGEWALLET == 0 && i < count )
-                //    *interestp += interests[i];
             }
 
         LogPrint("selectcoins", "SelectCoins() best subset: ");
@@ -3729,11 +3716,6 @@ bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*
 {
     // Output parameter fOnlyCoinbaseCoinsRet is set to true when the only available coins are coinbase utxos.
     uint64_t tmp; int32_t retval;
-    //if ( interestp == 0 )
-    //{
-    //    interestp = &tmp;
-    //    *interestp = 0;
-    //}
     vector<COutput> vCoinsNoCoinbase, vCoinsWithCoinbase;
     AvailableCoins(vCoinsNoCoinbase, true, coinControl, false, false);
     AvailableCoins(vCoinsWithCoinbase, true, coinControl, false, true);
@@ -3751,7 +3733,7 @@ bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*
                 continue;
             }
             value += out.tx->vout[out.i].nValue;
-            if ( KOMODO_EXCHANGEWALLET == 0 )
+            if ( !IS_MODE_EXCHANGEWALLET )
                 value += out.tx->vout[out.i].interest;
         }
         if (value <= nTargetValue) {
@@ -3761,7 +3743,7 @@ bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*
                     continue;
                 }
                 valueWithCoinbase += out.tx->vout[out.i].nValue;
-                if ( KOMODO_EXCHANGEWALLET == 0 )
+                if ( !IS_MODE_EXCHANGEWALLET )
                     valueWithCoinbase += out.tx->vout[out.i].interest;
             }
             fNeedCoinbaseCoinsRet = (valueWithCoinbase >= nTargetValue);
@@ -3775,8 +3757,6 @@ bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*
             if (!out.fSpendable)
                  continue;
             nValueRet += out.tx->vout[out.i].nValue;
-            //if ( KOMODO_EXCHANGEWALLET == 0 )
-            //    *interestp += out.tx->vout[out.i].interest;
             setCoinsRet.insert(make_pair(out.tx, out.i));
         }
         return (nValueRet >= nTargetValue);
@@ -3798,7 +3778,7 @@ bool CWallet::SelectCoins(const CAmount& nTargetValue, set<pair<const CWalletTx*
             if (pcoin->vout.size() <= outpoint.n)
                 return false;
             nValueFromPresetInputs += pcoin->vout[outpoint.n].nValue;
-            if ( KOMODO_EXCHANGEWALLET == 0 )
+            if ( !IS_MODE_EXCHANGEWALLET )
                 nValueFromPresetInputs += pcoin->vout[outpoint.n].interest;
             setPresetCoins.insert(make_pair(pcoin, outpoint.n));
         } else
@@ -4017,7 +3997,7 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                     //a chance at a free transaction.
                     //But mempool inputs might still be in the mempool, so their age stays 0
                     //LogPrintf("nCredit %.8f interest %.8f\n",(double)nCredit/COIN,(double)pcoin.first->vout[pcoin.second].interest/COIN);
-                    if ( KOMODO_EXCHANGEWALLET == 0 && ASSETCHAINS_SYMBOL[0] == 0 )
+                    if ( !IS_MODE_EXCHANGEWALLET && ASSETCHAINS_SYMBOL[0] == 0 )
                     {
                         interest2 += pcoin.first->vout[pcoin.second].interest;
                         //LogPrintf("%.8f ",(double)pcoin.first->vout[pcoin.second].interest/COIN);
@@ -4027,11 +4007,6 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
                         age += 1;
                     dPriority += (double)nCredit * age;
                 }
-                //if ( KOMODO_EXCHANGEWALLET != 0 )
-                //{
-                    //LogPrintf("KOMODO_EXCHANGEWALLET disable interest sum %.8f, interest2 %.8f\n",(double)interest/COIN,(double)interest2/COIN);
-                    //interest = 0; // interest2 also
-                //}
                 if ( ASSETCHAINS_SYMBOL[0] == 0 && DONATION_PUBKEY.size() == 66 && interest2 > 5000 )
                 {
                     CScript scriptDonation = CScript() << ParseHex(DONATION_PUBKEY) << OP_CHECKSIG;

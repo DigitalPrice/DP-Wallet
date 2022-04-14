@@ -7,9 +7,9 @@ else
 endif
 
 qt_native_packages = native_protobuf
-qt_packages = qrencode protobuf zlib
+qt_packages = qrencode protobuf
 
-qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig
+qt_linux_packages:=qt expat libxcb xcb_proto libXau xproto freetype fontconfig libxkbcommon
 qt_android_packages=qt
 
 qt_darwin_packages=qt
@@ -50,17 +50,20 @@ rust_crates := \
   crate_winapi_i686_pc_windows_gnu \
   crate_winapi \
   crate_winapi_x86_64_pc_windows_gnu
+
 rust_packages := rust $(rust_crates) librustzcash
 native_packages := native_ccache
 
 wallet_packages=bdb
 
-ifeq ($(host_os),linux)
-	packages := boost openssl libevent zeromq $(zcash_packages) googletest googlemock libcurl
-else
-	packages := boost openssl libevent zeromq $(zcash_packages) googletest googlemock libcurl
+packages := boost openssl libevent zeromq $(zcash_packages) googletest libcurl # googlemock
+
+ifneq ($(build_os),darwin)
+darwin_native_packages += native_cctools native_libtapi native_cdrkit
+ifeq ($(strip $(FORCE_USE_SYSTEM_CLANG)),)
+darwin_native_packages+= native_clang
 endif
-
-native_packages := native_ccache
-
-wallet_packages=bdb
+ifeq ($(host_os),darwin)
+packages += libsnark
+endif
+endif

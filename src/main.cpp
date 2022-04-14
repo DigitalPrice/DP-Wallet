@@ -52,6 +52,7 @@
 #include "wallet/asyncrpcoperation_shieldcoinbase.h"
 #include "policy/fees.h"
 #include "notaries_staked.h"
+#include "komodo_extern_globals.h"
 
 #include <cstring>
 #include <algorithm>
@@ -649,7 +650,6 @@ CBlockTreeDB *pblocktree = NULL;
 
 // Komodo globals
 
-#define KOMODO_ZCASH
 #include "komodo.h"
 
 UniValue komodo_snapshot(int top)
@@ -1162,10 +1162,6 @@ bool ContextualCheckCoinbaseTransaction(int32_t slowflag,const CBlock *block,CBl
         }
         return(false);
     }
-    else if ( ASSETCHAINS_MARMARA != 0 && nHeight > 0 && (nHeight & 1) == 0 )
-    {
-        
-    }
     else if ( slowflag != 0 && ASSETCHAINS_CBOPRET != 0 && validateprices != 0 && nHeight > 0 && tx.vout.size() > 0 )
     {
         if ( komodo_opretvalidate(block,previndex,nHeight,tx.vout[tx.vout.size()-1].scriptPubKey) < 0 )
@@ -1432,6 +1428,7 @@ bool CheckTransaction(uint32_t tiptime,const CTransaction& tx, CValidationState 
     }
 }
 
+// ARRR notary exception
 int32_t komodo_isnotaryvout(char *coinaddr,uint32_t tiptime) // from ac_private chains only
 {
     int32_t season = getacseason(tiptime);
@@ -1458,7 +1455,7 @@ int32_t komodo_acpublic(uint32_t tiptime);
 bool CheckTransactionWithoutProofVerification(uint32_t tiptime,const CTransaction& tx, CValidationState &state)
 {
     // Basic checks that don't depend on any context
-    int32_t invalid_private_taddr=0,z_z=0,z_t=0,t_z=0,acpublic = komodo_acpublic(tiptime);
+    int32_t invalid_private_taddr=0,z_z=0,z_t=0,t_z=0,acpublic = komodo_acpublic(tiptime), current_season = getacseason(tiptime);
     /**
      * Previously:
      * 1. The consensus rule below was:
@@ -1568,9 +1565,18 @@ bool CheckTransactionWithoutProofVerification(uint32_t tiptime,const CTransactio
     }
     if ( ASSETCHAINS_PRIVATE != 0 && invalid_private_taddr != 0 && tx.vShieldedSpend.empty() == 0 )
     {
-        return state.DoS(100, error("CheckTransaction(): this is a private chain, no sapling -> taddr"),
-                         REJECT_INVALID, "bad-txns-acprivate-chain");
+        if ( !( current_season > 5 &&
+                tx.vin.size() == 0 &&
+                tx.vout.size() == 2 &&
+                tx.vout[0].scriptPubKey.IsPayToScriptHash() &&
+                tx.vout[0].scriptPubKey.IsRedeemScriptReveal(tx.vout[1].scriptPubKey) )) {
+                    return state.DoS(100, error("CheckTransaction(): this is a private chain, no sapling -> taddr"),
+                                     REJECT_INVALID, "bad-txns-acprivate-chain");
+                } else {
+                    invalid_private_taddr = false;
+                }
     }
+
     // Check for overflow valueBalance
     if (tx.valueBalance > MAX_MONEY || tx.valueBalance < -MAX_MONEY) {
         return state.DoS(100, error("CheckTransaction(): abs(tx.valueBalance) too large"),
@@ -2270,7 +2276,7 @@ bool myGetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &hashBlo
             return true;
         }
     }
-    //fprintf(stderr,"not found on disk %s\n",hash.GetHex().c_str());
+    //LogPrintf("not found on disk %s\n",hash.GetHex().c_str());
     return false;
 }
 
@@ -3546,7 +3552,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     // DERSIG (BIP66) is also always enforced, but does not have a flag.
 
     CBlockUndo blockundo;
-
+    /*
     if ( ASSETCHAINS_CC != 0 )
     {
         if ( scriptcheckqueue.IsIdle() == 0 )
@@ -3559,6 +3565,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
 #endif
         }
     }
+    */
     CCheckQueueControl<CScriptCheck> control(fExpensiveChecks && nScriptCheckThreads ? &scriptcheckqueue : NULL);
 
     int64_t nTimeStart = GetTimeMicros();
@@ -3770,6 +3777,9 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
     LogPrint("bench", "      - Connect %u transactions: %.2fms (%.3fms/tx, %.3fms/txin) [%.2fs]\n", (unsigned)block.vtx.size(), 0.001 * (nTime1 - nTimeStart), 0.001 * (nTime1 - nTimeStart) / block.vtx.size(), nInputs <= 1 ? 0 : 0.001 * (nTime1 - nTimeStart) / (nInputs-1), nTimeConnect * 0.000001);
 
     blockReward += nFees + sum;
+    if ( ASSETCHAINS_SYMBOL[0] == 0 && pindex->GetHeight() >= KOMODO_NOTARIES_HEIGHT2)
+        blockReward -= sum;
+
     if ( ASSETCHAINS_COMMISSION != 0 || ASSETCHAINS_FOUNDERS_REWARD != 0 ) //ASSETCHAINS_OVERRIDE_PUBKEY33[0] != 0 &&
     {
         uint64_t checktoshis;
@@ -3796,7 +3806,7 @@ bool ConnectBlock(const CBlock& block, CValidationState& state, CBlockIndex* pin
                              error("ConnectBlock(): coinbase pays too much (actual=%d vs limit=%d)",
                                    block.vtx[0].GetValueOut(), blockReward),
                              REJECT_INVALID, "bad-cb-amount");
-        } else if ( IS_KOMODO_NOTARY != 0 )
+        } else if ( IS_KOMODO_NOTARY )
             LogPrintf("allow nHeight.%d coinbase %.8f vs %.8f interest %.8f\n",(int32_t)pindex->GetHeight(),dstr(block.vtx[0].GetValueOut()),dstr(blockReward),dstr(sum));
     }
     if (!control.Wait())
@@ -5202,7 +5212,7 @@ bool CheckBlock(int32_t *futureblockp,int32_t height,CBlockIndex *pindex,const C
     {
         int32_t notaryid;
         int32_t special = komodo_chosennotary(&notaryid,height,pubkey33,tiptime);
-        if (notaryid > 0) {
+        if (notaryid > 0 || ( notaryid == 0 && height > nS5HardforkHeight ) ) {
             CScript merkleroot = CScript();
             CBlock blockcopy = block; // block shouldn't be changed below, so let's make it's copy
             CBlock *pblockcopy = (CBlock *)&blockcopy;
@@ -5911,8 +5921,10 @@ bool TestBlockValidity(CValidationState &state, const CBlock& block, CBlockIndex
 /* Calculate the amount of disk space the block & undo files currently use */
 uint64_t CalculateCurrentUsage()
 {
+    LOCK(cs_LastBlockFile);
+
     uint64_t retval = 0;
-    BOOST_FOREACH(const CBlockFileInfo &file, vinfoBlockFile) {
+    for (const CBlockFileInfo &file : vinfoBlockFile) {
         retval += file.nSize + file.nUndoSize;
     }
     return retval;
@@ -6048,6 +6060,13 @@ bool CheckDiskSpace(uint64_t nAdditionalBytes)
     return true;
 }
 
+/****
+ * Open a file
+ * @param pos where to position for the next read
+ * @param prefix the type of file (i.e. "blk", "rev", etc.
+ * @param fReadOnly open in read only mode
+ * @returns the file pointer or NULL on error
+ */
 FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
 {
     //static int32_t didinit[256];
@@ -6055,9 +6074,9 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
         return NULL;
     boost::filesystem::path path = GetBlockPosFilename(pos, prefix);
     boost::filesystem::create_directories(path.parent_path());
-    FILE* file = fopen(path.string().c_str(), "rb+");
+    FILE* file = fopen(path.string().c_str(), "rb+"); // open existing file for reading and writing
     if (!file && !fReadOnly)
-        file = fopen(path.string().c_str(), "wb+");
+        file = fopen(path.string().c_str(), "wb+"); // create an empty file for reading and writing
     if (!file) {
         LogPrintf("Unable to open file %s\n", path.string());
         return NULL;
@@ -6079,14 +6098,32 @@ FILE* OpenDiskFile(const CDiskBlockPos &pos, const char *prefix, bool fReadOnly)
     return file;
 }
 
+/***
+ * Open a block file
+ * @param pos where to position for the next read
+ * @param fReadOnly true to open the file in read only mode
+ * @returns the file pointer or NULL on error
+ */
 FILE* OpenBlockFile(const CDiskBlockPos &pos, bool fReadOnly) {
     return OpenDiskFile(pos, "blk", fReadOnly);
 }
 
+/***
+ * Open an undo ("rev") file
+ * @param pos where to position for the next read
+ * @param fReadOnly true to open the file in read only mode
+ * @returns the file pointer or NULL on error
+ */
 FILE* OpenUndoFile(const CDiskBlockPos &pos, bool fReadOnly) {
     return OpenDiskFile(pos, "rev", fReadOnly);
 }
 
+/***
+ * Get the full filename (including path) or a specific .dat file
+ * @param pos the block position
+ * @param prefix the prefix (i.e. "blk" or "rev")
+ * @returns the filename with the complete path
+ */
 boost::filesystem::path GetBlockPosFilename(const CDiskBlockPos &pos, const char *prefix)
 {
     return GetDataDir() / "blocks" / strprintf("%s%05u.dat", prefix, pos.nFile);
@@ -6606,6 +6643,10 @@ void UnloadBlockIndex()
     fHavePruned = false;
 }
 
+/***
+ * Load block index
+ * @returns true on success
+ */
 bool LoadBlockIndex()
 {
     // Load block index from databases
@@ -6647,7 +6688,7 @@ bool InitBlockIndex() {
         
         fSpentIndex = GetBoolArg("-spentindex", DEFAULT_SPENTINDEX);
         pblocktree->WriteFlag("spentindex", fSpentIndex);
-        fprintf(stderr,"fAddressIndex.%d/%d fSpentIndex.%d/%d\n",fAddressIndex,DEFAULT_ADDRESSINDEX,fSpentIndex,DEFAULT_SPENTINDEX);
+        LogPrintf("fAddressIndex.%d/%d fSpentIndex.%d/%d\n",fAddressIndex,DEFAULT_ADDRESSINDEX,fSpentIndex,DEFAULT_SPENTINDEX);
         LogPrintf("Initializing databases...\n");
     }
     // Only add the genesis block if not reindexing (in which case we reuse the one already on disk)
@@ -7127,6 +7168,17 @@ void static ProcessGetData(CNode* pfrom)
                         }
                     }
                 }
+                // disconnect node in case we have reached the outbound limit for serving historical blocks
+                // never disconnect whitelisted nodes
+                static const int nOneWeek = 7 * 24 * 60 * 60; // assume > 1 week = historical
+                if (send && CNode::OutboundTargetReached(true) && ( ((pindexBestHeader != NULL) && (pindexBestHeader->GetBlockTime() - mi->second->GetBlockTime() > nOneWeek)) || inv.type == MSG_FILTERED_BLOCK) && !pfrom->fWhitelisted)
+                {
+                    LogPrint("net", "historical block serving limit reached, disconnect peer=%d\n", pfrom->GetId());
+
+                    //disconnect node
+                    pfrom->fDisconnect = true;
+                    send = false;
+                }
                 // Pruned nodes may have deleted the block, so check whether
                 // it's available before trying to send.
                 if (send && (mi->second->nStatus & BLOCK_HAVE_DATA))
@@ -7420,7 +7472,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
         {
             if ( (pfrom->nServices & NODE_NSPV) == 0 )
             {
-                // fprintf(stderr,"invalid nServices.%llx nSPV peer.%d\n",(long long)pfrom->nServices,pfrom->id);
+                // LogPrintf("invalid nServices.%llx nSPV peer.%d\n",(long long)pfrom->nServices,pfrom->id);
                 pfrom->fDisconnect = true;
                 return false;
             }
@@ -7808,12 +7860,6 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             }
             pfrom->PushMessage("headers", vHeaders);
         }
-        /*else if ( IS_KOMODO_NOTARY != 0 )
-        {
-            static uint32_t counter;
-            if ( counter++ < 3 )
-                LogPrintf("you can ignore redundant getheaders from peer.%d %d prev.%d\n",(int32_t)pfrom->id,(int32_t)(pindex ? pindex->GetHeight() : -1),pfrom->lasthdrsreq);
-        }*/
     }
 
 
@@ -8081,6 +8127,14 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
 
     else if (strCommand == "mempool")
     {
+
+        if (CNode::OutboundTargetReached(false) && !pfrom->fWhitelisted)
+        {
+            LogPrint("net", "mempool request with bandwidth limit reached, disconnect peer=%d\n", pfrom->GetId());
+            pfrom->fDisconnect = true;
+            return true;
+        }
+
         LOCK2(cs_main, pfrom->cs_filter);
 
         std::vector<uint256> vtxid;

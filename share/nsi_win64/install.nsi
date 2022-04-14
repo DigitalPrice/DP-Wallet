@@ -1,10 +1,14 @@
 Target x86-unicode
 ; SetCompressor lzma
+; SetCompressor /SOLID zlib
+
+RequestExecutionLevel highest
+SetCompressor /SOLID lzma
 
 ; Settings 
 Name "KomodoOcean (Komodo-Qt)"
 OutFile "komodo-qt-install.exe"
-RequestExecutionLevel admin
+; RequestExecutionLevel admin
 InstallDir "$PROGRAMFILES64\KomodoOcean"
 Icon "komodo.ico"
 CRCCheck on
@@ -32,7 +36,7 @@ DetailPrint "Checking: sprout-proving.key"
 IfFileExists "$APPDATA\ZcashParams\sprout-proving.key" next_1
 DetailPrint "Downloading: sprout-proving.key"
 inetc::get /CAPTION "ZCash Params" /POPUP "sprout-proving.key" \
-    "https://z.cash/downloads/sprout-proving.key" "$APPDATA\ZcashParams\sprout-proving.key" \
+    "https://z.cash/downloads/sprout-proving.key.deprecated-sworn-elves" "$APPDATA\ZcashParams\sprout-proving.key" \
     /END
 Pop $0
 StrCmp $0 "OK" next_1

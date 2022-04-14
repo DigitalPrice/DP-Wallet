@@ -665,7 +665,8 @@ int32_t NSPV_remoterpc(struct NSPV_remoterpcresp *ptr,char *json,int n)
     {
         request.read(json,n);
         jreq.parse(request);
-        strcpy(ptr->method,jreq.strMethod.c_str());
+        strncpy(ptr->method,jreq.strMethod.c_str(),sizeof(ptr->method)-1);
+        ptr->method[sizeof(ptr->method)-1] = '\0';
         len+=sizeof(ptr->method);
         std::map<std::string, bool>::iterator it = nspv_remote_commands.find(jreq.strMethod);
         if (it==nspv_remote_commands.end())
@@ -727,7 +728,7 @@ uint8_t *NSPV_getrawtx(CTransaction &tx,uint256 &hashBlock,int32_t *txlenp,uint2
         if ( *txlenp > 0 )
         {
             rawtx = (uint8_t *)calloc(1,*txlenp);
-            decode_hex(rawtx,*txlenp,(char *)strHex.c_str());
+            decode_hex(rawtx,*txlenp,strHex.c_str());
         }
     }
     return(rawtx);

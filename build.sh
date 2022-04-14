@@ -1,4 +1,3 @@
 #!/usr/bin/env bash
-zcutil/build.sh -j$(nproc)
+zcutil/build.sh
 
-cp src/qt/komodo-qt DP-qt-linux

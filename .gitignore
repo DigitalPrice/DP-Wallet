@@ -72,8 +72,12 @@ venv-mnf/
 *.lo
 *.la
 
-# Compilation
+# Compilation and Qt preprocessor part
+*.qm
 Makefile
+src/qt/komodo-qt
+Komodo-Qt.app
+background.tiff*
 
 # Unit-tests
 Makefile.test
@@ -132,17 +136,3 @@ src/qt/komodo-qt
 # chain files for iguana
 src/qt/*_7776
 
-
-qa/pull-tester/run-komodod-for-test.sh
-
-src/cryptoconditions/compile
-
-src/komodo-cli
-
-DP-qt-linux
-
-DP_7776
-
-src/univalue/test/object
-
-*.diff
