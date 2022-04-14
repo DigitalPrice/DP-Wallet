@@ -29,7 +29,7 @@ jobs:
           brew update
           brew upgrade
           brew tap discoteq/discoteq; brew install flock
-          brew install autoconf autogen automake gcc@8 binutilsprotobuf coreutils wget python3
+          brew install autoconf autogen automake gcc@8 binutils protobuf coreutils wget python3
 
       - name: Build (macOS)
         run: |
