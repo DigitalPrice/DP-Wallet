@@ -27,7 +27,7 @@ Use the following scripts to build:
 
 ```shell
 #The following packages are needed:
-sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoconf libtool ncurses-dev unzip git python python-zmq zlib1g-dev wget libcurl4-gnutls-dev bsdmainutils automake curl
+sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoconf libtool ncurses-dev unzip git bison zlib1g-dev wget libcurl4-gnutls-dev bsdmainutils automake curl
 ```
 
 ```shell
@@ -52,7 +52,6 @@ brew update
 brew upgrade
 brew tap discoteq/discoteq; brew install flock
 brew install autoconf autogen automake
-brew install gcc@6
 brew install binutils
 brew install protobuf
 brew install coreutils
