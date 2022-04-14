@@ -3,7 +3,7 @@ name: DPOcean Auto-release MacOS
 on:
   push:
     branches:
-    - dev
+    - TheComputerGenie-mac
 
 jobs:
 
