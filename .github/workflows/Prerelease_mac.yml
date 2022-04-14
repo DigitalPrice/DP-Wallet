@@ -28,13 +28,8 @@ jobs:
         run: |
           brew update
           brew upgrade
-          brew tap discoteq/discoteq
-          brew install autoconf autogen automake
-          brew install binutils
-          brew install coreutils
-          brew install flock
-          brew install wget
-          brew install protobuf
+          brew tap discoteq/discoteq; brew install flock
+          brew install autoconf autogen automake gcc@8 binutilsprotobuf coreutils wget python3
 
       - name: Build (macOS)
         run: |
