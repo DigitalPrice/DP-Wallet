@@ -1410,7 +1410,7 @@ void komodo_args(char *argv0)
     SoftSetArg("-addnode", std::string("zero.kolo.supernet.org"));
     SoftSetArg("-addnode", std::string("dp.explorer.dexstats.info"));
 
-    name = GetArg("-ac_name","DP");
+    std::string name = GetArg("-ac_name","DP");
     if ( argv0 != 0 )
     {
         size_t len = strlen(argv0);
