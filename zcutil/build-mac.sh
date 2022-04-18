@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-cd "$(dirname "$(readlink -f "$0")")/.."
-PREFIX="$(pwd)/depends/$BUILD/"
+make -C ${PWD}/depends
 
 HOST="$HOST" BUILD="$BUILD" "$MAKE" "$@" -C ./depends/ V=1
 ./autogen.sh
