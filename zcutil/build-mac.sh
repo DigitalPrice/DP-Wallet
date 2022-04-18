@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+
+cd "$(dirname "$(readlink -f "$0")")/.."
 PREFIX="$(pwd)/depends/$BUILD/"
 
 HOST="$HOST" BUILD="$BUILD" "$MAKE" "$@" -C ./depends/ V=1
