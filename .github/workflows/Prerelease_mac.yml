@@ -30,6 +30,8 @@ jobs:
           brew upgrade
           brew tap discoteq/discoteq; brew install flock
           brew install autoconf autogen automake gcc@8 binutils protobuf coreutils wget python3
+          brew install llvm libomp
+          export CPP=/usr/local/opt/llvm/bin/clang;
 
       - name: Build (macOS)
         run: |
