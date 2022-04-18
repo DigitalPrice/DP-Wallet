@@ -1,5 +1,8 @@
-make -C ${PWD}/depends v=1 NO_PROTON=1 HOST=x86_64-apple-darwin20 -j$(nproc --all)
+PREFIX="$(pwd)/depends/$BUILD/"
+
+HOST="$HOST" BUILD="$BUILD" "$MAKE" "$@" -C ./depends/ V=1
 ./autogen.sh
-CXXFLAGS="-g0 -O2" \
-CONFIG_SITE="$PWD/depends/x86_64-apple-darwin20/share/config.site" ./configure --disable-tests --disable-bench --with-gui=qt5 --disable-bip70
-make V=1 -j$(nproc --all)
+
+./configure --prefix="${PREFIX}" --with-gui=qt5 --disable-bip70 --enable-tests=no --enable-wallet=yes CXXFLAGS='-g0 -O2'
+
+"$MAKE" "$@" V=1
