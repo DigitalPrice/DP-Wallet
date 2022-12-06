@@ -44,6 +44,8 @@ sudo apt-get install curl librsvg2-bin libtiff-tools bsdmainutils cmake imagemag
 
 Place prepared SDK file `Xcode-12.1-12A7403-extracted-SDK-with-libcxx-headers.tar.gz` in repo root, use `build-mac-cross.sh` script to build.
 
+As an alternative you can download this file from [bitcoincore.org](https://bitcoincore.org/depends-sources/sdks/Xcode-12.1-12A7403-extracted-SDK-with-libcxx-headers.tar.gz).
+
 #### OSX (Native)
 Ensure you have [brew](https://brew.sh) and Command Line Tools installed.
 ```shell
