@@ -105,6 +105,7 @@ using namespace std;
 
 #include "komodo_gateway.h"
 #include "rpc/net.h"
+#include <event2/event.h>
 extern void ThreadSendAlert();
 //extern bool komodo_dailysnapshot(int32_t height);  //todo remove
 //extern int32_t KOMODO_SNAPSHOT_INTERVAL;
@@ -1335,6 +1336,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     LogPrintf("Using Boost version %s\n",  boost_version_ss.str() /*BOOST_LIB_VERSION*/ );
     LogPrintf("Using Sodium version %s\n", sodium_version_string());
     LogPrintf("Using LevelDB version %d.%d\n", leveldb::kMajorVersion, leveldb::kMinorVersion);
+    LogPrintf("Using Libevent version %s\n", event_get_version());
 
     if (!fLogTimestamps)
         LogPrintf("Startup time: %s\n", DateTimeStrFormat("%Y-%m-%d %H:%M:%S", GetTime()));
