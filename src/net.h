@@ -244,6 +244,8 @@ public:
     double dPingWait;
     double dMinPing;
     std::string addrLocal;
+    uint64_t m_addr_processed{0};
+    uint64_t m_addr_rate_limited{0};
     // Address of this peer
     CAddress addr;
     // Bind address of our side of the connection
@@ -382,6 +384,10 @@ public:
     double m_addr_token_bucket{1.0};
     /** When m_addr_token_bucket was last updated */
     int64_t m_addr_token_timestamp{GetTimeMicros()};
+    /** Total number of addresses that were dropped due to rate limiting. */
+    std::atomic<uint64_t> m_addr_rate_limited{0};
+    /** Total number of addresses that were processed (excludes rate limited ones). */
+    std::atomic<uint64_t> m_addr_processed{0};
 
     // inventory based relay
     mruset<CInv> setInventoryKnown;
