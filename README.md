@@ -74,6 +74,19 @@ cd komodo
 # This can take some time.
 ```
 
+macOS 12 (Monterrey) have incompatible version of Xcode `14.2` (Build version 14C18), to build on Monterrey you'll need to install the older version `13.2.1` using the following steps:
+
+- Download the specific Xcode 13.2.1 version from [here](https://stackoverflow.com/questions/10335747) or [here](https://developer.apple.com/services-account/download?path=/Developer_Tools/Xcode_13.2.1/Xcode_13.2.1.xip).
+- [Install](https://stackoverflow.com/questions/43663097/how-to-install-xcode-from-xip-file) it.
+- To set default Xcode version run this command:
+```
+sudo xcode-select -switch /Applications/Xcode_13.2.1.app
+```
+- To check default Xcode version in your system use this command:
+```
+xcodebuild -version
+```
+
 #### Windows
 Use a debian cross-compilation setup with mingw for windows and run:
 ```shell
