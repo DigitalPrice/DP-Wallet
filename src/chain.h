@@ -474,7 +474,7 @@ public:
         header.nVersion             = nVersion;
         header.hashPrevBlock        = hashPrev;
         header.hashMerkleRoot       = hashMerkleRoot;
-        header.hashBlockCommitments = hashBlockCommitments;
+        header.hashFinalSaplingRoot = hashFinalSaplingRoot;
         header.nTime                = nTime;
         header.nBits                = nBits;
         header.nNonce               = nNonce;
