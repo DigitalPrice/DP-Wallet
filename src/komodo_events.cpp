@@ -33,23 +33,32 @@
  * @param height
  * @param ntz the event
  */
-void komodo_eventadd_notarized( komodo_state *sp, char *symbol, int32_t height, komodo::event_notarized& ntz)
+void komodo_eventadd_notarized( komodo_state *sp, const char *symbol, int32_t height, komodo::event_notarized& ntz)
 {
-    if ( IS_KOMODO_NOTARY 
-            && komodo_verifynotarization(symbol,ntz.dest,height,ntz.notarizedheight,ntz.blockhash, ntz.desttxid) < 0 )
-{
-        static uint32_t counter;
-        if ( counter++ < 100 )
-            LogPrintf("[%s] error validating notarization ht.%d notarized_height.%d, if on a pruned %s node this can be ignored\n",
-                    chainName.symbol().c_str(), height, ntz.notarizedheight, ntz.dest);
+    if (IS_KOMODO_NOTARY)   {
+        int32_t ntz_verify = komodo_verifynotarization(symbol, ntz.dest, height, ntz.notarizedheight, ntz.blockhash, ntz.desttxid);
+        LogPrint("notarisation", "komodo_verifynotarization result %d\n", ntz_verify);
+
+        if (ntz_verify < 0)    {
+            static uint32_t counter;
+            if ( counter++ < 100 )
+                LogPrintf("[%s] error validating notarization ht.%d notarized_height.%d, if on a pruned %s node this can be ignored\n",
+                        chainName.symbol().c_str(), height, ntz.notarizedheight, ntz.dest);
+            return;
+        }
     }
-    else if ( chainName.isSymbol(symbol) )
+    
+    if (chainName.isSymbol(symbol) || chainName.isKMD() && std::string(symbol) == "KMD" /*special case for KMD*/)
     {
-        if ( sp != nullptr )
+        if (sp != nullptr)
         {
             sp->add_event(symbol, height, ntz);
             komodo_notarized_update(sp, height, ntz.notarizedheight, ntz.blockhash, ntz.desttxid, ntz.MoM, ntz.MoMdepth);
+        } else {
+            LogPrintf("could not update notarisation event: komodo_state is null");
         }
+    } else {
+        LogPrintf("could not update notarisation event: invalid symbol %s", symbol);
     }
 }
 
@@ -60,7 +69,7 @@ void komodo_eventadd_notarized( komodo_state *sp, char *symbol, int32_t height, 
  * @param height
  * @param pk the event
  */
-void komodo_eventadd_pubkeys(komodo_state *sp, char *symbol, int32_t height, komodo::event_pubkeys& pk)
+void komodo_eventadd_pubkeys(komodo_state *sp, const char *symbol, int32_t height, komodo::event_pubkeys& pk)
 {
     if (sp != nullptr)
     {
@@ -77,7 +86,7 @@ void komodo_eventadd_pubkeys(komodo_state *sp, char *symbol, int32_t height, kom
  * @param height
  * @param pf the event
  */
-void komodo_eventadd_pricefeed( komodo_state *sp, char *symbol, int32_t height, komodo::event_pricefeed& pf)
+void komodo_eventadd_pricefeed( komodo_state *sp, const char *symbol, int32_t height, komodo::event_pricefeed& pf)
 {
     if (sp != nullptr)
     {
@@ -92,7 +101,7 @@ void komodo_eventadd_pricefeed( komodo_state *sp, char *symbol, int32_t height, 
  * @param height
  * @param opret the event
  */
-void komodo_eventadd_opreturn( komodo_state *sp, char *symbol, int32_t height, komodo::event_opreturn& opret)
+void komodo_eventadd_opreturn( komodo_state *sp, const char *symbol, int32_t height, komodo::event_opreturn& opret)
 {
     if ( sp != nullptr && !chainName.isKMD() )
     {
@@ -125,7 +134,7 @@ void komodo_event_undo(komodo_state* sp, komodo::event_kmdheight& ev)
  
 
 
-void komodo_event_rewind(komodo_state *sp, char *symbol, int32_t height)
+void komodo_event_rewind(komodo_state *sp, const char *symbol, int32_t height)
 {
     if ( sp != nullptr )
     {
@@ -167,7 +176,7 @@ void komodo_setkmdheight(struct komodo_state *sp,int32_t kmdheight,uint32_t time
  * @param height
  * @param kmdht the event
  */
-void komodo_eventadd_kmdheight(struct komodo_state *sp,char *symbol,int32_t height,
+void komodo_eventadd_kmdheight(struct komodo_state *sp, const char *symbol,int32_t height,
         komodo::event_kmdheight& kmdht)
 {
     if (sp != nullptr)
@@ -177,12 +186,12 @@ void komodo_eventadd_kmdheight(struct komodo_state *sp,char *symbol,int32_t heig
 
             sp->add_event(symbol, height, kmdht);
             komodo_setkmdheight(sp, kmdht.kheight, kmdht.timestamp);
-    }
+        }
         else // rewinding
-    {
+        {
             komodo::event_rewind e(height);
             sp->add_event(symbol, height, e);
             komodo_event_rewind(sp,symbol,height);
+        }
     }
 }
- }

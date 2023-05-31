@@ -1039,13 +1039,6 @@ static bool ProcessBlockFound(CBlock* pblock)
             reservekey.KeepKey();
         }
     }
-    // Track how many getdata requests this block gets
-    //if ( 0 )
-    {
-        //LogPrintf("lock cs_wallet\n");
-        LOCK(wallet.cs_wallet);
-        wallet.mapRequestCount[pblock->GetHash()] = 0;
-    }
 #endif
     //LogPrintf("process new block\n");
 
