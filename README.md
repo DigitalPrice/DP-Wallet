@@ -40,9 +40,12 @@ Before start, read the following docs: [depends](https://github.com/bitcoin/bitc
 Install dependencies:
 ```
 sudo apt-get install curl librsvg2-bin libtiff-tools bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python3-setuptools libtinfo5 xorriso
+# sudo apt-get install libstdc++-$(g++ -dumpversion)-dev # in the event of errors occurring while building native_libtapi
 ```
 
 Place prepared SDK file `Xcode-12.1-12A7403-extracted-SDK-with-libcxx-headers.tar.gz` in repo root, use `build-mac-cross.sh` script to build.
+
+As an alternative you can download this file from [bitcoincore.org](https://bitcoincore.org/depends-sources/sdks/Xcode-12.1-12A7403-extracted-SDK-with-libcxx-headers.tar.gz).
 
 #### OSX (Native)
 Ensure you have [brew](https://brew.sh) and Command Line Tools installed.
@@ -69,6 +72,19 @@ cd komodo
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
 ./zcutil/build-mac.sh -j8
 # This can take some time.
+```
+
+macOS 12 (Monterrey) have incompatible version of Xcode `14.2` (Build version 14C18), to build on Monterrey you'll need to install the older version `13.2.1` using the following steps:
+
+- Download the specific Xcode 13.2.1 version from [here](https://stackoverflow.com/questions/10335747) or [here](https://developer.apple.com/services-account/download?path=/Developer_Tools/Xcode_13.2.1/Xcode_13.2.1.xip).
+- [Install](https://stackoverflow.com/questions/43663097/how-to-install-xcode-from-xip-file) it.
+- To set default Xcode version run this command:
+```
+sudo xcode-select -switch /Applications/Xcode_13.2.1.app
+```
+- To check default Xcode version in your system use this command:
+```
+xcodebuild -version
 ```
 
 #### Windows

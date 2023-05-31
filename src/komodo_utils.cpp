@@ -305,9 +305,6 @@ char *clonestr(char *str)
     if ( str == 0 || str[0] == 0 )
     {
         LogPrintf("warning cloning nullstr.%p\n",str);
-#ifdef __APPLE__
-        while ( 1 ) sleep(1);
-#endif
         str = (char *)"<nullstr>";
     }
     clone = (char *)malloc(strlen(str)+16);
@@ -1690,17 +1687,25 @@ void komodo_args(char *argv0)
         KOMODO_EXTRASATOSHI = 1;
 }
 
+/***
+ * @brief sets 'symbol' to the current chain name, 'dest' to either KMD or BTC
+ * according to the 'source' which must be either the current asset chain name or empty (if KMD).
+ * @param[out] symbol set to the current asset chain name or "KMD"
+ * @param[out] dest set to the notarisation chain name (KMD or BTC)
+ * @param[in] source current asset chain name or empty string for KMD
+ * This function should be deprecated IMO
+ */
 void komodo_nameset(char *symbol,char *dest,const char *source)
 {
-    if ( source[0] == 0 )
+    if ( source[0] == 0 )   // if not an asset chain
     {
-        strcpy(symbol,(char *)"KMD");
-        strcpy(dest,(char *)"BTC");
+        strcpy(symbol,(char *)"KMD");   // this chain is KMD
+        strcpy(dest,(char *)"BTC");     // dest is BTC
     }
     else
     {
-        strcpy(symbol,source);
-        strcpy(dest,(char *)"KMD");
+        strcpy(symbol,source);          // this chain an asset chain
+        strcpy(dest,(char *)"KMD");     // dest is KMD
     }
 }
 

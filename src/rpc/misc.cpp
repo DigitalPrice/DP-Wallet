@@ -81,7 +81,7 @@ int8_t StakedNotaryID(std::string &notaryname, char *Raddress);
 uint64_t komodo_notarypayamount(int32_t nHeight, int64_t notarycount);
 int32_t komodo_notaries(uint8_t pubkeys[64][33],int32_t height,uint32_t timestamp);*/
 
-#define KOMODO_VERSION "0.7.2"
+#define KOMODO_VERSION "0.8.0"
 extern uint16_t ASSETCHAINS_P2PPORT,ASSETCHAINS_RPCPORT;
 extern uint32_t ASSETCHAINS_CC;
 extern uint32_t ASSETCHAINS_MAGIC,ASSETCHAINS_ALGO;
@@ -1368,12 +1368,12 @@ UniValue getsnapshot(const UniValue& params, bool fHelp, const CPubKey& mypk)
 			    "      \"amount\": \"23.45\"\n"
 			    "    }\n"
 			    "  ],\n"
-			    "  \"total\": 123.45           (numeric) Total amount in snapshot\n"
+			    "  \"total\": 123.45,          (numeric) Total amount in snapshot\n"
 			    "  \"average\": 61.7,          (numeric) Average amount in each address \n"
 			    "  \"utxos\": 14,              (number) Total number of UTXOs in snapshot\n"
-			    "  \"total_addresses\": 2,     (number) Total number of addresses in snapshot,\n"
+			    "  \"total_addresses\": 2,     (number) Total number of addresses in snapshot\n"
 			    "  \"start_height\": 91,       (number) Block height snapshot began\n"
-			    "  \"ending_height\": 91       (number) Block height snapsho finished,\n"
+			    "  \"ending_height\": 91,      (number) Block height snapshot finished\n"
 			    "  \"start_time\": 1531982752, (number) Unix epoch time snapshot started\n"
 			    "  \"end_time\": 1531982752    (number) Unix epoch time snapshot finished\n"
 			    "}\n"
