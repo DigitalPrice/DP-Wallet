@@ -1410,6 +1410,10 @@ bool CheckTransaction(uint32_t tiptime,const CTransaction& tx, CValidationState 
                                  REJECT_INVALID, "bad-txns-joinsplit-verification-failed");
             }
         }
+
+        // Sapling zk-SNARK proofs are checked in librustzcash_sapling_check_{spend,output},
+        // called from ContextualCheckTransaction.
+
         return true;
     }
 }
@@ -1564,6 +1568,13 @@ bool CheckTransactionWithoutProofVerification(uint32_t tiptime,const CTransactio
             return state.DoS(100, error("CheckTransaction(): this is a public chain, no privacy allowed"),
                              REJECT_INVALID, "bad-txns-acpublic-chain");
         }
+        // In ZCash (ZEC), they have implemented [ZIP 211] which disables the addition of new values
+        // to the Sprout Value Pool after Canopy activations. The implementation can be found here:
+        // https://github.com/zcash/zcash/pull/4489. In KMD, we throw the "bad-txns-sprout-expired"
+        // error if a transaction contains even a single joinsplit after the KOMODO_SAPLING_DEADLINE.
+        // In other words, any sprout transactions are forbidden after February 15, 2019.
+        // It would be more logical to handle this in the ContextualCheckTransaction function,
+        // but historically it has been done here.
         if ( tiptime >= KOMODO_SAPLING_DEADLINE )
         {
             return state.DoS(100, error("CheckTransaction(): no more sprout after deadline"),
