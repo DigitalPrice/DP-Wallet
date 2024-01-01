@@ -1,0 +1,120 @@
+name: DPOcean Auto-release
+
+on:
+  push:
+    branches:
+    - main
+
+jobs:
+  setVars:
+    name: Set Variables
+    runs-on: ubuntu-latest
+    outputs:
+      branch: ${{ steps.eb.outputs.branch }}
+      sha_short: ${{ steps.sc.outputs.sha_short }}
+    steps:
+      - name: Extract branch name
+        id: eb
+        run: |
+          echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+
+      - name: Shortify commit sha
+        id: sc
+        run:  |
+          echo "sha_short=$(echo ${GITHUB_SHA::7})" >> $GITHUB_OUTPUT
+
+  linux-build:
+    name: Linux Build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install deps (Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -q autoconf automake bsdmainutils build-essential g++-multilib libc6-dev libcurl4-gnutls-dev libtool ncurses-dev unzip zlib1g-dev -y
+      - name: Build (Linux)
+        run: |
+          ./zcutil/build.sh
+          mv src/qt/komodo-qt src/qt/DP-qt-linux
+          zip --junk-paths DP-qt-linux src/qt/DP-qt-linux
+      - name: Upload DP-qt-linux.zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DP-qt-linux
+          path: ./DP-qt-linux.zip
+
+  windows-build:
+    name: Windows Build (mingw)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps (Windows)
+        run: |
+          sudo apt-get update
+          sudo apt-get upgrade -y
+          sudo apt-get install -q autoconf automake bsdmainutils build-essential g++-multilib libboost-all-dev libc6-dev libcurl4-gnutls-dev libdb++-dev libevent-dev libncurses-dev libprotobuf-dev -y
+          sudo apt-get install -q libqrencode-dev libsodium-dev libssl-dev libtool mingw-w64 ncurses-dev protobuf-compiler software-properties-common zlib1g-dev -y
+          curl https://sh.rustup.rs -sSf | sh -s -- -y
+          source $HOME/.cargo/env
+          rustup target add x86_64-pc-windows-gnu
+          sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+          sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+      - name: Build (Windows)
+        run: |
+          ./zcutil/build-win.sh
+          mv src/qt/komodo-qt.exe src/qt/DP-qt-win.exe
+          zip --junk-paths DP-qt-win src/qt/DP-qt-win.exe
+      - name: Upload DP-qt-win.zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DP-qt-win
+          path: ./DP-qt-win.zip      
+
+  publish-release:
+      name: Publishing releases
+      runs-on: ubuntu-latest
+      needs: [linux-build, windows-build, setVars]
+      steps:
+        - name: Download DP-qt-linux.zip
+          uses: actions/download-artifact@v4
+          with:
+            name: DP-qt-linux  
+        - name: Download DP-qt-win.zip
+          uses: actions/download-artifact@v4
+          with:
+            name: DP-qt-win
+
+        - name: Create Release
+          id: create_release
+          uses: actions/create-release@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            tag_name: ${{ needs.setVars.outputs.branch }}_prerelease_${{ needs.setVars.outputs.sha_short }}
+            release_name: Prrelease at ${{ needs.setVars.outputs.sha_short }}
+            draft: false
+            prerelease: true
+        - name: Upload Linux Release Asset
+          id: upload-linux-release-asset 
+          uses: actions/upload-release-asset@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }} 
+            asset_path: ./DP-qt-linux.zip
+            asset_name: DP_linux.zip
+            asset_content_type: application/zip
+        - name: Upload Windows Release Asset
+          id: upload-windows-release-asset 
+          uses: actions/upload-release-asset@latest
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            upload_url: ${{ steps.create_release.outputs.upload_url }} 
+            asset_path: ./DP-qt-win.zip
+            asset_name: DP_win.zip
+            asset_content_type: application/zip
