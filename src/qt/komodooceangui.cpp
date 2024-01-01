@@ -350,8 +350,8 @@ void KomodoOceanGUI::createActions() {
     usedSendingAddressesAction->setStatusTip(tr("Show the list of used sending addresses and labels"));
     usedReceivingAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("&Receiving addresses..."), this);
     usedReceivingAddressesAction->setStatusTip(tr("Show the list of used receiving addresses and labels"));
-    usedReceivingZAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("Receiving &z-addresses..."), this);
-    usedReceivingZAddressesAction->setStatusTip(tr("Show the list of used receiving z-addresses and labels"));
+    //usedReceivingZAddressesAction = new QAction(platformStyle->TextColorIcon(":/icons/address-book"), tr("Receiving &z-addresses..."), this);
+    //usedReceivingZAddressesAction->setStatusTip(tr("Show the list of used receiving z-addresses and labels"));
 
     openAction = new QAction(platformStyle->TextColorIcon(":/icons/open"), tr("Open &URI..."), this);
     openAction->setStatusTip(tr("Open a komodo: URI or payment request"));
@@ -413,7 +413,7 @@ void KomodoOceanGUI::createMenuBar() {
         file->addSeparator();
         file->addAction(usedSendingAddressesAction);
         file->addAction(usedReceivingAddressesAction);
-        file->addAction(usedReceivingZAddressesAction);
+        //file->addAction(usedReceivingZAddressesAction);
         file->addSeparator();
     }
     file->addAction(quitAction);
@@ -549,7 +549,7 @@ void KomodoOceanGUI::setWalletActionsEnabled(bool enabled) {
     verifyMessageAction->setEnabled(enabled);
     usedSendingAddressesAction->setEnabled(enabled);
     usedReceivingAddressesAction->setEnabled(enabled);
-    usedReceivingZAddressesAction->setEnabled(enabled);
+    //usedReceivingZAddressesAction->setEnabled(enabled);
     openAction->setEnabled(enabled);
 }
 

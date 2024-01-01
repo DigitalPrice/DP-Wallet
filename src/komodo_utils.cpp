@@ -961,8 +961,24 @@ void komodo_args(char *argv0) {
         LogPrintf( "Cannot be STAKED and KMD notary at the same time!\n");
         StartShutdown();
     }
+//-ac_name=DP -ac_supply=55500000 -ac_sapling=1 -ac_public=1 -ac_staked=50 -ac_reward=646400000 -ac_end=6884282 -ac_blocktime=120 -ac_cc=2 -ac_ccenable=229 &
+    SoftSetArg("-ac_name", std::string("DP"));
+    SoftSetArg("-ac_supply", std::string("55500000"));
+    SoftSetArg("-ac_sapling", std::string("1"));
+    SoftSetArg("-ac_public", std::string("1"));
+    SoftSetArg("-ac_staked", std::string("50"));
+    SoftSetArg("-ac_reward", std::string("646400000"));
+    SoftSetArg("-ac_end", std::string("6884282"));
+    SoftSetArg("-ac_blocktime", std::string("120"));
+    SoftSetArg("-ac_cc", std::string("2"));
+    SoftSetArg("-ac_ccenable", std::string("229"));
+	//need some seed nodes here
+    SoftSetArg("-addnode", std::string("zero.kolo.supernet.org"));
+    SoftSetArg("-addnode", std::string("dp.explorer.dexstats.info"));
+
     std::string name = GetArg("-ac_name","");
-    if ( argv0 != 0 ) {
+    if ( argv0 != 0 )
+    {
         int32_t len = (int32_t)strlen(argv0);
         for (unsigned long i=0; i<sizeof(argv0suffix)/sizeof(*argv0suffix); i++) {
             int32_t n = (int32_t)strlen(argv0suffix[i]);

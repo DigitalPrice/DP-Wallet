@@ -1,12 +1,14 @@
 *.tar.gz
 *.deb
 *.exe
+*.diff
 src/bitcoin
 src/zcashd
 src/zcash-cli
 src/zcash-gtest
 src/zcash-tx
 src/test/test_bitcoin
+src/cryptoconditions/compile
 
 # Zcash utilities
 src/zcash/GenerateParams
@@ -82,6 +84,7 @@ background.tiff*
 # Unit-tests
 Makefile.test
 src/test/buildenv.py
+src/univalue/test/object
 
 # Resources cpp
 qrc_*.cpp
@@ -131,37 +134,10 @@ src/qt/gen*
 src/config/komodo-config.h
 src/config/komodo-config.h.in
 src/komodod
+src/komodo-cli
 src/qt/komodo-qt
+DP-qt-linux
 
 # chain files for iguana
 src/qt/*_7776
-
-configure~
-
-qa/pull-tester/run-komodod-for-test.sh
-
-src/cryptoconditions/src/cryptoconditions-config.h.in
-
-src/komodo-tx
-
-src/wallet-utility
-
-src/cryptoconditions/compile
-
-src/komodo-cli
-
-src/univalue/test/object
-
 *_7776
-
-src/ac/
-
-src/fiat/
-
-src/tui/
-
-src/cryptoconditions/src/stamp-h1
-
-configure.ac.patch
-
-src/gui/komodoku/

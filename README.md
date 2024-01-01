@@ -1,19 +1,25 @@
-# KomodoOcean (komodo-qt) #
+# DigitalPrice-qt #
 
-![Downloads](https://img.shields.io/github/downloads/DeckerSU/KomodoOcean/total)
+![Downloads](https://img.shields.io/github/downloads/DigitalPrice/DP-Wallet/total)
 
-![](./doc/images/komodo-qt-promo-2020-01.jpg)
+![](./doc/images/dp-qt-promo-2020-01.jpg)
 
-Komodo-Qt (KomodoOcean) is a world-first Qt native wallet for KMD ([Komodo](https://komodoplatform.com/)) and smartchains (assetchains). It's available for three OS platforms - Windows, Linux, MacOS.
+DigitalPrice-Qt is a world-first Qt native wallet for DP ([DigitalPrice](https://digitalprice.org/)). It's available for three OS platforms - Windows, Linux, MacOS.
 
-Use the default `static` branch and following scripts to build:
+**NB!** We have three branches:
 
-- Linux: `build.sh` (native build)
+
+- [static](../../tree/static) for tested public master.
+- [beta](../../tree/beta) for testing before release.
+- [dev](../../tree/dev) for incomplete, untested, or in-process development.
+
+Only one branch ([static](../../tree/static)) is needed for building executable DigitalPrice-Qt binaries for all 3 major OSs.
+
+Use the following scripts to build:
+
+- Linux: `build-linux.sh` (native build)
 - Windows: `build-win.sh` (cross-compilation for Win)
-- MacOS: `build-mac-cross.sh` (cross-compilation for OSX)
 - MacOS: `build-mac.sh` (native build)
-
-Visit `#🤝│general-support` or `#wallet-ocean-qt` channel in [Komodo Discord](https://komodoplatform.com/discord) for more information.
 
 ## How to build? ##
 
@@ -21,11 +27,11 @@ Visit `#🤝│general-support` or `#wallet-ocean-qt` channel in [Komodo Discord
 
 ```shell
 #The following packages are needed:
-sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoconf libtool ncurses-dev unzip git python bison zlib1g-dev wget libcurl4-gnutls-dev bsdmainutils automake curl
+sudo apt-get install build-essential pkg-config libc6-dev m4 g++-multilib autoconf libtool ncurses-dev unzip git python python-zmq zlib1g-dev wget libcurl4-gnutls-dev bsdmainutils automake curl
 ```
 
 ```shell
-git clone https://github.com/DeckerSU/KomodoOcean --branch static --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
@@ -33,58 +39,32 @@ cd komodo
 #This can take some time.
 ```
 
-#### OSX (Cross-compile)
 
-Before start, read the following docs: [depends](https://github.com/bitcoin/bitcoin/blob/master/depends/README.md), [macdeploy](https://github.com/bitcoin/bitcoin/blob/master/contrib/macdeploy/README.md) .
-
-Install dependencies:
-```
-sudo apt-get install curl librsvg2-bin libtiff-tools bsdmainutils cmake imagemagick libcap-dev libz-dev libbz2-dev python3-setuptools libtinfo5 xorriso
-# sudo apt-get install libstdc++-$(g++ -dumpversion)-dev # in the event of errors occurring while building native_libtapi
-```
-
-Place prepared SDK file `Xcode-12.1-12A7403-extracted-SDK-with-libcxx-headers.tar.gz` in repo root, use `build-mac-cross.sh` script to build.
-
-As an alternative you can download this file from [bitcoincore.org](https://bitcoincore.org/depends-sources/sdks/Xcode-12.1-12A7403-extracted-SDK-with-libcxx-headers.tar.gz).
-
-#### OSX (Native)
+#### OSX
 Ensure you have [brew](https://brew.sh) and Command Line Tools installed.
 ```shell
 # Install brew
 /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
 # Install Xcode, opens a pop-up window to install CLT without installing the entire Xcode package
-xcode-select --install 
+xcode-select --install
 # Update brew and install dependencies
 brew update
 brew upgrade
 brew tap discoteq/discoteq; brew install flock
 brew install autoconf autogen automake
-# brew install gcc@6
+brew install gcc@6
 brew install binutils
 brew install protobuf
 brew install coreutils
 brew install wget
 # Clone the Komodo repo
-git clone https://github.com/DeckerSU/KomodoOcean --branch static --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 # Change master branch to other branch you wish to compile
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
 ./zcutil/build-mac.sh -j8
 # This can take some time.
-```
-
-macOS 12 (Monterrey) have incompatible version of Xcode `14.2` (Build version 14C18), to build on Monterrey you'll need to install the older version `13.2.1` using the following steps:
-
-- Download the specific Xcode 13.2.1 version from [here](https://stackoverflow.com/questions/10335747) or [here](https://developer.apple.com/services-account/download?path=/Developer_Tools/Xcode_13.2.1/Xcode_13.2.1.xip).
-- [Install](https://stackoverflow.com/questions/43663097/how-to-install-xcode-from-xip-file) it.
-- To set default Xcode version run this command:
-```
-sudo xcode-select -switch /Applications/Xcode_13.2.1.app
-```
-- To check default Xcode version in your system use this command:
-```
-xcodebuild -version
 ```
 
 #### Windows
@@ -100,49 +80,16 @@ sudo update-alternatives --config x86_64-w64-mingw32-gcc
 sudo update-alternatives --config x86_64-w64-mingw32-g++
 # (configure to use POSIX variant)
 
-git clone https://github.com/DeckerSU/KomodoOcean --branch static --single-branch
+git clone https://github.com/DigitalPrice/DP-Wallet --branch static --single-branch
 cd komodo
 ./zcutil/fetch-params.sh
 # -j8 = using 8 threads for the compilation - replace 8 with number of threads you want to use
 ./zcutil/build-win.sh -j8
 #This can take some time.
 ```
-**komodo is experimental and a work-in-progress.** Use at your own risk.
+**DigitalPrice is experimental and a work-in-progress.** Use at your own risk.
 
-*p.s.* Currently only `x86_64` arch supported for MacOS, build for `Apple M1` processors unfortunately not yet supported.
 
-## Create komodo.conf ##
-
-Before start the wallet you should [create config file](https://github.com/DeckerSU/KomodoOcean/wiki/F.A.Q.#q-after-i-start-komodo-qt-i-receive-the-following-error-error-cannot-parse-configuration-file-missing-komodoconf-only-use-keyvalue-syntax-what-should-i-do) `komodo.conf` at one of the following locations:
-
-- Linux - `~/.komodo/komodo.conf`
-- Windows - `%APPDATA%\Komodo\komodo.conf`
-- MacOS - `~/Library/Application Support/Komodo/komodo.conf`
-
-With the following content:
-
-```
-txindex=1
-rpcuser=komodo
-rpcpassword=local321 # don't forget to change password
-rpcallowip=127.0.0.1
-rpcbind=127.0.0.1
-server=1
-```
-
-Bash one-liner for Linux to create `komodo.conf` with random RPC password:
-
-```
-RANDPASS=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w16 | head -n1) && \
-tee -a ~/.komodo/komodo.conf << END
-txindex=1
-rpcuser=komodo
-rpcpassword=${RANDPASS}
-rpcallowip=127.0.0.1
-rpcbind=127.0.0.1
-server=1
-END
-```
 
 ## Developers of Qt wallet ##
 
