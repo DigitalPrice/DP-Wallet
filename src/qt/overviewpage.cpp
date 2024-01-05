@@ -196,7 +196,7 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     ui->labelBalance->setText(KomodoUnits::formatWithPrivacy(unit, balance, KomodoUnits::separatorAlways, m_privacy));
     ui->labelUnconfirmed->setText(KomodoUnits::formatWithPrivacy(unit, unconfirmedBalance, KomodoUnits::separatorAlways, m_privacy));
     ui->labelImmature->setText(KomodoUnits::formatWithPrivacy(unit, immatureBalance, KomodoUnits::separatorAlways, m_privacy));
-    ui->labelTotal->setText(KomodoUnits::formatWithPrivacy(unit, balance + unconfirmedBalance + immatureBalance + privateBalance + interestBalance, KomodoUnits::separatorAlways, m_privacy));
+    ui->labelTotal->setText(KomodoUnits::formatWithPrivacy(unit, balance + unconfirmedBalance + immatureBalance + interestBalance, KomodoUnits::separatorAlways, m_privacy));
     ui->labelWatchAvailable->setText(KomodoUnits::formatWithPrivacy(unit, watchOnlyBalance, KomodoUnits::separatorAlways, m_privacy));
     ui->labelWatchPending->setText(KomodoUnits::formatWithPrivacy(unit, watchUnconfBalance, KomodoUnits::separatorAlways, m_privacy));
     ui->labelWatchImmature->setText(KomodoUnits::formatWithPrivacy(unit, watchImmatureBalance, KomodoUnits::separatorAlways, m_privacy));
