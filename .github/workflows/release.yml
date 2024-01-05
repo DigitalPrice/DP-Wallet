@@ -1,0 +1,117 @@
+name: Releases
+
+on:
+  push:
+    branches:
+    - main
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  BUILD_TYPE: Release
+
+jobs:
+  full_release:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow_failure }}
+    strategy:
+      # fail-fast: Default is true, switch to false to allow one platform to fail and still run others
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04]
+        include:
+        - os: ubuntu-latest
+          fetch_name: fetch-params-alt.bat
+          file_name: windows.zip
+          sha_name: windows.sha256
+          allow_failure: false
+        - os: ubuntu-22.04
+          fetch_name: fetch-params.sh
+          file_name: ubuntu-22.04.zip
+          sha_name: ubuntu-22.04.sha256
+          allow_failure: false
+
+    permissions:
+      # Needed permission to upload the release asset
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set vars
+      shell: bash
+      run: |
+       echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+       echo "ssha=$(echo ${GITHUB_SHA::7})" >> $GITHUB_OUTPUT
+      id: svars
+    
+    - name: Install System dependencies
+      shell: bash
+      run: |
+        set -x
+        echo "Using Apt to install dependencies"
+        sudo apt-get update
+        sudo apt-get -q=2 upgrade
+        sudo apt-get install -q=2 bsdmainutils
+
+    - name: Build Package
+      shell: bash
+      run: |
+          if [ "${{ matrix.os }}" = "ubuntu-22.04" ]; then
+            ./zcutil/build.sh -j2
+            mv src/qt/komodo-qt src/qt/DP-qt-linux
+            strip src/qt/DP-qt-linux
+            zip --junk-paths ${{ matrix.os }}.zip src/qt/DP-qt-linux
+            sha256sum ${{ matrix.os }}.zip > ${{ matrix.os }}.sha256
+          else
+            apdir=$PWD
+            sudo apt-get install -q=2 mingw-w64 libsodium-dev libevent-dev
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            source $HOME/.cargo/env
+            rustup target add x86_64-pc-windows-gnu
+            sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+            sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+            cd ${apdir}
+            ./zcutil/build-win.sh -j2
+            mv src/qt/komodo-qt.exe src/qt/DP-qt-win.exe
+            strip src/qt/DP-qt-win.exe
+            zip --junk-paths  windows src/qt/DP-qt-win.exe
+            sha256sum windows.zip > windows.sha256
+          fi
+
+    - name: Read release.md
+      id: read_release
+      shell: bash
+      run: |
+          r=$(cat release.md)
+          r="${r//'%'/'%25'}"                               # Multiline escape sequences for %
+          r="${r//$'\n'/'%0A'}"                             # Multiline escape sequences for '\n'
+          r="${r//$'\r'/'%0D'}"                             # Multiline escape sequences for '\r'
+          echo "RELEASE_BODY=$r" >> $GITHUB_OUTPUT
+
+    - name: push release fetch
+      uses: svenstaro/upload-release-action@v2
+      with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          overwrite: true
+          tag: release_${{ steps.svars.outputs.ssha }}
+          file: zcutil/${{ matrix.fetch_name}}
+
+    - name: push release file
+      uses: svenstaro/upload-release-action@v2
+      with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          overwrite: true
+          tag: release_${{ steps.svars.outputs.ssha }}
+          file: ${{ matrix.file_name}}
+
+    - name: push release checksum
+      uses: svenstaro/upload-release-action@v2
+      with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          promote: true
+          make_latest: true
+          overwrite: true
+          tag: release_${{ steps.svars.outputs.ssha }}
+          file: ${{ matrix.sha_name}}
+          body: |
+            ${{ steps.read_release.outputs.RELEASE_BODY }}

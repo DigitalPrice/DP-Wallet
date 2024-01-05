@@ -3,7 +3,7 @@ name: DPOcean Auto-release
 on:
   push:
     branches:
-    - main
+    - test
 
 jobs:
   setVars:
