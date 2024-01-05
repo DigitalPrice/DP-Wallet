@@ -42,6 +42,7 @@ jobs:
       run: |
        echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
        echo "ssha=$(echo ${GITHUB_SHA::7})" >> $GITHUB_OUTPUT
+       echo "version=$(echo $(awk 'NR==84' src/rpc/misc.cpp|cut -d'"' -f 2))" >> $GITHUB_OUTPUT
       id: svars
     
     - name: Install System dependencies
@@ -57,7 +58,7 @@ jobs:
       shell: bash
       run: |
           if [ "${{ matrix.os }}" = "ubuntu-22.04" ]; then
-            ./zcutil/build.sh -j2
+            ./zcutil/build.sh -j3
             mv src/qt/komodo-qt src/qt/DP-qt-linux
             strip src/qt/DP-qt-linux
             zip --junk-paths ${{ matrix.os }}.zip src/qt/DP-qt-linux
@@ -71,7 +72,7 @@ jobs:
             sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
             sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
             cd ${apdir}
-            ./zcutil/build-win.sh -j2
+            ./zcutil/build-win.sh -j3
             mv src/qt/komodo-qt.exe src/qt/DP-qt-win.exe
             strip src/qt/DP-qt-win.exe
             zip --junk-paths  windows src/qt/DP-qt-win.exe
@@ -93,7 +94,7 @@ jobs:
       with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           overwrite: true
-          tag: release_${{ steps.svars.outputs.ssha }}
+          tag: ${{ steps.svars.outputs.version }}_${{ steps.svars.outputs.ssha }}
           file: zcutil/${{ matrix.fetch_name}}
 
     - name: push release file
@@ -101,7 +102,7 @@ jobs:
       with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           overwrite: true
-          tag: release_${{ steps.svars.outputs.ssha }}
+          tag: ${{ steps.svars.outputs.version }}_${{ steps.svars.outputs.ssha }}
           file: ${{ matrix.file_name}}
 
     - name: push release checksum
@@ -109,9 +110,11 @@ jobs:
       with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           promote: true
+          prerelease: false
+          release_name: "${{ steps.svars.outputs.version }} Release"
           make_latest: true
           overwrite: true
-          tag: release_${{ steps.svars.outputs.ssha }}
+          tag: ${{ steps.svars.outputs.version }}_${{ steps.svars.outputs.ssha }}
           file: ${{ matrix.sha_name}}
           body: |
             ${{ steps.read_release.outputs.RELEASE_BODY }}

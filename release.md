@@ -1,4 +1,4 @@
-v0.8.1
+v0.8.1-beta [Falkor]
 
 - This update includes several security fixes, code refactoring, optimizations, and other improvements.
 - Update Rust compiler to 1.69.
