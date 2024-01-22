@@ -6,7 +6,7 @@ SDK_PATH ?= $(BASEDIR)/SDKs
 NO_QT ?=
 NO_WALLET ?=
 NO_UPNP ?=
-FALLBACK_DOWNLOAD_PATH ?= https://supernet/depends-sources
+PRIORITY_DOWNLOAD_PATH ?= https://media.githubusercontent.com/media/DigitalPrice/depends-sources/main/
 
 BUILD ?= $(shell ./config.guess)
 HOST ?= $(BUILD)
