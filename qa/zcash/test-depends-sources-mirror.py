@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-# This script tests that the package mirror at https://z.cash/depends-sources/
+# This script tests that the package mirror at https://github.com/DigitalPrice/depends-sources
 # contains all of the packages required to build this version of Zcash.
 #
-# This script assumes you've just built Zcash, and that as a result of that
+# This script assumes you've just built DP-Wallet, and that as a result of that
 # build, all of the dependency packages have been downloaded into the
 # depends/sources directory (inside the root of this repository). The script
 # checks that all of those files are accessible on the mirror.
