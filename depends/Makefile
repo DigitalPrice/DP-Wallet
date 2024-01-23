@@ -7,7 +7,7 @@ SDK_PATH ?= $(BASEDIR)/SDKs
 NO_QT ?=
 NO_WALLET ?=
 NO_UPNP ?=
-PRIORITY_DOWNLOAD_PATH ?= https://media.githubusercontent.com/media/DigitalPrice/depends-sources/main/
+FALLBACK_DOWNLOAD_PATH ?= https://media.githubusercontent.com/media/DigitalPrice/depends-sources/main/
 
 BUILD ?= $(shell ./config.guess)
 HOST ?= $(BUILD)
