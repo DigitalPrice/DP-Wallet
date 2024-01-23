@@ -13,59 +13,59 @@ BUILD ?= $(shell ./config.guess)
 HOST ?= $(BUILD)
 PATCHES_PATH = $(BASEDIR)/patches
 BASEDIR = $(CURDIR)
-HASH_LENGTH:=11
-DOWNLOAD_CONNECT_TIMEOUT:=10
-DOWNLOAD_RETRIES:=3
-CRATE_REGISTRY:=vendored-sources
+HASH_LENGTH := 11
+DOWNLOAD_CONNECT_TIMEOUT := 10
+DOWNLOAD_RETRIES := 3
+CRATE_REGISTRY := vendored-sources
 
-host:=$(BUILD)
+host := $(BUILD)
 ifneq ($(HOST),)
-host:=$(HOST)
-host_toolchain:=$(HOST)-
+	host := $(HOST)
+	host_toolchain := $(HOST)-
 endif
 
 ifneq ($(DEBUG),)
-release_type=debug
+	release_type = debug
 else
-release_type=release
+	release_type = release
 endif
 
-base_build_dir=$(WORK_PATH)/build
-base_staging_dir=$(WORK_PATH)/staging
-base_download_dir=$(WORK_PATH)/download
-canonical_host:=$(shell ./config.sub $(HOST))
-build:=$(shell ./config.sub $(BUILD))
+base_build_dir = $(WORK_PATH)/build
+base_staging_dir = $(WORK_PATH)/staging
+base_download_dir = $(WORK_PATH)/download
+canonical_host := $(shell ./config.sub $(HOST))
+build := $(shell ./config.sub $(BUILD))
 
-build_arch =$(firstword $(subst -, ,$(build)))
-build_vendor=$(word 2,$(subst -, ,$(build)))
-full_build_os:=$(subst $(build_arch)-$(build_vendor)-,,$(build))
-build_os:=$(findstring linux,$(full_build_os))
-build_os+=$(findstring darwin,$(full_build_os))
-build_os:=$(strip $(build_os))
+build_arch  = $(firstword $(subst -, ,$(build)))
+build_vendor = $(word 2,$(subst -, ,$(build)))
+full_build_os := $(subst $(build_arch)-$(build_vendor)-,,$(build))
+build_os := $(findstring linux,$(full_build_os))
+build_os += $(findstring darwin,$(full_build_os))
+build_os := $(strip $(build_os))
 ifeq ($(build_os),)
-build_os=$(full_build_os)
+	build_os = $(full_build_os)
 endif
 
-host_arch=$(firstword $(subst -, ,$(canonical_host)))
-host_vendor=$(word 2,$(subst -, ,$(canonical_host)))
-full_host_os:=$(subst $(host_arch)-$(host_vendor)-,,$(canonical_host))
-host_os:=$(findstring linux,$(full_host_os))
-host_os+=$(findstring darwin,$(full_host_os))
-host_os+=$(findstring mingw32,$(full_host_os))
-host_os:=$(strip $(host_os))
+host_arch = $(firstword $(subst -, ,$(canonical_host)))
+host_vendor = $(word 2,$(subst -, ,$(canonical_host)))
+full_host_os := $(subst $(host_arch)-$(host_vendor)-,,$(canonical_host))
+host_os := $(findstring linux,$(full_host_os))
+host_os += $(findstring darwin,$(full_host_os))
+host_os += $(findstring mingw32,$(full_host_os))
+host_os := $(strip $(host_os))
 ifeq ($(host_os),)
-host_os=$(full_host_os)
+	host_os = $(full_host_os)
 endif
 
-$(host_arch)_$(host_os)_prefix=$(BASEDIR)/$(host)
-$(host_arch)_$(host_os)_host=$(host)
-host_prefix=$($(host_arch)_$(host_os)_prefix)
-build_prefix=$(host_prefix)/native
-build_host=$(build)
+$(host_arch)_$(host_os)_prefix = $(BASEDIR)/$(host)
+$(host_arch)_$(host_os)_host = $(host)
+host_prefix = $($(host_arch)_$(host_os)_prefix)
+build_prefix = $(host_prefix)/native
+build_host = $(build)
 
 AT_$(V):=
 AT_:=@
-AT:=$(AT_$(V))
+AT := $(AT_$(V))
 
 all: install
 
@@ -84,20 +84,20 @@ packages += $($(host_arch)_$(host_os)_packages) $($(host_os)_packages) $(qt_pack
 native_packages += $($(host_arch)_$(host_os)_native_packages) $($(host_os)_native_packages)
 
 ifneq ($(qt_packages_),)
-native_packages += $(qt_native_packages)
+	native_packages += $(qt_native_packages)
 endif
 
 all_packages = $(packages) $(native_packages)
 
 meta_depends = Makefile funcs.mk builders/default.mk hosts/default.mk hosts/$(host_os).mk builders/$(build_os).mk cargo-checksum.sh
 
-$(host_arch)_$(host_os)_native_toolchain?=$($(host_os)_native_toolchain)
+$(host_arch)_$(host_os)_native_toolchain? = $($(host_os)_native_toolchain)
 
 include funcs.mk
 
-toolchain_path=$($($(host_arch)_$(host_os)_native_toolchain)_prefixbin)
-final_build_id_long+=$(shell $(build_SHA256SUM) config.site.in)
-final_build_id+=$(shell echo -n $(final_build_id_long) | $(build_SHA256SUM) | cut -c-$(HASH_LENGTH))
+toolchain_path = $($($(host_arch)_$(host_os)_native_toolchain)_prefixbin)
+final_build_id_long += $(shell $(build_SHA256SUM) config.site.in)
+final_build_id += $(shell echo -n $(final_build_id_long) | $(build_SHA256SUM) | cut -c-$(HASH_LENGTH))
 $(host_prefix)/.stamp_$(final_build_id): $(native_packages) $(packages)
 	$(AT)rm -rf $(@D)
 	$(AT)mkdir -p $(@D)
@@ -160,7 +160,6 @@ clean:
 	@rm -rf $(WORK_PATH) $(BASE_CACHE) $(BUILD)
 
 install: check-packages $(host_prefix)/share/config.site
-
 
 download-one: check-sources $(all_sources)
 
