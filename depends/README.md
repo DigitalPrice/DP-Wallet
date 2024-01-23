@@ -20,10 +20,10 @@ created. To use it for DP:
 
 Common `host-platform-triplets` for cross compilation are:
 
-- `i686-w64-mingw32` for Win32
 - `x86_64-w64-mingw32` for Win64
 - `x86_64-apple-darwin` for MacOSX
 - `arm-linux-gnueabihf` for Linux ARM
+- `x86_64-unknown-linux-gnu` for Linux64
 
 No other options are needed, the paths are automatically configured.
 
@@ -43,10 +43,10 @@ options will be passed to DP's configure. In this case, `--disable-wallet`.
 
 Additional targets:
 
-    download: run 'make download' to fetch all sources without building them
-    download-osx: run 'make download-osx' to fetch all sources needed for osx builds
-    download-win: run 'make download-win' to fetch all sources needed for win builds
-    download-linux: run 'make download-linux' to fetch all sources needed for linux builds
+    download: run 'make download' to fetch all Win64, MacOSX, and Linux64 sources without building them
+    download-osx: run 'make download-osx' to fetch all sources needed for MacOSX builds
+    download-win: run 'make download-win' to fetch all sources needed for Win64 builds
+    download-linux: run 'make download-linux' to fetch all sources needed for Linux64 builds
 
 ### Other documentation
 
