@@ -3,32 +3,32 @@
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #if defined(HAVE_CONFIG_H)
-#include "config/bitcoin-config.h"
+#include <config/bitcoin-config.h>
 #endif
 
-#include "sendcoinsdialog.h"
-#include "ui_sendcoinsdialog.h"
+#include <qt/sendcoinsdialog.h>
+#include <qt/forms/ui_sendcoinsdialog.h>
 
-#include "addresstablemodel.h"
-#include "komodounits.h"
-#include "clientmodel.h"
-#include "coincontroldialog.h"
-#include "guiutil.h"
-#include "optionsmodel.h"
-#include "platformstyle.h"
-#include "sendcoinsentry.h"
-#include "walletmodel.h"
+#include <qt/addresstablemodel.h>
+#include <qt/komodounits.h>
+#include <qt/clientmodel.h>
+#include <qt/coincontroldialog.h>
+#include <qt/guiutil.h>
+#include <qt/optionsmodel.h>
+#include <qt/platformstyle.h>
+#include <qt/sendcoinsentry.h>
+#include <qt/walletmodel.h>
 
-#include "base58.h"
-#include "chainparams.h"
-#include "coincontrol.h"
-#include "ui_interface.h"
-#include "txmempool.h"
-#include "main.h"
-#include "policy/fees.h"
-#include "wallet/wallet_fees.h"
-#include "wallet/wallet.h"
-#include "key_io.h"
+#include <base58.h>
+#include <chainparams.h>
+#include <coincontrol.h>
+#include <ui_interface.h>
+#include <txmempool.h>
+#include <main.h>
+#include <policy/fees.h>
+#include <wallet/wallet_fees.h>
+#include <wallet/wallet.h>
+#include <key_io.h>
 
 #include <QFontMetrics>
 #include <QMessageBox>
@@ -710,7 +710,7 @@ void SendCoinsDialog::updateSmartFeeLabel()
         int lightness = ui->fallbackFeeWarningLabel->palette().color(QPalette::WindowText).lightness();
         QColor warning_colour(255 - (lightness / 5), 176 - (lightness / 3), 48 - (lightness / 14));
         ui->fallbackFeeWarningLabel->setStyleSheet("QLabel { color: " + warning_colour.name() + "; }");
-        ui->fallbackFeeWarningLabel->setIndent(QFontMetrics(ui->fallbackFeeWarningLabel->font()).width("x"));
+        ui->fallbackFeeWarningLabel->setIndent(GUIUtil::TextWidth(QFontMetrics(ui->fallbackFeeWarningLabel->font()), "x"));
     }
     else
     {
