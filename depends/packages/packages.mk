@@ -28,14 +28,10 @@ rust_crates := \
   crate_opaque_debug \
   crate_rand \
   crate_stream_cipher \
-  crate_typenum
-  
-ifeq ($(host_os),mingw32)
-	rust_crates += \
-	  crate_winapi_i686_pc_windows_gnu \
-	  crate_winapi \
-	  crate_winapi_x86_64_pc_windows_gnu
-endif
+  crate_winapi \
+  crate_typenum \
+  crate_winapi_i686_pc_windows_gnu \
+  crate_winapi_x86_64_pc_windows_gnu
 
 ifeq ($(build_os),darwin)
 	zcash_packages := libsnark libgmp libsodium
