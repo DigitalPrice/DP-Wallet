@@ -26,11 +26,11 @@ fi
 
 # Allow overrides to $BUILD and $HOST for porters. Most users will not need it.
 #   BUILD=i686-pc-linux-gnu ./zcutil/build.sh
-if [[ -z "${BUILD-}" ]]; then
-    BUILD="$(./depends/config.guess)"
-fi
 if [[ -z "${HOST-}" ]]; then
-    HOST="$BUILD"
+    HOST="$(./depends/config.guess)"
+fi
+if [[ -z "${BUILD-}" ]]; then
+    BUILD="${HOST}"
 fi
 
 # Allow users to set arbitrary compile flags. Most users will not need this.
