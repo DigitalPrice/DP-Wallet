@@ -2,11 +2,12 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "komodoamountfield.h"
+#include <qt/komodoamountfield.h>
 
-#include "komodounits.h"
-#include "guiconstants.h"
-#include "qvaluecombobox.h"
+#include <qt/komodounits.h>
+#include <qt/guiconstants.h>
+#include <qt/guiutil.h>
+#include <qt/qvaluecombobox.h>
 
 #include <QApplication>
 #include <QAbstractSpinBox>
@@ -99,7 +100,7 @@ public:
 
             const QFontMetrics fm(fontMetrics());
             int h = lineEdit()->minimumSizeHint().height();
-            int w = fm.width(KomodoUnits::format(KomodoUnits::KMD, KomodoUnits::maxMoney(), false, KomodoUnits::separatorAlways));
+            int w = GUIUtil::TextWidth(fm, KomodoUnits::format(KomodoUnits::KMD, KomodoUnits::maxMoney(), false, KomodoUnits::separatorAlways));
             w += 2; // cursor blinking space
 
             QStyleOptionSpinBox opt;

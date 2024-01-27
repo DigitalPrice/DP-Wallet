@@ -5,8 +5,8 @@
 #ifndef KOMODO_QT_GUIUTIL_H
 #define KOMODO_QT_GUIUTIL_H
 
-#include "amount.h"
-#include "fs.h"
+#include <amount.h>
+#include <fs.h>
 
 #include <QEvent>
 #include <QHeaderView>
@@ -243,6 +243,14 @@ namespace GUIUtil
      * Writes to debug.log short info about the used Qt and the host system.
      */
     void LogQtInfo();
+
+    /**
+     * Returns the distance in pixels appropriate for drawing a subsequent character after text.
+     *
+     * In Qt 5.12 and before the QFontMetrics::width() is used and it is deprecated since Qt 13.0.
+     * In Qt 5.11 the QFontMetrics::horizontalAdvance() was introduced.
+     */
+    int TextWidth(const QFontMetrics& fm, const QString& text);
 
 } // namespace GUIUtil
 
