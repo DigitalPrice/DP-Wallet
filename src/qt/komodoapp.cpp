@@ -466,7 +466,7 @@ void KomodoApplication::createOptionsModel(bool resetSettings)
 
 void KomodoApplication::createWindow(const NetworkStyle *networkStyle)
 {
-    window = new KomodoOceanGUI(platformStyle, networkStyle, 0);
+    window = new KomodoOceanGUI(platformStyle, networkStyle, nullptr);
 
     pollShutdownTimer = new QTimer(window);
     connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
@@ -475,7 +475,7 @@ void KomodoApplication::createWindow(const NetworkStyle *networkStyle)
 
 void KomodoApplication::createSplashScreen(const NetworkStyle *networkStyle)
 {
-    SplashScreen *splash = new SplashScreen(0, networkStyle);
+    SplashScreen *splash = new SplashScreen(nullptr, networkStyle);
     // We don't hold a direct pointer to the splash screen after creation, but the splash
     // screen will take care of deleting itself when slotFinish happens.
     splash->show();
@@ -615,7 +615,7 @@ void KomodoApplication::shutdownResult()
 
 void KomodoApplication::handleRunawayException(const QString &message)
 {
-    QMessageBox::critical(0, "Runaway exception", KomodoOceanGUI::tr("A fatal error occurred. Komodo can no longer continue safely and will quit.") + QString("\n\n") + message);
+    QMessageBox::critical(nullptr, "Runaway exception", KomodoOceanGUI::tr("A fatal error occurred. Komodo can no longer continue safely and will quit.") + QString("\n\n") + message);
     ::exit(EXIT_FAILURE);
 }
 
@@ -724,7 +724,7 @@ int main(int argc, char *argv[])
     /// - Do not call GetDataDir(true) before this step finishes
     if (!fs::is_directory(GetDataDir(false)))
     {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
+        QMessageBox::critical(nullptr, QObject::tr(PACKAGE_NAME),
                               QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(GetArg("-datadir", ""))));
         return EXIT_FAILURE;
     }
@@ -733,7 +733,7 @@ int main(int argc, char *argv[])
 //        ReadConfigFile(GetArg("-conf", KOMODO_CONF_FILENAME));
         ReadConfigFile(mapArgs, mapMultiArgs);
     } catch (const std::exception& e) {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME),
+        QMessageBox::critical(nullptr, QObject::tr(PACKAGE_NAME),
                               QObject::tr("Error: Cannot parse configuration file: %1. Only use key=value syntax.").arg(e.what()));
         return EXIT_FAILURE;
     }
@@ -749,7 +749,7 @@ int main(int argc, char *argv[])
 //        SelectParams(ChainNameFromCommandLine());
         SelectParams(NetworkIdFromCommandLine());
     } catch(std::exception &e) {
-        QMessageBox::critical(0, QObject::tr(PACKAGE_NAME), QObject::tr("Error: %1").arg(e.what()));
+        QMessageBox::critical(nullptr, QObject::tr(PACKAGE_NAME), QObject::tr("Error: %1").arg(e.what()));
         return EXIT_FAILURE;
     }
 #ifdef ENABLE_WALLET

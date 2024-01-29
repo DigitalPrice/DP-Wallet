@@ -458,7 +458,7 @@ RPCConsole::RPCConsole(const PlatformStyle *_platformStyle, QWidget *parent) :
 
     // set library version labels
 #ifdef ENABLE_WALLET
-    ui->berkeleyDBVersion->setText(DbEnv::version(0, 0, 0));
+    ui->berkeleyDBVersion->setText(DbEnv::version(nullptr, nullptr, nullptr));
 #else
     ui->label_berkeleyDBVersion->hide();
     ui->berkeleyDBVersion->hide();
