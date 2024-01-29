@@ -29,6 +29,7 @@
 #endif
 
 #include <QDesktopWidget>
+#include <QDateTime>
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>

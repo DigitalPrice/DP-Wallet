@@ -34,6 +34,7 @@ class ModalOverlay;
 QT_BEGIN_NAMESPACE
 class QAction;
 class QProgressBar;
+class QDateTime;
 class QProgressDialog;
 QT_END_NAMESPACE
 
