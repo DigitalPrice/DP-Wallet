@@ -1062,4 +1062,13 @@ int TextWidth(const QFontMetrics& fm, const QString& text)
 #endif
 }
 
+QDateTime StartOfDay(const QDate& date)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 14, 0))
+    return date.startOfDay();
+#else
+    return QDateTime(date);
+#endif
+}
+
 } // namespace GUIUtil
