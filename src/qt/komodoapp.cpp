@@ -469,7 +469,7 @@ void KomodoApplication::createWindow(const NetworkStyle *networkStyle)
     window = new KomodoOceanGUI(platformStyle, networkStyle, nullptr);
 
     pollShutdownTimer = new QTimer(window);
-    connect(pollShutdownTimer, SIGNAL(timeout()), window, SLOT(detectShutdown()));
+    connect(pollShutdownTimer, &QTimer::timeout, window, &KomodoOceanGUI::detectShutdown);
     pollShutdownTimer->start(200);
 }
 
@@ -479,8 +479,8 @@ void KomodoApplication::createSplashScreen(const NetworkStyle *networkStyle)
     // We don't hold a direct pointer to the splash screen after creation, but the splash
     // screen will take care of deleting itself when slotFinish happens.
     splash->show();
-    connect(this, SIGNAL(splashFinished(QWidget*)), splash, SLOT(slotFinish(QWidget*)));
-    connect(this, SIGNAL(requestedShutdown()), splash, SLOT(close()));
+    connect(this, &KomodoApplication::splashFinished, splash, &SplashScreen::slotFinish);
+    connect(this, &KomodoApplication::requestedShutdown, splash, &QWidget::close);
 }
 
 void KomodoApplication::startThread()
@@ -492,14 +492,14 @@ void KomodoApplication::startThread()
     executor->moveToThread(coreThread);
 
     /*  communication to and from thread */
-    connect(executor, SIGNAL(initializeResult(bool)), this, SLOT(initializeResult(bool)));
-    connect(executor, SIGNAL(shutdownResult()), this, SLOT(shutdownResult()));
-    connect(executor, SIGNAL(runawayException(QString)), this, SLOT(handleRunawayException(QString)));
-    connect(this, SIGNAL(requestedInitialize()), executor, SLOT(initialize()));
-    connect(this, SIGNAL(requestedShutdown()), executor, SLOT(shutdown()));
+    connect(executor, &KomodoCore::initializeResult, this, &KomodoApplication::initializeResult);
+    connect(executor, &KomodoCore::shutdownResult, this, &KomodoApplication::shutdownResult);
+    connect(executor, &KomodoCore::runawayException, this, &KomodoApplication::handleRunawayException);
+    connect(this, &KomodoApplication::requestedInitialize, executor, &KomodoCore::initialize);
+    connect(this, &KomodoApplication::requestedShutdown, executor, &KomodoCore::shutdown);
     /*  make sure executor object is deleted in its own thread */
-    connect(this, SIGNAL(stopThread()), executor, SLOT(deleteLater()));
-    connect(this, SIGNAL(stopThread()), coreThread, SLOT(quit()));
+    connect(this, &KomodoApplication::stopThread, executor, &QObject::deleteLater);
+    connect(this, &KomodoApplication::stopThread, coreThread, &QThread::quit);
 
     coreThread->start();
 }
@@ -573,8 +573,7 @@ void KomodoApplication::initializeResult(bool success)
             window->setCurrentWallet(KomodoOceanGUI::DEFAULT_WALLET);
             
             #ifdef ENABLE_BIP70
-            connect(walletModel, SIGNAL(coinsSent(CWallet*,SendCoinsRecipient,QByteArray)),
-                             paymentServer, SLOT(fetchPaymentACK(CWallet*,const SendCoinsRecipient&,QByteArray)));
+            connect(walletModel, &WalletModel::coinsSent, paymentServer, &PaymentServer::fetchPaymentACK);
             #endif
         }
 #endif
@@ -593,15 +592,10 @@ void KomodoApplication::initializeResult(bool success)
 #ifdef ENABLE_WALLET
         // Now that initialization/startup is done, process any command-line
         // komodo: URIs or payment requests:
-        connect(paymentServer, SIGNAL(receivedPaymentRequest(SendCoinsRecipient)),
-                         window, SLOT(handlePaymentRequest(SendCoinsRecipient)));
-        /*connect(paymentServer, SIGNAL(receivedZPaymentRequest(SendCoinsRecipient)),
-                         window, SLOT(handleZPaymentRequest(SendCoinsRecipient)));*/
-        connect(window, SIGNAL(receivedURI(QString)),
-                         paymentServer, SLOT(handleURIOrFile(QString)));
-        connect(paymentServer, SIGNAL(message(QString,QString,unsigned int)),
-                         window, SLOT(message(QString,QString,unsigned int)));
-        QTimer::singleShot(100, paymentServer, SLOT(uiReady()));
+        connect(paymentServer, &PaymentServer::receivedPaymentRequest, window, &KomodoOceanGUI::handlePaymentRequest);
+        connect(window, &KomodoOceanGUI::receivedURI, paymentServer, &PaymentServer::handleURIOrFile);
+        connect(paymentServer, &PaymentServer::message, [this](const QString& title, const QString& message, unsigned int style) { window->message(title, message, style); });
+        QTimer::singleShot(100, paymentServer, &PaymentServer::uiReady);
 #endif
     } else {
         quit(); // Exit main loop

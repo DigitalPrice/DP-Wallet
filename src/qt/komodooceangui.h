@@ -38,6 +38,11 @@ class QDateTime;
 class QProgressDialog;
 QT_END_NAMESPACE
 
+namespace GUIUtil {
+class ClickableLabel;
+class ClickableProgressBar;
+}
+
 /**
   Komodo GUI main class. This class represents the main window of the Komodo UI. It communicates with both the client and
   wallet models to give the user an up-to-date view of the current core state.
@@ -83,13 +88,13 @@ private:
     WalletFrame *walletFrame;
 
     UnitDisplayStatusBarControl *unitDisplayControl;
-    QLabel *labelWalletEncryptionIcon;
-    QLabel *labelWalletHDStatusIcon;
-    QLabel *connectionsControl;
-    QLabel *labelBlocksIcon;
-    QLabel *progressBarLabel;
-    QProgressBar *progressBar;
-    QProgressDialog *progressDialog;
+    QLabel *labelWalletEncryptionIcon = nullptr;
+    QLabel* labelWalletHDStatusIcon = nullptr;
+    GUIUtil::ClickableLabel* connectionsControl = nullptr;
+    GUIUtil::ClickableLabel* labelBlocksIcon = nullptr;
+    QLabel* progressBarLabel = nullptr;
+    GUIUtil::ClickableProgressBar* progressBar = nullptr;
+    QProgressDialog* progressDialog = nullptr;
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
@@ -197,7 +202,7 @@ public Q_SLOTS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
 #endif // ENABLE_WALLET
 
-private Q_SLOTS:
+public Q_SLOTS:
 #ifdef ENABLE_WALLET
     /** Switch to overview (home) page */
     void gotoOverviewPage();
@@ -237,7 +242,8 @@ private Q_SLOTS:
 #endif
 
     /** Show window if hidden, unminimize when minimized, rise when obscured or show if hidden and fToggleHidden is true */
-    void showNormalIfMinimized(bool fToggleHidden = false);
+    void showNormalIfMinimized() { showNormalIfMinimized(false); }
+    void showNormalIfMinimized(bool fToggleHidden);
     /** Simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
 
