@@ -41,6 +41,7 @@
 #include "ui_interface.h"
 #include "util.h"
 #include "warnings.h"
+#include <uint256.h>
 
 #ifdef ENABLE_WALLET
 #include "wallet/wallet.h"
@@ -94,6 +95,7 @@ Q_IMPORT_PLUGIN(QMacStylePlugin);
 // Declare meta types used for QMetaObject::invokeMethod
 Q_DECLARE_METATYPE(bool*)
 Q_DECLARE_METATYPE(CAmount)
+Q_DECLARE_METATYPE(uint256)
 
 static void InitMessage(const std::string &message)
 {

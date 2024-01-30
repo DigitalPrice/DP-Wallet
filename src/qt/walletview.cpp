@@ -74,7 +74,7 @@ WalletView::WalletView(const PlatformStyle *_platformStyle, QWidget *parent):
     connect(overviewPage, &OverviewPage::outOfSyncWarningClicked, this, &WalletView::requestedSyncWarningInfo);
 
     // Highlight transaction after send - commented out until apply bitcoin/bitcoin@e7d9fc5c5316a63917e076ca58a0b552ea0d56ae
-    //connect(sendCoinsPage, &SendCoinsDialog::coinsSent, transactionView, static_cast<void (TransactionView::*)(const uint256&)>(&TransactionView::focusTransaction));
+    connect(sendCoinsPage, &SendCoinsDialog::coinsSent, transactionView, static_cast<void (TransactionView::*)(const uint256&)>(&TransactionView::focusTransaction));
 
     // Clicking on "Export" allows to export the transaction list
     connect(exportButton, &QPushButton::clicked, transactionView, &TransactionView::exportClicked);
@@ -99,6 +99,9 @@ void WalletView::setKomodoOceanGUI(KomodoOceanGUI *gui)
     {
         // Clicking on a transaction on the overview page simply sends you to transaction history page
         connect(overviewPage, &OverviewPage::transactionClicked, gui, &KomodoOceanGUI::gotoHistoryPage);
+
+        // Navigate to transaction history page after send
+        connect(sendCoinsPage, SIGNAL(coinsSent(uint256)), gui, SLOT(gotoHistoryPage()));
 
         // Receive and report messages
         connect(this, &WalletView::message, [gui](const QString &title, const QString &message, unsigned int style) { gui->message(title, message, style); });

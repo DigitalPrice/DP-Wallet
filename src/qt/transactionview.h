@@ -7,6 +7,8 @@
 
 #include "guiutil.h"
 
+#include <uint256.h>
+
 #include <QWidget>
 #include <QKeyEvent>
 
@@ -110,7 +112,7 @@ public Q_SLOTS:
     void changedPrefix();
     void exportClicked();
     void focusTransaction(const QModelIndex&);
-
+    void focusTransaction(const uint256& txid);
 };
 
 #endif // KOMODO_QT_TRANSACTIONVIEW_H
