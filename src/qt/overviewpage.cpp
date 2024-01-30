@@ -271,12 +271,13 @@ void OverviewPage::setWalletModel(WalletModel *model)
         setBalance(model->getBalance(), model->getUnconfirmedBalance(), model->getImmatureBalance(),
                    model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(),
                    model->getPrivateBalance(),model->getInterestBalance());
-        connect(model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
 
-        connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+		connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
+        
+        connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
 
         updateWatchOnlyLabels(model->haveWatchOnly());
-        connect(model, SIGNAL(notifyWatchonlyChanged(bool)), this, SLOT(updateWatchOnlyLabels(bool)));
+        connect(model, &WalletModel::notifyWatchonlyChanged, this, &OverviewPage::updateWatchOnlyLabels);
     }
 
     // update the display unit, to not use the default ("KMD")

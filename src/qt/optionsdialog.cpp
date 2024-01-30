@@ -57,7 +57,7 @@ OptionsDialog::OptionsDialog(QWidget *parent, bool enableWallet) :
 
     connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyIpTor, &QWidget::setEnabled);
     connect(ui->connectSocksTor, &QPushButton::toggled, ui->proxyPortTor, &QWidget::setEnabled);
-    connect(ui->connectSocksTor, &QPushButton::toggled, this, &OptionsDialog::updateProxyValidationState)
+    connect(ui->connectSocksTor, &QPushButton::toggled, this, &OptionsDialog::updateProxyValidationState);
 
     /* Window elements init */
 #ifdef Q_OS_MAC

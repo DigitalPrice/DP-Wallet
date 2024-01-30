@@ -100,8 +100,8 @@ Q_SIGNALS:
     void message(const QString &title, const QString &message, unsigned int style);
 };
 
-
-#define SEND_CONFIRM_DELAY   3
+//change to 1 because fee bumping (the actual reason it was added) doesn't actually work correctly and all it does is slow user down
+#define SEND_CONFIRM_DELAY   1
 
 class SendConfirmationDialog : public QMessageBox
 {

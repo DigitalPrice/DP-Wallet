@@ -250,7 +250,7 @@ TransactionTableModel::TransactionTableModel(const PlatformStyle *_platformStyle
     columns << QString() << QString() << tr("Date") << tr("Type") << tr("Label") << KomodoUnits::getAmountColumnTitle(walletModel->getOptionsModel()->getDisplayUnit());
     priv->refreshWallet();
 
-    connect(walletModel->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+    connect(walletModel->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &TransactionTableModel::updateDisplayUnit);
 
     subscribeToCoreSignals();
 }
