@@ -15,6 +15,7 @@
 #include "transactiontablemodel.h"
 #include "walletmodel.h"
 #include "util.h" // for KOMODO_ASSETCHAIN_MAXLEN
+#include <qt/transactionoverviewwidget.h>
 
 #include <QAbstractItemDelegate>
 #include <QApplication>
@@ -141,7 +142,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-    connect(ui->listTransactions, &QListView::clicked, this, &OverviewPage::handleTransactionClicked);
+    connect(ui->listTransactions, &TransactionOverviewWidget::clicked, this, &OverviewPage::handleTransactionClicked);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
