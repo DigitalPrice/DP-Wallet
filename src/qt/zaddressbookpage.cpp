@@ -50,7 +50,7 @@ ZAddressBookPage::ZAddressBookPage(const PlatformStyle *platformStyle, Mode _mod
         case SendingTab: setWindowTitle(tr("Choose the z-address to send coins to")); break;
         case ReceivingTab: setWindowTitle(tr("Choose the z-address to receive coins with")); break;
         }
-        connect(ui->tableView, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(accept()));
+        connect(ui->tableView, &QTableView::doubleClicked, this, &QDialog::accept);
         ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
         ui->tableView->setFocus();
         ui->closeButton->setText(tr("C&hoose"));
@@ -100,17 +100,17 @@ ZAddressBookPage::ZAddressBookPage(const PlatformStyle *platformStyle, Mode _mod
     contextMenu->addSeparator();
 
     // Connect signals for context menu actions
-    connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(on_copyAddress_clicked()));
-    connect(copyLabelAction, SIGNAL(triggered()), this, SLOT(onCopyLabelAction()));
-    connect(editAction, SIGNAL(triggered()), this, SLOT(onEditAction()));
-    connect(deleteAction, SIGNAL(triggered()), this, SLOT(on_deleteAddress_clicked()));
+    connect(copyAddressAction, &QAction::triggered, this, &ZAddressBookPage::on_copyAddress_clicked);
+    connect(copyLabelAction, &QAction::triggered, this, &ZAddressBookPage::onCopyLabelAction);
+    connect(editAction, &QAction::triggered, this, &ZAddressBookPage::onEditAction);
+    connect(deleteAction, &QAction::triggered, this, &ZAddressBookPage::on_deleteAddress_clicked);
 
-    connect(copyZSendManyToAction, SIGNAL(triggered()), this, SLOT(onCopyZSendManyToAction()));
-    connect(copyZSendManyFromAction, SIGNAL(triggered()), this, SLOT(onCopyZSendManyFromAction()));
+    connect(copyZSendManyToAction, &QAction::triggered, this, &ZAddressBookPage::onCopyZSendManyToAction);
+    connect(copyZSendManyFromAction, &QAction::triggered, this, &ZAddressBookPage::onCopyZSendManyFromAction);
 
-    connect(ui->tableView, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(contextualMenu(QPoint)));
+    connect(ui->tableView, &QWidget::customContextMenuRequested, this, &ZAddressBookPage::contextualMenu);
 
-    connect(ui->closeButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(ui->closeButton, &QPushButton::clicked, this, &QDialog::accept);
 }
 
 ZAddressBookPage::~ZAddressBookPage()
@@ -161,11 +161,10 @@ void ZAddressBookPage::setModel(ZAddressTableModel *_model)
     ui->tableView->horizontalHeader()->setSectionResizeMode(ZAddressTableModel::Address, QHeaderView::ResizeToContents);
 #endif
 
-    connect(ui->tableView->selectionModel(), SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-        this, SLOT(selectionChanged()));
+    connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ZAddressBookPage::selectionChanged);
 
     // Select row for newly created address
-    connect(_model, SIGNAL(rowsInserted(QModelIndex,int,int)), this, SLOT(selectNewAddress(QModelIndex,int,int)));
+    connect(_model, &ZAddressTableModel::rowsInserted, this, &ZAddressBookPage::selectNewAddress);
 
     selectionChanged();
 }

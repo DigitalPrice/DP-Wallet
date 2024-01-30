@@ -64,9 +64,9 @@ ZSendCoinsDialog::ZSendCoinsDialog(const PlatformStyle *_platformStyle, QWidget 
 
     addEntry();
 
-    connect(ui->addButton, SIGNAL(clicked()), this, SLOT(addEntry()));
-    connect(ui->clearButton, SIGNAL(clicked()), this, SLOT(clear()));
-    connect(ui->refreshPayFrom, SIGNAL(clicked()), this, SLOT(updatePayFromList()));
+    connect(ui->addButton, &QPushButton::clicked, this, &ZSendCoinsDialog::addEntry);
+    connect(ui->clearButton, &QPushButton::clicked, this, &ZSendCoinsDialog::clear);
+    connect(ui->refreshPayFrom, &QPushButton::clicked, this, &ZSendCoinsDialog::updatePayFromList);
 
     // init transaction fee section
     QSettings settings;
@@ -96,17 +96,17 @@ void ZSendCoinsDialog::setModel(WalletModel *_model)
 
         setBalance(_model->getBalance(), _model->getUnconfirmedBalance(), _model->getImmatureBalance(),
                    _model->getWatchBalance(), _model->getWatchUnconfirmedBalance(), _model->getWatchImmatureBalance());
-        connect(_model, SIGNAL(balanceChanged(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)), this, SLOT(setBalance(CAmount,CAmount,CAmount,CAmount,CAmount,CAmount)));
-        connect(_model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
+        connect(_model, &WalletModel::balanceChanged, this, &ZSendCoinsDialog::setBalance);
+        connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &ZSendCoinsDialog::updateDisplayUnit);
         updateDisplayUnit();
 
         // Coin Control
-        connect(_model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(coinControlUpdateLabels()));
+        connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &ZSendCoinsDialog::coinControlUpdateLabels);
         ui->frameCoinControl->setVisible(true); // frame "coin control" should be always visible, bcz it contains PayFrom combobox
         coinControlUpdateLabels();
 
-        connect(ui->payFromAddress, SIGNAL(currentIndexChanged(int)), this, SLOT(coinControlUpdateLabels()));
-        connect(ui->customFee, SIGNAL(valueChanged()), this, SLOT(coinControlUpdateLabels()));
+        connect(ui->payFromAddress, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &ZSendCoinsDialog::coinControlUpdateLabels);
+        connect(ui->customFee, &KomodoAmountField::valueChanged, this, &ZSendCoinsDialog::coinControlUpdateLabels);
         ui->customFee->setSingleStep(GetRequiredFee(1000));
     }
 }
@@ -292,10 +292,10 @@ SendCoinsEntry *ZSendCoinsDialog::addEntry()
     SendCoinsEntry *entry = new SendCoinsEntry(platformStyle, this, true);
     entry->setModel(model);
     ui->entries->addWidget(entry);
-    connect(entry, SIGNAL(removeEntry(SendCoinsEntry*)), this, SLOT(removeEntry(SendCoinsEntry*)));
-    connect(entry, SIGNAL(useAvailableBalance(SendCoinsEntry*)), this, SLOT(useAvailableBalance(SendCoinsEntry*)));
-    connect(entry, SIGNAL(payAmountChanged()), this, SLOT(coinControlUpdateLabels()));
-    connect(entry, SIGNAL(subtractFeeFromAmountChanged()), this, SLOT(coinControlUpdateLabels()));
+    connect(entry, &SendCoinsEntry::removeEntry, this, &ZSendCoinsDialog::removeEntry);
+    connect(entry, &SendCoinsEntry::useAvailableBalance, this, &ZSendCoinsDialog::useAvailableBalance);
+    connect(entry, &SendCoinsEntry::payAmountChanged, this, &ZSendCoinsDialog::coinControlUpdateLabels);
+    connect(entry, &SendCoinsEntry::subtractFeeFromAmountChanged, this, &ZSendCoinsDialog::coinControlUpdateLabels);
 
     // Focus the field, so that entry can start immediately
     entry->clear();
