@@ -718,8 +718,12 @@ fi
 
 if test x$use_boost = xyes; then
 
+dnl Minimum required Boost version
+dnl TODO: update this section to some time AFTER the initial 2013 commit
+define(MINIMUM_REQUIRED_BOOST, 1.72.0)
+
 dnl Check for boost libs
-AX_BOOST_BASE
+AX_BOOST_BASE([MINIMUM_REQUIRED_BOOST])
 AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_PROGRAM_OPTIONS
