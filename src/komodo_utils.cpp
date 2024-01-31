@@ -1583,6 +1583,7 @@ void komodo_args(char *argv0)
         for (i=0; i<4; i++)
             sprintf(&magicstr[i<<1],"%02x",magic[i]);
         magicstr[8] = 0;
+/*This should only ever need run once and never by every user because few known uses - TODO: eventually make it run with param
 #ifndef FROM_CLI
         char fname[512];
         sprintf(fname,"%s_7776",chainName.symbol().c_str());
@@ -1595,7 +1596,7 @@ void komodo_args(char *argv0)
             fprintf(fp,iguanafmtstr,name.c_str(),name.c_str(),name.c_str(),name.c_str(),magicstr,ASSETCHAINS_P2PPORT,ASSETCHAINS_RPCPORT,"78.47.196.146",notarypay);
             fclose(fp);
         } else LogPrintf("error creating (%s)\n",fname);
-#endif
+#endif*/
         if ( ASSETCHAINS_CC < 2 )
         {
             if ( KOMODO_CCACTIVATE != 0 )
