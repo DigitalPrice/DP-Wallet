@@ -618,8 +618,6 @@ public:
     bool InMempool() const;
     bool IsTrusted() const;
 
-    bool WriteToDisk(CWalletDB *pwalletdb);
-
     int64_t GetTxTime() const;
 
     bool RelayWalletTransaction();
@@ -841,7 +839,7 @@ protected:
                 // (i.e. are purely transparent), as well as shielding and unshielding
                 // transactions in which we only have transparent addresses involved.
                 if (!(wtx.mapSproutNoteData.empty() && wtx.mapSaplingNoteData.empty())) {
-                    if (!walletdb.WriteTx(wtxItem.first, wtx)) {
+                    if (!walletdb.WriteTx(wtx)) {
                         LogPrintf("SetBestChain(): Failed to write CWalletTx, aborting atomic write\n");
                         walletdb.TxnAbort();
                         return;
@@ -1349,7 +1347,7 @@ public:
 
     /* Set the current encrypted HD seed, without saving it to disk (used by LoadWallet) */
     bool LoadCryptedHDSeed(const uint256& seedFp, const std::vector<unsigned char>& seed);
-    
+
     /* Find notes filtered by payment address, min depth, ability to spend */
     void GetFilteredNotes(std::vector<CSproutNotePlaintextEntry>& sproutEntries,
                           std::vector<SaplingNoteEntry>& saplingEntries,
@@ -1535,7 +1533,7 @@ private:
     boost::optional<std::string> hdKeypath; // currently sapling only
     boost::optional<std::string> seedFpStr; // currently sapling only
     bool log;
-public: 
+public:
     AddSpendingKeyToWallet(CWallet *wallet, const Consensus::Params &params) :
         m_wallet(wallet), params(params), nTime(1), hdKeypath(boost::none), seedFpStr(boost::none), log(false) {}
     AddSpendingKeyToWallet(
