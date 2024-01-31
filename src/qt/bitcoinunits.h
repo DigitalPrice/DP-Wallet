@@ -44,12 +44,12 @@
 /** Komodo unit definitions. Encapsulates parsing and formatting
    and serves as list model for drop-down selection boxes.
 */
-class KomodoUnits: public QAbstractListModel
+class BitcoinUnits: public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    explicit KomodoUnits(QObject *parent);
+    explicit BitcoinUnits(QObject *parent);
 
     /** Komodo units.
       @note Source: https://en.komodo.it/wiki/Units . Please add only sensible ones
@@ -123,8 +123,8 @@ public:
     static CAmount maxMoney();
 
 private:
-    QList<KomodoUnits::Unit> unitlist;
+    QList<BitcoinUnits::Unit> unitlist;
 };
-typedef KomodoUnits::Unit KomodoUnit;
+typedef BitcoinUnits::Unit BitcoinUnit;
 
 #endif // KOMODO_QT_KOMODOUNITS_H

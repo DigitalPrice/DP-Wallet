@@ -2,29 +2,29 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include "komodounits.h"
+#include "bitcoinunits.h"
 #include "komodo_defs.h"
 
 #include "primitives/transaction.h"
 
 #include <QStringList>
 
-KomodoUnits::KomodoUnits(QObject *parent):
+BitcoinUnits::BitcoinUnits(QObject *parent):
         QAbstractListModel(parent),
         unitlist(availableUnits())
 {
 }
 
-QList<KomodoUnits::Unit> KomodoUnits::availableUnits()
+QList<BitcoinUnits::Unit> BitcoinUnits::availableUnits()
 {
-    QList<KomodoUnits::Unit> unitlist;
+    QList<BitcoinUnits::Unit> unitlist;
     unitlist.append(KMD);
     unitlist.append(mKMD);
     unitlist.append(uKMD);
     return unitlist;
 }
 
-bool KomodoUnits::valid(int unit)
+bool BitcoinUnits::valid(int unit)
 {
     switch(unit)
     {
@@ -37,7 +37,7 @@ bool KomodoUnits::valid(int unit)
     }
 }
 
-QString KomodoUnits::name(int unit)
+QString BitcoinUnits::name(int unit)
 {
     switch(unit)
     {
@@ -48,7 +48,7 @@ QString KomodoUnits::name(int unit)
     }
 }
 
-QString KomodoUnits::description(int unit)
+QString BitcoinUnits::description(int unit)
 {
     switch(unit)
     {
@@ -59,7 +59,7 @@ QString KomodoUnits::description(int unit)
     }
 }
 
-qint64 KomodoUnits::factor(int unit)
+qint64 BitcoinUnits::factor(int unit)
 {
     switch(unit)
     {
@@ -70,7 +70,7 @@ qint64 KomodoUnits::factor(int unit)
     }
 }
 
-int KomodoUnits::decimals(int unit)
+int BitcoinUnits::decimals(int unit)
 {
     switch(unit)
     {
@@ -81,7 +81,7 @@ int KomodoUnits::decimals(int unit)
     }
 }
 
-QString KomodoUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators)
+QString BitcoinUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorStyle separators)
 {
     // Note: not using straight sprintf here because we do NOT want
     // localized number formatting.
@@ -119,19 +119,19 @@ QString KomodoUnits::format(int unit, const CAmount& nIn, bool fPlus, SeparatorS
 // Please take care to use formatHtmlWithUnit instead, when
 // appropriate.
 
-QString KomodoUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString BitcoinUnits::formatWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
     return format(unit, amount, plussign, separators) + QString(" ") + name(unit);
 }
 
-QString KomodoUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
+QString BitcoinUnits::formatHtmlWithUnit(int unit, const CAmount& amount, bool plussign, SeparatorStyle separators)
 {
     QString str(formatWithUnit(unit, amount, plussign, separators));
     str.replace(QChar(THIN_SP_CP), QString(THIN_SP_HTML));
     return QString("<span style='white-space: nowrap;'>%1</span>").arg(str);
 }
 
-QString KomodoUnits::formatWithPrivacy(int unit, const CAmount& amount, SeparatorStyle separators, bool privacy)
+QString BitcoinUnits::formatWithPrivacy(int unit, const CAmount& amount, SeparatorStyle separators, bool privacy)
 {
     assert(amount >= 0);
     QString value;
@@ -143,7 +143,7 @@ QString KomodoUnits::formatWithPrivacy(int unit, const CAmount& amount, Separato
     return value + QString(" ") + name(unit);
 }
 
-bool KomodoUnits::parse(int unit, const QString &value, CAmount *val_out)
+bool BitcoinUnits::parse(int unit, const QString &value, CAmount *val_out)
 {
     if(!valid(unit) || value.isEmpty())
         return false; // Refuse to parse invalid unit or empty string
@@ -182,23 +182,23 @@ bool KomodoUnits::parse(int unit, const QString &value, CAmount *val_out)
     return ok;
 }
 
-QString KomodoUnits::getAmountColumnTitle(int unit)
+QString BitcoinUnits::getAmountColumnTitle(int unit)
 {
     QString amountTitle = QObject::tr("Amount");
-    if (KomodoUnits::valid(unit))
+    if (BitcoinUnits::valid(unit))
     {
-        amountTitle += " ("+KomodoUnits::name(unit) + ")";
+        amountTitle += " ("+BitcoinUnits::name(unit) + ")";
     }
     return amountTitle;
 }
 
-int KomodoUnits::rowCount(const QModelIndex &parent) const
+int BitcoinUnits::rowCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return unitlist.size();
 }
 
-QVariant KomodoUnits::data(const QModelIndex &index, int role) const
+QVariant BitcoinUnits::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     if(row >= 0 && row < unitlist.size())
@@ -218,7 +218,7 @@ QVariant KomodoUnits::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-CAmount KomodoUnits::maxMoney()
+CAmount BitcoinUnits::maxMoney()
 {
     return MAX_MONEY;
 }

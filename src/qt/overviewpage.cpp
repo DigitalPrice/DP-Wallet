@@ -5,7 +5,7 @@
 #include "overviewpage.h"
 #include "ui_overviewpage.h"
 
-#include "komodounits.h"
+#include "bitcoinunits.h"
 #include "clientmodel.h"
 #include "guiconstants.h"
 #include "guiutil.h"
@@ -34,7 +34,7 @@ class TxViewDelegate : public QAbstractItemDelegate
     Q_OBJECT
 public:
     explicit TxViewDelegate(const PlatformStyle *_platformStyle, QObject *parent=nullptr):
-        QAbstractItemDelegate(parent), unit(KomodoUnits::KMD),
+        QAbstractItemDelegate(parent), unit(BitcoinUnits::KMD),
         platformStyle(_platformStyle)
     {
         connect(this, &TxViewDelegate::width_changed, this, &TxViewDelegate::sizeHintChanged);
@@ -94,7 +94,7 @@ public:
             foreground = option.palette.color(QPalette::Text);
         }
         painter->setPen(foreground);
-        QString amountText = KomodoUnits::formatWithUnit(unit, amount, true, KomodoUnits::separatorAlways);
+        QString amountText = BitcoinUnits::formatWithUnit(unit, amount, true, BitcoinUnits::separatorAlways);
         if(!confirmed)
         {
             amountText = QString("[") + amountText + QString("]");
@@ -219,17 +219,17 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
     currentWatchImmatureBalance = watchImmatureBalance;
     //currentPrivateBalance = privateBalance;
     currentInterestBalance = interestBalance;
-    ui->labelBalance->setText(KomodoUnits::formatWithPrivacy(unit, balance, KomodoUnits::separatorAlways, m_privacy));
-    ui->labelUnconfirmed->setText(KomodoUnits::formatWithPrivacy(unit, unconfirmedBalance, KomodoUnits::separatorAlways, m_privacy));
-    ui->labelImmature->setText(KomodoUnits::formatWithPrivacy(unit, immatureBalance, KomodoUnits::separatorAlways, m_privacy));
-    ui->labelTotal->setText(KomodoUnits::formatWithPrivacy(unit, balance + unconfirmedBalance + immatureBalance + interestBalance, KomodoUnits::separatorAlways, m_privacy));
-    ui->labelWatchAvailable->setText(KomodoUnits::formatWithPrivacy(unit, watchOnlyBalance, KomodoUnits::separatorAlways, m_privacy));
-    ui->labelWatchPending->setText(KomodoUnits::formatWithPrivacy(unit, watchUnconfBalance, KomodoUnits::separatorAlways, m_privacy));
-    ui->labelWatchImmature->setText(KomodoUnits::formatWithPrivacy(unit, watchImmatureBalance, KomodoUnits::separatorAlways, m_privacy));
-    ui->labelWatchTotal->setText(KomodoUnits::formatWithPrivacy(unit, watchOnlyBalance + watchUnconfBalance + watchImmatureBalance, KomodoUnits::separatorAlways, m_privacy));
+    ui->labelBalance->setText(BitcoinUnits::formatWithPrivacy(unit, balance, BitcoinUnits::separatorAlways, m_privacy));
+    ui->labelUnconfirmed->setText(BitcoinUnits::formatWithPrivacy(unit, unconfirmedBalance, BitcoinUnits::separatorAlways, m_privacy));
+    ui->labelImmature->setText(BitcoinUnits::formatWithPrivacy(unit, immatureBalance, BitcoinUnits::separatorAlways, m_privacy));
+    ui->labelTotal->setText(BitcoinUnits::formatWithPrivacy(unit, balance + unconfirmedBalance + immatureBalance + interestBalance, BitcoinUnits::separatorAlways, m_privacy));
+    ui->labelWatchAvailable->setText(BitcoinUnits::formatWithPrivacy(unit, watchOnlyBalance, BitcoinUnits::separatorAlways, m_privacy));
+    ui->labelWatchPending->setText(BitcoinUnits::formatWithPrivacy(unit, watchUnconfBalance, BitcoinUnits::separatorAlways, m_privacy));
+    ui->labelWatchImmature->setText(BitcoinUnits::formatWithPrivacy(unit, watchImmatureBalance, BitcoinUnits::separatorAlways, m_privacy));
+    ui->labelWatchTotal->setText(BitcoinUnits::formatWithPrivacy(unit, watchOnlyBalance + watchUnconfBalance + watchImmatureBalance, BitcoinUnits::separatorAlways, m_privacy));
 
-    //ui->labelPrivateBalance->setText(KomodoUnits::formatWithPrivacy(unit, privateBalance, KomodoUnits::separatorAlways, m_privacy));
-    //ui->labelInterestBalance->setText(KomodoUnits::formatWithPrivacy(unit, interestBalance, KomodoUnits::separatorAlways, m_privacy));
+    //ui->labelPrivateBalance->setText(BitcoinUnits::formatWithPrivacy(unit, privateBalance, BitcoinUnits::separatorAlways, m_privacy));
+    //ui->labelInterestBalance->setText(BitcoinUnits::formatWithPrivacy(unit, interestBalance, BitcoinUnits::separatorAlways, m_privacy));
 
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users

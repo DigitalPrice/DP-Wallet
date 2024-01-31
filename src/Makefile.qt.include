@@ -128,10 +128,10 @@ QT_MOC_CPP = \
   qt/moc_zaddresstablemodel.cpp \
   qt/moc_askpassphrasedialog.cpp \
   qt/moc_bantablemodel.cpp \
-  qt/moc_komodoaddressvalidator.cpp \
-  qt/moc_komodoamountfield.cpp \
-  qt/moc_komodooceangui.cpp \
-  qt/moc_komodounits.cpp \
+  qt/moc_bitcoinaddressvalidator.cpp \
+  qt/moc_bitcoinamountfield.cpp \
+  qt/moc_bitcoingui.cpp \
+  qt/moc_bitcoinunits.cpp \
   qt/moc_callback.cpp \
   qt/moc_clientmodel.cpp \
   qt/moc_coincontroldialog.cpp \
@@ -180,8 +180,8 @@ KOMODO_MM = qt/macdockiconhandler.mm
 #  qt/macnotificationhandler.mm
 
 QT_MOC = \
-  qt/komodoapp.moc \
-  qt/komodoamountfield.moc \
+  qt/bitcoin.moc \
+  qt/bitcoinamountfield.moc \
   qt/callback.moc \
   qt/intro.moc \
   qt/overviewpage.moc \
@@ -209,10 +209,10 @@ KOMODO_QT_H = \
   qt/zaddresstablemodel.h \
   qt/askpassphrasedialog.h \
   qt/bantablemodel.h \
-  qt/komodoaddressvalidator.h \
-  qt/komodoamountfield.h \
-  qt/komodooceangui.h \
-  qt/komodounits.h \
+  qt/bitcoinaddressvalidator.h \
+  qt/bitcoinamountfield.h \
+  qt/bitcoingui.h \
+  qt/bitcoinunits.h \
   qt/callback.h \
   qt/clientmodel.h \
   qt/coincontroldialog.h \
@@ -321,10 +321,10 @@ RES_ICONS = \
 
 KOMODO_QT_BASE_CPP = \
   qt/bantablemodel.cpp \
-  qt/komodoaddressvalidator.cpp \
-  qt/komodoamountfield.cpp \
-  qt/komodooceangui.cpp \
-  qt/komodounits.cpp \
+  qt/bitcoinaddressvalidator.cpp \
+  qt/bitcoinamountfield.cpp \
+  qt/bitcoingui.cpp \
+  qt/bitcoinunits.cpp \
   qt/clientmodel.cpp \
   qt/csvmodelwriter.cpp \
   qt/guiutil.cpp \
@@ -440,7 +440,7 @@ qt_komodo_qt_CPPFLAGS = $(AM_CPPFLAGS) $(BITCOIN_INCLUDES) $(KOMODO_QT_INCLUDES)
   $(QT_INCLUDES) $(PROTOBUF_CFLAGS) $(QR_CFLAGS) 
 qt_komodo_qt_CXXFLAGS = $(AM_CXXFLAGS) $(QT_PIE_FLAGS)
 
-qt_komodo_qt_SOURCES = qt/komodoapp.cpp
+qt_komodo_qt_SOURCES = qt/bitcoin.cpp
 if TARGET_DARWIN
   qt_komodo_qt_SOURCES += $(KOMODO_MM)
 endif
@@ -524,11 +524,11 @@ QT_QM=$(QT_TS:.ts=.qm)
 
 SECONDARY: $(QT_QM)
 
-$(srcdir)/qt/komodostrings.cpp: $(libkomodo_server_a_SOURCES) $(libkomodo_wallet_a_SOURCES) $(libkomodo_common_a_SOURCES) $(libkomodo_zmq_a_SOURCES) $(libkomodo_consensus_a_SOURCES) $(libkomodo_util_a_SOURCES)
+$(srcdir)/qt/bitcoinstrings.cpp: $(libkomodo_server_a_SOURCES) $(libkomodo_wallet_a_SOURCES) $(libkomodo_common_a_SOURCES) $(libkomodo_zmq_a_SOURCES) $(libkomodo_consensus_a_SOURCES) $(libkomodo_util_a_SOURCES)
 	@test -n $(XGETTEXT) || echo "xgettext is required for updating translations"
 	$(AM_V_GEN) cd $(srcdir); XGETTEXT=$(XGETTEXT) PACKAGE_NAME="$(PACKAGE_NAME)" COPYRIGHT_HOLDERS="$(COPYRIGHT_HOLDERS)" COPYRIGHT_HOLDERS_SUBSTITUTION="$(COPYRIGHT_HOLDERS_SUBSTITUTION)" $(PYTHON) ../share/qt/extract_strings_qt.py $^
 
-translate: $(srcdir)/qt/komodostrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(KOMODO_QT_BASE_CPP) qt/komodoapp.cpp $(KOMODO_QT_WINDOWS_CPP) $(KOMODO_QT_WALLET_CPP) $(KOMODO_QT_H) $(KOMODO_MM)
+translate: $(srcdir)/qt/bitcoinstrings.cpp $(QT_FORMS_UI) $(QT_FORMS_UI) $(KOMODO_QT_BASE_CPP) qt/bitcoin.cpp $(KOMODO_QT_WINDOWS_CPP) $(KOMODO_QT_WALLET_CPP) $(KOMODO_QT_H) $(KOMODO_MM)
 	@test -n $(LUPDATE) || echo "lupdate is required for updating translations"
 	$(AM_V_GEN) QT_SELECT=$(QT_SELECT) $(LUPDATE) $^ -locations relative -no-obsolete -ts $(srcdir)/qt/locale/komodo_en.ts
 

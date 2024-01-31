@@ -299,7 +299,7 @@
 <context>
     <name>KomodoOceanGUI</name>
     <message>
-        <location filename="../komodooceangui.cpp" line="+357"/>
+        <location filename="../bitcoingui.cpp" line="+357"/>
         <source>Sign &amp;message...</source>
         <translation>Sign &amp;message...</translation>
     </message>
@@ -1815,7 +1815,7 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../komodounits.cpp" line="+176"/>
+        <location filename="../bitcoinunits.cpp" line="+176"/>
         <source>Amount</source>
         <translation type="unfinished">Amount</translation>
     </message>
@@ -3876,7 +3876,7 @@
 <context>
     <name>UnitDisplayStatusBarControl</name>
     <message>
-        <location filename="../komodooceangui.cpp" line="+129"/>
+        <location filename="../bitcoingui.cpp" line="+129"/>
         <source>Unit to show amounts in. Click to select another unit.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3990,7 +3990,7 @@
 <context>
     <name>komodo-core</name>
     <message>
-        <location filename="../komodostrings.cpp" line="+343"/>
+        <location filename="../bitcoinstrings.cpp" line="+343"/>
         <source>Options:</source>
         <translation>Options:</translation>
     </message>

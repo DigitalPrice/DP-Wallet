@@ -6,7 +6,7 @@
 #include "config/bitcoin-config.h"
 #endif
 
-#include "komodooceangui.h"
+#include "bitcoingui.h"
 
 #include "komodo.h"
 #include "komodo_bitcoind.h"
@@ -276,7 +276,7 @@ private:
     void startThread();
 };
 
-#include "komodoapp.moc"
+#include "bitcoin.moc"
 
 KomodoCore::KomodoCore():
     QObject()

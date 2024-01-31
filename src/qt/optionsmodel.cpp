@@ -8,7 +8,7 @@
 
 #include "optionsmodel.h"
 
-#include "komodounits.h"
+#include "bitcoinunits.h"
 #include "guiutil.h"
 
 #include "amount.h"
@@ -73,7 +73,7 @@ void OptionsModel::Init(bool resetSettings)
 
     // Display
     if (!settings.contains("nDisplayUnit"))
-        settings.setValue("nDisplayUnit", KomodoUnits::KMD);
+        settings.setValue("nDisplayUnit", BitcoinUnits::KMD);
     nDisplayUnit = settings.value("nDisplayUnit").toInt();
 
     std::string defaultStrThirdPartyTxUrls = "https://kmdexplorer.io/tx/%s|https://kmd.explorer.dexstats.info/tx/%s";

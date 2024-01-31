@@ -2,9 +2,9 @@
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-#include <qt/komodoamountfield.h>
+#include <qt/bitcoinamountfield.h>
 
-#include <qt/komodounits.h>
+#include <qt/bitcoinunits.h>
 #include <qt/guiconstants.h>
 #include <qt/guiutil.h>
 #include <qt/qvaluecombobox.h>
@@ -25,7 +25,7 @@ class AmountSpinBox: public QAbstractSpinBox
 public:
     explicit AmountSpinBox(QWidget *parent):
         QAbstractSpinBox(parent),
-        currentUnit(KomodoUnits::KMD),
+        currentUnit(BitcoinUnits::KMD),
         singleStep(100000) // satoshis
     {
         setAlignment(Qt::AlignRight);
@@ -49,7 +49,7 @@ public:
         CAmount val = parse(input, &valid);
         if(valid)
         {
-            input = KomodoUnits::format(currentUnit, val, false, KomodoUnits::separatorAlways);
+            input = BitcoinUnits::format(currentUnit, val, false, BitcoinUnits::separatorAlways);
             lineEdit()->setText(input);
         }
     }
@@ -61,7 +61,7 @@ public:
 
     void setValue(const CAmount& value)
     {
-        lineEdit()->setText(KomodoUnits::format(currentUnit, value, false, KomodoUnits::separatorAlways));
+        lineEdit()->setText(BitcoinUnits::format(currentUnit, value, false, BitcoinUnits::separatorAlways));
         Q_EMIT valueChanged();
     }
 
@@ -70,7 +70,7 @@ public:
         bool valid = false;
         CAmount val = value(&valid);
         val = val + steps * singleStep;
-        val = qMin(qMax(val, CAmount(0)), KomodoUnits::maxMoney());
+        val = qMin(qMax(val, CAmount(0)), BitcoinUnits::maxMoney());
         setValue(val);
     }
 
@@ -100,7 +100,7 @@ public:
 
             const QFontMetrics fm(fontMetrics());
             int h = lineEdit()->minimumSizeHint().height();
-            int w = GUIUtil::TextWidth(fm, KomodoUnits::format(KomodoUnits::KMD, KomodoUnits::maxMoney(), false, KomodoUnits::separatorAlways));
+            int w = GUIUtil::TextWidth(fm, BitcoinUnits::format(BitcoinUnits::KMD, BitcoinUnits::maxMoney(), false, BitcoinUnits::separatorAlways));
             w += 2; // cursor blinking space
 
             QStyleOptionSpinBox opt;
@@ -138,10 +138,10 @@ private:
     CAmount parse(const QString &text, bool *valid_out=0) const
     {
         CAmount val = 0;
-        bool valid = KomodoUnits::parse(currentUnit, text, &val);
+        bool valid = BitcoinUnits::parse(currentUnit, text, &val);
         if(valid)
         {
-            if(val < 0 || val > KomodoUnits::maxMoney())
+            if(val < 0 || val > BitcoinUnits::maxMoney())
                 valid = false;
         }
         if(valid_out)
@@ -179,7 +179,7 @@ protected:
         {
             if(val > 0)
                 rv |= StepDownEnabled;
-            if(val < KomodoUnits::maxMoney())
+            if(val < BitcoinUnits::maxMoney())
                 rv |= StepUpEnabled;
         }
         return rv;
@@ -189,7 +189,7 @@ Q_SIGNALS:
     void valueChanged();
 };
 
-#include "komodoamountfield.moc"
+#include "bitcoinamountfield.moc"
 
 KomodoAmountField::KomodoAmountField(QWidget *parent) :
     QWidget(parent),
@@ -203,7 +203,7 @@ KomodoAmountField::KomodoAmountField(QWidget *parent) :
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->addWidget(amount);
     unit = new QValueComboBox(this);
-    unit->setModel(new KomodoUnits(this));
+    unit->setModel(new BitcoinUnits(this));
     layout->addWidget(unit);
     layout->addStretch(1);
     layout->setContentsMargins(0,0,0,0);
@@ -287,7 +287,7 @@ void KomodoAmountField::unitChanged(int idx)
     unit->setToolTip(unit->itemData(idx, Qt::ToolTipRole).toString());
 
     // Determine new unit ID
-    int newUnit = unit->itemData(idx, KomodoUnits::UnitRole).toInt();
+    int newUnit = unit->itemData(idx, BitcoinUnits::UnitRole).toInt();
 
     amount->setDisplayUnit(newUnit);
 }

@@ -4,8 +4,8 @@
 
 #include <qt/guiutil.h>
 
-#include <qt/komodoaddressvalidator.h>
-#include <qt/komodounits.h>
+#include <qt/bitcoinaddressvalidator.h>
+#include <qt/bitcoinunits.h>
 #include <qt/qvalidatedlineedit.h>
 #include <qt/walletmodel.h>
 
@@ -192,7 +192,7 @@ bool parseKomodoURI(const QUrl &uri, SendCoinsRecipient *out)
         {
             if(!i->second.isEmpty())
             {
-                if(!KomodoUnits::parse(KomodoUnits::KMD, i->second, &rv.amount))
+                if(!BitcoinUnits::parse(BitcoinUnits::KMD, i->second, &rv.amount))
                 {
                     return false;
                 }
@@ -231,7 +231,7 @@ QString formatKomodoURI(const SendCoinsRecipient &info)
 
     if (info.amount)
     {
-        ret += QString("?amount=%1").arg(KomodoUnits::format(KomodoUnits::KMD, info.amount, false, KomodoUnits::separatorNever));
+        ret += QString("?amount=%1").arg(BitcoinUnits::format(BitcoinUnits::KMD, info.amount, false, BitcoinUnits::separatorNever));
         paramCount++;
     }
 
