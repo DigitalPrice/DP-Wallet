@@ -1,0 +1,71 @@
+name: Build Test
+
+on:
+  push:
+    branches: [beta, test]
+  pull_request:
+    branches: ['**'] # Yes, this is redundantly duplicating default behaviour; however, we may want to limit in future.
+
+jobs:
+  test_build:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow_failure }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04]
+        include:
+        - os: ubuntu-latest
+          file_name: DP-qt-win.exe
+          allow_failure: false
+        - os: ubuntu-22.04
+          file_name: DP-qt-linux
+          allow_failure: false
+
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set vars
+      shell: bash
+      run: |
+       echo "ssha=$(echo ${GITHUB_SHA::7})" >> $GITHUB_OUTPUT
+      id: svars
+    
+    - name: Update/install system dependencies
+      shell: bash
+      run: |
+        set -x
+        echo "Using Apt to update and install dependencies"
+        sudo apt-get update
+        sudo apt-get -q=2 upgrade
+        sudo apt-get install -q=2 bsdmainutils
+
+    - name: Build Package
+      shell: bash
+      run: |
+          if [ "${{ matrix.os }}" = "ubuntu-22.04" ]; then
+            ./zcutil/build.sh -j5
+            mv src/qt/komodo-qt src/qt/DP-qt-linux
+            strip src/qt/DP-qt-linux
+          else
+            apdir=$PWD
+            sudo apt-get install -q=2 mingw-w64 libsodium-dev libevent-dev
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            source $HOME/.cargo/env
+            rustup target add x86_64-pc-windows-gnu
+            sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+            sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+            cd ${apdir}
+            ./zcutil/build-win.sh -j5
+            mv src/qt/komodo-qt.exe src/qt/DP-qt-win.exe
+            strip src/qt/DP-qt-win.exe
+          fi
+
+    - name: upload test file
+      uses: actions/upload-artifact@v4
+      with:
+          name: ${{ steps.svars.outputs.ssha }}_${{ matrix.file_name}}
+          path: src/qt/${{ matrix.file_name}}
