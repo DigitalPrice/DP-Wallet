@@ -136,3 +136,12 @@ src/qt/komodo-qt
 # chain files for iguana
 src/qt/*_7776
 
+configure~
+
+qa/pull-tester/run-komodod-for-test.sh
+
+src/cryptoconditions/src/cryptoconditions-config.h.in
+
+src/komodo-tx
+
+src/wallet-utility
