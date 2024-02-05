@@ -258,6 +258,16 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
         connect(progressBar, SIGNAL(clicked(QPoint)), this, SLOT(showModalOverlay()));
     }
 #endif
+	if ( (!IsArgSet("-ac_name")) || (IsArgSet("-ac_public")) ) {
+    	zsendCoinsAction->setVisible(false);
+    } else {
+    	zsendCoinsAction->setVisible(true);
+    }
+	if ( IsArgSet("-ac_private") ) {
+    	sendCoinsAction->setVisible(false);
+    } else {
+    	sendCoinsAction->setVisible(true);
+    }
 }
 
 KomodoOceanGUI::~KomodoOceanGUI()
