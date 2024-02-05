@@ -343,9 +343,9 @@ PaymentServer::PaymentServer(QObject* parent, bool startLocalServer) :
                 tr("Cannot start komodo: click-to-pay handler"));
         }
         else {
-            connect(uriServer, SIGNAL(newConnection()), this, SLOT(handleURIConnection()));
+            connect(uriServer, &QLocalServer::newConnection, this, &PaymentServer::handleURIConnection);
             #ifdef ENABLE_BIP70
-            connect(this, SIGNAL(receivedPaymentACK(QString)), this, SLOT(handlePaymentACK(QString)));
+            connect(this, &PaymentServer::receivedPaymentACK, this, &PaymentServer::handlePaymentACK);
             #endif
         }
     }
@@ -400,10 +400,8 @@ void PaymentServer::initNetManager()
     else
         qDebug() << "PaymentServer::initNetManager: No active proxy server found.";
 
-    connect(netManager, SIGNAL(finished(QNetworkReply*)),
-            this, SLOT(netRequestFinished(QNetworkReply*)));
-    connect(netManager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError> &)),
-            this, SLOT(reportSslErrors(QNetworkReply*, const QList<QSslError> &)));
+    connect(netManager, &QNetworkAccessManager::finished, this, &PaymentServer::netRequestFinished);
+    connect(netManager, &QNetworkAccessManager::sslErrors, this, &PaymentServer::reportSslErrors);
 }
 #endif
 
@@ -511,8 +509,7 @@ void PaymentServer::handleURIConnection()
     while (clientConnection->bytesAvailable() < (int)sizeof(quint32))
         clientConnection->waitForReadyRead();
 
-    connect(clientConnection, SIGNAL(disconnected()),
-            clientConnection, SLOT(deleteLater()));
+    connect(clientConnection, &QLocalSocket::disconnected, clientConnection, &QLocalSocket::deleteLater);
 
     QDataStream in(clientConnection);
     in.setVersion(QDataStream::Qt_4_0);
