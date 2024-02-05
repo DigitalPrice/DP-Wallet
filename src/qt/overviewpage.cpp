@@ -27,7 +27,7 @@
 #include <map>
 
 #define DECORATION_SIZE 54
-#define NUM_ITEMS 5
+#define NUM_ITEMS 8
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
