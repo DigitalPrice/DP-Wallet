@@ -145,3 +145,7 @@ src/cryptoconditions/src/cryptoconditions-config.h.in
 src/komodo-tx
 
 src/wallet-utility
+
+src/cryptoconditions/compile
+
+src/komodo-cli
