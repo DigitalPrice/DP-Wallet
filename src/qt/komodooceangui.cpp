@@ -259,15 +259,25 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
         connect(progressBar, &GUIUtil::ClickableProgressBar::clicked, this, &KomodoOceanGUI::showModalOverlay);
     }
 #endif
-	if ( (!IsArgSet("-ac_name")) || (IsArgSet("-ac_public")) ) {
-    	zsendCoinsAction->setVisible(false);
+    if ( (!IsArgSet("-ac_name")) || (IsArgSet("-ac_public")) ) {
+        zsendCoinsAction->setVisible(false);
+        zsendCoinsMenuAction->setVisible(false);
+        usedReceivingZAddressesAction->setVisible(false);
     } else {
-    	zsendCoinsAction->setVisible(true);
+        zsendCoinsAction->setVisible(true);
+        zsendCoinsMenuAction->setVisible(true);
+        usedReceivingZAddressesAction->setVisible(true);
     }
-	if ( IsArgSet("-ac_private") ) {
-    	sendCoinsAction->setVisible(false);
+    if ( IsArgSet("-ac_private") ) {
+        sendCoinsAction->setVisible(false);
+        sendCoinsMenuAction->setVisible(false);
+        usedSendingAddressesAction->setVisible(false);
+        usedReceivingAddressesAction->setVisible(false);
     } else {
-    	sendCoinsAction->setVisible(true);
+        sendCoinsAction->setVisible(true);
+        sendCoinsMenuAction->setVisible(true);
+        usedSendingAddressesAction->setVisible(true);
+        usedReceivingAddressesAction->setVisible(true);
     }
 }
 
