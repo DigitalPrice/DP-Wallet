@@ -147,22 +147,14 @@ void ZAddressBookPage::setModel(ZAddressTableModel *_model)
     ui->tableView->setModel(proxyModel);
     ui->tableView->setSortingEnabled(true);
     ui->tableView->sortByColumn(2, Qt::AscendingOrder);
-
     ui->tableView->setColumnWidth(ZAddressTableModel::isMine, 60);
     ui->tableView->setColumnWidth(ZAddressTableModel::Balance, 80);
     ui->tableView->setColumnWidth(ZAddressTableModel::Label, 80);
-
     // Set column widths
-#if QT_VERSION < 0x050000
-    ui->tableView->horizontalHeader()->setResizeMode(ZAddressTableModel::Label, QHeaderView::Stretch);
-    ui->tableView->horizontalHeader()->setResizeMode(ZAddressTableModel::Address, QHeaderView::ResizeToContents);
-#else
     ui->tableView->horizontalHeader()->setSectionResizeMode(ZAddressTableModel::Label, QHeaderView::Stretch);
     ui->tableView->horizontalHeader()->setSectionResizeMode(ZAddressTableModel::Address, QHeaderView::ResizeToContents);
-#endif
 
     connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &ZAddressBookPage::selectionChanged);
-
     // Select row for newly created address
     connect(_model, &ZAddressTableModel::rowsInserted, this, &ZAddressBookPage::selectNewAddress);
 

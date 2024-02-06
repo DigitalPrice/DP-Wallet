@@ -61,9 +61,8 @@ public:
 
             CopyNodeStats(vstats);
 
-#if QT_VERSION >= 0x040700
             cachedNodeStats.reserve(vstats.size());
-#endif
+
             for (const CNodeStats& nodestats : vstats)
             {
                 CNodeCombinedStats stats;

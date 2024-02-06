@@ -33,18 +33,14 @@
 #include <QKeyEvent>
 #include <QMenu>
 #include <QMessageBox>
-#include <QScrollBar>
 #include <QScreen>
+#include <QScrollBar>
 #include <QSettings>
 #include <QSignalMapper>
+#include <QStringList>
 #include <QThread>
 #include <QTime>
 #include <QTimer>
-#include <QStringList>
-
-#if QT_VERSION < 0x050000
-#include <QUrl>
-#endif
 
 // TODO: add a scrollback limit, as there is currently none
 // TODO: make it possible to filter out categories (esp debug messages when implemented)
@@ -67,7 +63,6 @@ const struct {
 };
 
 namespace {
-
 // don't add private key handling cmd's to the history
 const QStringList historyFilter = QStringList()
     << "importprivkey"
@@ -77,7 +72,6 @@ const QStringList historyFilter = QStringList()
     << "walletpassphrase"
     << "walletpassphrasechange"
     << "encryptwallet";
-
 }
 
 /* Object for executing console RPC commands in a separate thread.
@@ -124,7 +118,6 @@ public:
         return new QtRPCTimerBase(func, millis);
     }
 };
-
 
 #include "rpcconsole.moc"
 

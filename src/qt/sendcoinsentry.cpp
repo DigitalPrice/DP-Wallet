@@ -36,15 +36,12 @@ SendCoinsEntry::SendCoinsEntry(const PlatformStyle *_platformStyle, QWidget *par
     ui->deleteButton_is->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
     ui->deleteButton_s->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
     ui->useAvailableBalanceButton->setIcon(platformStyle->SingleColorIcon(":/icons/all_balance"));
-
     setCurrentWidget(ui->SendCoins);
 
     if (platformStyle->getUseExtraSpacing())
         ui->payToLayout->setSpacing(4);
-#if QT_VERSION >= 0x040700
-    ui->addAsLabel->setPlaceholderText(tr("Enter a label for this address to add it to your address book (only for taddrs)"));
-#endif
 
+    ui->addAsLabel->setPlaceholderText(tr("Enter a label for this address to add it to your address book (only for taddrs)"));
     // normal komodo address field
     GUIUtil::setupAddressWidget(ui->payTo, this, _allowZAddresses);
     // just a label for displaying komodo address(es)
@@ -91,7 +88,6 @@ void SendCoinsEntry::on_payTo_textChanged(const QString &address)
 void SendCoinsEntry::setModel(WalletModel *_model)
 {
     this->model = _model;
-
     if (_model && _model->getOptionsModel())
         connect(_model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &SendCoinsEntry::updateDisplayUnit);
 
@@ -116,7 +112,6 @@ void SendCoinsEntry::clear()
     ui->payTo_s->clear();
     ui->memoTextLabel_s->clear();
     ui->payAmount_s->clear();
-
     // update the display unit, to not use the default ("KMD")
     updateDisplayUnit();
 }

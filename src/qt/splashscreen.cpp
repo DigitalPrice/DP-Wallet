@@ -37,26 +37,21 @@ SplashScreen::SplashScreen(const NetworkStyle *networkStyle) :
 
     float fontFactor            = 1.0;
     float devicePixelRatio      = 1.0;
-#if QT_VERSION > 0x050100
-    devicePixelRatio = ((QGuiApplication*)QCoreApplication::instance())->devicePixelRatio();
-#endif
 
+    devicePixelRatio = ((QGuiApplication*)QCoreApplication::instance())->devicePixelRatio();
     // define text to place
     QString titleText       = tr(PACKAGE_NAME);
     QString versionText     = QString("Version %1").arg(QString::fromStdString(FormatFullVersion()));
     QString copyrightText   = QString::fromUtf8(CopyrightHolders(strprintf("\xc2\xA9 %u-%u ", 2017, COPYRIGHT_YEAR)).c_str());
     QString titleAddText    = networkStyle->getTitleAddText();
-
     QString font            = QApplication::font().toString();
 
     // create a bitmap according to device pixelratio
     QSize splashSize(520*devicePixelRatio,320*devicePixelRatio);
     pixmap = QPixmap(splashSize);
 
-#if QT_VERSION > 0x050100
     // change to HiDPI if it makes sense
     pixmap.setDevicePixelRatio(devicePixelRatio);
-#endif
 
     QPainter pixPaint(&pixmap);
     pixPaint.setPen(QColor(100,100,100));

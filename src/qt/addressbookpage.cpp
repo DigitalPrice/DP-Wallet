@@ -136,7 +136,6 @@ void AddressBookPage::setModel(AddressTableModel *_model)
     ui->tableView->setModel(proxyModel);
     ui->tableView->setSortingEnabled(true);
     ui->tableView->sortByColumn(3, Qt::AscendingOrder);
-
     /*
     ui->tableView->setColumnWidth(AddressTableModel::isMine, 75);
     ui->tableView->setColumnWidth(AddressTableModel::isWatchOnly, 75);
@@ -144,16 +143,10 @@ void AddressBookPage::setModel(AddressTableModel *_model)
     ui->tableView->setColumnWidth(AddressTableModel::Label, 200);
 
     // Set column widths
-#if QT_VERSION < 0x050000
-    ui->tableView->horizontalHeader()->setResizeMode(AddressTableModel::Label, QHeaderView::Stretch);
-    ui->tableView->horizontalHeader()->setResizeMode(AddressTableModel::Address, QHeaderView::ResizeToContents);
-#else
     ui->tableView->horizontalHeader()->setSectionResizeMode(AddressTableModel::Label, QHeaderView::Stretch);
     ui->tableView->horizontalHeader()->setSectionResizeMode(AddressTableModel::Address, QHeaderView::ResizeToContents);
-#endif
 
     connect(ui->tableView->selectionModel(), &QItemSelectionModel::selectionChanged, this, &AddressBookPage::selectionChanged);
-
     // Select row for newly created address
     connect(_model, &AddressTableModel::rowsInserted, this, &AddressBookPage::selectNewAddress);
 

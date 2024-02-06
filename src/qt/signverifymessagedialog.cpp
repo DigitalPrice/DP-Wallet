@@ -37,10 +37,7 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     ui->addressBookButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/address-book"));
     ui->verifyMessageButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/transaction_0"));
     ui->clearButton_VM->setIcon(platformStyle->SingleColorIcon(":/icons/remove"));
-
-#if QT_VERSION >= 0x040700
     ui->signatureOut_SM->setPlaceholderText(tr("Click \"Sign Message\" to generate signature"));
-#endif
 
     GUIUtil::setupAddressWidget(ui->addressIn_SM, this);
     GUIUtil::setupAddressWidget(ui->addressIn_VM, this);
@@ -51,7 +48,6 @@ SignVerifyMessageDialog::SignVerifyMessageDialog(const PlatformStyle *_platformS
     ui->addressIn_VM->installEventFilter(this);
     ui->messageIn_VM->installEventFilter(this);
     ui->signatureIn_VM->installEventFilter(this);
-
     ui->signatureOut_SM->setFont(GUIUtil::fixedPitchFont());
     ui->signatureIn_VM->setFont(GUIUtil::fixedPitchFont());
 }
@@ -177,7 +173,6 @@ void SignVerifyMessageDialog::on_clearButton_SM_clicked()
     ui->messageIn_SM->clear();
     ui->signatureOut_SM->clear();
     ui->statusLabel_SM->clear();
-
     ui->addressIn_SM->setFocus();
 }
 
@@ -249,7 +244,6 @@ void SignVerifyMessageDialog::on_clearButton_VM_clicked()
     ui->signatureIn_VM->clear();
     ui->messageIn_VM->clear();
     ui->statusLabel_VM->clear();
-
     ui->addressIn_VM->setFocus();
 }
 
