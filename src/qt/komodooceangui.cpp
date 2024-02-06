@@ -43,6 +43,7 @@
 #include <QDateTime>
 #include <QScreen>
 #include <QDragEnterEvent>
+#include <QFile>
 #include <QListWidget>
 #include <QMenuBar>
 #include <QMessageBox>
@@ -148,7 +149,7 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
     QApplication::setWindowIcon(networkStyle->getTrayAndWindowIcon());
     setWindowIcon(networkStyle->getTrayAndWindowIcon());
     setWindowTitle(windowTitle);
-
+    QCoreApplication::setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles, true);
 #if defined(Q_OS_MAC) && QT_VERSION < 0x050000
     // This property is not implemented in Qt 5. Setting it has no effect.
     // A replacement API (QtMacUnifiedToolBar) is available in QtMacExtras.
@@ -227,15 +228,6 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
     progressBar->setAlignment(Qt::AlignCenter);
     progressBar->setVisible(false);
 
-    // Override style sheet for progress bar for styles that have a segmented progress bar,
-    // as they make the text unreadable (workaround for issue #1071)
-    // See https://qt-project.org/doc/qt-4.8/gallery.html
-    QString curStyle = QApplication::style()->metaObject()->className();
-    if(curStyle == "QWindowsStyle" || curStyle == "QWindowsXPStyle")
-    {
-        progressBar->setStyleSheet("QProgressBar { background-color: #e8e8e8; border: 1px solid grey; border-radius: 7px; padding: 1px; text-align: center; } QProgressBar::chunk { background: QLinearGradient(x1: 0, y1: 0, x2: 1, y2: 0, stop: 0 #FF8000, stop: 1 orange); border-radius: 7px; margin: 0px; }");
-    }
-
     statusBar()->addWidget(progressBarLabel);
     statusBar()->addWidget(progressBar);
     statusBar()->addPermanentWidget(frameBlocks);
@@ -279,6 +271,15 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
         usedSendingAddressesAction->setVisible(true);
         usedReceivingAddressesAction->setVisible(true);
     }
+    std::string StyleSheetNames[2] = { "global", "pulled" };
+    QString ThisStyleSheet;
+    for (int i = 0; i < 2; i++) {
+		QFile styleFile;
+		styleFile.setFileName (":/themes/" + QString::fromStdString(StyleSheetNames[i]));
+		styleFile.open(QFile::ReadOnly);
+		ThisStyleSheet += QLatin1String(styleFile.readAll());
+	}
+	qApp->setStyleSheet(styleSheet().append(ThisStyleSheet));
 }
 
 KomodoOceanGUI::~KomodoOceanGUI()
@@ -1297,7 +1298,6 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *pl
     }
     setMinimumSize(max_width, 0);
     setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-    setStyleSheet(QString("QLabel { color : %1 }").arg(platformStyle->SingleColor().name()));
 }
 
 /** So that it responds to button clicks */

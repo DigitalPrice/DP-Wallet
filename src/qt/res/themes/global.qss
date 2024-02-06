@@ -1,0 +1,15 @@
+/* Global Styles */
+* {
+    background: white;
+}
+
+QFrame {
+    border: none;
+}
+
+
+
+QToolButton {
+    background: QLinearGradient(x1: 0, y1: 1, x2: 0, y2: 0, stop: 0 #1B467C, stop: 1 #00EDD3);
+}
+
