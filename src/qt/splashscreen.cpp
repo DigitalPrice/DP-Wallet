@@ -50,7 +50,7 @@ SplashScreen::SplashScreen(const NetworkStyle *networkStyle) :
     QString font            = QApplication::font().toString();
 
     // create a bitmap according to device pixelratio
-    QSize splashSize(480*devicePixelRatio,320*devicePixelRatio);
+    QSize splashSize(520*devicePixelRatio,320*devicePixelRatio);
     pixmap = QPixmap(splashSize);
 
 #if QT_VERSION > 0x050100
@@ -104,11 +104,12 @@ SplashScreen::SplashScreen(const NetworkStyle *networkStyle) :
 
     // draw copyright stuff
     {
-        pixPaint.setFont(QFont(font, 10*fontFactor));
-        const int x = pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight;
+        pixPaint.setPen(QColor(80,80,80));
+        pixPaint.setFont(QFont(font, 7.5, 60));
+        const int x = pixmap.width()/devicePixelRatio-titleTextWidth-paddingRight-5;
         const int y = paddingTop+titleCopyrightVSpace;
-        QRect copyrightRect(x, y, pixmap.width() - x - paddingRight, pixmap.height() - y);
-        pixPaint.drawText(copyrightRect, Qt::AlignLeft | Qt::AlignTop | Qt::TextWordWrap, copyrightText);
+        QRect copyrightRect(x, y, pixmap.width() - x - paddingRight + 30, pixmap.height() - y -75);
+        pixPaint.drawText(copyrightRect, Qt::AlignLeft | Qt::AlignBottom, copyrightText);
     }
 
     // draw additional text if special network
