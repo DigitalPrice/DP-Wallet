@@ -149,3 +149,7 @@ src/wallet-utility
 src/cryptoconditions/compile
 
 src/komodo-cli
+
+src/univalue/test/object
+
+*_7776
