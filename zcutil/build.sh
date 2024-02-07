@@ -84,6 +84,16 @@ then
     shift
 fi
 
+# If --disable-qt is the next argument, disable building GUI:
+QT_D_ARG=''
+QT_C_ARG='--with-gui=qt5'
+if [ "x${1:-}" = 'x--disable-qt' ]
+then
+    QT_D_ARG='NO_QT=1'
+    QT_C_ARG='--with-gui=no'
+    shift
+fi
+
 # If --enable-proton is the next argument, enable building Proton code:
 PROTON_ARG='--enable-proton=no'
 if [ "x${1:-}" = 'x--enable-proton' ]
@@ -94,14 +104,14 @@ fi
 
 PREFIX="$(pwd)/depends/$BUILD/"
 
-HOST="$HOST" BUILD="$BUILD" "$MAKE" "$@" -C ./depends/ V=1
+HOST="$HOST" BUILD="$BUILD" "$MAKE" "$@" -C ./depends/ V=1 "$QT_D_ARG"
 ./autogen.sh
 
 #CONFIG_SITE="$PWD/depends/$HOST/share/config.site" 
 #--disable-shared --with-pic
 
 #./configure --prefix="${PREFIX}" --disable-bip70 --with-gui=qt5 --enable-tests=no --enable-wallet=yes "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g0 -O2'
-./configure --prefix="${PREFIX}" --with-gui=qt5 --disable-bip70 --enable-tests=no --enable-wallet=yes "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g0 -O2'
+./configure --prefix="${PREFIX}" "$QT_C_ARG" --disable-bip70 --enable-tests=no --enable-wallet=yes "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g0 -O2'
 
 ### don't used here, bcz we have cclib static built-in in libbitcoin_server_a
 #BUILD CCLIB
