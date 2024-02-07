@@ -48,6 +48,7 @@ jobs:
       run: |
           if [ "${{ matrix.os }}" = "ubuntu-22.04" ]; then
             ./zcutil/build.sh -j5
+            mv src/qt/komodo-qt src/qt/komodo-qt-linux
             strip src/qt/komodo-qt-linux
           else
             apdir=$PWD
@@ -59,6 +60,7 @@ jobs:
             sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
             cd ${apdir}
             ./zcutil/build-win.sh -j5
+            mv src/qt/komodo-qt.exe src/qt/komodo-qt-win.exe
             strip src/qt/komodo-qt-win.exe
           fi
 
