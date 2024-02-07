@@ -61,7 +61,17 @@ fi
 
 set -x
 
-# If --enable-lcov is the first argument, enable lcov coverage support:
+# If --disable-qt is the first argument, disable building GUI:
+QT_D_ARG=""
+QT_C_ARG='--with-gui=qt5'
+if [ "x${1:-}" = 'x--disable-qt' ]
+then
+    QT_D_ARG='NO_QT=1'
+    QT_C_ARG='--with-gui=no'
+    shift
+fi
+
+# If --enable-lcov is the next argument, enable lcov coverage support:
 LCOV_ARG=''
 HARDENING_ARG='--enable-hardening'
 TEST_ARG=''
@@ -84,16 +94,6 @@ then
     shift
 fi
 
-# If --disable-qt is the next argument, disable building GUI:
-QT_D_ARG=''
-QT_C_ARG='--with-gui=qt5'
-if [ "x${1:-}" = 'x--disable-qt' ]
-then
-    QT_D_ARG='NO_QT=1'
-    QT_C_ARG='--with-gui=no'
-    shift
-fi
-
 # If --enable-proton is the next argument, enable building Proton code:
 PROTON_ARG='--enable-proton=no'
 if [ "x${1:-}" = 'x--enable-proton' ]
@@ -104,21 +104,10 @@ fi
 
 PREFIX="$(pwd)/depends/$BUILD/"
 
-HOST="$HOST" BUILD="$BUILD" "$MAKE" "$@" -C ./depends/ V=1 "$QT_D_ARG"
+HOST="$HOST" BUILD="$BUILD" "$MAKE" -C ./depends/ V=1 ${QT_D_ARG} -j20
 ./autogen.sh
 
-#CONFIG_SITE="$PWD/depends/$HOST/share/config.site" 
-#--disable-shared --with-pic
-
-#./configure --prefix="${PREFIX}" --disable-bip70 --with-gui=qt5 --enable-tests=no --enable-wallet=yes "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g0 -O2'
+#configure: WARNING: you should use --build, --host, --target
 ./configure --prefix="${PREFIX}" "$QT_C_ARG" --disable-bip70 --enable-tests=no --enable-wallet=yes "$HARDENING_ARG" "$LCOV_ARG" "$TEST_ARG" "$MINING_ARG" "$PROTON_ARG" $CONFIGURE_FLAGS CXXFLAGS='-g0 -O2'
 
-### don't used here, bcz we have cclib static built-in in libbitcoin_server_a
-#BUILD CCLIB
-#WD=$PWD
-#cd src/cc
-#echo $PWD
-#./makecustom
-#cd $WD
-
-"$MAKE" "$@" V=1
+"$MAKE" V=1 -j20
