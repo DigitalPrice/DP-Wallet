@@ -1,79 +1,69 @@
+name: Build Test
+
 on:
+  push:
+    branches: [beta, dev, Plus]
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - reopened
-    branches:
-      - static-experimental
-      - static
-  workflow_dispatch:
+    branches: ['**'] # Yes, this is redundantly duplicating default behaviour; however, we may want to limit in future.
 
 jobs:
-  build-project-job:
-    # Execute on pull requests within the same repository (and not forks) or on manual dispatch
-    if: ${{ github.actor == 'DeckerSU' && (github.event_name == 'workflow_dispatch' || (github.event.pull_request.head.repo.full_name == github.repository)) }}
-    runs-on: [self-hosted, Linux, X64]
-    name: Build project job
+  test_build:
+    runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.allow_failure }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, ubuntu-22.04]
+        include:
+        - os: ubuntu-latest
+          file_name: komodo-qt-win.exe
+          allow_failure: false
+        - os: ubuntu-22.04
+          file_name: komodo-qt-linux
+          allow_failure: false
+
+    permissions:
+      contents: write
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Set variables
-        run: |
-          echo "branch=$(echo ${{ github.ref }} | sed 's/refs\/heads\///g')" >> $GITHUB_OUTPUT
-          echo "sha_short=$(git rev-parse --short ${{ github.sha }})" >> $GITHUB_OUTPUT
-          echo "builder_name=$(echo $USER)" >> $GITHUB_OUTPUT
-          echo "builder_uid=$(id -u)" >> $GITHUB_OUTPUT
-          echo "builder_gid=$(id -g)" >> $GITHUB_OUTPUT
-          echo "is_fork=${{ github.event.pull_request.head.repo.fork }}" >> $GITHUB_OUTPUT
-        id: set_variables_step
+    - uses: actions/checkout@v4
 
-      - name: Print variables
-        run: |
-          echo "Event Type: ${{ github.event_name }}"
-          echo "Repository name: ${{ github.event.repository.name }}"
-          echo "Branch: ${{ steps.set_variables_step.outputs.branch }}"
-          echo "Commit: ${{ steps.set_variables_step.outputs.sha_short }}"
-          echo "builder_name: ${{ steps.set_variables_step.outputs.builder_name }}"
-          echo "builder_uid: ${{ steps.set_variables_step.outputs.builder_uid }}"
-          echo "builder_gid: ${{ steps.set_variables_step.outputs.builder_gid }}"
-          echo "is_fork: ${{ steps.set_variables_step.outputs.is_fork }}"
+    - name: Set vars
+      shell: bash
+      run: |
+       echo "ssha=$(echo ${GITHUB_SHA::7})" >> $GITHUB_OUTPUT
+      id: svars
+    
+    - name: Update/install system dependencies
+      shell: bash
+      run: |
+        set -x
+        echo "Using Apt to update and install dependencies"
+        sudo apt-get update
+        sudo apt-get -q=2 upgrade
+        sudo apt-get install -q=2 bsdmainutils
 
-      - name: Build app in docker container
-        uses: ./.github/actions/build-project-docker
-        id: build-in-docker
-        with:
-          builder-name: '${{ steps.set_variables_step.outputs.builder_name }}'
-          builder-uid: '${{ steps.set_variables_step.outputs.builder_uid }}'
-          builder-gid: '${{ steps.set_variables_step.outputs.builder_gid }}'
+    - name: Build Package
+      shell: bash
+      run: |
+          if [ "${{ matrix.os }}" = "ubuntu-22.04" ]; then
+            ./zcutil/build.sh -j5
+            strip src/qt/komodo-qt-linux
+          else
+            apdir=$PWD
+            sudo apt-get install -q=2 mingw-w64 libsodium-dev libevent-dev
+            curl https://sh.rustup.rs -sSf | sh -s -- -y
+            source $HOME/.cargo/env
+            rustup target add x86_64-pc-windows-gnu
+            sudo update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+            sudo update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+            cd ${apdir}
+            ./zcutil/build-win.sh -j5
+            strip src/qt/komodo-qt-win.exe
+          fi
 
-      # we don't want use strategy / matrix here, bcz in this case matrix will be used
-      # for entire job and docker containet will be rebuild several times
-      - name: Archive artifacts (Linux)
-        uses: actions/upload-artifact@v3
-        with:
-          name: komodoocean-linux-${{ steps.set_variables_step.outputs.sha_short }}
-          path: |
-            ./releases/focal
-
-      - name: Archive artifacts (Windows)
-        uses: actions/upload-artifact@v3
-        with:
-          name: komodoocean-windows-${{ steps.set_variables_step.outputs.sha_short }}
-          path: |
-            ./releases/windows
-
-      - name: Archive artifacts (MacOS)
-        uses: actions/upload-artifact@v3
-        with:
-          name: komodoocean-macos-${{ steps.set_variables_step.outputs.sha_short }}
-          path: |
-            ./releases/macos
-
-      - name: Cleanup workspace after build
-        if: always()
-        shell: bash
-        run: |
-          rm -rf ${{ github.workspace }}/*
-
+    - name: upload test file
+      uses: actions/upload-artifact@v4
+      with:
+          name: ${{ steps.svars.outputs.ssha }}_${{ matrix.file_name}}
+          path: src/qt/${{ matrix.file_name}}
