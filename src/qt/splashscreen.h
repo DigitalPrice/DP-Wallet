@@ -17,29 +17,28 @@ class NetworkStyle;
  * can take a long time, and in that case a progress window that cannot be
  * moved around and minimized has turned out to be frustrating to the user.
  */
-class SplashScreen : public QWidget
-{
+class SplashScreen : public QWidget {
     Q_OBJECT
 
-public:
+  public:
     explicit SplashScreen(const NetworkStyle *networkStyle);
     ~SplashScreen();
 
-protected:
+  protected:
     void paintEvent(QPaintEvent *event);
     void closeEvent(QCloseEvent *event);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     /** Slot to call finish() method as it's not defined as slot */
     void slotFinish(QWidget *mainWin);
 
     /** Show message and progress */
     void showMessage(const QString &message, int alignment, const QColor &color);
 
-protected:
+  protected:
     bool eventFilter(QObject * obj, QEvent * ev);
 
-private:
+  private:
     /** Connect core signals to splash screen */
     void subscribeToCoreSignals();
     /** Disconnect core signals to splash screen */

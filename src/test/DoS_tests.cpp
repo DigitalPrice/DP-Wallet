@@ -38,8 +38,7 @@ struct COrphanTx {
 extern std::map<uint256, COrphanTx> mapOrphanTransactions;
 extern std::map<uint256, std::set<uint256> > mapOrphanTransactionsByPrev;
 
-CService ip(uint32_t i)
-{
+CService ip(uint32_t i) {
     struct in_addr s;
     s.s_addr = i;
     return CService(CNetAddr(s), Params().GetDefaultPort());
@@ -47,8 +46,7 @@ CService ip(uint32_t i)
 
 BOOST_FIXTURE_TEST_SUITE(DoS_tests, TestingSetup)
 
-BOOST_AUTO_TEST_CASE(DoS_banning)
-{
+BOOST_AUTO_TEST_CASE(DoS_banning) {
     CNode::ClearBanned();
     CAddress addr1(ip(0xa0b0c001));
     CNode dummyNode1(INVALID_SOCKET, addr1, "", true);
@@ -70,8 +68,7 @@ BOOST_AUTO_TEST_CASE(DoS_banning)
     BOOST_CHECK(CNode::IsBanned(addr2));
 }
 
-BOOST_AUTO_TEST_CASE(DoS_banscore)
-{
+BOOST_AUTO_TEST_CASE(DoS_banscore) {
     CNode::ClearBanned();
     mapArgs["-banscore"] = "111"; // because 11 is my favorite number
     CAddress addr1(ip(0xa0b0c001));
@@ -89,8 +86,7 @@ BOOST_AUTO_TEST_CASE(DoS_banscore)
     mapArgs.erase("-banscore");
 }
 
-BOOST_AUTO_TEST_CASE(DoS_bantime)
-{
+BOOST_AUTO_TEST_CASE(DoS_bantime) {
     CNode::ClearBanned();
     int64_t nStartTime = GetTime();
     SetMockTime(nStartTime); // Overrides future calls to GetTime()
@@ -110,8 +106,7 @@ BOOST_AUTO_TEST_CASE(DoS_bantime)
     BOOST_CHECK(!CNode::IsBanned(addr));
 }
 
-CTransaction RandomOrphan()
-{
+CTransaction RandomOrphan() {
     std::map<uint256, COrphanTx>::iterator it;
     it = mapOrphanTransactions.lower_bound(GetRandHash());
     if (it == mapOrphanTransactions.end())
@@ -120,8 +115,7 @@ CTransaction RandomOrphan()
 }
 
 // Parameterized testing over consensus branch ids
-BOOST_DATA_TEST_CASE(DoS_mapOrphans, boost::unit_test::data::xrange(static_cast<int>(Consensus::MAX_NETWORK_UPGRADES)))
-{
+BOOST_DATA_TEST_CASE(DoS_mapOrphans, boost::unit_test::data::xrange(static_cast<int>(Consensus::MAX_NETWORK_UPGRADES))) {
     uint32_t consensusBranchId = NetworkUpgradeInfo[sample].nBranchId;
 
     CKey key;
@@ -130,8 +124,7 @@ BOOST_DATA_TEST_CASE(DoS_mapOrphans, boost::unit_test::data::xrange(static_cast<
     keystore.AddKey(key);
 
     // 50 orphan transactions:
-    for (int i = 0; i < 50; i++)
-    {
+    for (int i = 0; i < 50; i++) {
         CMutableTransaction tx;
         tx.vin.resize(1);
         tx.vin[0].prevout.n = 0;
@@ -145,8 +138,7 @@ BOOST_DATA_TEST_CASE(DoS_mapOrphans, boost::unit_test::data::xrange(static_cast<
     }
 
     // ... and 50 that depend on other orphans:
-    for (int i = 0; i < 50; i++)
-    {
+    for (int i = 0; i < 50; i++) {
         CTransaction txPrev = RandomOrphan();
 
         CMutableTransaction tx;
@@ -162,8 +154,7 @@ BOOST_DATA_TEST_CASE(DoS_mapOrphans, boost::unit_test::data::xrange(static_cast<
     }
 
     // This really-big orphan should be ignored:
-    for (int i = 0; i < 10; i++)
-    {
+    for (int i = 0; i < 10; i++) {
         CTransaction txPrev = RandomOrphan();
 
         CMutableTransaction tx;
@@ -171,8 +162,7 @@ BOOST_DATA_TEST_CASE(DoS_mapOrphans, boost::unit_test::data::xrange(static_cast<
         tx.vout[0].nValue = 1*CENT;
         tx.vout[0].scriptPubKey = GetScriptForDestination(key.GetPubKey().GetID());
         tx.vin.resize(500);
-        for (unsigned int j = 0; j < tx.vin.size(); j++)
-        {
+        for (unsigned int j = 0; j < tx.vin.size(); j++) {
             tx.vin[j].prevout.n = j;
             tx.vin[j].prevout.hash = txPrev.GetHash();
         }
@@ -186,8 +176,7 @@ BOOST_DATA_TEST_CASE(DoS_mapOrphans, boost::unit_test::data::xrange(static_cast<
     }
 
     // Test EraseOrphansFor:
-    for (NodeId i = 0; i < 3; i++)
-    {
+    for (NodeId i = 0; i < 3; i++) {
         size_t sizeBefore = mapOrphanTransactions.size();
         EraseOrphansFor(i);
         BOOST_CHECK(mapOrphanTransactions.size() < sizeBefore);

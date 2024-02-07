@@ -19,20 +19,17 @@ class CWallet;
 class uint256;
 
 /** General change type (added, updated, removed). */
-enum ChangeType
-{
+enum ChangeType {
     CT_NEW,
     CT_UPDATED,
     CT_DELETED
 };
 
 /** Signals for UI communication. */
-class CClientUIInterface
-{
-public:
+class CClientUIInterface {
+  public:
     /** Flags for CClientUIInterface::ThreadSafeMessageBox */
-    enum MessageBoxFlags
-    {
+    enum MessageBoxFlags {
         ICON_INFORMATION    = 0,
         ICON_WARNING        = (1U << 0),
         ICON_ERROR          = (1U << 1),

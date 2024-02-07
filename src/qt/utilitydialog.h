@@ -11,40 +11,38 @@
 class KomodoOceanGUI;
 
 namespace Ui {
-    class HelpMessageDialog;
+class HelpMessageDialog;
 }
 
 /** "Help message" dialog box */
-class HelpMessageDialog : public QDialog
-{
+class HelpMessageDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     explicit HelpMessageDialog(QWidget *parent, bool about);
     ~HelpMessageDialog();
 
     void printToConsole();
     void showOrPrint();
 
-private:
+  private:
     Ui::HelpMessageDialog *ui;
     QString text;
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void on_okButton_accepted();
 };
 
 
 /** "Shutdown" window */
-class ShutdownWindow : public QWidget
-{
+class ShutdownWindow : public QWidget {
     Q_OBJECT
 
-public:
+  public:
     explicit ShutdownWindow(QWidget *parent=nullptr, Qt::WindowFlags f=Qt::Widget);
     static QWidget *showShutdownWindow(KomodoOceanGUI *window);
 
-protected:
+  protected:
     void closeEvent(QCloseEvent *event);
 };
 

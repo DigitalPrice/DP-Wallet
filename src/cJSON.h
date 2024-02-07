@@ -65,8 +65,7 @@ extern "C"
 #define cJSON_StringIsConst 512
 
 /* The cJSON structure: */
-typedef struct cJSON
-{
+typedef struct cJSON {
     /* next/prev allow you to walk array/object chains. Alternatively, use GetArraySize/GetArrayItem/GetObjectItem */
     struct cJSON *next;
     struct cJSON *prev;
@@ -87,10 +86,9 @@ typedef struct cJSON
     char *string;
 } cJSON;
 
-typedef struct cJSON_Hooks
-{
-      void *(*malloc_fn)(size_t sz);
-      void (*free_fn)(void *ptr);
+typedef struct cJSON_Hooks {
+    void *(*malloc_fn)(size_t sz);
+    void (*free_fn)(void *ptr);
 } cJSON_Hooks;
 
 typedef int cJSON_bool;

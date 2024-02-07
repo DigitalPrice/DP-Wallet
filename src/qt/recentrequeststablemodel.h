@@ -13,9 +13,8 @@
 
 class CWallet;
 
-class RecentRequestEntry
-{
-public:
+class RecentRequestEntry {
+  public:
     RecentRequestEntry() : nVersion(RecentRequestEntry::CURRENT_VERSION), id(0) { }
 
     static const int CURRENT_VERSION = 1;
@@ -40,14 +39,13 @@ public:
     }
 };
 
-class RecentRequestEntryLessThan
-{
-public:
+class RecentRequestEntryLessThan {
+  public:
     RecentRequestEntryLessThan(int nColumn, Qt::SortOrder fOrder):
         column(nColumn), order(fOrder) {}
     bool operator()(RecentRequestEntry &left, RecentRequestEntry &right) const;
 
-private:
+  private:
     int column;
     Qt::SortOrder order;
 };
@@ -55,11 +53,10 @@ private:
 /** Model for list of recently generated payment requests / komodo: URIs.
  * Part of wallet model.
  */
-class RecentRequestsTableModel: public QAbstractTableModel
-{
+class RecentRequestsTableModel: public QAbstractTableModel {
     Q_OBJECT
 
-public:
+  public:
     explicit RecentRequestsTableModel(CWallet *wallet, WalletModel *parent);
     ~RecentRequestsTableModel();
 
@@ -83,16 +80,18 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
     /*@}*/
 
-    const RecentRequestEntry &entry(int row) const { return list[row]; }
+    const RecentRequestEntry &entry(int row) const {
+        return list[row];
+    }
     void addNewRequest(const SendCoinsRecipient &recipient);
     void addNewRequest(const std::string &recipient);
     void addNewRequest(RecentRequestEntry &recipient);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void sort(int column, Qt::SortOrder order = Qt::AscendingOrder);
     void updateDisplayUnit();
 
-private:
+  private:
     WalletModel *walletModel;
     QStringList columns;
     QList<RecentRequestEntry> list;

@@ -137,7 +137,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- int secp256k1_musig_pubkey_combine(
+int secp256k1_musig_pubkey_combine(
     const secp256k1_context* ctx,
     secp256k1_scratch_space *scratch,
     secp256k1_pubkey *combined_pk,
@@ -177,7 +177,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- int secp256k1_musig_session_initialize(
+int secp256k1_musig_session_initialize(
     const secp256k1_context* ctx,
     secp256k1_musig_session *session,
     secp256k1_musig_session_signer_data *signers,
@@ -211,7 +211,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_session_get_public_nonce(
+SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_session_get_public_nonce(
     const secp256k1_context* ctx,
     secp256k1_musig_session *session,
     secp256k1_musig_session_signer_data *signers,
@@ -245,7 +245,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- int secp256k1_musig_session_initialize_verifier(
+int secp256k1_musig_session_initialize_verifier(
     const secp256k1_context* ctx,
     secp256k1_musig_session *session,
     secp256k1_musig_session_signer_data *signers,
@@ -272,7 +272,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_set_nonce(
+SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_set_nonce(
     const secp256k1_context* ctx,
     secp256k1_musig_session_signer_data *signer,
     const secp256k1_pubkey *nonce
@@ -301,7 +301,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- int secp256k1_musig_session_combine_nonces(
+int secp256k1_musig_session_combine_nonces(
     const secp256k1_context* ctx,
     secp256k1_musig_session *session,
     const secp256k1_musig_session_signer_data *signers,
@@ -323,7 +323,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_session_set_msg(
+SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_session_set_msg(
     const secp256k1_context* ctx,
     secp256k1_musig_session *session,
     const unsigned char *msg32
@@ -341,7 +341,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- int secp256k1_musig_partial_signature_serialize(
+int secp256k1_musig_partial_signature_serialize(
     const secp256k1_context* ctx,
     unsigned char *out32,
     const secp256k1_musig_partial_signature* sig
@@ -363,7 +363,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- int secp256k1_musig_partial_signature_parse(
+int secp256k1_musig_partial_signature_parse(
     const secp256k1_context* ctx,
     secp256k1_musig_partial_signature* sig,
     const unsigned char *in32
@@ -383,7 +383,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- int secp256k1_musig_partial_sign(
+int secp256k1_musig_partial_sign(
     const secp256k1_context* ctx,
     const secp256k1_musig_session *session,
     secp256k1_musig_partial_signature *partial_sig
@@ -411,7 +411,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_partial_sig_verify(
+SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_partial_sig_verify(
     const secp256k1_context* ctx,
     const secp256k1_musig_session *session,
     const secp256k1_musig_session_signer_data *signer,
@@ -436,7 +436,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_partial_sig_combine(
+SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_partial_sig_combine(
     const secp256k1_context* ctx,
     const secp256k1_musig_session *session,
     secp256k1_schnorrsig *sig,
@@ -461,7 +461,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- int secp256k1_musig_partial_sig_adapt(
+int secp256k1_musig_partial_sig_adapt(
     const secp256k1_context* ctx,
     secp256k1_musig_partial_signature *adaptor_sig,
     const secp256k1_musig_partial_signature *partial_sig,
@@ -489,7 +489,7 @@ extern "C"
 #else
 SECP256K1_API
 #endif
- SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_extract_secret_adaptor(
+SECP256K1_WARN_UNUSED_RESULT int secp256k1_musig_extract_secret_adaptor(
     const secp256k1_context* ctx,
     unsigned char *sec_adaptor32,
     const secp256k1_schnorrsig *sig,

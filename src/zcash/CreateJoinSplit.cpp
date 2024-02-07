@@ -13,8 +13,7 @@ uint32_t ASSETCHAINS_CC = 0;
 
 using namespace libzcash;
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     libsnark::start_profiling();
 
     auto p = ZCJoinSplit::Prepared((ZC_GetParamsDir() / "sprout-verifying.key").string(),
@@ -29,10 +28,10 @@ int main(int argc, char **argv)
         JSDescription jsdesc(*p,
                              pubKeyHash,
                              anchor,
-                             {JSInput(), JSInput()},
-                             {JSOutput(), JSOutput()},
-                             0,
-                             0);
+        {JSInput(), JSInput()},
+        {JSOutput(), JSOutput()},
+        0,
+        0);
     }
 
     delete p; // not that it matters

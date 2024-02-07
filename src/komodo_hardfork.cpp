@@ -4,7 +4,7 @@ const uint32_t nStakedDecemberHardforkTimestamp = 1576840000; //December 2019 ha
 const int32_t nDecemberHardforkHeight = 1670000;   //December 2019 hardfork
 
 const uint32_t nS4Timestamp = 1592146800; //dPoW Season 4 2020 hardfork Sunday, June 14th, 2020 03:00:00 PM UTC
-const int32_t nS4HardforkHeight = 1922000;   //dPoW Season 4 2020 hardfork Sunday, June 14th, 2020 
+const int32_t nS4HardforkHeight = 1922000;   //dPoW Season 4 2020 hardfork Sunday, June 14th, 2020
 
 const uint32_t nS5Timestamp = 1623682800;  //dPoW Season 5 Monday, June 14th, 2021 (03:00:00 PM UTC)
 const int32_t nS5HardforkHeight = 2437300;  //dPoW Season 5 Monday, June 14th, 2021
@@ -15,9 +15,8 @@ const int32_t nS6HardforkHeight = 2963330;  // dPoW Season 6, Fri Jun 24 2022
 const uint32_t nS7Timestamp = 1688132253;   // dPoW Season 7, Fri Jun 30 2023 13:37:33 GMT+0000
 const int32_t nS7HardforkHeight = 3484958;  // dPoW Season 7, Fri Jun 30 2023
 
-// Era array of pubkeys. Add extra seasons to bottom as requried, after adding appropriate info above. 
-const char *notaries_elected[NUM_KMD_SEASONS][NUM_KMD_NOTARIES][2] =
-{
+// Era array of pubkeys. Add extra seasons to bottom as requried, after adding appropriate info above.
+const char *notaries_elected[NUM_KMD_SEASONS][NUM_KMD_NOTARIES][2] = {
     {
         { "0_jl777_testA", "03b7621b44118017a16043f19b30cc8a4cfe068ac4e42417bae16ba460c80f3828" },
         { "0_jl777_testB", "02ebfc784a4ba768aad88d44d1045d240d47b26e248cafaf1c5169a42d7a61d344" },
@@ -277,7 +276,7 @@ const char *notaries_elected[NUM_KMD_SEASONS][NUM_KMD_NOTARIES][2] =
         {"computergenie_NA", "03a78ae070a5e9e935112cf7ea8293f18950f1011694ea0260799e8762c8a6f0a4" },
         {"nutellalicka_SH", "02f7d90d0510c598ce45915e6372a9cd0ba72664cb65ce231f25d526fc3c5479fc" },
         {"chainstrike_SH", "03b806be3bf7a1f2f6290ec5c1ea7d3ea57774dcfcf2129a82b2569e585100e1cb" },
-        {"hunter_SH", "02407db70ad30ce4dfaee8b4ae35fae88390cad2b0ba0373fdd6231967537ccfdf" }, 
+        {"hunter_SH", "02407db70ad30ce4dfaee8b4ae35fae88390cad2b0ba0373fdd6231967537ccfdf" },
         {"alien_EU", "03bb749e337b9074465fa28e757b5aa92cb1f0fea1a39589bca91a602834d443cd" }, // 60
         {"gt_AR", "0348430538a4944d3162bb4749d8c5ed51299c2434f3ee69c11a1f7815b3f46135" },
         {"patchkez_SH", "03f45e9beb5c4cd46525db8195eb05c1db84ae7ef3603566b3d775770eba3b96ee" },
@@ -349,8 +348,8 @@ const char *notaries_elected[NUM_KMD_SEASONS][NUM_KMD_NOTARIES][2] =
         { "artemii235_DEV", "03bb616b12430bdd0483653de18733597a4fd416623c7065c0e21fe9d96460add1" },
         { "tonyl_DEV", "02d5f7fd6e25d34ab2f3318d60cdb89ff3a812ec5d0212c4c113bb12d12616cfdc" },
         { "decker_DEV", "028eea44a09674dda00d88ffd199a09c9b75ba9782382cc8f1e97c0fd565fe5707" }
-   },
-   {    
+    },
+    {
         // Season 5
         {"alrighttt_DEV", "03483166d8663beeb48a493eec161bf506df1906153b6259f7ca617e4cb8110260"}, // 0
         {"alien_AR", "03911a60395801082194b6834244fa78a3c30ff3e888667498e157b4aa80b0a65f"},
@@ -416,8 +415,8 @@ const char *notaries_elected[NUM_KMD_SEASONS][NUM_KMD_NOTARIES][2] =
         {"strob_SH", "025ceac4256cef83ca4b110f837a71d70a5a977ecfdf807335e00bc78b560d451a"},
         {"strobnidan_SH", "02b967fde3686d45056343e488997d4c53f25cd7ad38548cd12b136010a09295ae"},
         {"dragonhound_DEV", "038e010c33c56b61389409eea5597fe17967398731e23185c84c472a16fc5d34ab"}
-   },
-   {
+    },
+    {
         // Season 6
         {"blackice_DEV", "02ca882f153e715091a2dbc5409096f8c109d9fe6506ca7a918056dd37162b6f6e"}, // 0
         {"blackice_AR", "02909c79a198179c193fb85bbd4ba09b875a5a9bd481fec284658188b96ed43519"},
@@ -483,8 +482,8 @@ const char *notaries_elected[NUM_KMD_SEASONS][NUM_KMD_NOTARIES][2] =
         {"yurii-khi_DEV", "03e57c7341d2c8a3be62e1caaa28978d76a8277dea7bb484fdd8c55dc05e4e4e93"},
         {"ca333_EU", "021d6fbe67d12f492a01306c70ab096f8b8581eb5f958d3f5fe3588ae8c7797f42"},
         {"dragonhound_DEV", "038e010c33c56b61389409eea5597fe17967398731e23185c84c472a16fc5d34ab"}
-   },
-   {
+    },
+    {
         // Season 7
         {"blackice_DEV", "03955c7999538cee313bf196a7df59db208c651f6a5a1b0eed94732ba753b4f3f4"}, // 0
         {"blackice_AR", "02bbc5518d27918d77c46b4e3ad0b9df936df520646527ab4c2f206544a2b03967"},
@@ -550,5 +549,5 @@ const char *notaries_elected[NUM_KMD_SEASONS][NUM_KMD_NOTARIES][2] =
         {"dragonhound_EU", "0286d7af8583e18127bd1f45730916b4f48ae3e0c90181b2745174b91b76c6e28b"},
         {"dragonhound_NA", "0306476ea5fb67aec667172a9bb30646dbff195b84c30ac958175af9b475987802"},
         {"dragonhound_DEV", "02f9a7b49282885cd03969f1f5478287497bc8edfceee9eac676053c107c5fcdaf"}
-   }
+    }
 };

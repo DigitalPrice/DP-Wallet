@@ -18,27 +18,26 @@ static const std::string CLIENT_VERSION_STR = FormatVersion(CLIENT_VERSION);
 extern std::atomic<bool> fRequestShutdown;
 
 class MockUIInterface {
-public:
+  public:
     MOCK_METHOD3(ThreadSafeMessageBox, bool(const std::string& message,
-                                      const std::string& caption,
-                                      unsigned int style));
+                                            const std::string& caption,
+                                            unsigned int style));
 };
 
 static bool ThreadSafeMessageBox(MockUIInterface *mock,
                                  const std::string& message,
                                  const std::string& caption,
-                                 unsigned int style)
-{
+                                 unsigned int style) {
     return mock->ThreadSafeMessageBox(message, caption, style);
 }
 
 class DeprecationTest : public ::testing::Test {
-protected:
+  protected:
     virtual void SetUp() {
         uiInterface.ThreadSafeMessageBox.disconnect_all_slots();
         uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, &mock_, _1, _2, _3));
         SelectParams(CBaseChainParams::MAIN);
-        
+
     }
 
     virtual void TearDown() {
@@ -123,7 +122,7 @@ TEST_F(DeprecationTest, DeprecatedNodeIgnoredOnTestnet) {
 
 TEST_F(DeprecationTest, AlertNotify) {
     boost::filesystem::path temp = GetTempPath() /
-        boost::filesystem::unique_path("alertnotify-%%%%.txt");
+                                   boost::filesystem::unique_path("alertnotify-%%%%.txt");
 
     mapArgs["-alertnotify"] = std::string("echo %s >> ") + temp.string();
 
@@ -135,8 +134,8 @@ TEST_F(DeprecationTest, AlertNotify) {
 
     // -alertnotify restricts the message to safe characters.
     auto expectedMsg = strprintf(
-        "This version will be deprecated at block height %d, and will automatically shut down. You should upgrade to the latest version of Zcash.",
-        DEPRECATION_HEIGHT);
+                           "This version will be deprecated at block height %d, and will automatically shut down. You should upgrade to the latest version of Zcash.",
+                           DEPRECATION_HEIGHT);
 
     // Windows built-in echo semantics are different than posixy shells. Quotes and
     // whitespace are printed literally.

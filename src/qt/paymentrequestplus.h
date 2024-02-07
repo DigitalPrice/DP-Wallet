@@ -25,9 +25,8 @@ static const bool DEFAULT_SELFSIGNED_ROOTCERTS = false;
 // with extra methods
 //
 
-class PaymentRequestPlus
-{
-public:
+class PaymentRequestPlus {
+  public:
     PaymentRequestPlus() { }
 
     bool parse(const QByteArray& data);
@@ -41,7 +40,9 @@ public:
     // Returns list of outputs, amount
     QList<std::pair<CScript,CAmount> > getPayTo() const;
 
-    const payments::PaymentDetails& getDetails() const { return details; }
+    const payments::PaymentDetails& getDetails() const {
+        return details;
+    }
 
 //private:
     payments::PaymentRequest paymentRequest;

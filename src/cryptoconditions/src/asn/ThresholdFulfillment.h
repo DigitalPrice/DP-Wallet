@@ -25,21 +25,21 @@ struct Condition;
 
 /* ThresholdFulfillment */
 typedef struct ThresholdFulfillment {
-	struct subfulfillments {
-		A_SET_OF(struct Fulfillment) list;
-		
-		/* Context for parsing across buffer boundaries */
-		asn_struct_ctx_t _asn_ctx;
-	} subfulfillments;
-	struct subconditions {
-		A_SET_OF(struct Condition) list;
-		
-		/* Context for parsing across buffer boundaries */
-		asn_struct_ctx_t _asn_ctx;
-	} subconditions;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    struct subfulfillments {
+        A_SET_OF(struct Fulfillment) list;
+
+        /* Context for parsing across buffer boundaries */
+        asn_struct_ctx_t _asn_ctx;
+    } subfulfillments;
+    struct subconditions {
+        A_SET_OF(struct Condition) list;
+
+        /* Context for parsing across buffer boundaries */
+        asn_struct_ctx_t _asn_ctx;
+    } subconditions;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } ThresholdFulfillment_t;
 
 /* Implementation */

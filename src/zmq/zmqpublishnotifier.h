@@ -9,12 +9,11 @@
 
 class CBlockIndex;
 
-class CZMQAbstractPublishNotifier : public CZMQAbstractNotifier
-{
-private:
+class CZMQAbstractPublishNotifier : public CZMQAbstractNotifier {
+  private:
     uint32_t nSequence; //! upcounting per message sequence number
 
-public:
+  public:
 
     /* send zmq multipart message
        parts:
@@ -28,33 +27,28 @@ public:
     void Shutdown();
 };
 
-class CZMQPublishHashBlockNotifier : public CZMQAbstractPublishNotifier
-{
-public:
+class CZMQPublishHashBlockNotifier : public CZMQAbstractPublishNotifier {
+  public:
     bool NotifyBlock(const CBlockIndex *pindex);
 };
 
-class CZMQPublishHashTransactionNotifier : public CZMQAbstractPublishNotifier
-{
-public:
+class CZMQPublishHashTransactionNotifier : public CZMQAbstractPublishNotifier {
+  public:
     bool NotifyTransaction(const CTransaction &transaction);
 };
 
-class CZMQPublishRawBlockNotifier : public CZMQAbstractPublishNotifier
-{
-public:
+class CZMQPublishRawBlockNotifier : public CZMQAbstractPublishNotifier {
+  public:
     bool NotifyBlock(const CBlockIndex *pindex);
 };
 
-class CZMQPublishRawTransactionNotifier : public CZMQAbstractPublishNotifier
-{
-public:
+class CZMQPublishRawTransactionNotifier : public CZMQAbstractPublishNotifier {
+  public:
     bool NotifyTransaction(const CTransaction &transaction);
 };
 
-class CZMQPublishCheckedBlockNotifier : public CZMQAbstractPublishNotifier
-{
-public:
+class CZMQPublishCheckedBlockNotifier : public CZMQAbstractPublishNotifier {
+  public:
     bool NotifyBlock(const CBlock &block);
 };
 

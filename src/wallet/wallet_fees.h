@@ -39,8 +39,7 @@ enum class FeeEstimateMode {
 bool FeeModeFromString(const std::string& mode_string, FeeEstimateMode& fee_estimate_mode);
 
 /* Used to return detailed information about a feerate bucket */
-struct EstimatorBucket
-{
+struct EstimatorBucket {
     double start = -1;
     double end = -1;
     double withinTarget = 0;
@@ -50,16 +49,14 @@ struct EstimatorBucket
 };
 
 /* Used to return detailed information about a fee estimate calculation */
-struct EstimationResult
-{
+struct EstimationResult {
     EstimatorBucket pass;
     EstimatorBucket fail;
     double decay = 0;
     unsigned int scale = 0;
 };
 
-struct FeeCalculation
-{
+struct FeeCalculation {
     EstimationResult est;
     FeeReason reason = FeeReason::NONE;
     int desiredTarget = 0;

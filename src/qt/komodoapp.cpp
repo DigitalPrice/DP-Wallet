@@ -82,21 +82,18 @@ Q_DECLARE_METATYPE(bool*)
 Q_DECLARE_METATYPE(CAmount)
 Q_DECLARE_METATYPE(uint256)
 
-static void InitMessage(const std::string &message)
-{
+static void InitMessage(const std::string &message) {
     LogPrintf("init message: %s\n", message);
 }
 
 /*
    Translate string to current locale using Qt.
  */
-static std::string Translate(const char* psz)
-{
+static std::string Translate(const char* psz) {
     return QCoreApplication::translate("komodo-core", psz).toStdString();
 }
 
-static QString GetLangTerritory()
-{
+static QString GetLangTerritory() {
     QSettings settings;
     // Get desired locale (e.g. "de_DE")
     // 1) System default language
@@ -111,8 +108,7 @@ static QString GetLangTerritory()
 }
 
 /** Set up translations */
-static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTranslator, QTranslator &translatorBase, QTranslator &translator)
-{
+static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTranslator, QTranslator &translatorBase, QTranslator &translator) {
     // Remove old translators
     QApplication::removeTranslator(&qtTranslatorBase);
     QApplication::removeTranslator(&qtTranslator);
@@ -149,8 +145,7 @@ static void initTranslations(QTranslator &qtTranslatorBase, QTranslator &qtTrans
 }
 
 /* qDebug() message handler --> debug.log */
-void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString &msg)
-{
+void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, const QString &msg) {
     Q_UNUSED(context);
     if (type == QtDebugMsg) {
         LogPrint("qt", "GUI: %s\n", msg.toStdString());
@@ -163,26 +158,25 @@ void DebugMessageHandler(QtMsgType type, const QMessageLogContext& context, cons
 /** Class encapsulating Komodo Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
  */
-class KomodoCore: public QObject
-{
+class KomodoCore: public QObject {
     Q_OBJECT
-public:
+  public:
     explicit KomodoCore();
     /** Basic initialization, before starting initialization/shutdown thread.
      * Return true on success.
      */
     static bool baseInitialize();
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void initialize();
     void shutdown();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void initializeResult(bool success);
     void shutdownResult();
     void runawayException(const QString &message);
 
-private:
+  private:
     boost::thread_group threadGroup;
     CScheduler scheduler;
 
@@ -191,10 +185,9 @@ private:
 };
 
 /** Main Komodo application object */
-class KomodoApplication: public QApplication
-{
+class KomodoApplication: public QApplication {
     Q_OBJECT
-public:
+  public:
     explicit KomodoApplication();
     ~KomodoApplication();
 
@@ -217,24 +210,26 @@ public:
     void requestShutdown();
 
     /// Get process return value
-    int getReturnValue() const { return returnValue; }
+    int getReturnValue() const {
+        return returnValue;
+    }
 
     /// Get window identifier of QMainWindow (KomodoOceanGUI)
     WId getMainWinId() const;
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void initializeResult(bool success);
     void shutdownResult();
     /// Handle runaway exceptions. Shows a message box with the problem and quits the program.
     void handleRunawayException(const QString &message);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void requestedInitialize();
     void requestedShutdown();
     void stopThread();
     void splashFinished(QWidget *window);
 
-private:
+  private:
     QThread *coreThread;
     OptionsModel *optionsModel;
     ClientModel *clientModel;
@@ -254,48 +249,42 @@ private:
 #include "komodoapp.moc"
 
 KomodoCore::KomodoCore():
-    QObject()
-{
+    QObject() {
 }
 
-void KomodoCore::handleRunawayException(const std::exception *e)
-{
+void KomodoCore::handleRunawayException(const std::exception *e) {
     PrintExceptionContinue(e, "Runaway exception");
     Q_EMIT runawayException(QString::fromStdString(GetWarnings("gui")));
 }
 
-bool KomodoCore::baseInitialize()
-{
-/*
-    if (!AppInitBasicSetup())
-    {
-        return false;
-    }
-    if (!AppInitParameterInteraction())
-    {
-        return false;
-    }
-    if (!AppInitSanityChecks())
-    {
-        return false;
-    }
-    if (!AppInitLockDataDirectory())
-    {
-        return false;
-    }
-*/
+bool KomodoCore::baseInitialize() {
+    /*
+        if (!AppInitBasicSetup())
+        {
+            return false;
+        }
+        if (!AppInitParameterInteraction())
+        {
+            return false;
+        }
+        if (!AppInitSanityChecks())
+        {
+            return false;
+        }
+        if (!AppInitLockDataDirectory())
+        {
+            return false;
+        }
+    */
     return true;
 }
 
-void KomodoCore::initialize()
-{
-    try
-    {
+void KomodoCore::initialize() {
+    try {
         qDebug() << __func__ << ": Running initialization in thread";
 //        bool rv = AppInitMain(threadGroup, scheduler);
         int rv = AppInit2(threadGroup, scheduler);
-        if(rv)
-        {
+        if(rv) {
             /* Start a dummy RPC thread if no RPC thread is active yet
              * to handle timeouts.
              */
@@ -311,42 +300,36 @@ void KomodoCore::initialize()
     }
 }
 
-void KomodoCore::shutdown()
-{
-    try
-    {
+void KomodoCore::shutdown() {
+    try {
         qDebug() << __func__ << ": Running Shutdown in thread";
 
-        int32_t i,height; CBlockIndex *pindex; bool fShutdown = ShutdownRequested(); const uint256 zeroid;
+        int32_t i,height;
+        CBlockIndex *pindex;
+        bool fShutdown = ShutdownRequested();
+        const uint256 zeroid;
 
-        if (komodo_currentheight()>KOMODO_EARLYTXID_HEIGHT && KOMODO_EARLYTXID!=zeroid && ((height=tx_height(KOMODO_EARLYTXID))==0 || height>KOMODO_EARLYTXID_HEIGHT))
-        {
+        if (komodo_currentheight()>KOMODO_EARLYTXID_HEIGHT && KOMODO_EARLYTXID!=zeroid && ((height=tx_height(KOMODO_EARLYTXID))==0 || height>KOMODO_EARLYTXID_HEIGHT)) {
             LogPrintf("error: earlytx must be before block height %d or tx does not exist\n",KOMODO_EARLYTXID_HEIGHT);
             StartShutdown();
         }
 
-        while (!fShutdown)
-        {
+        while (!fShutdown) {
             /* TODO: move to ThreadUpdateKomodoInternals */
-            if ( chainName.isKMD() )
-            {
+            if ( chainName.isKMD() ) {
                 if ( KOMODO_NSPV_FULLNODE ) {
                     komodo_update_interest();
                     komodo_longestchain();
                 }
-                for (i=0; i<10; i++)
-                {
+                for (i=0; i<10; i++) {
                     fShutdown = ShutdownRequested();
                     if ( fShutdown != 0 )
                         break;
                     MilliSleep(1000);
                 }
-            } 
-            else
-            {
+            } else {
                 /* for ACs we do nothing at present */
-                for (i=0; i<=ASSETCHAINS_BLOCKTIME/5; i++)
-                {
+                for (i=0; i<=ASSETCHAINS_BLOCKTIME/5; i++) {
                     fShutdown = ShutdownRequested();
                     if ( fShutdown != 0 )
                         break;
@@ -355,8 +338,7 @@ void KomodoCore::shutdown()
             }
             fShutdown = ShutdownRequested();
         }
-        if (&threadGroup)
-        {
+        if (&threadGroup) {
             Interrupt(threadGroup);
             threadGroup.join_all();
         }
@@ -386,8 +368,7 @@ KomodoApplication::KomodoApplication():
     paymentServer(0),
     walletModel(0),
 #endif
-    returnValue(0)
-{
+    returnValue(0) {
     // if (this->arguments().count() > 0) std::cerr << "argc = " << this->arguments().count() << ", argv[0] = " << this->arguments().at(0).toLocal8Bit().constData() << std::endl;
     setQuitOnLastWindowClosed(false);
 
@@ -402,10 +383,8 @@ KomodoApplication::KomodoApplication():
     assert(platformStyle);
 }
 
-KomodoApplication::~KomodoApplication()
-{
-    if(coreThread)
-    {
+KomodoApplication::~KomodoApplication() {
+    if(coreThread) {
         qDebug() << __func__ << ": Stopping thread";
         Q_EMIT stopThread();
         coreThread->wait();
@@ -430,19 +409,16 @@ KomodoApplication::~KomodoApplication()
 }
 
 #ifdef ENABLE_WALLET
-void KomodoApplication::createPaymentServer()
-{
+void KomodoApplication::createPaymentServer() {
     paymentServer = new PaymentServer(this);
 }
 #endif
 
-void KomodoApplication::createOptionsModel(bool resetSettings)
-{
+void KomodoApplication::createOptionsModel(bool resetSettings) {
     optionsModel = new OptionsModel(nullptr, resetSettings);
 }
 
-void KomodoApplication::createWindow(const NetworkStyle *networkStyle)
-{
+void KomodoApplication::createWindow(const NetworkStyle *networkStyle) {
     window = new KomodoOceanGUI(platformStyle, networkStyle, nullptr);
 
     pollShutdownTimer = new QTimer(window);
@@ -450,8 +426,7 @@ void KomodoApplication::createWindow(const NetworkStyle *networkStyle)
     pollShutdownTimer->start(200);
 }
 
-void KomodoApplication::createSplashScreen(const NetworkStyle *networkStyle)
-{
+void KomodoApplication::createSplashScreen(const NetworkStyle *networkStyle) {
     SplashScreen *splash = new SplashScreen(networkStyle);
     // We don't hold a direct pointer to the splash screen after creation, but the splash
     // screen will take care of deleting itself when slotFinish happens.
@@ -460,8 +435,7 @@ void KomodoApplication::createSplashScreen(const NetworkStyle *networkStyle)
     connect(this, &KomodoApplication::requestedShutdown, splash, &QWidget::close);
 }
 
-void KomodoApplication::startThread()
-{
+void KomodoApplication::startThread() {
     if(coreThread)
         return;
     coreThread = new QThread(this);
@@ -481,21 +455,18 @@ void KomodoApplication::startThread()
     coreThread->start();
 }
 
-void KomodoApplication::parameterSetup()
-{
+void KomodoApplication::parameterSetup() {
 //    InitLogging();
 //    InitParameterInteraction();
 }
 
-void KomodoApplication::requestInitialize()
-{
+void KomodoApplication::requestInitialize() {
     qDebug() << __func__ << ": Requesting initialize";
     startThread();
     Q_EMIT requestedInitialize();
 }
 
-void KomodoApplication::requestShutdown()
-{
+void KomodoApplication::requestShutdown() {
     // Show a simple window indicating shutdown status
     // Do this first as some of the steps may take some time below,
     // for example the RPC console may still be executing a command.
@@ -521,19 +492,17 @@ void KomodoApplication::requestShutdown()
     Q_EMIT requestedShutdown();
 }
 
-void KomodoApplication::initializeResult(bool success)
-{
+void KomodoApplication::initializeResult(bool success) {
     qDebug() << __func__ << ": Initialization result: " << success;
     // Set exit result.
     returnValue = success ? EXIT_SUCCESS : EXIT_FAILURE;
-    if(success)
-    {
+    if(success) {
         // Log this only after AppInitMain finishes, as then logging setup is guaranteed complete
         qWarning() << "Platform customization:" << platformStyle->getName();
 #ifdef ENABLE_WALLET
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
         PaymentServer::LoadRootCAs();
-    #endif
+#endif
         paymentServer->setOptionsModel(optionsModel);
 #endif
 
@@ -542,26 +511,22 @@ void KomodoApplication::initializeResult(bool success)
 
 #ifdef ENABLE_WALLET
         // TODO: Expose secondary wallets
-        if (!vpwallets.empty())
-        {
+        if (!vpwallets.empty()) {
             walletModel = new WalletModel(platformStyle, vpwallets[0], optionsModel);
 
             window->addWallet(KomodoOceanGUI::DEFAULT_WALLET, walletModel);
             window->setCurrentWallet(KomodoOceanGUI::DEFAULT_WALLET);
-            
-            #ifdef ENABLE_BIP70
+
+#ifdef ENABLE_BIP70
             connect(walletModel, &WalletModel::coinsSent, paymentServer, &PaymentServer::fetchPaymentACK);
-            #endif
+#endif
         }
 #endif
 
         // If -min option passed, start window minimized.
-        if(GetBoolArg("-min", false))
-        {
+        if(GetBoolArg("-min", false)) {
             window->showMinimized();
-        }
-        else
-        {
+        } else {
             window->show();
         }
         Q_EMIT splashFinished(window);
@@ -571,7 +536,9 @@ void KomodoApplication::initializeResult(bool success)
         // komodo: URIs or payment requests:
         connect(paymentServer, &PaymentServer::receivedPaymentRequest, window, &KomodoOceanGUI::handlePaymentRequest);
         connect(window, &KomodoOceanGUI::receivedURI, paymentServer, &PaymentServer::handleURIOrFile);
-        connect(paymentServer, &PaymentServer::message, [this](const QString& title, const QString& message, unsigned int style) { window->message(title, message, style); });
+        connect(paymentServer, &PaymentServer::message, [this](const QString& title, const QString& message, unsigned int style) {
+            window->message(title, message, style);
+        });
         QTimer::singleShot(100, paymentServer, &PaymentServer::uiReady);
 #endif
     } else {
@@ -579,19 +546,16 @@ void KomodoApplication::initializeResult(bool success)
     }
 }
 
-void KomodoApplication::shutdownResult()
-{
+void KomodoApplication::shutdownResult() {
     quit(); // Exit main loop after shutdown finished
 }
 
-void KomodoApplication::handleRunawayException(const QString &message)
-{
+void KomodoApplication::handleRunawayException(const QString &message) {
     QMessageBox::critical(nullptr, "Runaway exception", KomodoOceanGUI::tr("A fatal error occurred. Komodo can no longer continue safely and will quit.") + QString("\n\n") + message);
     ::exit(EXIT_FAILURE);
 }
 
-WId KomodoApplication::getMainWinId() const
-{
+WId KomodoApplication::getMainWinId() const {
     if (!window)
         return 0;
 
@@ -599,8 +563,7 @@ WId KomodoApplication::getMainWinId() const
 }
 
 #ifndef KOMODO_QT_TEST
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     SetupEnvironment();
 
     /// 1. Parse command-line options. These take precedence over anything else.
@@ -621,11 +584,11 @@ int main(int argc, char *argv[])
 #endif
     // Because of the POODLE attack it is recommended to disable SSLv3 (https://disablessl3.com/),
     // so set SSL protocols to TLS1.0+.
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
     QSslConfiguration sslconf = QSslConfiguration::defaultConfiguration();
     sslconf.setProtocol(QSsl::TlsV1_0OrLater);
     QSslConfiguration::setDefaultConfiguration(sslconf);
-    #endif
+#endif
 
     KomodoApplication app;
 
@@ -652,26 +615,25 @@ int main(int argc, char *argv[])
 
     // Show help message immediately after parsing command-line options (for "-lang") and setting locale,
     // but before showing splash screen.
-    if (IsArgSet("-?") || IsArgSet("-h") || IsArgSet("-help") || IsArgSet("-version"))
-    {
+    if (IsArgSet("-?") || IsArgSet("-h") || IsArgSet("-help") || IsArgSet("-version")) {
         HelpMessageDialog help(nullptr, IsArgSet("-version"));
         help.showOrPrint();
         return EXIT_SUCCESS;
     }
 
-        // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
-        if (!SelectParamsFromCommandLine()) {
-            LogPrintf("Error: Invalid combination of -regtest and -testnet.\n");
-            return EXIT_FAILURE;
-        }
+    // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
+    if (!SelectParamsFromCommandLine()) {
+        LogPrintf("Error: Invalid combination of -regtest and -testnet.\n");
+        return EXIT_FAILURE;
+    }
 
-        void komodo_args(char *argv0);
-        komodo_args(argv[0]);
-        void chainparams_commandline();
-        chainparams_commandline();
+    void komodo_args(char *argv0);
+    komodo_args(argv[0]);
+    void chainparams_commandline();
+    chainparams_commandline();
 
-        LogPrintf("call komodo_args.(%s) NOTARY_PUBKEY.(%s)\n",argv[0],NOTARY_PUBKEY.c_str());
-        LogPrintf("initialized %s\n",chainName.symbol().c_str());
+    LogPrintf("call komodo_args.(%s) NOTARY_PUBKEY.(%s)\n",argv[0],NOTARY_PUBKEY.c_str());
+    LogPrintf("initialized %s\n",chainName.symbol().c_str());
 
 
     /// 5. Now that settings and translations are available, ask user for data directory
@@ -681,8 +643,7 @@ int main(int argc, char *argv[])
 
     /// 6. Determine availability of data directory and parse komodo.conf
     /// - Do not call GetDataDir(true) before this step finishes
-    if (!fs::is_directory(GetDataDir(false)))
-    {
+    if (!fs::is_directory(GetDataDir(false))) {
         QMessageBox::critical(nullptr, QObject::tr(PACKAGE_NAME),
                               QObject::tr("Error: Specified data directory \"%1\" does not exist.").arg(QString::fromStdString(GetArg("-datadir", ""))));
         return EXIT_FAILURE;
@@ -763,8 +724,7 @@ int main(int argc, char *argv[])
     SoftSetBoolArg("-server", true);
 
     int rv = EXIT_SUCCESS;
-    try
-    {
+    try {
         app.createWindow(networkStyle.data());
         // Perform base initialization before spinning up initialization/shutdown thread
         // This is acceptable because this function only contains steps that are quick to execute,

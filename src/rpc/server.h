@@ -39,26 +39,26 @@
 class AsyncRPCQueue;
 class CRPCCommand;
 
-namespace RPCServer
-{
-    void OnStarted(boost::function<void ()> slot);
-    void OnStopped(boost::function<void ()> slot);
-    void OnPreCommand(boost::function<void (const CRPCCommand&)> slot);
-    void OnPostCommand(boost::function<void (const CRPCCommand&)> slot);
+namespace RPCServer {
+void OnStarted(boost::function<void ()> slot);
+void OnStopped(boost::function<void ()> slot);
+void OnPreCommand(boost::function<void (const CRPCCommand&)> slot);
+void OnPostCommand(boost::function<void (const CRPCCommand&)> slot);
 }
 
 class CBlockIndex;
 class CNetAddr;
 
-class JSONRequest
-{
-public:
+class JSONRequest {
+  public:
     UniValue id;
     std::string strMethod;
     UniValue params;
     std::string URI;
 
-    JSONRequest() { id = NullUniValue; }
+    JSONRequest() {
+        id = NullUniValue;
+    }
     void parse(const UniValue& valRequest);
 };
 
@@ -93,24 +93,22 @@ void RPCTypeCheck(const UniValue& params,
   Use like: RPCTypeCheckObj(object, boost::assign::map_list_of("name", str_type)("value", int_type));
 */
 void RPCTypeCheckObj(const UniValue& o,
-                  const std::map<std::string, UniValue::VType>& typesExpected, bool fAllowNull=false);
+                     const std::map<std::string, UniValue::VType>& typesExpected, bool fAllowNull=false);
 
 /** Opaque base class for timers returned by NewTimerFunc.
  * This provides no methods at the moment, but makes sure that delete
  * cleans up the whole state.
  */
-class RPCTimerBase
-{
-public:
+class RPCTimerBase {
+  public:
     virtual ~RPCTimerBase() {}
 };
 
 /**
  * RPC timer "driver".
  */
-class RPCTimerInterface
-{
-public:
+class RPCTimerInterface {
+  public:
     virtual ~RPCTimerInterface() {}
     /** Implementation name */
     virtual const char *Name() = 0;
@@ -136,9 +134,8 @@ void RPCRunLater(const std::string& name, boost::function<void(void)> func, int6
 
 typedef UniValue(*rpcfn_type)(const UniValue& params, bool fHelp, const CPubKey& mypk);
 
-class CRPCCommand
-{
-public:
+class CRPCCommand {
+  public:
     std::string category;
     std::string name;
     rpcfn_type actor;
@@ -148,11 +145,10 @@ public:
 /**
  * Bitcoin RPC command dispatcher.
  */
-class CRPCTable
-{
-private:
+class CRPCTable {
+  private:
     std::map<std::string, const CRPCCommand*> mapCommands;
-public:
+  public:
     CRPCTable();
     const CRPCCommand* operator[](const std::string& name) const;
     std::string help(const std::string& name) const;

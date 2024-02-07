@@ -27,8 +27,7 @@
 #include <QScreen>
 
 SplashScreen::SplashScreen(const NetworkStyle *networkStyle) :
-    QWidget(), curAlignment(0)
-{
+    QWidget(), curAlignment(0) {
     // set reference point, paddings
     int paddingRight            = 50;
     int paddingTop              = 50;
@@ -132,8 +131,7 @@ SplashScreen::SplashScreen(const NetworkStyle *networkStyle) :
     installEventFilter(this);
 }
 
-SplashScreen::~SplashScreen()
-{
+SplashScreen::~SplashScreen() {
     unsubscribeFromCoreSignals();
 }
 
@@ -147,8 +145,7 @@ bool SplashScreen::eventFilter(QObject * obj, QEvent * ev) {
     return QObject::eventFilter(obj, ev);
 }
 
-void SplashScreen::slotFinish(QWidget *mainWin)
-{
+void SplashScreen::slotFinish(QWidget *mainWin) {
     Q_UNUSED(mainWin);
 
     /* If the window is minimized, hide() will be ignored. */
@@ -159,33 +156,29 @@ void SplashScreen::slotFinish(QWidget *mainWin)
     deleteLater(); // No more need for this
 }
 
-static void InitMessage(SplashScreen *splash, const std::string &message)
-{
+static void InitMessage(SplashScreen *splash, const std::string &message) {
     QMetaObject::invokeMethod(splash, "showMessage",
-        Qt::QueuedConnection,
-        Q_ARG(QString, QString::fromStdString(message)),
-        Q_ARG(int, Qt::AlignBottom|Qt::AlignHCenter),
-        Q_ARG(QColor, QColor(55,55,55)));
+                              Qt::QueuedConnection,
+                              Q_ARG(QString, QString::fromStdString(message)),
+                              Q_ARG(int, Qt::AlignBottom|Qt::AlignHCenter),
+                              Q_ARG(QColor, QColor(55,55,55)));
 }
 
-static void ShowProgress(SplashScreen *splash, const std::string &title, int nProgress, bool resume_possible)
-{
+static void ShowProgress(SplashScreen *splash, const std::string &title, int nProgress, bool resume_possible) {
     InitMessage(splash, title + std::string("\n") +
-            (resume_possible ? _("(press q to shutdown and continue later)")
-                                : _("press q to shutdown")) +
-            strprintf("\n%d", nProgress) + "%");
+                (resume_possible ? _("(press q to shutdown and continue later)")
+                 : _("press q to shutdown")) +
+                strprintf("\n%d", nProgress) + "%");
 }
 
 #ifdef ENABLE_WALLET
-void SplashScreen::ConnectWallet(CWallet* wallet)
-{
+void SplashScreen::ConnectWallet(CWallet* wallet) {
     wallet->ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2, false));
     connectedWallets.push_back(wallet);
 }
 #endif
 
-void SplashScreen::subscribeToCoreSignals()
-{
+void SplashScreen::subscribeToCoreSignals() {
     // Connect signals to client
     uiInterface.InitMessage.connect(boost::bind(InitMessage, this, _1));
     uiInterface.ShowProgress.connect(boost::bind(ShowProgress, this, _1, _2, _3));
@@ -194,8 +187,7 @@ void SplashScreen::subscribeToCoreSignals()
 #endif
 }
 
-void SplashScreen::unsubscribeFromCoreSignals()
-{
+void SplashScreen::unsubscribeFromCoreSignals() {
     // Disconnect signals from client
     uiInterface.InitMessage.disconnect(boost::bind(InitMessage, this, _1));
     uiInterface.ShowProgress.disconnect(boost::bind(ShowProgress, this, _1, _2, _3));
@@ -206,16 +198,14 @@ void SplashScreen::unsubscribeFromCoreSignals()
 #endif
 }
 
-void SplashScreen::showMessage(const QString &message, int alignment, const QColor &color)
-{
+void SplashScreen::showMessage(const QString &message, int alignment, const QColor &color) {
     curMessage = message;
     curAlignment = alignment;
     curColor = color;
     update();
 }
 
-void SplashScreen::paintEvent(QPaintEvent *event)
-{
+void SplashScreen::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.drawPixmap(0, 0, pixmap);
     QRect r = rect().adjusted(5, 5, -5, -5);
@@ -223,8 +213,7 @@ void SplashScreen::paintEvent(QPaintEvent *event)
     painter.drawText(r, curAlignment, curMessage);
 }
 
-void SplashScreen::closeEvent(QCloseEvent *event)
-{
+void SplashScreen::closeEvent(QCloseEvent *event) {
     StartShutdown(); // allows an "emergency" shutdown during startup
     event->ignore();
 }

@@ -13,8 +13,7 @@
 using namespace libsnark;
 
 template<typename FieldT>
-void test_two_to_one()
-{
+void test_two_to_one() {
     protoboard<FieldT> pb;
 
     digest_variable<FieldT> left(pb, SHA256_digest_size, "left");
@@ -38,8 +37,7 @@ void test_two_to_one()
     assert(pb.is_satisfied());
 }
 
-int main(void)
-{
+int main(void) {
     start_profiling();
     default_ec_pp::init_public_params();
     test_two_to_one<Fr<default_ec_pp> >();

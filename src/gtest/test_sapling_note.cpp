@@ -12,8 +12,7 @@
 using namespace libzcash;
 
 // Test data from https://github.com/zcash-hackworks/zcash-test-vectors/blob/master/sapling_key_components.py
-TEST(SaplingNote, TestVectors)
-{
+TEST(SaplingNote, TestVectors) {
     uint64_t v = 0;
     uint64_t note_pos = 0;
     std::array<uint8_t, 11> diversifier{0xf1, 0x9d, 0x9b, 0x79, 0x7e, 0x39, 0xf3, 0x37, 0x44, 0x58, 0x39};
@@ -53,8 +52,7 @@ TEST(SaplingNote, TestVectors)
 }
 
 
-TEST(SaplingNote, Random)
-{
+TEST(SaplingNote, Random) {
     // Test creating random notes using the same spending key
     auto address = SaplingSpendingKey::random().default_address();
     SaplingNote note1(address, GetRand(MAX_MONEY));

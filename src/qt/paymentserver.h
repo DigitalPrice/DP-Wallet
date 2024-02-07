@@ -61,11 +61,10 @@ QT_END_NAMESPACE
 // BIP70 max payment request size in bytes (DoS protection)
 static const qint64 BIP70_MAX_PAYMENTREQUEST_SIZE = 50000;
 
-class PaymentServer : public QObject
-{
+class PaymentServer : public QObject {
     Q_OBJECT
 
-public:
+  public:
     // Parse URIs on command line
     // Returns false on error
     static void ipcParseCommandLine(int argc, char *argv[]);
@@ -81,7 +80,7 @@ public:
     explicit PaymentServer(QObject* parent, bool startLocalServer = true);
     ~PaymentServer();
 
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
     // Load root certificate authorities. Pass nullptr (default)
     // to read from the file specified in the -rootcertificates setting,
     // or, if that's not set, to use the system default root certificates.
@@ -91,12 +90,12 @@ public:
 
     // Return certificate store
     static X509_STORE* getCertStore();
-    #endif
+#endif
 
     // OptionsModel is used for getting proxy settings and display unit
     void setOptionsModel(OptionsModel *optionsModel);
 
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
     // Verify that the payment request network matches the client network
     static bool verifyNetwork(const payments::PaymentDetails& requestDetails);
     // Verify if the payment request is expired
@@ -105,62 +104,62 @@ public:
     static bool verifySize(qint64 requestSize);
     // Verify the payment request amount is valid
     static bool verifyAmount(const CAmount& requestAmount);
-    #endif
+#endif
 
-Q_SIGNALS:
+  Q_SIGNALS:
     // Fired when a valid payment request is received
     void receivedPaymentRequest(SendCoinsRecipient);
 
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
     // Fired when a valid PaymentACK is received
     void receivedPaymentACK(const QString &paymentACKMsg);
-    #endif
+#endif
 
     // Fired when a message should be reported to the user
     void message(const QString &title, const QString &message, unsigned int style);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     // Signal this when the main window's UI is ready
     // to display payment requests to the user
     void uiReady();
 
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
     // Submit Payment message to a merchant, get back PaymentACK:
     void fetchPaymentACK(CWallet* wallet, const SendCoinsRecipient& recipient, QByteArray transaction);
-    #endif
+#endif
 
     // Handle an incoming URI, URI with local file scheme or file
     void handleURIOrFile(const QString& s);
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void handleURIConnection();
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
     void netRequestFinished(QNetworkReply*);
     void reportSslErrors(QNetworkReply*, const QList<QSslError> &);
     void handlePaymentACK(const QString& paymentACKMsg);
-    #endif
+#endif
 
-protected:
+  protected:
     // Constructor registers this on the parent QApplication to
     // receive QEvent::FileOpen and QEvent:Drop events
     bool eventFilter(QObject *object, QEvent *event);
 
-private:
-    #ifdef ENABLE_BIP70
+  private:
+#ifdef ENABLE_BIP70
     static bool readPaymentRequestFromFile(const QString& filename, PaymentRequestPlus& request);
     bool processPaymentRequest(const PaymentRequestPlus& request, SendCoinsRecipient& recipient);
     void fetchRequest(const QUrl& url);
 
     // Setup networking
     void initNetManager();
-    #endif
+#endif
 
     bool saveURIs;                      // true during startup
     QLocalServer* uriServer;
 
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
     QNetworkAccessManager* netManager;  // Used to fetch payment requests
-    #endif
+#endif
 
     OptionsModel *optionsModel;
 };

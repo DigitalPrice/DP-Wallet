@@ -48,8 +48,7 @@ PaymentDisclosureDB::~PaymentDisclosureDB() {
     }
 }
 
-bool PaymentDisclosureDB::Put(const PaymentDisclosureKey& key, const PaymentDisclosureInfo& info)
-{
+bool PaymentDisclosureDB::Put(const PaymentDisclosureKey& key, const PaymentDisclosureInfo& info) {
     if (db == nullptr) {
         return false;
     }
@@ -66,8 +65,7 @@ bool PaymentDisclosureDB::Put(const PaymentDisclosureKey& key, const PaymentDisc
     return true;
 }
 
-bool PaymentDisclosureDB::Get(const PaymentDisclosureKey& key, PaymentDisclosureInfo& info)
-{
+bool PaymentDisclosureDB::Get(const PaymentDisclosureKey& key, PaymentDisclosureInfo& info) {
     if (db == nullptr) {
         return false;
     }

@@ -34,19 +34,19 @@ PDCurses portable platform definitions list:
 #define SYSVcurses      1      /* System V Curses routines */
 #define BSDcurses       1      /* BSD Curses routines */
 #if defined( CHTYPE_32)
-   #define CHTYPE_LONG     1      /* chtypes will be 32 bits */
+#define CHTYPE_LONG     1      /* chtypes will be 32 bits */
 #elif !defined( CHTYPE_16)
-   #define CHTYPE_LONG     2      /* chtypes will be (default) 64 bits */
+#define CHTYPE_LONG     2      /* chtypes will be (default) 64 bits */
 #endif
 
 /*----------------------------------------------------------------------*/
 
 #ifdef NO_STDINT_H
-   #define uint64_t unsigned long long
-   #define uint32_t unsigned long
-   #define uint16_t unsigned short
+#define uint64_t unsigned long long
+#define uint32_t unsigned long
+#define uint16_t unsigned short
 #else
-   #include <stdint.h>
+#include <stdint.h>
 #endif
 #include <stdarg.h>
 #include <stddef.h>
@@ -97,11 +97,11 @@ typedef unsigned char bool;
 #define OK 0
 
 #ifdef CHTYPE_LONG
-    #if(CHTYPE_LONG >= 2)       /* "non-standard" 64-bit chtypes     */
-        typedef uint64_t chtype;
-    #else                        /* "Standard" CHTYPE_LONG case,  32-bit: */
-        typedef uint32_t chtype;
-    # endif
+#if(CHTYPE_LONG >= 2)       /* "non-standard" 64-bit chtypes     */
+typedef uint64_t chtype;
+#else                        /* "Standard" CHTYPE_LONG case,  32-bit: */
+typedef uint32_t chtype;
+# endif
 #else
 typedef uint16_t chtype; /* 8-bit attr + 8-bit char */
 #endif
@@ -130,8 +130,7 @@ to inquire of the DLL/shared library the port,  version numbers,  and
 chtype_size used, and make sure they're what one was expecting.  The
 'PDC_version' structure lets you do just that. */
 
-enum PDC_port
-{
+enum PDC_port {
     PDC_PORT_X11 = 0,
     PDC_PORT_WIN32 = 1,
     PDC_PORT_WINGUI = 2,
@@ -144,15 +143,14 @@ enum PDC_port
 
 /* Detailed PDC version information */
 #define PDC_HAS_VERSION_INFO 1
-typedef struct
-{
-   const enum PDC_port port;
-   const int ver_major;
-   const int ver_minor;
-   const int ver_change;
-   const size_t chtype_size;
-   const bool is_wide;
-   const bool is_forced_utf8;
+typedef struct {
+    const enum PDC_port port;
+    const int ver_major;
+    const int ver_minor;
+    const int ver_change;
+    const size_t chtype_size;
+    const bool is_wide;
+    const bool is_forced_utf8;
 } PDC_version_info;
 
 /*----------------------------------------------------------------------
@@ -171,8 +169,7 @@ typedef struct
 #define PDC_MAX_MOUSE_BUTTONS          9
 #define PDC_N_EXTENDED_MOUSE_BUTTONS   6
 
-typedef struct
-{
+typedef struct {
     int x;           /* absolute column, 0 based, measured in characters */
     int y;           /* absolute row, 0 based, measured in characters    */
     short button[3]; /* state of three "normal" buttons                  */
@@ -288,8 +285,7 @@ typedef struct
 
 typedef unsigned long mmask_t;
 
-typedef struct
-{
+typedef struct {
     short id;       /* unused, always 0 */
     int x, y, z;    /* x, y same as MOUSE_STATUS; z unused */
     mmask_t bstate; /* equivalent to changes + button[], but
@@ -317,8 +313,7 @@ typedef struct
  *
  */
 
-typedef struct _win       /* definition of a window */
-{
+typedef struct _win {     /* definition of a window */
     int   _cury;          /* current pseudo-cursor */
     int   _curx;
     int   _maxy;          /* max window coordinates */
@@ -348,8 +343,7 @@ typedef struct _win       /* definition of a window */
 /* Avoid using the SCREEN struct directly -- use the corresponding
    functions if possible. This struct may eventually be made private. */
 
-typedef struct
-{
+typedef struct {
     bool  alive;          /* if initscr() called, and not endwin() */
     bool  autocr;         /* if cr -> lf */
     bool  cbreak;         /* if terminal unbuffered */
@@ -500,29 +494,29 @@ fifteen bits,  five bits for each of the three channels) and background RGB
 #ifdef CHTYPE_LONG
 
 # if(CHTYPE_LONG >= 2)     /* 64-bit chtypes */
-    # define PDC_CHARTEXT_BITS   21
-    # define A_CHARTEXT   (chtype)( ((chtype)0x1 << PDC_CHARTEXT_BITS) - 1)
-    # define A_ALTCHARSET ((chtype)0x001 << PDC_CHARTEXT_BITS)
-    # define A_RIGHTLINE  ((chtype)0x002 << PDC_CHARTEXT_BITS)
-    # define A_LEFTLINE   ((chtype)0x004 << PDC_CHARTEXT_BITS)
-    # define A_INVIS      ((chtype)0x008 << PDC_CHARTEXT_BITS)
-    # define A_UNDERLINE  ((chtype)0x010 << PDC_CHARTEXT_BITS)
-    # define A_REVERSE    ((chtype)0x020 << PDC_CHARTEXT_BITS)
-    # define A_BLINK      ((chtype)0x040 << PDC_CHARTEXT_BITS)
-    # define A_BOLD       ((chtype)0x080 << PDC_CHARTEXT_BITS)
-    # define A_OVERLINE   ((chtype)0x100 << PDC_CHARTEXT_BITS)
-    # define A_STRIKEOUT  ((chtype)0x200 << PDC_CHARTEXT_BITS)
-    # define A_DIM        ((chtype)0x400 << PDC_CHARTEXT_BITS)
+# define PDC_CHARTEXT_BITS   21
+# define A_CHARTEXT   (chtype)( ((chtype)0x1 << PDC_CHARTEXT_BITS) - 1)
+# define A_ALTCHARSET ((chtype)0x001 << PDC_CHARTEXT_BITS)
+# define A_RIGHTLINE  ((chtype)0x002 << PDC_CHARTEXT_BITS)
+# define A_LEFTLINE   ((chtype)0x004 << PDC_CHARTEXT_BITS)
+# define A_INVIS      ((chtype)0x008 << PDC_CHARTEXT_BITS)
+# define A_UNDERLINE  ((chtype)0x010 << PDC_CHARTEXT_BITS)
+# define A_REVERSE    ((chtype)0x020 << PDC_CHARTEXT_BITS)
+# define A_BLINK      ((chtype)0x040 << PDC_CHARTEXT_BITS)
+# define A_BOLD       ((chtype)0x080 << PDC_CHARTEXT_BITS)
+# define A_OVERLINE   ((chtype)0x100 << PDC_CHARTEXT_BITS)
+# define A_STRIKEOUT  ((chtype)0x200 << PDC_CHARTEXT_BITS)
+# define A_DIM        ((chtype)0x400 << PDC_CHARTEXT_BITS)
 #if 0
-                  /* May come up with a use for this bit    */
-                  /* someday; reserved for the future: */
-    # define A_FUTURE_2   ((chtype)0x800 << PDC_CHARTEXT_BITS)
+/* May come up with a use for this bit    */
+/* someday; reserved for the future: */
+# define A_FUTURE_2   ((chtype)0x800 << PDC_CHARTEXT_BITS)
 #endif
-    # define PDC_COLOR_SHIFT (PDC_CHARTEXT_BITS + 12)
-    # define A_COLOR      ((chtype)0x7fffffff << PDC_COLOR_SHIFT)
-    # define A_RGB_COLOR  ((chtype)0x40000000 << PDC_COLOR_SHIFT)
-    # define A_ATTRIBUTES (((chtype)0xfff << PDC_CHARTEXT_BITS) | A_COLOR)
-    # define A_RGB( rfore, gfore, bfore, rback, gback, bback)       \
+# define PDC_COLOR_SHIFT (PDC_CHARTEXT_BITS + 12)
+# define A_COLOR      ((chtype)0x7fffffff << PDC_COLOR_SHIFT)
+# define A_RGB_COLOR  ((chtype)0x40000000 << PDC_COLOR_SHIFT)
+# define A_ATTRIBUTES (((chtype)0xfff << PDC_CHARTEXT_BITS) | A_COLOR)
+# define A_RGB( rfore, gfore, bfore, rback, gback, bback)       \
         (( (((chtype)(bfore) << 25) \
          | ((chtype)(gfore) << 20) \
          | ((chtype)(rfore) << 15) \
@@ -530,30 +524,30 @@ fifteen bits,  five bits for each of the three channels) and background RGB
          | ((chtype)(gback) <<  5) \
          | ((chtype)(rback)      )) << PDC_COLOR_SHIFT) | A_RGB_COLOR)
 # else         /* plain ol' 32-bit chtypes */
-    # define A_ALTCHARSET (chtype)0x00010000
-    # define A_RIGHTLINE  (chtype)0x00020000
-    # define A_LEFTLINE   (chtype)0x00040000
-    # define A_INVIS      (chtype)0x00080000
-    # define A_UNDERLINE  (chtype)0x00100000
-    # define A_REVERSE    (chtype)0x00200000
-    # define A_BLINK      (chtype)0x00400000
-    # define A_BOLD       (chtype)0x00800000
-    # define A_COLOR      (chtype)0xff000000
-    # define A_RGB_COLOR  A_NORMAL
+# define A_ALTCHARSET (chtype)0x00010000
+# define A_RIGHTLINE  (chtype)0x00020000
+# define A_LEFTLINE   (chtype)0x00040000
+# define A_INVIS      (chtype)0x00080000
+# define A_UNDERLINE  (chtype)0x00100000
+# define A_REVERSE    (chtype)0x00200000
+# define A_BLINK      (chtype)0x00400000
+# define A_BOLD       (chtype)0x00800000
+# define A_COLOR      (chtype)0xff000000
+# define A_RGB_COLOR  A_NORMAL
 #ifdef PDC_WIDE
-    # define A_CHARTEXT   (chtype)0x0000ffff
-    # define A_ATTRIBUTES (chtype)0xffff0000
-    # define A_DIM        A_NORMAL
-    # define A_OVERLINE   A_NORMAL
-    # define A_STRIKEOUT  A_NORMAL
+# define A_CHARTEXT   (chtype)0x0000ffff
+# define A_ATTRIBUTES (chtype)0xffff0000
+# define A_DIM        A_NORMAL
+# define A_OVERLINE   A_NORMAL
+# define A_STRIKEOUT  A_NORMAL
 #else          /* with 8-bit chars,  we have bits for these attribs : */
-    # define A_CHARTEXT   (chtype)0x000000ff
-    # define A_ATTRIBUTES (chtype)0xffffe000
-    # define A_DIM        (chtype)0x00008000
-    # define A_OVERLINE   (chtype)0x00004000
-    # define A_STRIKEOUT  (chtype)0x00002000
+# define A_CHARTEXT   (chtype)0x000000ff
+# define A_ATTRIBUTES (chtype)0xffffe000
+# define A_DIM        (chtype)0x00008000
+# define A_OVERLINE   (chtype)0x00004000
+# define A_STRIKEOUT  (chtype)0x00002000
 #endif
-    # define PDC_COLOR_SHIFT 24
+# define PDC_COLOR_SHIFT 24
 #endif
 
 
@@ -948,9 +942,9 @@ Some won't work in non-wide X11 builds (see 'acs_defs.h' for details). */
  */
 
 #ifdef PDC_WIDE
-   #define KEY_OFFSET 0xec00
+#define KEY_OFFSET 0xec00
 #else
-   #define KEY_OFFSET 0x100
+#define KEY_OFFSET 0x100
 #endif
 
 #define KEY_CODE_YES     (KEY_OFFSET + 0x00) /* If get_wch() gives a key code */
@@ -1197,8 +1191,8 @@ Some won't work in non-wide X11 builds (see 'acs_defs.h' for details). */
 #define KEY_SUP               (KEY_OFFSET + 0x123) /* Shifted up arrow */
 #define KEY_SDOWN             (KEY_OFFSET + 0x124) /* Shifted down arrow */
 
-         /* The following were added 2011 Sep 14,  and are */
-         /* not returned by most flavors of PDCurses:      */
+/* The following were added 2011 Sep 14,  and are */
+/* not returned by most flavors of PDCurses:      */
 
 #define CTL_SEMICOLON         (KEY_OFFSET + 0x125)
 #define CTL_EQUAL             (KEY_OFFSET + 0x126)
@@ -1544,7 +1538,7 @@ PDCEX  int     wattr_set(WINDOW *, attr_t, short, void *);
 PDCEX  void    wbkgdset(WINDOW *, chtype);
 PDCEX  int     wbkgd(WINDOW *, chtype);
 PDCEX  int     wborder(WINDOW *, chtype, chtype, chtype, chtype,
-                        chtype, chtype, chtype, chtype);
+                       chtype, chtype, chtype, chtype);
 PDCEX  int     wchgat(WINDOW *, int, attr_t, short, const void *);
 PDCEX  int     wclear(WINDOW *);
 PDCEX  int     wclrtobot(WINDOW *);
@@ -1773,9 +1767,9 @@ PDCEX  unsigned long PDC_get_key_modifiers(void);
 PDCEX  int     PDC_return_key_modifiers(bool);
 PDCEX  int     PDC_save_key_modifiers(bool);
 PDCEX  void    PDC_set_resize_limits( const int new_min_lines,
-                               const int new_max_lines,
-                               const int new_min_cols,
-                               const int new_max_cols);
+                                      const int new_max_lines,
+                                      const int new_min_cols,
+                                      const int new_max_cols);
 
 #define FUNCTION_KEY_SHUT_DOWN        0
 #define FUNCTION_KEY_PASTE            1
@@ -1786,7 +1780,7 @@ PDCEX  void    PDC_set_resize_limits( const int new_min_lines,
 #define PDC_MAX_FUNCTION_KEYS         6
 
 PDCEX int     PDC_set_function_key( const unsigned function,
-                              const int new_key);
+                                    const int new_key);
 
 PDCEX  WINDOW *Xinitscr(int, char **);
 #ifdef XCURSES
@@ -1797,7 +1791,7 @@ PDCEX  int     sb_set_vert(int, int, int);
 PDCEX  int     sb_get_horz(int *, int *, int *);
 PDCEX  int     sb_get_vert(int *, int *, int *);
 PDCEX  int     sb_refresh(void);
- #endif
+#endif
 
 /*** Functions defined as macros ***/
 

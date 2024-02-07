@@ -36,8 +36,7 @@
 
 //extern std::mutex komodo_mutex;  //todo remove
 
-struct komodo_event
-{
+struct komodo_event {
     struct komodo_event *related;
     uint16_t len;
     int32_t height;
@@ -53,8 +52,7 @@ struct komodo_event
  * @returns the number of bytes written
  */
 template<class T>
-size_t write_event(T& evt, FILE *fp)
-{
+size_t write_event(T& evt, FILE *fp) {
     std::stringstream ss;
     ss << evt;
     std::string buf = ss.str();
@@ -63,8 +61,7 @@ size_t write_event(T& evt, FILE *fp)
 
 namespace komodo {
 
-enum komodo_event_type
-{
+enum komodo_event_type {
     EVENT_PUBKEYS,
     EVENT_NOTARIZED,
     EVENT_U,
@@ -77,18 +74,16 @@ enum komodo_event_type
 /***
  * Thrown by event constructors when it finds a problem with the input data
  */
-class parse_error : public std::logic_error
-{
-public:
+class parse_error : public std::logic_error {
+  public:
     parse_error(const std::string& in) : std::logic_error(in) {}
 };
 
 /***
  * base class for events
  */
-class event
-{
-public:
+class event {
+  public:
     event(komodo_event_type t, int32_t height) : type(t), height(height) {}
     virtual ~event() = default;
     komodo_event_type type;
@@ -96,44 +91,40 @@ public:
 };
 std::ostream& operator<<(std::ostream& os, const event& in);
 
-struct event_rewind : public event
-{
+struct event_rewind : public event {
     event_rewind() : event(komodo_event_type::EVENT_REWIND, 0) {}
     event_rewind(int32_t ht) : event(EVENT_REWIND, ht) {}
     event_rewind(uint8_t* data, long &pos, long data_len, int32_t height);
 };
 std::ostream& operator<<(std::ostream& os, const event_rewind& in);
 
-struct event_notarized : public event
-{
+struct event_notarized : public event {
     event_notarized() : event(komodo_event_type::EVENT_NOTARIZED, 0), notarizedheight(0), MoMdepth(0) {
         memset(this->dest, 0, sizeof(this->dest));
     }
     event_notarized(int32_t ht, const char* _dest) : event(komodo_event_type::EVENT_NOTARIZED, ht), notarizedheight(0), MoMdepth(0) {
-        strncpy(this->dest, _dest, sizeof(this->dest)-1); this->dest[sizeof(this->dest)-1] = 0;
+        strncpy(this->dest, _dest, sizeof(this->dest)-1);
+        this->dest[sizeof(this->dest)-1] = 0;
     }
     event_notarized(uint8_t* data, long &pos, long data_len, int32_t height, const char* _dest, bool includeMoM = false);
     event_notarized(FILE* fp, int32_t ht, const char* _dest, bool includeMoM = false);
     uint256 blockhash;
     uint256 desttxid;
-    uint256 MoM; 
+    uint256 MoM;
     int32_t notarizedheight;
-    int32_t MoMdepth; 
+    int32_t MoMdepth;
     char dest[16];
 };
 std::ostream& operator<<(std::ostream& os, const event_notarized& in);
 
-struct event_pubkeys : public event
-{
+struct event_pubkeys : public event {
     /***
      * Default ctor
      */
-    event_pubkeys() : event(EVENT_PUBKEYS, 0), num(0)
-    {
+    event_pubkeys() : event(EVENT_PUBKEYS, 0), num(0) {
         memset(pubkeys, 0, 64 * 33);
     }
-    event_pubkeys(int32_t ht) : event(EVENT_PUBKEYS, ht), num(0) 
-    {
+    event_pubkeys(int32_t ht) : event(EVENT_PUBKEYS, ht), num(0) {
         memset(pubkeys, 0, 64 * 33);
     }
     /***
@@ -144,20 +135,17 @@ struct event_pubkeys : public event
      */
     event_pubkeys(uint8_t* data, long &pos, long data_len, int32_t height);
     event_pubkeys(FILE* fp, int32_t height);
-    uint8_t num = 0; 
-    uint8_t pubkeys[64][33]; 
+    uint8_t num = 0;
+    uint8_t pubkeys[64][33];
 };
 std::ostream& operator<<(std::ostream& os, const event_pubkeys& in);
 
-struct event_u : public event
-{
-    event_u() : event(EVENT_U, 0) 
-    {
+struct event_u : public event {
+    event_u() : event(EVENT_U, 0) {
         memset(mask, 0, 8);
         memset(hash, 0, 32);
     }
-    event_u(int32_t ht) : event(EVENT_U, ht)
-    {
+    event_u(int32_t ht) : event(EVENT_U, ht) {
         memset(mask, 0, 8);
         memset(hash, 0, 32);
     }
@@ -170,8 +158,7 @@ struct event_u : public event
 };
 std::ostream& operator<<(std::ostream& os, const event_u& in);
 
-struct event_kmdheight : public event
-{
+struct event_kmdheight : public event {
     event_kmdheight() : event(EVENT_KMDHEIGHT, 0) {}
     event_kmdheight(int32_t ht) : event(EVENT_KMDHEIGHT, ht) {}
     event_kmdheight(uint8_t *data, long &pos, long data_len, int32_t height, bool includeTimestamp = false);
@@ -181,53 +168,48 @@ struct event_kmdheight : public event
 };
 std::ostream& operator<<(std::ostream& os, const event_kmdheight& in);
 
-struct event_opreturn : public event 
-{ 
-    event_opreturn() : event(EVENT_OPRETURN, 0) 
-    {
+struct event_opreturn : public event {
+    event_opreturn() : event(EVENT_OPRETURN, 0) {
         txid.SetNull();
     }
-    event_opreturn(int32_t ht) : event(EVENT_OPRETURN, ht)
-    {
+    event_opreturn(int32_t ht) : event(EVENT_OPRETURN, ht) {
         txid.SetNull();
     }
     event_opreturn(uint8_t *data, long &pos, long data_len, int32_t height);
     event_opreturn(FILE* fp, int32_t height);
-    uint256 txid; 
+    uint256 txid;
     uint16_t vout = 0;
-    uint64_t value = 0; 
+    uint64_t value = 0;
     std::vector<uint8_t> opret;
 };
 std::ostream& operator<<(std::ostream& os, const event_opreturn& in);
 
-struct event_pricefeed : public event
-{
-    event_pricefeed() : event(EVENT_PRICEFEED, 0), num(0) 
-    {
+struct event_pricefeed : public event {
+    event_pricefeed() : event(EVENT_PRICEFEED, 0), num(0) {
         memset(prices, 0, 35);
     }
-    event_pricefeed(int32_t ht) : event(EVENT_PRICEFEED, ht)
-    {
+    event_pricefeed(int32_t ht) : event(EVENT_PRICEFEED, ht) {
         memset(prices, 0, 35);
     }
     event_pricefeed(uint8_t *data, long &pos, long data_len, int32_t height);
-    event_pricefeed(FILE* fp, int32_t height); 
-    uint8_t num = 0; 
-    uint32_t prices[35]; 
+    event_pricefeed(FILE* fp, int32_t height);
+    uint8_t num = 0;
+    uint32_t prices[35];
 };
 std::ostream& operator<<(std::ostream& os, const event_pricefeed& in);
 
 } // namespace komodo
 
-struct knotary_entry { UT_hash_handle hh; uint8_t pubkey[33],notaryid; };
-struct knotaries_entry 
-{ 
+struct knotary_entry {
+    UT_hash_handle hh;
+    uint8_t pubkey[33],notaryid;
+};
+struct knotaries_entry {
     int32_t height;
     int32_t numnotaries; // The number of notaries stored in Notaries
     knotary_entry *Notaries; // A hashtable of notary ID/public key
 };
-struct notarized_checkpoint
-{
+struct notarized_checkpoint {
     uint256 notarized_hash;
     uint256 notarized_desttxid;
     uint256 MoM;
@@ -244,33 +226,35 @@ struct notarized_checkpoint
 
 bool operator==(const notarized_checkpoint& lhs, const notarized_checkpoint& rhs);
 
-struct komodo_ccdataMoM
-{
+struct komodo_ccdataMoM {
     uint256 MoM;
     int32_t MoMdepth,notarized_height,height,txi;
 };
 
-struct komodo_ccdata_entry { uint256 MoM; int32_t notarized_height,kmdheight,txi; char symbol[65]; };
-struct komodo_ccdatapair { int32_t notarized_height,MoMoMoffset; };
+struct komodo_ccdata_entry {
+    uint256 MoM;
+    int32_t notarized_height,kmdheight,txi;
+    char symbol[65];
+};
+struct komodo_ccdatapair {
+    int32_t notarized_height,MoMoMoffset;
+};
 
-struct komodo_ccdataMoMoM
-{
+struct komodo_ccdataMoMoM {
     uint256 MoMoM;
     int32_t kmdstarti,kmdendi,MoMoMoffset,MoMoMdepth,numpairs,len;
     struct komodo_ccdatapair *pairs;
 };
 
-struct komodo_ccdata
-{
+struct komodo_ccdata {
     struct komodo_ccdata *next,*prev;
     struct komodo_ccdataMoM MoMdata;
     uint32_t CCid,len;
     char symbol[65];
 };
 
-class komodo_state
-{
-public:
+class komodo_state {
+  public:
     std::string symbol;
     int32_t SAVEDHEIGHT;
     int32_t CURRENT_HEIGHT;
@@ -282,12 +266,11 @@ public:
     uint64_t redeemed;
     uint64_t shorted;
     std::list<std::shared_ptr<komodo::event>> events;
-    uint32_t RTbufs[64][3]; uint64_t RTmask;
+    uint32_t RTbufs[64][3];
+    uint64_t RTmask;
     template<class T>
-    bool add_event(const std::string& symbol, const uint32_t height, T& in)
-    {
-        if (!chainName.isKMD())
-        {
+    bool add_event(const std::string& symbol, const uint32_t height, T& in) {
+        if (!chainName.isKMD()) {
             std::shared_ptr<T> ptr = std::make_shared<T>( in );
             std::lock_guard<std::mutex> lock(komodo_mutex);
             events.push_back( ptr );
@@ -296,7 +279,7 @@ public:
         return false;
     }
 
-protected:
+  protected:
     /***
      * @brief clear the checkpoints collection
      * @note should only be used by tests
@@ -306,7 +289,7 @@ protected:
     mutable size_t NPOINTS_last_index = 0; // caches checkpoint linear search position
     notarized_checkpoint last;
 
-public:
+  public:
     const uint256 &LastNotarizedHash() const;
     void SetLastNotarizedHash(const uint256 &in);
     const uint256 &LastNotarizedDestTxId() const;

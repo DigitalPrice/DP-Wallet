@@ -32,11 +32,9 @@ using namespace std;
 
 typedef vector<unsigned char> valtype;
 
-unsigned int HaveKeys(const vector<valtype>& pubkeys, const CKeyStore& keystore)
-{
+unsigned int HaveKeys(const vector<valtype>& pubkeys, const CKeyStore& keystore) {
     unsigned int nResult = 0;
-    BOOST_FOREACH(const valtype& pubkey, pubkeys)
-    {
+    BOOST_FOREACH(const valtype& pubkey, pubkeys) {
         CKeyID keyID = CPubKey(pubkey).GetID();
         if (keystore.HaveKey(keyID))
             ++nResult;
@@ -52,27 +50,23 @@ namespace {
  * distinguish between top-level scriptPubKey execution and P2SH redeemScript
  * execution (a distinction that has no impact on consensus rules).
  */
-enum class IsMineSigVersion
-{
+enum class IsMineSigVersion {
     TOP = 0,        //! scriptPubKey execution
     P2SH = 1,       //! P2SH redeemScript
 };
 
-bool PermitsUncompressed(IsMineSigVersion sigversion)
-{
+bool PermitsUncompressed(IsMineSigVersion sigversion) {
     return sigversion == IsMineSigVersion::TOP || sigversion == IsMineSigVersion::P2SH;
 }
 
 typedef vector<unsigned char> valtype;
 
-isminetype IsMineInner(const CKeyStore& keystore, const CScript& _scriptPubKey, IsMineSigVersion sigversion)
-{
+isminetype IsMineInner(const CKeyStore& keystore, const CScript& _scriptPubKey, IsMineSigVersion sigversion) {
     vector<valtype> vSolutions;
     txnouttype whichType;
     CScript scriptPubKey = _scriptPubKey;
 
-    if (scriptPubKey.IsCheckLockTimeVerify())
-    {
+    if (scriptPubKey.IsCheckLockTimeVerify()) {
         uint8_t pushOp = scriptPubKey[0];
         uint32_t scriptStart = pushOp + 3;
 
@@ -87,16 +81,14 @@ isminetype IsMineInner(const CKeyStore& keystore, const CScript& _scriptPubKey, 
     }
 
     CKeyID keyID;
-    switch (whichType)
-    {
+    switch (whichType) {
     case TX_NONSTANDARD:
     case TX_NULL_DATA:
         break;
     case TX_CRYPTOCONDITION:
         // for now, default is that the first value returned will be the script, subsequent values will be
         // pubkeys. if we have the first pub key in our wallet, we consider this spendable
-        if (vSolutions.size() > 1)
-        {
+        if (vSolutions.size() > 1) {
             keyID = CPubKey(vSolutions[1]).GetID();
             if (keystore.HaveKey(keyID))
                 return ISMINE_SPENDABLE;
@@ -112,8 +104,7 @@ isminetype IsMineInner(const CKeyStore& keystore, const CScript& _scriptPubKey, 
         if (keystore.HaveKey(keyID))
             return ISMINE_SPENDABLE;
         break;
-    case TX_SCRIPTHASH:
-    {
+    case TX_SCRIPTHASH: {
         CScriptID scriptID = CScriptID(uint160(vSolutions[0]));
         CScript subscript;
         if (keystore.GetCScript(scriptID, subscript)) {
@@ -123,8 +114,7 @@ isminetype IsMineInner(const CKeyStore& keystore, const CScript& _scriptPubKey, 
         }
         break;
     }
-    case TX_MULTISIG:
-    {
+    case TX_MULTISIG: {
         // Never treat bare multisig outputs as ours (they can still be made watchonly-though)
         if (sigversion == IsMineSigVersion::TOP) break;
         // Only consider transactions "mine" if we own ALL the
@@ -147,13 +137,11 @@ isminetype IsMineInner(const CKeyStore& keystore, const CScript& _scriptPubKey, 
 
 } // namespace
 
-isminetype IsMine(const CKeyStore& keystore, const CScript& scriptPubKey)
-{
+isminetype IsMine(const CKeyStore& keystore, const CScript& scriptPubKey) {
     return IsMineInner(keystore, scriptPubKey, IsMineSigVersion::TOP);
 }
 
-isminetype IsMine(const CKeyStore& keystore, const CTxDestination& dest)
-{
+isminetype IsMine(const CKeyStore& keystore, const CTxDestination& dest) {
     CScript script = GetScriptForDestination(dest);
     return IsMine(keystore, script);
 }

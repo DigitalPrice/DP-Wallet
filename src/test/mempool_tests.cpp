@@ -14,8 +14,7 @@
 
 BOOST_FIXTURE_TEST_SUITE(mempool_tests, TestingSetup)
 
-BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
-{
+BOOST_AUTO_TEST_CASE(MempoolRemoveTest) {
     // Test CTxMemPool::remove functionality
 
     TestMemPoolEntryHelper entry;
@@ -25,14 +24,12 @@ BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
     txParent.vin.resize(1);
     txParent.vin[0].scriptSig = CScript() << OP_11;
     txParent.vout.resize(3);
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
         txParent.vout[i].scriptPubKey = CScript() << OP_11 << OP_EQUAL;
         txParent.vout[i].nValue = 33000LL;
     }
     CMutableTransaction txChild[3];
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
         txChild[i].vin.resize(1);
         txChild[i].vin[0].scriptSig = CScript() << OP_11;
         txChild[i].vin[0].prevout.hash = txParent.GetHash();
@@ -42,8 +39,7 @@ BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
         txChild[i].vout[0].nValue = 11000LL;
     }
     CMutableTransaction txGrandChild[3];
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
         txGrandChild[i].vin.resize(1);
         txGrandChild[i].vin[0].scriptSig = CScript() << OP_11;
         txGrandChild[i].vin[0].prevout.hash = txChild[i].GetHash();
@@ -66,11 +62,10 @@ BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
     testPool.remove(txParent, removed, true);
     BOOST_CHECK_EQUAL(removed.size(), 1);
     removed.clear();
-    
+
     // Parent, children, grandchildren:
     testPool.addUnchecked(txParent.GetHash(), entry.FromTx(txParent));
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
         testPool.addUnchecked(txChild[i].GetHash(), entry.FromTx(txChild[i]));
         testPool.addUnchecked(txGrandChild[i].GetHash(), entry.FromTx(txGrandChild[i]));
     }
@@ -90,8 +85,7 @@ BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
     removed.clear();
 
     // Add children and grandchildren, but NOT the parent (simulate the parent being in a block)
-    for (int i = 0; i < 3; i++)
-    {
+    for (int i = 0; i < 3; i++) {
         testPool.addUnchecked(txChild[i].GetHash(), entry.FromTx(txChild[i]));
         testPool.addUnchecked(txGrandChild[i].GetHash(), entry.FromTx(txGrandChild[i]));
     }
@@ -103,8 +97,7 @@ BOOST_AUTO_TEST_CASE(MempoolRemoveTest)
     removed.clear();
 }
 
-BOOST_AUTO_TEST_CASE(MempoolIndexingTest)
-{
+BOOST_AUTO_TEST_CASE(MempoolIndexingTest) {
     CTxMemPool pool(CFeeRate(0));
     TestMemPoolEntryHelper entry;
     entry.hadNoDependencies = true;

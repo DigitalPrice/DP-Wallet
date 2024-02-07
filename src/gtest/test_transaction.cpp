@@ -45,11 +45,11 @@ TEST(Transaction, JSDescriptionRandomized) {
 
     {
         auto jsdesc = JSDescription::Randomized(
-            false,
-            *params, joinSplitPubKey, rt,
-            inputs, outputs,
-            inputMap, outputMap,
-            0, 0, false);
+                          false,
+                          *params, joinSplitPubKey, rt,
+                          inputs, outputs,
+                          inputMap, outputMap,
+                          0, 0, false);
 
         std::set<size_t> inputSet(inputMap.begin(), inputMap.end());
         std::set<size_t> expectedInputSet {0, 1};
@@ -62,11 +62,11 @@ TEST(Transaction, JSDescriptionRandomized) {
 
     {
         auto jsdesc = JSDescription::Randomized(
-            false,
-            *params, joinSplitPubKey, rt,
-            inputs, outputs,
-            inputMap, outputMap,
-            0, 0, false, nullptr, GenZero);
+                          false,
+                          *params, joinSplitPubKey, rt,
+                          inputs, outputs,
+                          inputMap, outputMap,
+                          0, 0, false, nullptr, GenZero);
 
         std::array<size_t, ZC_NUM_JS_INPUTS> expectedInputMap {1, 0};
         std::array<size_t, ZC_NUM_JS_OUTPUTS> expectedOutputMap {1, 0};
@@ -76,11 +76,11 @@ TEST(Transaction, JSDescriptionRandomized) {
 
     {
         auto jsdesc = JSDescription::Randomized(
-            false,
-            *params, joinSplitPubKey, rt,
-            inputs, outputs,
-            inputMap, outputMap,
-            0, 0, false, nullptr, GenMax);
+                          false,
+                          *params, joinSplitPubKey, rt,
+                          inputs, outputs,
+                          inputMap, outputMap,
+                          0, 0, false, nullptr, GenMax);
 
         std::array<size_t, ZC_NUM_JS_INPUTS> expectedInputMap {0, 1};
         std::array<size_t, ZC_NUM_JS_OUTPUTS> expectedOutputMap {0, 1};

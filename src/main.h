@@ -89,7 +89,7 @@ static const unsigned int DEFAULT_MAX_ORPHAN_TRANSACTIONS = 100;
 /** Default for -txexpirydelta, in number of blocks */
 static const unsigned int DEFAULT_TX_EXPIRY_DELTA = 200;
 /** The maximum size of a blk?????.dat file (since 0.8) */
-static const unsigned int MAX_BLOCKFILE_SIZE = 0x8000000; // 128 MiB 
+static const unsigned int MAX_BLOCKFILE_SIZE = 0x8000000; // 128 MiB
 static const unsigned int MAX_TEMPFILE_SIZE = 0x1000000; // 16 MiB 0x8000000
 /** The pre-allocation chunk size for blk?????.dat files (since 0.8) */
 static const unsigned int BLOCKFILE_CHUNK_SIZE = 0x1000000; // 16 MiB
@@ -138,9 +138,10 @@ BOOST_STATIC_ASSERT(DEFAULT_BLOCK_PRIORITY_SIZE <= DEFAULT_BLOCK_MAX_SIZE);
     ((CBlockHeader::HEADER_SIZE + equihash_solution_size(N, K))*MAX_HEADERS_RESULTS < \
      MAX_PROTOCOL_MESSAGE_LENGTH-1000)
 
-struct BlockHasher
-{
-    size_t operator()(const uint256& hash) const { return hash.GetCheapHash(); }
+struct BlockHasher {
+    size_t operator()(const uint256& hash) const {
+        return hash.GetCheapHash();
+    }
 };
 
 extern unsigned int expiryDelta;
@@ -228,8 +229,8 @@ FILE* OpenUndoFile(const CDiskBlockPos &pos, bool fReadOnly = false);
 boost::filesystem::path GetBlockPosFilename(const CDiskBlockPos &pos, const char *prefix);
 /** Import blocks from an external file */
 bool LoadExternalBlockFile(FILE* fileIn, CDiskBlockPos *dbp = NULL);
-/** 
- * Initialize a new block tree database + block data on disk 
+/**
+ * Initialize a new block tree database + block data on disk
  * @returns true on success
  */
 bool InitBlockIndex();
@@ -264,7 +265,7 @@ bool IsInitialBlockDownload();
 int IsNotInSync();
 /** Format a string that describes several potential problems detected by the core */
 std::string GetWarnings(const std::string& strFor);
-/** 
+/**
  * @brief Find a transaction (uses locks)
  * @param[in] hash the transaction to look for
  * @param[out] txOut the transaction found
@@ -311,7 +312,7 @@ void FlushStateToDisk();
 void PruneAndFlush();
 
 /**
- * @brief Try to add transaction to memory pool 
+ * @brief Try to add transaction to memory pool
  * @param pool
  * @param state
  * @param tx
@@ -664,8 +665,7 @@ struct CAddressIndexIteratorHeightKey {
     }
 };
 
-struct CDiskTxPos : public CDiskBlockPos
-{
+struct CDiskTxPos : public CDiskBlockPos {
     unsigned int nTxOffset; // after header
 
     ADD_SERIALIZE_METHODS;
@@ -794,9 +794,8 @@ bool CheckFinalTx(const CTransaction &tx, int flags = -1);
  * Closure representing one script verification
  * Note that this stores references to the spending transaction
  */
-class CScriptCheck
-{
-private:
+class CScriptCheck {
+  private:
     CScript scriptPubKey;
     CAmount amount;
     const CTransaction *ptxTo;
@@ -807,7 +806,7 @@ private:
     ScriptError error;
     PrecomputedTransactionData *txdata;
 
-public:
+  public:
     CScriptCheck(): amount(0), ptxTo(0), nIn(0), nFlags(0), cacheStore(false), consensusBranchId(0), error(SCRIPT_ERR_UNKNOWN_ERROR) {}
     CScriptCheck(const CCoins& txFromIn, const CTransaction& txToIn, unsigned int nInIn, unsigned int nFlagsIn, bool cacheIn, uint32_t consensusBranchIdIn, PrecomputedTransactionData* txdataIn) :
         scriptPubKey(CCoinsViewCache::GetSpendFor(&txFromIn, txToIn.vin[nInIn])), amount(txFromIn.vout[txToIn.vin[nInIn].prevout.n].nValue),
@@ -827,7 +826,9 @@ public:
         std::swap(txdata, check.txdata);
     }
 
-    ScriptError GetScriptError() const { return error; }
+    ScriptError GetScriptError() const {
+        return error;
+    }
 };
 
 bool GetTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, std::vector<std::pair<uint256, unsigned int> > &hashes);
@@ -896,9 +897,8 @@ bool AcceptBlockHeader(int32_t *futureblockp,const CBlockHeader& block, CValidat
  */
 bool RewindBlockIndex(const CChainParams& params);
 
-class CBlockFileInfo
-{
-public:
+class CBlockFileInfo {
+  public:
     unsigned int nBlocks;      //! number of blocks stored in file
     unsigned int nSize;        //! number of used bytes of block file
     unsigned int nUndoSize;    //! number of used bytes in the undo file
@@ -920,39 +920,39 @@ public:
         READWRITE(VARINT(nTimeLast));
     }
 
-     void SetNull() {
-         nBlocks = 0;
-         nSize = 0;
-         nUndoSize = 0;
-         nHeightFirst = 0;
-         nHeightLast = 0;
-         nTimeFirst = 0;
-         nTimeLast = 0;
-     }
+    void SetNull() {
+        nBlocks = 0;
+        nSize = 0;
+        nUndoSize = 0;
+        nHeightFirst = 0;
+        nHeightLast = 0;
+        nTimeFirst = 0;
+        nTimeLast = 0;
+    }
 
-     CBlockFileInfo() {
-         SetNull();
-     }
+    CBlockFileInfo() {
+        SetNull();
+    }
 
-     std::string ToString() const;
+    std::string ToString() const;
 
-     /** update statistics (does not update nSize) */
-     void AddBlock(unsigned int nHeightIn, uint64_t nTimeIn) {
-         if (nBlocks==0 || nHeightFirst > nHeightIn)
-             nHeightFirst = nHeightIn;
-         if (nBlocks==0 || nTimeFirst > nTimeIn)
-             nTimeFirst = nTimeIn;
-         nBlocks++;
-         if (nHeightIn > nHeightLast)
-             nHeightLast = nHeightIn;
-         if (nTimeIn > nTimeLast)
-             nTimeLast = nTimeIn;
-     }
+    /** update statistics (does not update nSize) */
+    void AddBlock(unsigned int nHeightIn, uint64_t nTimeIn) {
+        if (nBlocks==0 || nHeightFirst > nHeightIn)
+            nHeightFirst = nHeightIn;
+        if (nBlocks==0 || nTimeFirst > nTimeIn)
+            nTimeFirst = nTimeIn;
+        nBlocks++;
+        if (nHeightIn > nHeightLast)
+            nHeightLast = nHeightIn;
+        if (nTimeIn > nTimeLast)
+            nTimeLast = nTimeIn;
+    }
 };
 
 /** RAII wrapper for VerifyDB: Verify consistency of the block and coin databases */
 class CVerifyDB {
-public:
+  public:
     CVerifyDB();
     ~CVerifyDB();
     bool VerifyDB(CCoinsView *coinsview, int nCheckLevel, int nCheckDepth);

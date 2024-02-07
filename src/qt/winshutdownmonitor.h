@@ -12,9 +12,8 @@
 #include <QString>
 #include <QAbstractNativeEventFilter>
 
-class WinShutdownMonitor : public QAbstractNativeEventFilter
-{
-public:
+class WinShutdownMonitor : public QAbstractNativeEventFilter {
+  public:
     /** Implements QAbstractNativeEventFilter interface for processing Windows messages */
     bool nativeEventFilter(const QByteArray &eventType, void *pMessage, long *pnResult);
 

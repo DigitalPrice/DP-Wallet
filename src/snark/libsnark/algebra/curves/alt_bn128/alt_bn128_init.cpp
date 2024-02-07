@@ -28,8 +28,7 @@ bigint<12*alt_bn128_q_limbs> alt_bn128_final_exponent;
 bigint<alt_bn128_q_limbs> alt_bn128_final_exponent_z;
 bool alt_bn128_final_exponent_is_z_neg;
 
-void init_alt_bn128_params()
-{
+void init_alt_bn128_params() {
     typedef bigint<alt_bn128_r_limbs> bigint_r;
     typedef bigint<alt_bn128_q_limbs> bigint_q;
 
@@ -39,14 +38,12 @@ void init_alt_bn128_params()
 
     alt_bn128_modulus_r = bigint_r("21888242871839275222246405745257275088548364400416034343698204186575808495617");
     assert(alt_bn128_Fr::modulus_is_valid());
-    if (sizeof(mp_limb_t) == 8)
-    {
+    if (sizeof(mp_limb_t) == 8) {
         alt_bn128_Fr::Rsquared = bigint_r("944936681149208446651664254269745548490766851729442924617792859073125903783");
         alt_bn128_Fr::Rcubed = bigint_r("5866548545943845227489894872040244720403868105578784105281690076696998248512");
         alt_bn128_Fr::inv = 0xc2e1f593efffffff;
     }
-    if (sizeof(mp_limb_t) == 4)
-    {
+    if (sizeof(mp_limb_t) == 4) {
         alt_bn128_Fr::Rsquared = bigint_r("944936681149208446651664254269745548490766851729442924617792859073125903783");
         alt_bn128_Fr::Rcubed = bigint_r("5866548545943845227489894872040244720403868105578784105281690076696998248512");
         alt_bn128_Fr::inv = 0xefffffff;
@@ -65,14 +62,12 @@ void init_alt_bn128_params()
 
     alt_bn128_modulus_q = bigint_q("21888242871839275222246405745257275088696311157297823662689037894645226208583");
     assert(alt_bn128_Fq::modulus_is_valid());
-    if (sizeof(mp_limb_t) == 8)
-    {
+    if (sizeof(mp_limb_t) == 8) {
         alt_bn128_Fq::Rsquared = bigint_q("3096616502983703923843567936837374451735540968419076528771170197431451843209");
         alt_bn128_Fq::Rcubed = bigint_q("14921786541159648185948152738563080959093619838510245177710943249661917737183");
         alt_bn128_Fq::inv = 0x87d20782e4866389;
     }
-    if (sizeof(mp_limb_t) == 4)
-    {
+    if (sizeof(mp_limb_t) == 4) {
         alt_bn128_Fq::Rsquared = bigint_q("3096616502983703923843567936837374451735540968419076528771170197431451843209");
         alt_bn128_Fq::Rcubed = bigint_q("14921786541159648185948152738563080959093619838510245177710943249661917737183");
         alt_bn128_Fq::inv = 0xe4866389;
@@ -137,17 +132,17 @@ void init_alt_bn128_params()
     alt_bn128_twist_mul_by_b_c0 = alt_bn128_coeff_b * alt_bn128_Fq2::non_residue;
     alt_bn128_twist_mul_by_b_c1 = alt_bn128_coeff_b * alt_bn128_Fq2::non_residue;
     alt_bn128_twist_mul_by_q_X = alt_bn128_Fq2(alt_bn128_Fq("21575463638280843010398324269430826099269044274347216827212613867836435027261"),
-                                           alt_bn128_Fq("10307601595873709700152284273816112264069230130616436755625194854815875713954"));
+                                 alt_bn128_Fq("10307601595873709700152284273816112264069230130616436755625194854815875713954"));
     alt_bn128_twist_mul_by_q_Y = alt_bn128_Fq2(alt_bn128_Fq("2821565182194536844548159561693502659359617185244120367078079554186484126554"),
-                                           alt_bn128_Fq("3505843767911556378687030309984248845540243509899259641013678093033130930403"));
+                                 alt_bn128_Fq("3505843767911556378687030309984248845540243509899259641013678093033130930403"));
 
     /* choice of group G1 */
     alt_bn128_G1::G1_zero = alt_bn128_G1(alt_bn128_Fq::zero(),
-                                     alt_bn128_Fq::one(),
-                                     alt_bn128_Fq::zero());
+                                         alt_bn128_Fq::one(),
+                                         alt_bn128_Fq::zero());
     alt_bn128_G1::G1_one = alt_bn128_G1(alt_bn128_Fq("1"),
-                                    alt_bn128_Fq("2"),
-                                    alt_bn128_Fq::one());
+                                        alt_bn128_Fq("2"),
+                                        alt_bn128_Fq::one());
     alt_bn128_G1::wnaf_window_table.push_back(11);
     alt_bn128_G1::wnaf_window_table.push_back(24);
     alt_bn128_G1::wnaf_window_table.push_back(60);
@@ -202,14 +197,14 @@ void init_alt_bn128_params()
     /* choice of group G2 */
 
     alt_bn128_G2::G2_zero = alt_bn128_G2(alt_bn128_Fq2::zero(),
-                                     alt_bn128_Fq2::one(),
-                                     alt_bn128_Fq2::zero());
+                                         alt_bn128_Fq2::one(),
+                                         alt_bn128_Fq2::zero());
 
     alt_bn128_G2::G2_one = alt_bn128_G2(alt_bn128_Fq2(alt_bn128_Fq("10857046999023057135944570762232829481370756359578518086990519993285655852781"),
-                                                alt_bn128_Fq("11559732032986387107991004021392285783925812861821192530917403151452391805634")),
-                                    alt_bn128_Fq2(alt_bn128_Fq("8495653923123431417604973247489272438418190587263600148770280649306958101930"),
+                                        alt_bn128_Fq("11559732032986387107991004021392285783925812861821192530917403151452391805634")),
+                                        alt_bn128_Fq2(alt_bn128_Fq("8495653923123431417604973247489272438418190587263600148770280649306958101930"),
                                                 alt_bn128_Fq("4082367875863433681332203403145435568316851327593401208105741076214120093531")),
-                                    alt_bn128_Fq2::one());
+                                        alt_bn128_Fq2::one());
     alt_bn128_G2::wnaf_window_table.push_back(5);
     alt_bn128_G2::wnaf_window_table.push_back(15);
     alt_bn128_G2::wnaf_window_table.push_back(39);

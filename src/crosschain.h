@@ -30,9 +30,8 @@ typedef struct CrosschainAuthority {
     int8_t requiredSigs;
 } CrosschainAuthority;
 
-class CrossChain
-{
-public:
+class CrossChain {
+  public:
     /****
      * Determine the type of crosschain
      * @param symbol the asset chain to check
@@ -67,7 +66,7 @@ public:
      * @returns the proof root, or 0 on error
      */
     static uint256 CalculateProofRoot(const char* symbol, uint32_t targetCCid, int kmdHeight,
-            std::vector<uint256> &moms, uint256 &destNotarisationTxid);
+                                      std::vector<uint256> &moms, uint256 &destNotarisationTxid);
 
     /*****
      * @brief Takes an importTx that has proof leading to assetchain root and extends proof to cross chain root
@@ -94,7 +93,7 @@ public:
     */
     static bool CheckNotariesApproval(uint256 burntxid, const std::vector<uint256> & notaryTxids);
 
-private:
+  private:
     /******
      * @brief
      * @note this happens on the KMD chain
@@ -106,5 +105,5 @@ private:
      * @returns a pair of target chain notarisation txid and the merkle branch
      */
     static TxProof GetCrossChainProof(const uint256 txid, const char* targetSymbol, uint32_t targetCCid,
-            const TxProof assetChainProof,int32_t offset);
+                                      const TxProof assetChainProof,int32_t offset);
 };

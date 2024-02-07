@@ -85,8 +85,7 @@ const CBlockIndex *CChain::FindFork(const CBlockIndex *pindex) const {
     return pindex;
 }
 
-void CBlockIndex::TrimSolution()
-{
+void CBlockIndex::TrimSolution() {
     AssertLockHeld(cs_main);
 
     // We can correctly trim a solution as soon as the block index entry has been added
@@ -100,8 +99,7 @@ void CBlockIndex::TrimSolution()
     }
 }
 
-CBlockHeader CBlockIndex::GetBlockHeader() const
-{
+CBlockHeader CBlockIndex::GetBlockHeader() const {
     AssertLockHeld(cs_main);
 
     CBlockHeader header;
@@ -128,7 +126,9 @@ CBlockHeader CBlockIndex::GetBlockHeader() const
 }
 
 /** Turn the lowest '1' bit in the binary representation of a number into a '0'. */
-int static inline InvertLowestOne(int n) { return n & (n - 1); }
+int static inline InvertLowestOne(int n) {
+    return n & (n - 1);
+}
 
 /** Compute what height to jump back to with the CBlockIndex::pskip pointer. */
 int static inline GetSkipHeight(int height) {
@@ -141,21 +141,19 @@ int static inline GetSkipHeight(int height) {
     return (height & 1) ? InvertLowestOne(InvertLowestOne(height - 1)) + 1 : InvertLowestOne(height);
 }
 
-CBlockIndex* CBlockIndex::GetAncestor(int height)
-{
+CBlockIndex* CBlockIndex::GetAncestor(int height) {
     if (height > nHeight || height < 0)
         return NULL;
 
     CBlockIndex* pindexWalk = this;
     int heightWalk = nHeight;
-    while ( heightWalk > height && pindexWalk != 0 )
-    {
+    while ( heightWalk > height && pindexWalk != 0 ) {
         int heightSkip = GetSkipHeight(heightWalk);
         int heightSkipPrev = GetSkipHeight(heightWalk - 1);
         if (pindexWalk->pskip != NULL &&
-            (heightSkip == height ||
-             (heightSkip > height && !(heightSkipPrev < heightSkip - 2 &&
-                                       heightSkipPrev >= height)))) {
+                (heightSkip == height ||
+                 (heightSkip > height && !(heightSkipPrev < heightSkip - 2 &&
+                                           heightSkipPrev >= height)))) {
             // Only follow pskip if pprev->pskip isn't better than pskip->pprev.
             pindexWalk = pindexWalk->pskip;
             heightWalk = heightSkip;
@@ -168,23 +166,19 @@ CBlockIndex* CBlockIndex::GetAncestor(int height)
     return pindexWalk;
 }
 
-const CBlockIndex* CBlockIndex::GetAncestor(int height) const
-{
+const CBlockIndex* CBlockIndex::GetAncestor(int height) const {
     return const_cast<CBlockIndex*>(this)->GetAncestor(height);
 }
 
-void CBlockIndex::BuildSkip()
-{
+void CBlockIndex::BuildSkip() {
     if (pprev)
         pskip = pprev->GetAncestor(GetSkipHeight(nHeight));
 }
 
-bool CDiskBlockIndex::isStakedAndNotaryPay() const
-{
+bool CDiskBlockIndex::isStakedAndNotaryPay() const {
     return is_STAKED(chainName.symbol()) != 0 && ASSETCHAINS_NOTARY_PAY[0] != 0;
 }
 
-bool CDiskBlockIndex::isStakedAndAfterDec2019(unsigned int nTime) const
-{
+bool CDiskBlockIndex::isStakedAndAfterDec2019(unsigned int nTime) const {
     return ASSETCHAINS_STAKED != 0 && (nTime > nStakedDecemberHardforkTimestamp || is_STAKED(chainName.symbol()) != 0);
 }

@@ -25,8 +25,9 @@ namespace TestCoinImport {
 static uint8_t testNum = 0;
 
 class TestCoinImport : public ::testing::Test, public Eval {
-public:
-    CMutableTransaction burnTx; std::vector<uint8_t> rawproof;
+  public:
+    CMutableTransaction burnTx;
+    std::vector<uint8_t> rawproof;
     std::vector<CTxOut> payouts;
     TxProof proof;
     uint256 MoMoM;
@@ -42,23 +43,28 @@ public:
         MoMoM = burnTx.GetHash();  // TODO: an actual branch
     }
 
-    uint32_t GetAssetchainsCC() const { return testCcid; }
-    std::string GetAssetchainsSymbol() const { return testSymbol; }
+    uint32_t GetAssetchainsCC() const {
+        return testCcid;
+    }
+    std::string GetAssetchainsSymbol() const {
+        return testSymbol;
+    }
 
-    bool GetProofRoot(uint256 hash, uint256 &momom) const
-    {
+    bool GetProofRoot(uint256 hash, uint256 &momom) const {
         if (MoMoM.IsNull()) return false;
         momom = MoMoM;
         return true;
     }
 
 
-protected:
-    static void SetUpTestCase() { setupChain(); }
+  protected:
+    static void SetUpTestCase() {
+        setupChain();
+    }
     virtual void SetUp() {
         ASSETCHAINS_CC = 1;
         EVAL_TEST = this;
-        
+
         std::vector<uint8_t> fakepk;
         fakepk.resize(33);
         fakepk.begin()[0] = testNum++;
@@ -67,8 +73,7 @@ protected:
     }
 
 
-    void TestRunCCEval(CMutableTransaction mtx)
-    {
+    void TestRunCCEval(CMutableTransaction mtx) {
         CTransaction importTx(mtx);
         PrecomputedTransactionData txdata(importTx);
         ServerTransactionSignatureChecker checker(&importTx, 0, 0, false, txdata);
@@ -79,14 +84,13 @@ protected:
 };
 
 
-TEST_F(TestCoinImport, DISABLED_testProcessImportThroughPipeline)
-{
+TEST_F(TestCoinImport, DISABLED_testProcessImportThroughPipeline) {
     CValidationState mainstate;
     CTransaction tx(importTx);
 
     // first should work
     acceptTxFail(tx);
-    
+
     // should fail in mempool
     ASSERT_FALSE(acceptTx(tx, mainstate));
     EXPECT_EQ("already in mempool", mainstate.GetRejectReason());
@@ -110,8 +114,7 @@ TEST_F(TestCoinImport, DISABLED_testProcessImportThroughPipeline)
 }
 
 
-TEST_F(TestCoinImport, DISABLED_testImportTombstone)
-{
+TEST_F(TestCoinImport, DISABLED_testImportTombstone) {
     CValidationState mainstate;
     // By setting an unspendable output, there will be no addition to UTXO
     // Nonetheless, we dont want to be able to import twice
@@ -143,16 +146,14 @@ TEST_F(TestCoinImport, DISABLED_testImportTombstone)
 }
 
 
-TEST_F(TestCoinImport, testNoVouts)
-{
+TEST_F(TestCoinImport, testNoVouts) {
     importTx.vout.resize(0);
     TestRunCCEval(importTx);
     EXPECT_EQ("too-few-vouts", state.GetRejectReason());
 }
 
 
-TEST_F(TestCoinImport, testInvalidParams)
-{
+TEST_F(TestCoinImport, testInvalidParams) {
     std::vector<uint8_t> payload = E_MARSHAL(ss << EVAL_IMPORTCOIN; ss << 'a');
     importTx.vin[0].scriptSig = CScript() << payload;
     TestRunCCEval(importTx);
@@ -160,16 +161,14 @@ TEST_F(TestCoinImport, testInvalidParams)
 }
 
 
-TEST_F(TestCoinImport, testNonCanonical)
-{
+TEST_F(TestCoinImport, testNonCanonical) {
     importTx.nLockTime = 10;
     TestRunCCEval(importTx);
     EXPECT_EQ("non-canonical", state.GetRejectReason());
 }
 
 
-TEST_F(TestCoinImport, testInvalidBurnOutputs)
-{
+TEST_F(TestCoinImport, testInvalidBurnOutputs) {
     burnTx.vout.resize(0);
     MoMoM = burnTx.GetHash();  // TODO: an actual branch
     CTransaction tx = MakeImportCoinTransaction(proof, CTransaction(burnTx), payouts);
@@ -178,8 +177,7 @@ TEST_F(TestCoinImport, testInvalidBurnOutputs)
 }
 
 
-TEST_F(TestCoinImport, testInvalidBurnParams)
-{
+TEST_F(TestCoinImport, testInvalidBurnParams) {
     burnTx.vout.back().scriptPubKey = CScript() << OP_RETURN << E_MARSHAL(ss << VARINT(testCcid));
     MoMoM = burnTx.GetHash();  // TODO: an actual branch
     CTransaction tx = MakeImportCoinTransaction(proof, CTransaction(burnTx), payouts);
@@ -188,16 +186,14 @@ TEST_F(TestCoinImport, testInvalidBurnParams)
 }
 
 
-TEST_F(TestCoinImport, DISABLED_testWrongChainId)
-{
+TEST_F(TestCoinImport, DISABLED_testWrongChainId) {
     testCcid = 0;
     TestRunCCEval(importTx);
     EXPECT_EQ("importcoin-wrong-chain", state.GetRejectReason());
 }
 
 
-TEST_F(TestCoinImport, testInvalidBurnAmount)
-{
+TEST_F(TestCoinImport, testInvalidBurnAmount) {
     burnTx.vout.back().nValue = 0;
     MoMoM = burnTx.GetHash();  // TODO: an actual branch
     CTransaction tx = MakeImportCoinTransaction(proof, CTransaction(burnTx), payouts);
@@ -206,16 +202,14 @@ TEST_F(TestCoinImport, testInvalidBurnAmount)
 }
 
 
-TEST_F(TestCoinImport, DISABLED_testPayoutTooHigh)
-{
+TEST_F(TestCoinImport, DISABLED_testPayoutTooHigh) {
     importTx.vout[1].nValue = 101;
     TestRunCCEval(importTx);
     EXPECT_EQ("payout-too-high", state.GetRejectReason());
 }
 
 
-TEST_F(TestCoinImport, DISABLED_testAmountInOpret)
-{
+TEST_F(TestCoinImport, DISABLED_testAmountInOpret) {
     importTx.vout[0].nValue = 1;
     TestRunCCEval(importTx);
     EXPECT_EQ("non-canonical", state.GetRejectReason());
@@ -223,8 +217,7 @@ TEST_F(TestCoinImport, DISABLED_testAmountInOpret)
 
 
 
-TEST_F(TestCoinImport, DISABLED_testInvalidPayouts)
-{
+TEST_F(TestCoinImport, DISABLED_testInvalidPayouts) {
     importTx.vout[1].nValue = 40;
     importTx.vout.push_back(importTx.vout[0]);
     TestRunCCEval(importTx);
@@ -232,16 +225,14 @@ TEST_F(TestCoinImport, DISABLED_testInvalidPayouts)
 }
 
 
-TEST_F(TestCoinImport, DISABLED_testCouldntLoadMomom)
-{
+TEST_F(TestCoinImport, DISABLED_testCouldntLoadMomom) {
     MoMoM.SetNull();
     TestRunCCEval(importTx);
     EXPECT_EQ("coudnt-load-momom", state.GetRejectReason());
 }
 
 
-TEST_F(TestCoinImport, DISABLED_testMomomCheckFail)
-{
+TEST_F(TestCoinImport, DISABLED_testMomomCheckFail) {
     MoMoM.SetNull();
     MoMoM.begin()[0] = 1;
     TestRunCCEval(importTx);
@@ -249,8 +240,7 @@ TEST_F(TestCoinImport, DISABLED_testMomomCheckFail)
 }
 
 
-TEST_F(TestCoinImport, testGetCoinImportValue)
-{
+TEST_F(TestCoinImport, testGetCoinImportValue) {
     ASSERT_EQ(100, GetCoinImportValue(importTx));
 }
 

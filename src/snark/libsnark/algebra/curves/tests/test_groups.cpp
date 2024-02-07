@@ -17,8 +17,7 @@
 using namespace libsnark;
 
 template<typename GroupT>
-void test_mixed_add()
-{
+void test_mixed_add() {
     GroupT base, el, result;
 
     base = GroupT::zero();
@@ -53,8 +52,7 @@ void test_mixed_add()
 }
 
 template<typename GroupT>
-void test_group()
-{
+void test_group() {
     bigint<1> rand1 = bigint<1>("76749407");
     bigint<1> rand2 = bigint<1>("44410867");
     bigint<1> randsum = bigint<1>("121160274");
@@ -112,19 +110,16 @@ void test_group()
 }
 
 template<typename GroupT>
-void test_mul_by_q()
-{
+void test_mul_by_q() {
     GroupT a = GroupT::random_element();
     assert((GroupT::base_field_char()*a) == a.mul_by_q());
 }
 
 template<typename GroupT>
-void test_output()
-{
+void test_output() {
     GroupT g = GroupT::zero();
 
-    for (size_t i = 0; i < 1000; ++i)
-    {
+    for (size_t i = 0; i < 1000; ++i) {
         std::stringstream ss;
         ss << g;
         GroupT gg;
@@ -135,30 +130,29 @@ void test_output()
     }
 }
 
-int main(void)
-{
-/*
-    edwards_pp::init_public_params();
-    test_group<G1<edwards_pp> >();
-    test_output<G1<edwards_pp> >();
-    test_group<G2<edwards_pp> >();
-    test_output<G2<edwards_pp> >();
-    test_mul_by_q<G2<edwards_pp> >();
+int main(void) {
+    /*
+        edwards_pp::init_public_params();
+        test_group<G1<edwards_pp> >();
+        test_output<G1<edwards_pp> >();
+        test_group<G2<edwards_pp> >();
+        test_output<G2<edwards_pp> >();
+        test_mul_by_q<G2<edwards_pp> >();
 
-    mnt4_pp::init_public_params();
-    test_group<G1<mnt4_pp> >();
-    test_output<G1<mnt4_pp> >();
-    test_group<G2<mnt4_pp> >();
-    test_output<G2<mnt4_pp> >();
-    test_mul_by_q<G2<mnt4_pp> >();
+        mnt4_pp::init_public_params();
+        test_group<G1<mnt4_pp> >();
+        test_output<G1<mnt4_pp> >();
+        test_group<G2<mnt4_pp> >();
+        test_output<G2<mnt4_pp> >();
+        test_mul_by_q<G2<mnt4_pp> >();
 
-    mnt6_pp::init_public_params();
-    test_group<G1<mnt6_pp> >();
-    test_output<G1<mnt6_pp> >();
-    test_group<G2<mnt6_pp> >();
-    test_output<G2<mnt6_pp> >();
-    test_mul_by_q<G2<mnt6_pp> >();
-*/
+        mnt6_pp::init_public_params();
+        test_group<G1<mnt6_pp> >();
+        test_output<G1<mnt6_pp> >();
+        test_group<G2<mnt6_pp> >();
+        test_output<G2<mnt6_pp> >();
+        test_mul_by_q<G2<mnt6_pp> >();
+    */
     alt_bn128_pp::init_public_params();
     test_group<G1<alt_bn128_pp> >();
     test_output<G1<alt_bn128_pp> >();

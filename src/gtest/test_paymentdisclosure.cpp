@@ -43,8 +43,7 @@ using namespace std;
 
 static boost::uuids::random_generator uuidgen;
 
-static uint256 random_uint256()
-{
+static uint256 random_uint256() {
     uint256 ret;
     randombytes_buf(ret.begin(), 32);
     return ret;
@@ -52,7 +51,7 @@ static uint256 random_uint256()
 
 // Subclass of PaymentDisclosureDB to add debugging methods
 class PaymentDisclosureDBTest : public PaymentDisclosureDB {
-public:
+  public:
     PaymentDisclosureDBTest(const boost::filesystem::path& dbPath) : PaymentDisclosureDB(dbPath) {}
 
     void DebugDumpAllStdout() {
@@ -132,7 +131,7 @@ TEST(paymentdisclosure, mainnet) {
         // Modify this local variable and confirm it no longer matches
         info2.esk = random_uint256();
         info2.joinSplitPrivKey = random_uint256();
-        info2.zaddr = libzcash::SproutSpendingKey::random().address();        
+        info2.zaddr = libzcash::SproutSpendingKey::random().address();
         ASSERT_NE(info, info2);
 
         // Using the payment info object, let's create a dummy payload
@@ -151,19 +150,17 @@ TEST(paymentdisclosure, mainnet) {
         // Compute the payload signature
         unsigned char payloadSig[64];
         if (!(crypto_sign_detached(&payloadSig[0], NULL,
-            dataToBeSigned.begin(), 32,
-            &buffer[0] // buffer containing both private and public key required
-            ) == 0))
-        {
+                                   dataToBeSigned.begin(), 32,
+                                   &buffer[0] // buffer containing both private and public key required
+                                  ) == 0)) {
             throw std::runtime_error("crypto_sign_detached failed");
         }
 
         // Sanity check
         if (!(crypto_sign_verify_detached(&payloadSig[0],
-            dataToBeSigned.begin(), 32,
-            joinSplitPubKey.begin()
-            ) == 0))
-        {
+                                          dataToBeSigned.begin(), 32,
+                                          joinSplitPubKey.begin()
+                                         ) == 0)) {
             throw std::runtime_error("crypto_sign_verify_detached failed");
         }
 

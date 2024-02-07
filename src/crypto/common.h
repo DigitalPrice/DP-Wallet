@@ -20,74 +20,63 @@
 # error "Komodo cannot be compiled without assertions."
 #endif
 
-uint16_t static inline ReadLE16(const unsigned char* ptr)
-{
+uint16_t static inline ReadLE16(const unsigned char* ptr) {
     uint16_t x;
     memcpy((char*)&x, ptr, 2);
     return le16toh(x);
 }
 
-uint32_t static inline ReadLE32(const unsigned char* ptr)
-{
+uint32_t static inline ReadLE32(const unsigned char* ptr) {
     uint32_t x;
     memcpy((char*)&x, ptr, 4);
     return le32toh(x);
 }
 
-uint64_t static inline ReadLE64(const unsigned char* ptr)
-{
+uint64_t static inline ReadLE64(const unsigned char* ptr) {
     uint64_t x;
     memcpy((char*)&x, ptr, 8);
     return le64toh(x);
 }
 
-void static inline WriteLE16(unsigned char* ptr, uint16_t x)
-{
+void static inline WriteLE16(unsigned char* ptr, uint16_t x) {
     uint16_t v = htole16(x);
     memcpy(ptr, (char*)&v, 2);
 }
 
-void static inline WriteLE32(unsigned char* ptr, uint32_t x)
-{
+void static inline WriteLE32(unsigned char* ptr, uint32_t x) {
     uint32_t v = htole32(x);
     memcpy(ptr, (char*)&v, 4);
 }
 
-void static inline WriteLE64(unsigned char* ptr, uint64_t x)
-{
+void static inline WriteLE64(unsigned char* ptr, uint64_t x) {
     uint64_t v = htole64(x);
     memcpy(ptr, (char*)&v, 8);
 }
 
-uint32_t static inline ReadBE32(const unsigned char* ptr)
-{
+uint32_t static inline ReadBE32(const unsigned char* ptr) {
     uint32_t x;
     memcpy((char*)&x, ptr, 4);
     return be32toh(x);
 }
 
-uint64_t static inline ReadBE64(const unsigned char* ptr)
-{
+uint64_t static inline ReadBE64(const unsigned char* ptr) {
     uint64_t x;
     memcpy((char*)&x, ptr, 8);
     return be64toh(x);
 }
 
-void static inline WriteBE32(unsigned char* ptr, uint32_t x)
-{
+void static inline WriteBE32(unsigned char* ptr, uint32_t x) {
     uint32_t v = htobe32(x);
     memcpy(ptr, (char*)&v, 4);
 }
 
-void static inline WriteBE64(unsigned char* ptr, uint64_t x)
-{
+void static inline WriteBE64(unsigned char* ptr, uint64_t x) {
     uint64_t v = htobe64(x);
     memcpy(ptr, (char*)&v, 8);
 }
 
 /** Return the smallest number n such that (x >> n) == 0 (or 64 if the highest bit in x is set. */
-uint64_t static inline CountBits(uint64_t x)
-{
+uint64_t static inline CountBits(uint64_t x) {
 #if HAVE_DECL___BUILTIN_CLZL
     if (sizeof(unsigned long) >= sizeof(uint64_t)) {
         return x ? 8 * sizeof(unsigned long) - __builtin_clzl(x) : 0;
@@ -106,8 +95,7 @@ uint64_t static inline CountBits(uint64_t x)
     return ret;
 }
 
-int inline init_and_check_sodium()
-{
+int inline init_and_check_sodium() {
     if (sodium_init() == -1) {
         return -1;
     }
@@ -126,11 +114,12 @@ int inline init_and_check_sodium()
     assert(crypto_sign_verify_detached(sig, message, sizeof(message), pk) == 0);
 
     // Copied from libsodium/crypto_sign/ed25519/ref10/open.c
-    static const unsigned char L[32] =
-      { 0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58,
+    static const unsigned char L[32] = {
+        0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58,
         0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10 };
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10
+    };
 
     // Add L to S, which starts at sig[32].
     unsigned int s = 0;

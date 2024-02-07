@@ -25,7 +25,7 @@ static int secp256k1_eckey_pubkey_parse(secp256k1_ge *elem, const unsigned char 
         }
         secp256k1_ge_set_xy(elem, &x, &y);
         if ((pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_EVEN || pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD) &&
-            secp256k1_fe_is_odd(&y) != (pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD)) {
+                secp256k1_fe_is_odd(&y) != (pub[0] == SECP256K1_TAG_PUBKEY_HYBRID_ODD)) {
             return 0;
         }
         return secp256k1_ge_is_valid_var(elem);

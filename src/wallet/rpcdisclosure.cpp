@@ -51,8 +51,7 @@ bool EnsureWalletIsAvailable(bool avoidException);
 /**
  * RPC call to generate a payment disclosure
  */
-UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -115,7 +114,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp, const CPubKe
 
     // Check if shielded tx
     if (wtx.vjoinsplit.empty()) {
-        throw JSONRPCError(RPC_MISC_ERROR, "Transaction is not a shielded transaction");        
+        throw JSONRPCError(RPC_MISC_ERROR, "Transaction is not a shielded transaction");
     }
 
     // Check js_index
@@ -158,8 +157,7 @@ UniValue z_getpaymentdisclosure(const UniValue& params, bool fHelp, const CPubKe
 /**
  * RPC call to validate a payment disclosure data blob.
  */
-UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -198,8 +196,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp, const C
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, payment disclosure prefix not found.");
     }
     string hexInput = strInput.substr(strlen(PAYMENT_DISCLOSURE_BLOB_STRING_PREFIX));
-    if (!IsHex(hexInput))
-    {
+    if (!IsHex(hexInput)) {
         throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, expected payment disclosure data in hexadecimal format.");
     }
 
@@ -211,7 +208,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp, const C
         // too much data is ignored, but if not enough data, exception of type ios_base::failure is thrown,
         // CBaseDataStream::read(): end of data: iostream error
     } catch (const std::exception &e) {
-        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, payment disclosure data is malformed.");        
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Invalid parameter, payment disclosure data is malformed.");
     }
 
     if (pd.payload.marker != PAYMENT_DISCLOSURE_PAYLOAD_MAGIC_BYTES) {
@@ -237,7 +234,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp, const C
 
     // Check if shielded tx
     if (tx.vjoinsplit.empty()) {
-        throw JSONRPCError(RPC_MISC_ERROR, "Transaction is not a shielded transaction");        
+        throw JSONRPCError(RPC_MISC_ERROR, "Transaction is not a shielded transaction");
     }
 
     UniValue errs(UniValue::VARR);
@@ -262,13 +259,13 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp, const C
     // Verify the payment disclosure was signed using the same key as the transaction i.e. the joinSplitPrivKey.
     uint256 dataToBeSigned = SerializeHash(pd.payload, SER_GETHASH, 0);
     bool sigVerified = (crypto_sign_verify_detached(pd.payloadSig.data(),
-        dataToBeSigned.begin(), 32,
-        tx.joinSplitPubKey.begin()) == 0);
+                        dataToBeSigned.begin(), 32,
+                        tx.joinSplitPubKey.begin()) == 0);
     o.push_back(Pair("signatureVerified", sigVerified));
     if (!sigVerified) {
-        errs.push_back("Payment disclosure signature does not match transaction signature");        
+        errs.push_back("Payment disclosure signature does not match transaction signature");
     }
-   
+
     // Check the payment address is valid
     SproutPaymentAddress zaddr = pd.payload.zaddr;
     {
@@ -294,7 +291,7 @@ UniValue z_validatepaymentdisclosure(const UniValue& params, bool fHelp, const C
             string memoHexString = HexStr(npt.memo().data(), npt.memo().data() + npt.memo().size());
             o.push_back(Pair("memo", memoHexString));
             o.push_back(Pair("value", ValueFromAmount(npt.value())));
-            
+
             // Check the blockchain commitment matches decrypted note commitment
             uint256 cm_blockchain =  jsdesc.commitments[pd.payload.n];
             SproutNote note = npt.note(zaddr);

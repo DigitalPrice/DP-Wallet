@@ -31,8 +31,7 @@
 #include "chainparamsseeds.h"
 #include "consensus/merkle.h"
 
-static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript, uint32_t nTime, const uint256& nNonce, const std::vector<unsigned char>& nSolution, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
-{
+static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesisOutputScript, uint32_t nTime, const uint256& nNonce, const std::vector<unsigned char>& nSolution, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward) {
     // To create a genesis block for a new chain which is Overwintered:
     //   txNew.nVersion = OVERWINTER_TX_VERSION
     //   txNew.fOverwintered = true
@@ -72,8 +71,7 @@ static CBlock CreateGenesisBlock(const char* pszTimestamp, const CScript& genesi
  *     CTxOut(nValue=0.00000000, scriptPubKey=0x5F1DF16B2B704C8A578D0B)
  *   vMerkleTree: c4eaa5
  */
-static CBlock CreateGenesisBlock(uint32_t nTime, const uint256& nNonce, const std::vector<unsigned char>& nSolution, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward)
-{
+static CBlock CreateGenesisBlock(uint32_t nTime, const uint256& nNonce, const std::vector<unsigned char>& nSolution, uint32_t nBits, int32_t nVersion, const CAmount& genesisReward) {
     const char* pszTimestamp = "Zcash0b9c4eef8b7cc417ee5001e3500984b6fea35683a7cac141a043c42064835d34";
     const CScript genesisOutputScript = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
     return CreateGenesisBlock(pszTimestamp, genesisOutputScript, nTime, nNonce, nSolution, nBits, nVersion, genesisReward);
@@ -97,13 +95,12 @@ uint64_t ASSETCHAINS_NK[2];
 const arith_uint256 maxUint = UintToArith256(uint256S("ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"));
 
 class CMainParams : public CChainParams {
-public:
-    CMainParams()
-    {
+  public:
+    CMainParams() {
 
         strNetworkID = "main";
         strCurrencyUnits = "KMD";
-        bip44CoinType = 141; // As registered in https://github.com/satoshilabs/slips/blob/master/slip-0044.md 
+        bip44CoinType = 141; // As registered in https://github.com/satoshilabs/slips/blob/master/slip-0044.md
         consensus.fCoinbaseMustBeProtected = false;
         consensus.nSubsidySlowStartInterval = 20000;
         consensus.nSubsidyHalvingInterval = 840000;
@@ -222,87 +219,87 @@ public:
             boost::assign::map_list_of
 
             (0, consensus.hashGenesisBlock)
-                (	50000,	uint256S("0x00076e16d3fa5194da559c17cf9cf285e21d1f13154ae4f7c7b87919549345aa"))
-                (	100000,	uint256S("0x0f02eb1f3a4b89df9909fec81a4bd7d023e32e24e1f5262d9fc2cc36a715be6f"))
-                (	150000,	uint256S("0x0a817f15b9da636f453a7a01835cfc534ed1a55ce7f08c566471d167678bedce"))
-                (	200000,	uint256S("0x000001763a9337328651ca57ac487cc0507087be5838fb74ca4165ff19f0e84f"))
-                (	250000,	uint256S("0x0dd54ef5f816c7fde9d2b1c8c1a26412b3c761cc5dd3901fa5c4cd1900892fba"))
-                (	300000,	uint256S("0x000000fa5efd1998959926047727519ed7de06dcf9f2cd92a4f71e907e1312dc"))
-                (	350000,	uint256S("0x0000000228ef321323f81dae00c98d7960fc7486fb2d881007fee60d1e34653f"))
-                (	400000,	uint256S("0x036d294c5be96f4c0efb28e652eb3968231e87204a823991a85c5fdab3c43ae6"))
-                (	450000,	uint256S("0x0906ef1e8dc194f1f03bd4ce1ac8c6992fd721ef2c5ccbf4871ec8cdbb456c18"))
-                (	500000,	uint256S("0x0bebdb417f7a51fe0c36fcf94e2ed29895a9a862eaa61601272866a7ecd6391b"))
-                (	550000,	uint256S("0x06df52fc5f9ba03ccc3a7673b01ab47990bd5c4947f6e1bc0ba14d21cd5bcccd"))
-                (	600000,	uint256S("0x00000005080d5689c3b4466e551cd1986e5d2024a62a79b1335afe12c42779e4"))
-                (	650000,	uint256S("0x039a3cb760cc6e564974caf69e8ae621c14567f3a36e4991f77fd869294b1d52"))
-                (	700000,	uint256S("0x00002285be912b2b887a5bb42d2f1aa011428c565b0ffc908129c47b5ce87585"))
-                (	750000,	uint256S("0x04cff4c26d185d591bed3613ce15e1d15d9c91dd8b98a6729f89c58ce4bd1fd6"))
-                (	800000,	uint256S("0x0000000617574d402fca8e6570f0845bd5fe449398b318b4e1f65bc69cdd6606"))
-                (	850000,	uint256S("0x044199301f37194f20ba7b498fc72ed742f6c0ba6e476f28d6c81d225e58d5ce"))
-                (	900000,	uint256S("0x08bdbe4de2a65ac89fd2913192d05362c900e3af476a0c99d9f311875067451e"))
-                (	950000,	uint256S("0x0000000aa9a44b593e6138f247bfae75bd43b9396ef9ff0a6a3ebd852f131806"))
-                (	1000000,	uint256S("0x0cb1d2457eaa58af5028e86e27ac54578fa09558206e7b868ebd35e7005ed8bb"))
-                (	1050000,	uint256S("0x044d49bbc3bd9d32b6288b768d4f7e0afe3cbeda606f3ac3579a076e4bddf6ae"))
-                (	1100000,	uint256S("0x000000050cad04887e170059dd2556d85bbd20390b04afb9b07fb62cafd647b4"))
-                (	1150000,	uint256S("0x0c85501c759d957dd1ccc5f7fdfcc415c89c7f2a26471fffc75b75f79e63c16a"))
-                (	1200000,	uint256S("0x0763cbf43ed7227988081c29d9e9fc7ab2450216e6d0354cc4596c86689702d4"))
-                (	1250000,	uint256S("0x0489640207f8c343a56a10e45d987516059ea82a3c6859a771b3a9cf94f5c3bb"))
-                (	1300000,	uint256S("0x000000012a01709b254b4f75e2b9ed772d8fe558655c8c859892ca8c9d625e87"))
-                (	1350000,	uint256S("0x075a1a5c66a68b47d9848ca6986687ed2665b1852457051bf142208e62f98a60"))
-                (	1400000,	uint256S("0x055f73dd9b20650c3d6e6dbb606af8d9479e4c81d89430867abff5329f167bb2"))
-                (	1450000,	uint256S("0x014c2926e07e9712211c5e82f05df1b802c59cc8bc24e3cc9b09942017080f2d"))
-                (	1500000,	uint256S("0x0791f892210ce3c513ab607d689cd1e8907a27f3dfeb58dec21ae299b7981cb7"))
-                (	1550000,	uint256S("0x08fcbaffb7164b161a25efc6dd5c70b679498ee637d663fe201a55c7decc37a3"))
-                (	1600000,	uint256S("0x0e577dcd49319a67fe2acbb39ae6d46afccd3009d3ba9d1bcf6c624708e12bac"))
-                (	1650000,	uint256S("0x091ac57a0f786a9526b2224a10b62f1f464b9ffc0afc2240d86264439e6ad3d0"))
-                (	1700000,	uint256S("0x0d0be6ab4a5083ce9d2a7ea2549b03cfc9770427b7d51c0bf0c603399a60d037"))
-                (	1750000,	uint256S("0x0a019d830157db596eeb678787279908093fd273a4e022b5e052f3a9f95714ca"))
-                (	1800000,	uint256S("0x0390779f6c615620391f9dd7df7f3f4947523bd6350b26625c0315571c616076"))
-                (	1850000,	uint256S("0x000000007ca2de1bd9cb7b52fe0accca4874143822521d955e58c73e304279e0"))
-                (	1900000,	uint256S("0x04c6589d5703f8237bf215c4e3e881c1c77063ef079cea5dc132a0e7f7a0cbd9"))
-                (	1950000,	uint256S("0x00000000386795b9fa21f14782ee1b9176763d6a544d7e0511d1860c62d540aa"))
-                (	2000000,	uint256S("0x0b0403fbe3c5742bbd0e3fc643049534e50c4a49bbc4a3b284fc0ecedf15c044"))
-                (	2050000,	uint256S("0x0c7923957469864d49a0be56b5ffbee7f21c1b6d00acc7374f60f1c1c7b87e14"))
-                (	2100000,	uint256S("0x05725ed166ae796529096ac2a42e85a3bdd0d69dbb2f69e620c08219fda1130a"))
-                (	2150000,	uint256S("0x0edb94f5a5501fc8dd72a455cdaccf0af0215b914dd3d8d4ae5d644e27ef562c"))
-                (	2200000,	uint256S("0x08b92203aa4a3b09001a75e8eebe8e64434259ae7ed7a31384203924d1ab03b8"))
-                (	2250000,	uint256S("0x0127d1ed5cd6f261631423275b6b17728c392583177e1151a6e638a4b0dea985"))
-                (	2300000,	uint256S("0x07df8af646bc30c71d068b146d9ea2c8b25b27a180e9537d5aef859efcfc41f7"))
-                (	2350000,	uint256S("0x0b8028dbfcd92fe34496953872cba2d256923e3e52b4abbdcbe9911071e929e5"))
-                (	2400000,	uint256S("0x0000000030f4e55dab91dc3528257fdddbbaec7e7e6f877d357654f07704d773"))
-                (	2450000,	uint256S("0x00000000b1cb8e9046e561486a5dbdb7fa06ac35c96f290653d1f0f4578d55c0"))
-                (	2500000,	uint256S("0x0d79a66e1e611b8b7070f924c6d23f41837caa6e2636d3e0e94fb74f4c0e7eaf"))
-                (	2550000,	uint256S("0x08ead55adf3253d8e7d4cc5eab3586bbc3bdbba9ae4104d13f0e9731350aa991"))
-                (	2600000,	uint256S("0x0665b6e23d60a892069fe12ccc3c6ec1f4b38bfd6c62ebbc88039d99492ec67d"))
-                (	2650000,	uint256S("0x0c0997bd2251d5aaa7d7509f49fd41ff8666f3d137cbe1b7695ec77afa95a977"))
-                (	2700000,	uint256S("0x02c317060b9ee983f30f33e21ae6973cda8c2746d38dff546a56341440fa0ff2"))
-                (	2750000,	uint256S("0x00000000d534909e2726aa0eb132cbd27894914de21f7e42942a11ce152bd0e8"))
-                (	2800000,	uint256S("0x0ce1585dfde5b561e4c436e9bceb3070681f033604df3ae5ee471fa37f93df40"))
-                (	2850000,	uint256S("0x000000000dd1a4cdc68d869d7bff1459c24950c2c49bfbc99379b1192189d9ff"))
-                (	2900000,	uint256S("0x0e476e4c8680723d5993c8d3241437eb496785a681bfee2723d48c8aca7e7775"))
-                (	2950000,	uint256S("0x02c2ad86947eb44eb0c341f62cbb42ee7604120736b59e3bf4ae7c15876116c6"))
-                (	3000000,	uint256S("0x000000000341c41238da4aa354c0b110c0dcb406c77ae88c6cbe1af9279e5ad5"))
-                (	3050000,	uint256S("0x06201c395a0e570e7efe63e8c406a57ba01ee1e7994a496aa7314d66c46f4d03"))
-                (	3100000,	uint256S("0x0cc9d173d3062e7bd02fe3880f6647c12be5e4fbc0d54bbc57fb630a4d27b152"))
-                (	3150000,	uint256S("0x0bc9aacb5b61ce72269156ef1c3d097b3866c1d41f9204eda0565c71e6f28765"))
-                (	3200000,	uint256S("0x0000000086d9a4cd07bab1c621f626c8b56fdb4502b47294d84215a263c74e72"))
-                (	3250000,	uint256S("0x05c1d8fff5449019ebf0dfc442fb6ab08aa8acb46c3fde0e9913a17feac897d9"))
-                (	3300000,	uint256S("0x0549e87f0f3f028e10e20f6844e5d4605ad2a26e810d671ae516ee33328eda94"))
-                (	3350000,	uint256S("0x0000000016335c6ac62b78d90dcc14a7e73fb71484bf18974ba13449fc223f4b"))
-                (	3400000,	uint256S("0x0a7db2957f5122f54351ffa79e0399788b180628daa440be63230454ab6ebdbe"))
-                (	3450000,	uint256S("0x0ed55d5048453070204e5301a194980aa6632dc53bf1fb3f5a38bcc127229751"))
-                (	3500000,	uint256S("0x00000000058ded4878267a04562fba5f5455f3f015d0befc30f18a2a5363293c"))
-                (	3550000,	uint256S("0x008e33e444039a184a27b083526a963f792f5053a1811cd8fde6aac0954a3925"))
-                (	3600000,	uint256S("0x09a6622ca9c61abcd2e20c5bedfd3c975803ae8c1fb913f61be9ba3e82916791"))
-                (	3648244,	uint256S("0x002fdc2c0a087b8b4075268c8caf97571ac9b0908aa6dde37077ad179dc614ee")),
+            (	50000,	uint256S("0x00076e16d3fa5194da559c17cf9cf285e21d1f13154ae4f7c7b87919549345aa"))
+            (	100000,	uint256S("0x0f02eb1f3a4b89df9909fec81a4bd7d023e32e24e1f5262d9fc2cc36a715be6f"))
+            (	150000,	uint256S("0x0a817f15b9da636f453a7a01835cfc534ed1a55ce7f08c566471d167678bedce"))
+            (	200000,	uint256S("0x000001763a9337328651ca57ac487cc0507087be5838fb74ca4165ff19f0e84f"))
+            (	250000,	uint256S("0x0dd54ef5f816c7fde9d2b1c8c1a26412b3c761cc5dd3901fa5c4cd1900892fba"))
+            (	300000,	uint256S("0x000000fa5efd1998959926047727519ed7de06dcf9f2cd92a4f71e907e1312dc"))
+            (	350000,	uint256S("0x0000000228ef321323f81dae00c98d7960fc7486fb2d881007fee60d1e34653f"))
+            (	400000,	uint256S("0x036d294c5be96f4c0efb28e652eb3968231e87204a823991a85c5fdab3c43ae6"))
+            (	450000,	uint256S("0x0906ef1e8dc194f1f03bd4ce1ac8c6992fd721ef2c5ccbf4871ec8cdbb456c18"))
+            (	500000,	uint256S("0x0bebdb417f7a51fe0c36fcf94e2ed29895a9a862eaa61601272866a7ecd6391b"))
+            (	550000,	uint256S("0x06df52fc5f9ba03ccc3a7673b01ab47990bd5c4947f6e1bc0ba14d21cd5bcccd"))
+            (	600000,	uint256S("0x00000005080d5689c3b4466e551cd1986e5d2024a62a79b1335afe12c42779e4"))
+            (	650000,	uint256S("0x039a3cb760cc6e564974caf69e8ae621c14567f3a36e4991f77fd869294b1d52"))
+            (	700000,	uint256S("0x00002285be912b2b887a5bb42d2f1aa011428c565b0ffc908129c47b5ce87585"))
+            (	750000,	uint256S("0x04cff4c26d185d591bed3613ce15e1d15d9c91dd8b98a6729f89c58ce4bd1fd6"))
+            (	800000,	uint256S("0x0000000617574d402fca8e6570f0845bd5fe449398b318b4e1f65bc69cdd6606"))
+            (	850000,	uint256S("0x044199301f37194f20ba7b498fc72ed742f6c0ba6e476f28d6c81d225e58d5ce"))
+            (	900000,	uint256S("0x08bdbe4de2a65ac89fd2913192d05362c900e3af476a0c99d9f311875067451e"))
+            (	950000,	uint256S("0x0000000aa9a44b593e6138f247bfae75bd43b9396ef9ff0a6a3ebd852f131806"))
+            (	1000000,	uint256S("0x0cb1d2457eaa58af5028e86e27ac54578fa09558206e7b868ebd35e7005ed8bb"))
+            (	1050000,	uint256S("0x044d49bbc3bd9d32b6288b768d4f7e0afe3cbeda606f3ac3579a076e4bddf6ae"))
+            (	1100000,	uint256S("0x000000050cad04887e170059dd2556d85bbd20390b04afb9b07fb62cafd647b4"))
+            (	1150000,	uint256S("0x0c85501c759d957dd1ccc5f7fdfcc415c89c7f2a26471fffc75b75f79e63c16a"))
+            (	1200000,	uint256S("0x0763cbf43ed7227988081c29d9e9fc7ab2450216e6d0354cc4596c86689702d4"))
+            (	1250000,	uint256S("0x0489640207f8c343a56a10e45d987516059ea82a3c6859a771b3a9cf94f5c3bb"))
+            (	1300000,	uint256S("0x000000012a01709b254b4f75e2b9ed772d8fe558655c8c859892ca8c9d625e87"))
+            (	1350000,	uint256S("0x075a1a5c66a68b47d9848ca6986687ed2665b1852457051bf142208e62f98a60"))
+            (	1400000,	uint256S("0x055f73dd9b20650c3d6e6dbb606af8d9479e4c81d89430867abff5329f167bb2"))
+            (	1450000,	uint256S("0x014c2926e07e9712211c5e82f05df1b802c59cc8bc24e3cc9b09942017080f2d"))
+            (	1500000,	uint256S("0x0791f892210ce3c513ab607d689cd1e8907a27f3dfeb58dec21ae299b7981cb7"))
+            (	1550000,	uint256S("0x08fcbaffb7164b161a25efc6dd5c70b679498ee637d663fe201a55c7decc37a3"))
+            (	1600000,	uint256S("0x0e577dcd49319a67fe2acbb39ae6d46afccd3009d3ba9d1bcf6c624708e12bac"))
+            (	1650000,	uint256S("0x091ac57a0f786a9526b2224a10b62f1f464b9ffc0afc2240d86264439e6ad3d0"))
+            (	1700000,	uint256S("0x0d0be6ab4a5083ce9d2a7ea2549b03cfc9770427b7d51c0bf0c603399a60d037"))
+            (	1750000,	uint256S("0x0a019d830157db596eeb678787279908093fd273a4e022b5e052f3a9f95714ca"))
+            (	1800000,	uint256S("0x0390779f6c615620391f9dd7df7f3f4947523bd6350b26625c0315571c616076"))
+            (	1850000,	uint256S("0x000000007ca2de1bd9cb7b52fe0accca4874143822521d955e58c73e304279e0"))
+            (	1900000,	uint256S("0x04c6589d5703f8237bf215c4e3e881c1c77063ef079cea5dc132a0e7f7a0cbd9"))
+            (	1950000,	uint256S("0x00000000386795b9fa21f14782ee1b9176763d6a544d7e0511d1860c62d540aa"))
+            (	2000000,	uint256S("0x0b0403fbe3c5742bbd0e3fc643049534e50c4a49bbc4a3b284fc0ecedf15c044"))
+            (	2050000,	uint256S("0x0c7923957469864d49a0be56b5ffbee7f21c1b6d00acc7374f60f1c1c7b87e14"))
+            (	2100000,	uint256S("0x05725ed166ae796529096ac2a42e85a3bdd0d69dbb2f69e620c08219fda1130a"))
+            (	2150000,	uint256S("0x0edb94f5a5501fc8dd72a455cdaccf0af0215b914dd3d8d4ae5d644e27ef562c"))
+            (	2200000,	uint256S("0x08b92203aa4a3b09001a75e8eebe8e64434259ae7ed7a31384203924d1ab03b8"))
+            (	2250000,	uint256S("0x0127d1ed5cd6f261631423275b6b17728c392583177e1151a6e638a4b0dea985"))
+            (	2300000,	uint256S("0x07df8af646bc30c71d068b146d9ea2c8b25b27a180e9537d5aef859efcfc41f7"))
+            (	2350000,	uint256S("0x0b8028dbfcd92fe34496953872cba2d256923e3e52b4abbdcbe9911071e929e5"))
+            (	2400000,	uint256S("0x0000000030f4e55dab91dc3528257fdddbbaec7e7e6f877d357654f07704d773"))
+            (	2450000,	uint256S("0x00000000b1cb8e9046e561486a5dbdb7fa06ac35c96f290653d1f0f4578d55c0"))
+            (	2500000,	uint256S("0x0d79a66e1e611b8b7070f924c6d23f41837caa6e2636d3e0e94fb74f4c0e7eaf"))
+            (	2550000,	uint256S("0x08ead55adf3253d8e7d4cc5eab3586bbc3bdbba9ae4104d13f0e9731350aa991"))
+            (	2600000,	uint256S("0x0665b6e23d60a892069fe12ccc3c6ec1f4b38bfd6c62ebbc88039d99492ec67d"))
+            (	2650000,	uint256S("0x0c0997bd2251d5aaa7d7509f49fd41ff8666f3d137cbe1b7695ec77afa95a977"))
+            (	2700000,	uint256S("0x02c317060b9ee983f30f33e21ae6973cda8c2746d38dff546a56341440fa0ff2"))
+            (	2750000,	uint256S("0x00000000d534909e2726aa0eb132cbd27894914de21f7e42942a11ce152bd0e8"))
+            (	2800000,	uint256S("0x0ce1585dfde5b561e4c436e9bceb3070681f033604df3ae5ee471fa37f93df40"))
+            (	2850000,	uint256S("0x000000000dd1a4cdc68d869d7bff1459c24950c2c49bfbc99379b1192189d9ff"))
+            (	2900000,	uint256S("0x0e476e4c8680723d5993c8d3241437eb496785a681bfee2723d48c8aca7e7775"))
+            (	2950000,	uint256S("0x02c2ad86947eb44eb0c341f62cbb42ee7604120736b59e3bf4ae7c15876116c6"))
+            (	3000000,	uint256S("0x000000000341c41238da4aa354c0b110c0dcb406c77ae88c6cbe1af9279e5ad5"))
+            (	3050000,	uint256S("0x06201c395a0e570e7efe63e8c406a57ba01ee1e7994a496aa7314d66c46f4d03"))
+            (	3100000,	uint256S("0x0cc9d173d3062e7bd02fe3880f6647c12be5e4fbc0d54bbc57fb630a4d27b152"))
+            (	3150000,	uint256S("0x0bc9aacb5b61ce72269156ef1c3d097b3866c1d41f9204eda0565c71e6f28765"))
+            (	3200000,	uint256S("0x0000000086d9a4cd07bab1c621f626c8b56fdb4502b47294d84215a263c74e72"))
+            (	3250000,	uint256S("0x05c1d8fff5449019ebf0dfc442fb6ab08aa8acb46c3fde0e9913a17feac897d9"))
+            (	3300000,	uint256S("0x0549e87f0f3f028e10e20f6844e5d4605ad2a26e810d671ae516ee33328eda94"))
+            (	3350000,	uint256S("0x0000000016335c6ac62b78d90dcc14a7e73fb71484bf18974ba13449fc223f4b"))
+            (	3400000,	uint256S("0x0a7db2957f5122f54351ffa79e0399788b180628daa440be63230454ab6ebdbe"))
+            (	3450000,	uint256S("0x0ed55d5048453070204e5301a194980aa6632dc53bf1fb3f5a38bcc127229751"))
+            (	3500000,	uint256S("0x00000000058ded4878267a04562fba5f5455f3f015d0befc30f18a2a5363293c"))
+            (	3550000,	uint256S("0x008e33e444039a184a27b083526a963f792f5053a1811cd8fde6aac0954a3925"))
+            (	3600000,	uint256S("0x09a6622ca9c61abcd2e20c5bedfd3c975803ae8c1fb913f61be9ba3e82916791"))
+            (	3648244,	uint256S("0x002fdc2c0a087b8b4075268c8caf97571ac9b0908aa6dde37077ad179dc614ee")),
             1698278398,     // * UNIX timestamp of last checkpoint block
             21906511,         // * total number of transactions between genesis and last checkpoint
-                            //   (the tx=... number in the SetBestChain debug.log lines)
+            //   (the tx=... number in the SetBestChain debug.log lines)
             2777            // * estimated number of transactions per day after checkpoint
-                            //   total number of tx / (checkpoint block height / (24 * 24))
+            //   total number of tx / (checkpoint block height / (24 * 24))
         };
 
-        genesisNotaries = { 
+        genesisNotaries = {
             { "jl777_testA", "03b7621b44118017a16043f19b30cc8a4cfe068ac4e42417bae16ba460c80f3828" },
             { "jl777_testB", "02ebfc784a4ba768aad88d44d1045d240d47b26e248cafaf1c5169a42d7a61d344" },
             { "pondsea_SH", "02209073bc0943451498de57f802650311b1f12aa6deffcd893da198a544c04f36" },
@@ -345,20 +342,19 @@ public:
 
 static CMainParams mainParams;
 
-void CChainParams::SetCheckpointData(CChainParams::CCheckpointData checkpointData)
-{
+void CChainParams::SetCheckpointData(CChainParams::CCheckpointData checkpointData) {
     CChainParams::checkpointData = checkpointData;
 }
 
 /*
  To change the max block size, all that needs to be updated is the #define _MAX_BLOCK_SIZE in utils.h
- 
+
  However, doing that without any other changes will allow forking non-updated nodes by creating a larger block. So, make sure to height activate the new blocksize properly.
- 
+
  Assuming it is 8MB, then:
  #define _OLD_MAX_BLOCK_SIZE (4096 * 1024)
  #define _MAX_BLOCK_SIZE (2 * 4096 * 1024)
- 
+
  change the body of if:
  {
     if ( height < saplinght+1000000 ) // activates 8MB blocks 1 million blocks after saplinght
@@ -372,7 +368,7 @@ void CChainParams::SetCheckpointData(CChainParams::CCheckpointData checkpointDat
  * Testnet (v3)
  */
 class CTestNetParams : public CChainParams {
-public:
+  public:
     CTestNetParams() {
         strNetworkID = "test";
         strCurrencyUnits = "TKMD";
@@ -424,10 +420,10 @@ public:
         nEquihashK = K;
 
         //! Modify the testnet genesis block so the timestamp is valid for a later start.
-        genesis = CreateGenesisBlock(1296688602, 
-                uint256S("0x000000000000000000000000000000000000000000000000000000000000000a"),
-                ParseHex("008b6bd48ca3ef23bfa3d34885483158e089ad887539fd33950f2d78d5720e39769165aa7b2c679b65060e209249f54e3279e8bf31ec13781184b109aaee6e3db57260b466ce8182122b564ce43ca77b011ea1fa038f0139e98e923b0eb1929a80b622cdb72cd5505f275b7cf0e89892ff37f53b010f5ba1fb78bedead4a0c4d39f8319605d358e36a0a0e5e5cdb25a2ffff9320f57569f7270857e2d87287fa71c24d36611b2ac502ffffdbbe425ca71b09b1f0255a66f26356fae7f210227d79e3ea9fe99f7d5e5b05febdf3a54dfec02507bdb85ff409773ce56441191734059a11d9d4c481554fbe6c93b1a93be2cfc707d146e4c28966de5ced066fc85f548fd146c9cd086fafdbf982c3c099394e0a25a5e4670dea2673e84886f5fa765a8a5f1ff3a307680a20e520b1f3d21714eb3efca769f182106a6d193aae881461a64b55d98668eb7f7b92c3527eb75b044d01ffff427d9157c301e5b69fa09776009f53c30551484020fabbb3d664c106d72844b540c133bc67048ad4ca0082ad42848e146dac76b55e3ba51937c412c817034e1e67fb3d909347d42d198599f28df8ee0fa9bd9c180beb0fad03f265a8bbbfb6ce1bff1d8223c9ea28748983393fbf1b8364e449d331b8ffb8363dfab5728c5f34b1e4cd03e3a758c3e5280994a44a47fed5f84b13bc67df9074dac4b7288d927e1b8ef50a7afc01ea4b798d6025415f26d15dc506c96896b530af775fb3648ddf983f59bb10536e1e74a6bee4640ed3275bbdceb79520ec81618ac7087e06baba12432671e185b6e1706523edd26d07435bf5289c5f703f0b6703fbfc56e46b421ca9ca325e281387353daa33274925b44ea4a7c939ef13ec6f38941ed13c7a9ae5253dba2119a0b8b1401f73d503e2c7252dd9507d305cf9dcb5f3db29214bb6c7be8b5654421baefbdc7701408f5ab4d652879d54e4e4ad6dc3c1b49835ae7e2ca806e302d33657ada2c8b86b716a239d409fafdb05a547952f6aafd5d9dd60f76070b0ee12605815ad36fca1c3bc231b15428ce6412fd37d2f27255eb19b060aadf47e0c1b67b0911459505bc9fdfd1875fdac31362dd434ab4e297b9478b74f5efdaac35e7b3deb07b2125aaf07483dd104d6e43161506a0e1b14fd7a13b729f771ca5e2a5e53c2d6eb96f66a66a4581c87018fa98856630ab1dead01afbe62c280c697d96e6d056afb94a4cca2e6d63bc866f5dceb9a5d2a38b3bb11e109de75d17e6116aad2514b5ababe09f99ddf2c130cdd7866129fa103cdb2ec9d2a44853c8bf9c31201ec1b89cca7f31542da558f57645c4e897e9e9d1038be3a796eaf1cafa8f6d69897426c5e7b8f3933c004eb3113898ac5295fb31245494b63fdf5227ece5714a13469fd86ec944b8b9924cc67ab86561f73fdb3060c8acf9a255ca96834038ef1383f69733876bc7f2524ebe92eb01049bc6863835220a555e496bb17e7067d3427f209fb00a46e48082a549af2fdd23cc7cc0b96923fd695642389a1db1a457ac5874f7c5c62e407ba7a7248f04807c516c0ba5c08194d3f1b1fa78f0841f062529d5d9354091d8fb9fecb777df7bd3508174f66a13f1d7d272cd4145762b25841ae9c3e9351209ac43d2dcb542d4ccd64b19367b56d7772fed9b00630fe9567036fd4bb1d67d2665c12c2547fd4a112128512ea4bf1d9d1f68d421c3bde90d8c22cde1aa40a257a8a0089b9b4e8aff50fb2d41cf152be7ecc892ffaa22d162a50e1f24be74207756c46370531cf9f07094d789c8758f9260214cbe6463376cc6f5fb26211740a59a68a97d27bb7e152f91d0ff8f431d3569e08420d79e957df36d4e2c601406046df386abf944f19730acd2b4bbd715cd321c7f54c8e61bf2cf73019"),
-                KOMODO_MINDIFF_NBITS, 1, COIN);
+        genesis = CreateGenesisBlock(1296688602,
+                                     uint256S("0x000000000000000000000000000000000000000000000000000000000000000a"),
+                                     ParseHex("008b6bd48ca3ef23bfa3d34885483158e089ad887539fd33950f2d78d5720e39769165aa7b2c679b65060e209249f54e3279e8bf31ec13781184b109aaee6e3db57260b466ce8182122b564ce43ca77b011ea1fa038f0139e98e923b0eb1929a80b622cdb72cd5505f275b7cf0e89892ff37f53b010f5ba1fb78bedead4a0c4d39f8319605d358e36a0a0e5e5cdb25a2ffff9320f57569f7270857e2d87287fa71c24d36611b2ac502ffffdbbe425ca71b09b1f0255a66f26356fae7f210227d79e3ea9fe99f7d5e5b05febdf3a54dfec02507bdb85ff409773ce56441191734059a11d9d4c481554fbe6c93b1a93be2cfc707d146e4c28966de5ced066fc85f548fd146c9cd086fafdbf982c3c099394e0a25a5e4670dea2673e84886f5fa765a8a5f1ff3a307680a20e520b1f3d21714eb3efca769f182106a6d193aae881461a64b55d98668eb7f7b92c3527eb75b044d01ffff427d9157c301e5b69fa09776009f53c30551484020fabbb3d664c106d72844b540c133bc67048ad4ca0082ad42848e146dac76b55e3ba51937c412c817034e1e67fb3d909347d42d198599f28df8ee0fa9bd9c180beb0fad03f265a8bbbfb6ce1bff1d8223c9ea28748983393fbf1b8364e449d331b8ffb8363dfab5728c5f34b1e4cd03e3a758c3e5280994a44a47fed5f84b13bc67df9074dac4b7288d927e1b8ef50a7afc01ea4b798d6025415f26d15dc506c96896b530af775fb3648ddf983f59bb10536e1e74a6bee4640ed3275bbdceb79520ec81618ac7087e06baba12432671e185b6e1706523edd26d07435bf5289c5f703f0b6703fbfc56e46b421ca9ca325e281387353daa33274925b44ea4a7c939ef13ec6f38941ed13c7a9ae5253dba2119a0b8b1401f73d503e2c7252dd9507d305cf9dcb5f3db29214bb6c7be8b5654421baefbdc7701408f5ab4d652879d54e4e4ad6dc3c1b49835ae7e2ca806e302d33657ada2c8b86b716a239d409fafdb05a547952f6aafd5d9dd60f76070b0ee12605815ad36fca1c3bc231b15428ce6412fd37d2f27255eb19b060aadf47e0c1b67b0911459505bc9fdfd1875fdac31362dd434ab4e297b9478b74f5efdaac35e7b3deb07b2125aaf07483dd104d6e43161506a0e1b14fd7a13b729f771ca5e2a5e53c2d6eb96f66a66a4581c87018fa98856630ab1dead01afbe62c280c697d96e6d056afb94a4cca2e6d63bc866f5dceb9a5d2a38b3bb11e109de75d17e6116aad2514b5ababe09f99ddf2c130cdd7866129fa103cdb2ec9d2a44853c8bf9c31201ec1b89cca7f31542da558f57645c4e897e9e9d1038be3a796eaf1cafa8f6d69897426c5e7b8f3933c004eb3113898ac5295fb31245494b63fdf5227ece5714a13469fd86ec944b8b9924cc67ab86561f73fdb3060c8acf9a255ca96834038ef1383f69733876bc7f2524ebe92eb01049bc6863835220a555e496bb17e7067d3427f209fb00a46e48082a549af2fdd23cc7cc0b96923fd695642389a1db1a457ac5874f7c5c62e407ba7a7248f04807c516c0ba5c08194d3f1b1fa78f0841f062529d5d9354091d8fb9fecb777df7bd3508174f66a13f1d7d272cd4145762b25841ae9c3e9351209ac43d2dcb542d4ccd64b19367b56d7772fed9b00630fe9567036fd4bb1d67d2665c12c2547fd4a112128512ea4bf1d9d1f68d421c3bde90d8c22cde1aa40a257a8a0089b9b4e8aff50fb2d41cf152be7ecc892ffaa22d162a50e1f24be74207756c46370531cf9f07094d789c8758f9260214cbe6463376cc6f5fb26211740a59a68a97d27bb7e152f91d0ff8f431d3569e08420d79e957df36d4e2c601406046df386abf944f19730acd2b4bbd715cd321c7f54c8e61bf2cf73019"),
+                                     KOMODO_MINDIFF_NBITS, 1, COIN);
         consensus.hashGenesisBlock = genesis.GetHash();
 
         vFixedSeeds.clear();
@@ -457,8 +453,8 @@ public:
         fMineBlocksOnDemand = false;
         fTestnetToBeDeprecatedFieldRPC = true;
 
-        genesisNotaries = { 
-                { "jmj_testA",   "037c032430fd231b5797cb4a637dae3eadf87b10274fd84be31670bd2a02c4fbc5" }
+        genesisNotaries = {
+            { "jmj_testA",   "037c032430fd231b5797cb4a637dae3eadf87b10274fd84be31670bd2a02c4fbc5" }
         };
     }
 };
@@ -468,7 +464,7 @@ static CTestNetParams testNetParams;
  * Regression test
  */
 class CRegTestParams : public CChainParams {
-public:
+  public:
     CRegTestParams() {
         strNetworkID = "regtest";
         strCurrencyUnits = "REG";
@@ -518,10 +514,10 @@ public:
         nEquihashK = K;
 
         genesis = CreateGenesisBlock(
-            1296688602,
-            uint256S("0x0000000000000000000000000000000000000000000000000000000000000009"),
-            ParseHex("01936b7db1eb4ac39f151b8704642d0a8bda13ec547d54cd5e43ba142fc6d8877cab07b3"),
-            KOMODO_MINDIFF_NBITS, 4, 0);
+                      1296688602,
+                      uint256S("0x0000000000000000000000000000000000000000000000000000000000000009"),
+                      ParseHex("01936b7db1eb4ac39f151b8704642d0a8bda13ec547d54cd5e43ba142fc6d8877cab07b3"),
+                      KOMODO_MINDIFF_NBITS, 4, 0);
         consensus.hashGenesisBlock = genesis.GetHash();
         assert(consensus.hashGenesisBlock == uint256S("0x029f11d80ef9765602235e1bc9727e3eb6ba20839319f761fee920d63401e327"));
         assert(genesis.hashMerkleRoot == uint256S("0xc4eaa58879081de3c24a7b117ed2b28300e7ec4c4c1dff1d3f1268b7857a4ddb"));
@@ -538,10 +534,10 @@ public:
         fMineBlocksOnDemand = true;
         fTestnetToBeDeprecatedFieldRPC = false;
 
-        checkpointData = (CCheckpointData){
+        checkpointData = (CCheckpointData) {
             MapCheckpoints {
-                    {0, uint256S("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206")}
-                },
+                {0, uint256S("0f9188f13cb7b2c71f2a335e3a4fc328bf5beb436012afca590b1a11466e2206")}
+            },
             0,
             0,
             0
@@ -570,8 +566,7 @@ public:
         assert(vFoundersRewardAddress.size() <= consensus.GetLastFoundersRewardBlockHeight());
     }
 
-    void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight)
-    {
+    void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight) {
         assert(idx > Consensus::BASE_SPROUT && idx < Consensus::MAX_NETWORK_UPGRADES);
         consensus.vUpgrades[idx].nActivationHeight = nActivationHeight;
     }
@@ -587,15 +582,15 @@ const CChainParams &Params() {
 
 CChainParams &Params(CBaseChainParams::Network network) {
     switch (network) {
-        case CBaseChainParams::MAIN:
-            return mainParams;
-        case CBaseChainParams::TESTNET:
-            return testNetParams;
-        case CBaseChainParams::REGTEST:
-            return regTestParams;
-        default:
-            assert(false && "Unimplemented network");
-            return mainParams;
+    case CBaseChainParams::MAIN:
+        return mainParams;
+    case CBaseChainParams::TESTNET:
+        return testNetParams;
+    case CBaseChainParams::REGTEST:
+        return regTestParams;
+    default:
+        assert(false && "Unimplemented network");
+        return mainParams;
     }
 }
 
@@ -609,8 +604,7 @@ void SelectParams(CBaseChainParams::Network network) {
     }
 }
 
-bool SelectParamsFromCommandLine()
-{
+bool SelectParamsFromCommandLine() {
     CBaseChainParams::Network network = NetworkIdFromCommandLine();
     if (network == CBaseChainParams::MAX_NETWORK_TYPES)
         return false;
@@ -650,43 +644,34 @@ std::string CChainParams::GetFoundersRewardAddressAtIndex(int i) const {
     return vFoundersRewardAddress[i];
 }
 
-void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight)
-{
+void UpdateNetworkUpgradeParameters(Consensus::UpgradeIndex idx, int nActivationHeight) {
     regTestParams.UpdateNetworkUpgradeParameters(idx, nActivationHeight);
 }
 
-int32_t MAX_BLOCK_SIZE(int32_t height)
-{
+int32_t MAX_BLOCK_SIZE(int32_t height) {
     int32_t saplinght = pCurrentParams->consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight;
     //fprintf(stderr,"MAX_BLOCK_SIZE %d vs. %d\n",height,mainParams.consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight);
-    if ( height <= 0 || (saplinght > 0 && height >= saplinght) )
-    {
+    if ( height <= 0 || (saplinght > 0 && height >= saplinght) ) {
         return(_MAX_BLOCK_SIZE);
-    }
-    else return(2000000);
+    } else return(2000000);
 }
 
-void komodo_setactivation(int32_t height)
-{
+void komodo_setactivation(int32_t height) {
     pCurrentParams->consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = height;
     pCurrentParams->consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = height;
     ASSETCHAINS_SAPLING = height;
     LogPrintf("SET SAPLING ACTIVATION height.%d\n",height);
 }
 
-void *chainparams_commandline()
-{
+void *chainparams_commandline() {
     CChainParams::CCheckpointData checkpointData;
-    if ( !chainName.isKMD() )
-    {
-        if ( ASSETCHAINS_BLOCKTIME != 60 )
-        {
+    if ( !chainName.isKMD() ) {
+        if ( ASSETCHAINS_BLOCKTIME != 60 ) {
             pCurrentParams->consensus.nMaxFutureBlockTime = 7 * ASSETCHAINS_BLOCKTIME; // 7 blocks
             pCurrentParams->consensus.nPowTargetSpacing = ASSETCHAINS_BLOCKTIME;
         }
         pCurrentParams->SetDefaultPort(ASSETCHAINS_P2PPORT);
-        if ( ASSETCHAINS_NK[0] != 0 && ASSETCHAINS_NK[1] != 0 )
-        {
+        if ( ASSETCHAINS_NK[0] != 0 && ASSETCHAINS_NK[1] != 0 ) {
             pCurrentParams->SetNValue(ASSETCHAINS_NK[0]);
             pCurrentParams->SetKValue(ASSETCHAINS_NK[1]);
         }
@@ -702,20 +687,17 @@ void *chainparams_commandline()
 
         pCurrentParams->consensus.vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = ASSETCHAINS_SAPLING;
         pCurrentParams->consensus.vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = ASSETCHAINS_OVERWINTER;
-        checkpointData =
-                {
-                        MapCheckpoints {
-                                {0, pCurrentParams->consensus.hashGenesisBlock},
-                        },
-                        (int64_t)1231006505,
-                        (int64_t)1,
-                        (double)2777 // * estimated number of transactions per day after checkpoint
-                        //   total number of tx / (checkpoint block height / (24 * 24))
-                };
+        checkpointData = {
+            MapCheckpoints {
+                {0, pCurrentParams->consensus.hashGenesisBlock},
+            },
+            (int64_t)1231006505,
+            (int64_t)1,
+            (double)2777 // * estimated number of transactions per day after checkpoint
+            //   total number of tx / (checkpoint block height / (24 * 24))
+        };
 
-    }
-    else
-    {
+    } else {
         checkpointData = pCurrentParams->Checkpoints();
     }
 

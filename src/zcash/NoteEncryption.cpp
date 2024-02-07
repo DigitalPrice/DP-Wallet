@@ -7,8 +7,7 @@
 
 #define NOTEENCRYPTION_CIPHER_KEYSIZE 32
 
-void clamp_curve25519(unsigned char key[crypto_scalarmult_SCALARBYTES])
-{
+void clamp_curve25519(unsigned char key[crypto_scalarmult_SCALARBYTES]) {
     key[0] &= 248;
     key[31] &= 127;
     key[31] |= 64;
@@ -20,8 +19,7 @@ void PRF_ock(
     const uint256 &cv,
     const uint256 &cm,
     const uint256 &epk
-)
-{
+) {
     unsigned char block[128] = {};
     memcpy(block+0, ovk.begin(), 32);
     memcpy(block+32, cv.begin(), 32);
@@ -32,12 +30,11 @@ void PRF_ock(
     memcpy(personalization, "Zcash_Derive_ock", 16);
 
     if (crypto_generichash_blake2b_salt_personal(K, NOTEENCRYPTION_CIPHER_KEYSIZE,
-                                                 block, 128,
-                                                 NULL, 0, // No key.
-                                                 NULL,    // No salt.
-                                                 personalization
-                                                ) != 0)
-    {
+            block, 128,
+            NULL, 0, // No key.
+            NULL,    // No salt.
+            personalization
+                                                ) != 0) {
         throw std::logic_error("hash function failure");
     }
 }
@@ -46,8 +43,7 @@ void KDF_Sapling(
     unsigned char K[NOTEENCRYPTION_CIPHER_KEYSIZE],
     const uint256 &dhsecret,
     const uint256 &epk
-)
-{
+) {
     unsigned char block[64] = {};
     memcpy(block+0, dhsecret.begin(), 32);
     memcpy(block+32, epk.begin(), 32);
@@ -56,24 +52,22 @@ void KDF_Sapling(
     memcpy(personalization, "Zcash_SaplingKDF", 16);
 
     if (crypto_generichash_blake2b_salt_personal(K, NOTEENCRYPTION_CIPHER_KEYSIZE,
-                                                 block, 64,
-                                                 NULL, 0, // No key.
-                                                 NULL,    // No salt.
-                                                 personalization
-                                                ) != 0)
-    {
+            block, 64,
+            NULL, 0, // No key.
+            NULL,    // No salt.
+            personalization
+                                                ) != 0) {
         throw std::logic_error("hash function failure");
     }
 }
 
 void KDF(unsigned char K[NOTEENCRYPTION_CIPHER_KEYSIZE],
-    const uint256 &dhsecret,
-    const uint256 &epk,
-    const uint256 &pk_enc,
-    const uint256 &hSig,
-    unsigned char nonce
-   )
-{
+         const uint256 &dhsecret,
+         const uint256 &epk,
+         const uint256 &pk_enc,
+         const uint256 &hSig,
+         unsigned char nonce
+        ) {
     if (nonce == 0xff) {
         throw std::logic_error("no additional nonce space for KDF");
     }
@@ -89,12 +83,11 @@ void KDF(unsigned char K[NOTEENCRYPTION_CIPHER_KEYSIZE],
     memcpy(personalization+8, &nonce, 1);
 
     if (crypto_generichash_blake2b_salt_personal(K, NOTEENCRYPTION_CIPHER_KEYSIZE,
-                                                 block, 128,
-                                                 NULL, 0, // No key.
-                                                 NULL,    // No salt.
-                                                 personalization
-                                                ) != 0)
-    {
+            block, 128,
+            NULL, 0, // No key.
+            NULL,    // No salt.
+            personalization
+                                                ) != 0) {
         throw std::logic_error("hash function failure");
     }
 }
@@ -119,8 +112,7 @@ boost::optional<SaplingNoteEncryption> SaplingNoteEncryption::FromDiversifier(di
 boost::optional<SaplingEncCiphertext> SaplingNoteEncryption::encrypt_to_recipient(
     const uint256 &pk_d,
     const SaplingEncPlaintext &message
-)
-{
+) {
     if (already_encrypted_enc) {
         throw std::logic_error("already encrypted to the recipient using this key");
     }
@@ -156,8 +148,7 @@ boost::optional<SaplingEncPlaintext> AttemptSaplingEncDecryption(
     const SaplingEncCiphertext &ciphertext,
     const uint256 &ivk,
     const uint256 &epk
-)
-{
+) {
     uint256 dhsecret;
 
     if (!librustzcash_sapling_ka_agree(epk.begin(), ivk.begin(), dhsecret.begin())) {
@@ -174,13 +165,12 @@ boost::optional<SaplingEncPlaintext> AttemptSaplingEncDecryption(
     SaplingEncPlaintext plaintext;
 
     if (crypto_aead_chacha20poly1305_ietf_decrypt(
-        plaintext.begin(), NULL,
-        NULL,
-        ciphertext.begin(), ZC_SAPLING_ENCCIPHERTEXT_SIZE,
-        NULL,
-        0,
-        cipher_nonce, K) != 0)
-    {
+                plaintext.begin(), NULL,
+                NULL,
+                ciphertext.begin(), ZC_SAPLING_ENCCIPHERTEXT_SIZE,
+                NULL,
+                0,
+                cipher_nonce, K) != 0) {
         return boost::none;
     }
 
@@ -192,8 +182,7 @@ boost::optional<SaplingEncPlaintext> AttemptSaplingEncDecryption (
     const uint256 &epk,
     const uint256 &esk,
     const uint256 &pk_d
-)
-{
+) {
     uint256 dhsecret;
 
     if (!librustzcash_sapling_ka_agree(pk_d.begin(), esk.begin(), dhsecret.begin())) {
@@ -210,13 +199,12 @@ boost::optional<SaplingEncPlaintext> AttemptSaplingEncDecryption (
     SaplingEncPlaintext plaintext;
 
     if (crypto_aead_chacha20poly1305_ietf_decrypt(
-        plaintext.begin(), NULL,
-        NULL,
-        ciphertext.begin(), ZC_SAPLING_ENCCIPHERTEXT_SIZE,
-        NULL,
-        0,
-        cipher_nonce, K) != 0)
-    {
+                plaintext.begin(), NULL,
+                NULL,
+                ciphertext.begin(), ZC_SAPLING_ENCCIPHERTEXT_SIZE,
+                NULL,
+                0,
+                cipher_nonce, K) != 0) {
         return boost::none;
     }
 
@@ -229,8 +217,7 @@ SaplingOutCiphertext SaplingNoteEncryption::encrypt_to_ourselves(
     const uint256 &cv,
     const uint256 &cm,
     const SaplingOutPlaintext &message
-)
-{
+) {
     if (already_encrypted_out) {
         throw std::logic_error("already encrypted to the recipient using this key");
     }
@@ -262,8 +249,7 @@ boost::optional<SaplingOutPlaintext> AttemptSaplingOutDecryption(
     const uint256 &cv,
     const uint256 &cm,
     const uint256 &epk
-)
-{
+) {
     // Construct the symmetric key
     unsigned char K[NOTEENCRYPTION_CIPHER_KEYSIZE];
     PRF_ock(K, ovk, cv, cm, epk);
@@ -274,13 +260,12 @@ boost::optional<SaplingOutPlaintext> AttemptSaplingOutDecryption(
     SaplingOutPlaintext plaintext;
 
     if (crypto_aead_chacha20poly1305_ietf_decrypt(
-        plaintext.begin(), NULL,
-        NULL,
-        ciphertext.begin(), ZC_SAPLING_OUTCIPHERTEXT_SIZE,
-        NULL,
-        0,
-        cipher_nonce, K) != 0)
-    {
+                plaintext.begin(), NULL,
+                NULL,
+                ciphertext.begin(), ZC_SAPLING_OUTCIPHERTEXT_SIZE,
+                NULL,
+                0,
+                cipher_nonce, K) != 0) {
         return boost::none;
     }
 
@@ -308,10 +293,9 @@ NoteDecryption<MLEN>::NoteDecryption(uint256 sk_enc) : sk_enc(sk_enc) {
 
 template<size_t MLEN>
 typename NoteEncryption<MLEN>::Ciphertext NoteEncryption<MLEN>::encrypt
-                                          (const uint256 &pk_enc,
-                                           const NoteEncryption<MLEN>::Plaintext &message
-                                          )
-{
+(const uint256 &pk_enc,
+ const NoteEncryption<MLEN>::Plaintext &message
+) {
     uint256 dhsecret;
 
     if (crypto_scalarmult(dhsecret.begin(), esk.begin(), pk_enc.begin()) != 0) {
@@ -331,21 +315,20 @@ typename NoteEncryption<MLEN>::Ciphertext NoteEncryption<MLEN>::encrypt
     NoteEncryption<MLEN>::Ciphertext ciphertext;
 
     crypto_aead_chacha20poly1305_ietf_encrypt(ciphertext.begin(), NULL,
-                                         message.begin(), MLEN,
-                                         NULL, 0, // no "additional data"
-                                         NULL, cipher_nonce, K);
+            message.begin(), MLEN,
+            NULL, 0, // no "additional data"
+            NULL, cipher_nonce, K);
 
     return ciphertext;
 }
 
 template<size_t MLEN>
 typename NoteDecryption<MLEN>::Plaintext NoteDecryption<MLEN>::decrypt
-                                         (const NoteDecryption<MLEN>::Ciphertext &ciphertext,
-                                          const uint256 &epk,
-                                          const uint256 &hSig,
-                                          unsigned char nonce
-                                         ) const
-{
+(const NoteDecryption<MLEN>::Ciphertext &ciphertext,
+ const uint256 &epk,
+ const uint256 &hSig,
+ unsigned char nonce
+) const {
     uint256 dhsecret;
 
     if (crypto_scalarmult(dhsecret.begin(), sk_enc.begin(), epk.begin()) != 0) {
@@ -363,11 +346,11 @@ typename NoteDecryption<MLEN>::Plaintext NoteDecryption<MLEN>::decrypt
     // Message length is always NOTEENCRYPTION_AUTH_BYTES less than
     // the ciphertext length.
     if (crypto_aead_chacha20poly1305_ietf_decrypt(plaintext.begin(), NULL,
-                                             NULL,
-                                             ciphertext.begin(), NoteDecryption<MLEN>::CLEN,
-                                             NULL,
-                                             0,
-                                             cipher_nonce, K) != 0) {
+            NULL,
+            ciphertext.begin(), NoteDecryption<MLEN>::CLEN,
+            NULL,
+            0,
+            cipher_nonce, K) != 0) {
         throw note_decryption_failed();
     }
 
@@ -379,13 +362,12 @@ typename NoteDecryption<MLEN>::Plaintext NoteDecryption<MLEN>::decrypt
 //
 template<size_t MLEN>
 typename PaymentDisclosureNoteDecryption<MLEN>::Plaintext PaymentDisclosureNoteDecryption<MLEN>::decryptWithEsk
-                                         (const PaymentDisclosureNoteDecryption<MLEN>::Ciphertext &ciphertext,
-                                          const uint256 &pk_enc,
-                                          const uint256 &esk,
-                                          const uint256 &hSig,
-                                          unsigned char nonce
-                                         ) const
-{
+(const PaymentDisclosureNoteDecryption<MLEN>::Ciphertext &ciphertext,
+ const uint256 &pk_enc,
+ const uint256 &esk,
+ const uint256 &hSig,
+ unsigned char nonce
+) const {
     uint256 dhsecret;
 
     if (crypto_scalarmult(dhsecret.begin(), esk.begin(), pk_enc.begin()) != 0) {
@@ -406,11 +388,11 @@ typename PaymentDisclosureNoteDecryption<MLEN>::Plaintext PaymentDisclosureNoteD
     // Message length is always NOTEENCRYPTION_AUTH_BYTES less than
     // the ciphertext length.
     if (crypto_aead_chacha20poly1305_ietf_decrypt(plaintext.begin(), NULL,
-                                             NULL,
-                                             ciphertext.begin(), PaymentDisclosureNoteDecryption<MLEN>::CLEN,
-                                             NULL,
-                                             0,
-                                             cipher_nonce, K) != 0) {
+            NULL,
+            ciphertext.begin(), PaymentDisclosureNoteDecryption<MLEN>::CLEN,
+            NULL,
+            0,
+            cipher_nonce, K) != 0) {
         throw note_decryption_failed();
     }
 
@@ -421,8 +403,7 @@ typename PaymentDisclosureNoteDecryption<MLEN>::Plaintext PaymentDisclosureNoteD
 
 
 template<size_t MLEN>
-uint256 NoteEncryption<MLEN>::generate_privkey(const uint252 &a_sk)
-{
+uint256 NoteEncryption<MLEN>::generate_privkey(const uint252 &a_sk) {
     uint256 sk = PRF_addr_sk_enc(a_sk);
 
     clamp_curve25519(sk.begin());
@@ -431,8 +412,7 @@ uint256 NoteEncryption<MLEN>::generate_privkey(const uint252 &a_sk)
 }
 
 template<size_t MLEN>
-uint256 NoteEncryption<MLEN>::generate_pubkey(const uint256 &sk_enc)
-{
+uint256 NoteEncryption<MLEN>::generate_pubkey(const uint256 &sk_enc) {
     uint256 pk;
 
     if (crypto_scalarmult_base(pk.begin(), sk_enc.begin()) != 0) {
@@ -442,16 +422,14 @@ uint256 NoteEncryption<MLEN>::generate_pubkey(const uint256 &sk_enc)
     return pk;
 }
 
-uint256 random_uint256()
-{
+uint256 random_uint256() {
     uint256 ret;
     randombytes_buf(ret.begin(), 32);
 
     return ret;
 }
 
-uint252 random_uint252()
-{
+uint252 random_uint252() {
     uint256 rand = random_uint256();
     (*rand.begin()) &= 0x0F;
 

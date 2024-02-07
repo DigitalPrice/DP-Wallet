@@ -19,9 +19,8 @@
 static const size_t DBWRAPPER_PREALLOC_KEY_SIZE = 64;
 static const size_t DBWRAPPER_PREALLOC_VALUE_SIZE = 1024;
 
-class dbwrapper_error : public std::runtime_error
-{
-public:
+class dbwrapper_error : public std::runtime_error {
+  public:
     dbwrapper_error(const std::string& msg) : std::runtime_error(msg) {}
 };
 
@@ -38,23 +37,21 @@ void HandleError(const leveldb::Status& status);
 };
 
 /** Batch of changes queued to be written to a CDBWrapper */
-class CDBBatch
-{
+class CDBBatch {
     friend class CDBWrapper;
 
-private:
+  private:
     const CDBWrapper &parent;
     leveldb::WriteBatch batch;
 
-public:
+  public:
     /**
      * @param[in] _parent   CDBWrapper that this batch is to be submitted to
      */
     CDBBatch(const CDBWrapper &_parent) : parent(_parent) { };
 
     template <typename K, typename V>
-    void Write(const K& key, const V& value)
-    {
+    void Write(const K& key, const V& value) {
         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
@@ -69,8 +66,7 @@ public:
     }
 
     template <typename K>
-    void Erase(const K& key)
-    {
+    void Erase(const K& key) {
         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
@@ -80,13 +76,12 @@ public:
     }
 };
 
-class CDBIterator
-{
-private:
+class CDBIterator {
+  private:
     const CDBWrapper &parent;
     leveldb::Iterator *piter;
 
-public:
+  public:
 
     /**
      * @param[in] _parent          Parent CDBWrapper instance.
@@ -157,9 +152,8 @@ public:
 /****
  * A wrapper around the leveldb database
  */
-class CDBWrapper
-{
-private:
+class CDBWrapper {
+  private:
     //! custom environment this database is using (may be NULL in case of default environment)
     leveldb::Env* penv;
 
@@ -181,7 +175,7 @@ private:
     //! the database itself
     leveldb::DB* pdb;
 
-public:
+  public:
     /**
      * @param[in] path        Location in the filesystem where leveldb data will be stored.
      * @param[in] nCacheSize  Configures various leveldb cache settings.
@@ -190,8 +184,8 @@ public:
      * @param[in] compression
      * @param[in] maxOpenFiles
      */
-    CDBWrapper(const boost::filesystem::path& path, size_t nCacheSize, bool fMemory = false, 
-            bool fWipe = false, bool compression = false, int maxOpenFiles = 64);
+    CDBWrapper(const boost::filesystem::path& path, size_t nCacheSize, bool fMemory = false,
+               bool fWipe = false, bool compression = false, int maxOpenFiles = 64);
     ~CDBWrapper();
 
     /****
@@ -201,8 +195,7 @@ public:
      * @returns true on success
      */
     template <typename K, typename V>
-    bool Read(const K& key, V& value) const
-    {
+    bool Read(const K& key, V& value) const {
         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
@@ -233,8 +226,7 @@ public:
      * @returns true on success
      */
     template <typename K, typename V>
-    bool Write(const K& key, const V& value, bool fSync = false)
-    {
+    bool Write(const K& key, const V& value, bool fSync = false) {
         CDBBatch batch(*this);
         batch.Write(key, value);
         return WriteBatch(batch, fSync);
@@ -246,8 +238,7 @@ public:
      * @returns true if key exists
      */
     template <typename K>
-    bool Exists(const K& key) const
-    {
+    bool Exists(const K& key) const {
         CDataStream ssKey(SER_DISK, CLIENT_VERSION);
         ssKey.reserve(DBWRAPPER_PREALLOC_KEY_SIZE);
         ssKey << key;
@@ -271,8 +262,7 @@ public:
      * @returns true on success
      */
     template <typename K>
-    bool Erase(const K& key, bool fSync = false)
-    {
+    bool Erase(const K& key, bool fSync = false) {
         CDBBatch batch(*this);
         batch.Erase(key);
         return WriteBatch(batch, fSync);
@@ -290,8 +280,7 @@ public:
      * not available for LevelDB; provided for compatibility with BDB
      * @returns true always
      */
-    bool Flush()
-    {
+    bool Flush() {
         return true;
     }
 
@@ -299,8 +288,7 @@ public:
      * Synchronize the db
      * @returns true on success
      */
-    bool Sync()
-    {
+    bool Sync() {
         CDBBatch batch(*this);
         return WriteBatch(batch, true);
     }
@@ -310,8 +298,7 @@ public:
      * NOTE: you are responsible for deletion of the returned iterator
      * @returns an iterator
      */
-    CDBIterator *NewIterator()
-    {
+    CDBIterator *NewIterator() {
         return new CDBIterator(*this, pdb->NewIterator(iteroptions));
     }
 

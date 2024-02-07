@@ -53,17 +53,17 @@
 #define optional_argument  2
 
 struct option {
-	/* name of long option */
-	const char *name;
-	/*
-	 * one of no_argument, required_argument, and optional_argument:
-	 * whether option takes an argument
-	 */
-	int has_arg;
-	/* if not NULL, set *flag to val when option found */
-	int *flag;
-	/* if flag not NULL, value to set *flag to; else return value */
-	int val;
+    /* name of long option */
+    const char *name;
+    /*
+     * one of no_argument, required_argument, and optional_argument:
+     * whether option takes an argument
+     */
+    int has_arg;
+    /* if not NULL, set *flag to val when option found */
+    int *flag;
+    /* if flag not NULL, value to set *flag to; else return value */
+    int val;
 };
 
 #ifdef __cplusplus
@@ -71,9 +71,9 @@ extern "C" {
 #endif
 
 int	 getopt_long(int, char * const *, const char *,
-	    const struct option *, int *);
+                 const struct option *, int *);
 int	 getopt_long_only(int, char * const *, const char *,
-	    const struct option *, int *);
+                      const struct option *, int *);
 #ifndef _GETOPT_DEFINED
 #define _GETOPT_DEFINED
 int	 getopt(int, char * const *, const char *);
@@ -86,7 +86,7 @@ extern   int optopt;
 extern   int optreset;
 extern   char *suboptarg;               /* getsubopt(3) external variable */
 #endif /* _GETOPT_DEFINED */
- 
+
 #ifdef __cplusplus
 }
 #endif

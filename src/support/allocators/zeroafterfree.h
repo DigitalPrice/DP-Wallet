@@ -25,8 +25,7 @@ struct zero_after_free_allocator : public std::allocator<T> {
     zero_after_free_allocator() throw() {}
     zero_after_free_allocator(const zero_after_free_allocator& a) throw() : base(a) {}
     template <typename U>
-    zero_after_free_allocator(const zero_after_free_allocator<U>& a) throw() : base(a)
-    {
+    zero_after_free_allocator(const zero_after_free_allocator<U>& a) throw() : base(a) {
     }
     ~zero_after_free_allocator() throw() {}
     template <typename _Other>
@@ -34,8 +33,7 @@ struct zero_after_free_allocator : public std::allocator<T> {
         typedef zero_after_free_allocator<_Other> other;
     };
 
-    void deallocate(T* p, std::size_t n)
-    {
+    void deallocate(T* p, std::size_t n) {
         if (p != NULL)
             memory_cleanse(p, sizeof(T) * n);
         std::allocator<T>::deallocate(p, n);

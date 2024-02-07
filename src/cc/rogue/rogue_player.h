@@ -18,13 +18,11 @@
 
 
 #define MAXPACK 23
-struct rogue_packitem
-{
+struct rogue_packitem {
     int32_t type,launch,count,which,hplus,dplus,arm,flags,group;
     char damage[8],hurldmg[8];
 };
-struct rogue_player
-{
+struct rogue_player {
     int32_t gold,hitpoints,strength,level,experience,packsize,dungeonlevel,amulet;
     struct rogue_packitem roguepack[MAXPACK];
 };

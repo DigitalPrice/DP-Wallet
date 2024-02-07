@@ -8,8 +8,7 @@
 #include "univalue.h"
 #include "univalue_escapes.h"
 
-static std::string json_escape(const std::string& inS)
-{
+static std::string json_escape(const std::string& inS) {
     std::string outS;
     outS.reserve(inS.size() * 2);
 
@@ -27,8 +26,7 @@ static std::string json_escape(const std::string& inS)
 }
 
 std::string UniValue::write(unsigned int prettyIndent,
-                            unsigned int indentLevel) const
-{
+                            unsigned int indentLevel) const {
     std::string s;
     s.reserve(1024);
 
@@ -60,13 +58,11 @@ std::string UniValue::write(unsigned int prettyIndent,
     return s;
 }
 
-static void indentStr(unsigned int prettyIndent, unsigned int indentLevel, std::string& s)
-{
+static void indentStr(unsigned int prettyIndent, unsigned int indentLevel, std::string& s) {
     s.append(prettyIndent * indentLevel, ' ');
 }
 
-void UniValue::writeArray(unsigned int prettyIndent, unsigned int indentLevel, std::string& s) const
-{
+void UniValue::writeArray(unsigned int prettyIndent, unsigned int indentLevel, std::string& s) const {
     s += "[";
     if (prettyIndent)
         s += "\n";
@@ -87,8 +83,7 @@ void UniValue::writeArray(unsigned int prettyIndent, unsigned int indentLevel, s
     s += "]";
 }
 
-void UniValue::writeObject(unsigned int prettyIndent, unsigned int indentLevel, std::string& s) const
-{
+void UniValue::writeObject(unsigned int prettyIndent, unsigned int indentLevel, std::string& s) const {
     s += "{";
     if (prettyIndent)
         s += "\n";

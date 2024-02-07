@@ -46,8 +46,7 @@ bool find_error(const UniValue& objError, const std::string& expected) {
     return find_value(objError, "message").get_str().find(expected) != string::npos;
 }
 
-static UniValue ValueFromString(const std::string &str)
-{
+static UniValue ValueFromString(const std::string &str) {
     UniValue value;
     BOOST_CHECK(value.setNumStr(str));
     return value;
@@ -55,8 +54,7 @@ static UniValue ValueFromString(const std::string &str)
 
 BOOST_FIXTURE_TEST_SUITE(rpc_wallet_tests, TestingSetup)
 
-BOOST_AUTO_TEST_CASE(rpc_addmultisig)
-{
+BOOST_AUTO_TEST_CASE(rpc_addmultisig) {
     LOCK(pwalletMain->cs_wallet);
 
     rpcfn_type addmultisig = tableRPC["addmultisigaddress"]->actor;
@@ -94,8 +92,7 @@ BOOST_AUTO_TEST_CASE(rpc_addmultisig)
     BOOST_CHECK_THROW(addmultisig(createArgs(2, short2.c_str()), false), runtime_error);
 }
 
-BOOST_AUTO_TEST_CASE(rpc_wallet)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet) {
     // Test RPC calls for various wallet statistics
     UniValue r;
 
@@ -297,8 +294,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet)
     BOOST_CHECK_THROW(CallRPC("getblock 0 3"), runtime_error); // bad verbosity
 }
 
-BOOST_AUTO_TEST_CASE(rpc_wallet_getbalance)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_getbalance) {
     SelectParams(CBaseChainParams::TESTNET);
 
     LOCK(pwalletMain->cs_wallet);
@@ -329,8 +325,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_getbalance)
 /**
  * This test covers RPC command z_validateaddress
  */
-BOOST_AUTO_TEST_CASE(rpc_wallet_z_validateaddress)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_z_validateaddress) {
     SelectParams(CBaseChainParams::MAIN);
 
     LOCK2(cs_main, pwalletMain->cs_wallet);
@@ -394,8 +389,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_z_validateaddress)
 /*
  * This test covers RPC command z_exportwallet
  */
-BOOST_AUTO_TEST_CASE(rpc_wallet_z_exportwallet)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_z_exportwallet) {
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     // wallet should be empty
@@ -463,8 +457,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_z_exportwallet)
 /*
  * This test covers RPC command z_importwallet
  */
-BOOST_AUTO_TEST_CASE(rpc_wallet_z_importwallet)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_z_importwallet) {
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     // error if no args
@@ -481,22 +474,22 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_z_importwallet)
 
     // create test data using the random key
     std::string format_str = "# Wallet dump created by Komodo v0.11.2.0.z8-9155cc6-dirty (2016-08-11 11:37:00 -0700)\n"
-            "# * Created on 2016-08-12T21:55:36Z\n"
-            "# * Best block at time of backup was 0 (0de0a3851fef2d433b9b4f51d4342bdd24c5ddd793eb8fba57189f07e9235d52),\n"
-            "#   mined on 2009-01-03T18:15:05Z\n"
-            "\n"
-            "# Zkeys\n"
-            "\n"
-            "%s 2016-08-12T21:55:36Z # zaddr=%s\n"
-            "\n"
-            "\n# End of dump";
+                             "# * Created on 2016-08-12T21:55:36Z\n"
+                             "# * Best block at time of backup was 0 (0de0a3851fef2d433b9b4f51d4342bdd24c5ddd793eb8fba57189f07e9235d52),\n"
+                             "#   mined on 2009-01-03T18:15:05Z\n"
+                             "\n"
+                             "# Zkeys\n"
+                             "\n"
+                             "%s 2016-08-12T21:55:36Z # zaddr=%s\n"
+                             "\n"
+                             "\n# End of dump";
 
     boost::format formatobject(format_str);
     std::string testWalletDump = (formatobject % testKey % testAddr).str();
 
     // write test data to file
     boost::filesystem::path temp = boost::filesystem::temp_directory_path() /
-            boost::filesystem::unique_path();
+                                   boost::filesystem::unique_path();
     const std::string path = temp.string();
     std::ofstream file(path);
     file << testWalletDump;
@@ -531,8 +524,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_z_importwallet)
 /*
  * This test covers RPC commands z_listaddresses, z_importkey, z_exportkey
  */
-BOOST_AUTO_TEST_CASE(rpc_wallet_z_importexport)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_z_importexport) {
     LOCK2(cs_main, pwalletMain->cs_wallet);
     UniValue retValue;
     int n1 = 1000; // number of times to import/export
@@ -646,7 +638,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_z_importexport)
  */
 
 class MockSleepOperation : public AsyncRPCOperation {
-public:
+  public:
     std::chrono::milliseconds naptime;
     MockSleepOperation(int t=1000) {
         this->naptime = std::chrono::milliseconds(t);
@@ -667,8 +659,7 @@ public:
 /*
  * Test Aysnc RPC queue and operations.
  */
-BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations) {
     std::shared_ptr<AsyncRPCQueue> q = std::make_shared<AsyncRPCQueue>();
     BOOST_CHECK(q->getNumberOfWorkers() == 0);
     std::vector<AsyncRPCOperationId> ids = q->getAllOperationIds();
@@ -751,7 +742,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations)
 std::atomic<int64_t> gCounter(0);
 
 class CountOperation : public AsyncRPCOperation {
-public:
+  public:
     CountOperation() {}
     virtual ~CountOperation() {}
     virtual void main() {
@@ -763,8 +754,7 @@ public:
 };
 
 // This tests the queue waiting for multiple workers to finish
-BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations_parallel_wait)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations_parallel_wait) {
     gCounter = 0;
 
     std::shared_ptr<AsyncRPCQueue> q = std::make_shared<AsyncRPCQueue>();
@@ -788,8 +778,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations_parallel_wait)
 }
 
 // This tests the queue shutting down immediately
-BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations_parallel_cancel)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations_parallel_cancel) {
     gCounter = 0;
 
     std::shared_ptr<AsyncRPCQueue> q = std::make_shared<AsyncRPCQueue>();
@@ -825,8 +814,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_async_operations_parallel_cancel)
 }
 
 // This tests z_getoperationstatus, z_getoperationresult, z_listoperationids
-BOOST_AUTO_TEST_CASE(rpc_z_getoperations)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_getoperations) {
     std::shared_ptr<AsyncRPCQueue> q = getAsyncRPCQueue();
     std::shared_ptr<AsyncRPCQueue> sharedInstance = AsyncRPCQueue::sharedInstance();
     BOOST_CHECK(q == sharedInstance);
@@ -899,8 +887,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_getoperations)
     q->close();
 }
 
-BOOST_AUTO_TEST_CASE(rpc_z_sendmany_parameters)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_sendmany_parameters) {
     SelectParams(CBaseChainParams::TESTNET);
 
     LOCK(pwalletMain->cs_wallet);
@@ -911,43 +898,43 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_parameters)
 
     // bad from address
     BOOST_CHECK_THROW(CallRPC("z_sendmany "
-            "INVALIDtmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ []"), runtime_error);
+                              "INVALIDtmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ []"), runtime_error);
     // empty amounts
     BOOST_CHECK_THROW(CallRPC("z_sendmany "
-            "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ []"), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ []"), runtime_error);
 
     // don't have the spending key for this address
     BOOST_CHECK_THROW(CallRPC("z_sendmany "
-            "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"
-            "UkJ1oSfbhTJhm72WiZizvkZz5aH1 []"), runtime_error);
+                              "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"
+                              "UkJ1oSfbhTJhm72WiZizvkZz5aH1 []"), runtime_error);
 
     // duplicate address
     BOOST_CHECK_THROW(CallRPC("z_sendmany "
-            "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
-            "[{\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":50.0},"
-            " {\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":12.0} ]"
-            ), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
+                              "[{\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":50.0},"
+                              " {\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":12.0} ]"
+                             ), runtime_error);
 
     // invalid fee amount, cannot be negative
     BOOST_CHECK_THROW(CallRPC("z_sendmany "
-            "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
-            "[{\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":50.0}] "
-            "1 -0.0001"
-            ), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
+                              "[{\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":50.0}] "
+                              "1 -0.0001"
+                             ), runtime_error);
 
     // invalid fee amount, bigger than MAX_MONEY
     BOOST_CHECK_THROW(CallRPC("z_sendmany "
-            "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
-            "[{\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":50.0}] "
-            "1 21000001"
-            ), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
+                              "[{\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":50.0}] "
+                              "1 21000001"
+                             ), runtime_error);
 
     // fee amount is bigger than sum of outputs
     BOOST_CHECK_THROW(CallRPC("z_sendmany "
-            "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
-            "[{\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":50.0}] "
-            "1 50.00000001"
-            ), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
+                              "[{\"address\":\"tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn\", \"amount\":50.0}] "
+                              "1 50.00000001"
+                             ), runtime_error);
 
     // memo bigger than allowed length of ZC_MEMO_SIZE
     std::vector<char> v (2 * (ZC_MEMO_SIZE+1));     // x2 for hexadecimal string format
@@ -956,7 +943,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_parameters)
     auto pa = pwalletMain->GenerateNewSproutZKey();
     std::string zaddr1 = EncodePaymentAddress(pa);
     BOOST_CHECK_THROW(CallRPC(string("z_sendmany tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ ")
-            + "[{\"address\":\"" + zaddr1 + "\", \"amount\":123.456}]"), runtime_error);
+                              + "[{\"address\":\"" + zaddr1 + "\", \"amount\":123.456}]"), runtime_error);
 
     // Mutable tx containing contextual information we need to build tx
     UniValue retValue = CallRPC("getblockcount");
@@ -968,13 +955,13 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_parameters)
 
     // Test constructor of AsyncRPCOperation_sendmany
     try {
-        std::shared_ptr<AsyncRPCOperation> operation(new AsyncRPCOperation_sendmany(boost::none, mtx, "",{}, {}, -1));
+        std::shared_ptr<AsyncRPCOperation> operation(new AsyncRPCOperation_sendmany(boost::none, mtx, "", {}, {}, -1));
     } catch (const UniValue& objError) {
         BOOST_CHECK( find_error(objError, "Minconf cannot be negative"));
     }
 
     try {
-        std::shared_ptr<AsyncRPCOperation> operation(new AsyncRPCOperation_sendmany(boost::none, mtx, "",{}, {}, 1));
+        std::shared_ptr<AsyncRPCOperation> operation(new AsyncRPCOperation_sendmany(boost::none, mtx, "", {}, {}, 1));
     } catch (const UniValue& objError) {
         BOOST_CHECK( find_error(objError, "From address parameter missing"));
     }
@@ -1012,8 +999,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_parameters)
 
 
 // TODO: test private methods
-BOOST_AUTO_TEST_CASE(rpc_z_sendmany_internals)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_sendmany_internals) {
     SelectParams(CBaseChainParams::TESTNET);
 
     LOCK(pwalletMain->cs_wallet);
@@ -1246,8 +1232,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_internals)
 }
 
 
-BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling) {
     SelectParams(CBaseChainParams::REGTEST);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_SAPLING, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
@@ -1319,22 +1304,22 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
 
     // We shouldn't be able to decrypt with the empty ovk
     BOOST_CHECK(!AttemptSaplingOutDecryption(
-        tx.vShieldedOutput[0].outCiphertext,
-        uint256(),
-        tx.vShieldedOutput[0].cv,
-        tx.vShieldedOutput[0].cm,
-        tx.vShieldedOutput[0].ephemeralKey));
+                    tx.vShieldedOutput[0].outCiphertext,
+                    uint256(),
+                    tx.vShieldedOutput[0].cv,
+                    tx.vShieldedOutput[0].cm,
+                    tx.vShieldedOutput[0].ephemeralKey));
 
     // We should be able to decrypt the outCiphertext with the ovk
     // generated for transparent addresses
     HDSeed seed;
     BOOST_ASSERT(pwalletMain->GetHDSeed(seed));
     BOOST_CHECK(AttemptSaplingOutDecryption(
-        tx.vShieldedOutput[0].outCiphertext,
-        ovkForShieldingFromTaddr(seed),
-        tx.vShieldedOutput[0].cv,
-        tx.vShieldedOutput[0].cm,
-        tx.vShieldedOutput[0].ephemeralKey));
+                    tx.vShieldedOutput[0].outCiphertext,
+                    ovkForShieldingFromTaddr(seed),
+                    tx.vShieldedOutput[0].cv,
+                    tx.vShieldedOutput[0].cm,
+                    tx.vShieldedOutput[0].ephemeralKey));
 
     // Tear down
     chainActive.SetTip(NULL);
@@ -1351,8 +1336,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_sendmany_taddr_to_sapling)
 /*
  * This test covers storing encrypted zkeys in the wallet.
  */
-BOOST_AUTO_TEST_CASE(rpc_wallet_encrypted_wallet_zkeys)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_encrypted_wallet_zkeys) {
     LOCK2(cs_main, pwalletMain->cs_wallet);
     UniValue retValue;
     int n = 100;
@@ -1407,14 +1391,12 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_encrypted_wallet_zkeys)
     // but there are tests for this in gtest.
 }
 
-BOOST_AUTO_TEST_CASE(rpc_wallet_encrypted_wallet_sapzkeys)
-{
+BOOST_AUTO_TEST_CASE(rpc_wallet_encrypted_wallet_sapzkeys) {
     LOCK2(cs_main, pwalletMain->cs_wallet);
     UniValue retValue;
     int n = 100;
 
-    if(!pwalletMain->HaveHDSeed())
-    {
+    if(!pwalletMain->HaveHDSeed()) {
         pwalletMain->GenerateNewSeed();
     }
 
@@ -1469,8 +1451,7 @@ BOOST_AUTO_TEST_CASE(rpc_wallet_encrypted_wallet_sapzkeys)
 }
 
 
-BOOST_AUTO_TEST_CASE(rpc_z_listunspent_parameters)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_listunspent_parameters) {
     SelectParams(CBaseChainParams::TESTNET);
 
     LOCK(pwalletMain->cs_wallet);
@@ -1518,8 +1499,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_listunspent_parameters)
 }
 
 
-BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_parameters)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_parameters) {
     SelectParams(CBaseChainParams::TESTNET);
 
     LOCK(pwalletMain->cs_wallet);
@@ -1530,36 +1510,36 @@ BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_parameters)
 
     // bad from address
     BOOST_CHECK_THROW(CallRPC("z_shieldcoinbase "
-            "INVALIDtmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "INVALIDtmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // bad from address
     BOOST_CHECK_THROW(CallRPC("z_shieldcoinbase "
-    "** tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "** tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // bad to address
     BOOST_CHECK_THROW(CallRPC("z_shieldcoinbase "
-    "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ INVALIDtnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ INVALIDtnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // invalid fee amount, cannot be negative
     BOOST_CHECK_THROW(CallRPC("z_shieldcoinbase "
-            "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
-            "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
-            "-0.0001"
-            ), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
+                              "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
+                              "-0.0001"
+                             ), runtime_error);
 
     // invalid fee amount, bigger than MAX_MONEY
     BOOST_CHECK_THROW(CallRPC("z_shieldcoinbase "
-            "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
-            "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
-            "21000001"
-            ), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
+                              "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
+                              "21000001"
+                             ), runtime_error);
 
     // invalid limit, must be at least 0
     BOOST_CHECK_THROW(CallRPC("z_shieldcoinbase "
-    "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
-    "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
-    "100 -1"
-    ), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ "
+                              "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
+                              "100 -1"
+                             ), runtime_error);
 
     // Mutable tx containing contextual information we need to build tx
     UniValue retValue = CallRPC("getblockcount");
@@ -1597,8 +1577,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_parameters)
 
 
 
-BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_internals)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_internals) {
     SelectParams(CBaseChainParams::TESTNET);
 
     LOCK(pwalletMain->cs_wallet);
@@ -1610,7 +1589,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_internals)
     if (mtx.nVersion == 1) {
         mtx.nVersion = 2;
     }
-    
+
     // Test that option -mempooltxinputlimit is respected.
     mapArgs["-mempooltxinputlimit"] = "1";
 
@@ -1668,8 +1647,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_shieldcoinbase_internals)
 }
 
 
-BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters) {
     SelectParams(CBaseChainParams::TESTNET);
 
     LOCK(pwalletMain->cs_wallet);
@@ -1680,61 +1658,61 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
 
     // bad from address
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-            "[\"INVALIDtmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "[\"INVALIDtmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // bad from address
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-    "** tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "** tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // bad from address
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-    "[\"**\"] tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "[\"**\"] tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // bad from address
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-    "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // bad from address
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-            "[tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ] tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "[tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ] tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // bad to address
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-    "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] INVALIDtnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
+                              "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] INVALIDtnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB"), runtime_error);
 
     // duplicate address
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-            "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\", \"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
-            "tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn"
-            ), runtime_error);
+                              "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\", \"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
+                              "tmQP9L3s31cLsghVYf2Jb5MhKj1jRBPoeQn"
+                             ), runtime_error);
 
     // invalid fee amount, cannot be negative
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-            "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
-            "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
-            "-0.0001"
-            ), runtime_error);
+                              "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
+                              "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
+                              "-0.0001"
+                             ), runtime_error);
 
     // invalid fee amount, bigger than MAX_MONEY
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-            "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
-            "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
-            "21000001"
-            ), runtime_error);
+                              "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
+                              "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
+                              "21000001"
+                             ), runtime_error);
 
     // invalid transparent limit, must be at least 0
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-            "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
-            "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
-            "0.0001 -1"
-            ), runtime_error);
+                              "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
+                              "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
+                              "0.0001 -1"
+                             ), runtime_error);
 
     // invalid shielded limit, must be at least 0
     BOOST_CHECK_THROW(CallRPC("z_mergetoaddress "
-            "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
-            "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
-            "0.0001 100 -1"
-            ), runtime_error);
+                              "[\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] "
+                              "tnpoQJVnYBZZqkFadj2bJJLThNCxbADGB5gSGeYTAGGrT5tejsxY9Zc1BtY8nnHmZkB "
+                              "0.0001 100 -1"
+                             ), runtime_error);
 
     // memo bigger than allowed length of ZC_MEMO_SIZE
     std::vector<char> v (2 * (ZC_MEMO_SIZE+1));     // x2 for hexadecimal string format
@@ -1743,7 +1721,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
     auto pa = pwalletMain->GenerateNewSproutZKey();
     std::string zaddr1 = EncodePaymentAddress(pa);
     BOOST_CHECK_THROW(CallRPC(string("z_mergetoaddress [\"tmRr6yJonqGK23UVhrKuyvTpF8qxQQjKigJ\"] ")
-            + zaddr1 + " 0.0001 100 100 " + badmemo), runtime_error);
+                              + zaddr1 + " 0.0001 100 100 " + badmemo), runtime_error);
 
     // Mutable tx containing contextual information we need to build tx
     UniValue retValue = CallRPC("getblockcount");
@@ -1794,8 +1772,7 @@ BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_parameters)
 
 
 // TODO: test private methods
-BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_internals)
-{
+BOOST_AUTO_TEST_CASE(rpc_z_mergetoaddress_internals) {
     SelectParams(CBaseChainParams::TESTNET);
 
     LOCK(pwalletMain->cs_wallet);

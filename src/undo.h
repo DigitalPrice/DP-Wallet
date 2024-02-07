@@ -6,7 +6,7 @@
 #ifndef BITCOIN_UNDO_H
 #define BITCOIN_UNDO_H
 
-#include "compressor.h" 
+#include "compressor.h"
 #include "primitives/transaction.h"
 #include "serialize.h"
 
@@ -16,9 +16,8 @@
  *  last output of the affected transaction, its metadata as well
  *  (coinbase or not, height, transaction version)
  */
-class CTxInUndo
-{
-public:
+class CTxInUndo {
+  public:
     CTxOut txout;         // the txout data before being spent
     bool fCoinBase;       // if the outpoint was the last unspent: whether it belonged to a coinbase
     unsigned int nHeight; // if the outpoint was the last unspent: its height
@@ -48,9 +47,8 @@ public:
 };
 
 /** Undo information for a CTransaction */
-class CTxUndo
-{
-public:
+class CTxUndo {
+  public:
     // undo information for all txins
     std::vector<CTxInUndo> vprevout;
 
@@ -63,9 +61,8 @@ public:
 };
 
 /** Undo information for a CBlock */
-class CBlockUndo
-{
-public:
+class CBlockUndo {
+  public:
     std::vector<CTxUndo> vtxundo; // for all but the coinbase
     uint256 old_sprout_tree_root;
 

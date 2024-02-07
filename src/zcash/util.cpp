@@ -35,7 +35,7 @@ uint64_t convertVectorToInt(const std::vector<bool>& v) {
     }
 
     uint64_t result = 0;
-    for (size_t i=0; i<v.size();i++) {
+    for (size_t i=0; i<v.size(); i++) {
         if (v.at(i)) {
             result |= (uint64_t)1 << ((v.size() - 1) - i);
         }

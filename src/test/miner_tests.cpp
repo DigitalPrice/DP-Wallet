@@ -136,8 +136,7 @@ struct {
 };
 
 // NOTE: These tests rely on CreateNewBlock doing its own self-validation!
-BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
-{
+BOOST_AUTO_TEST_CASE(CreateNewBlock_validity) {
     CScript scriptPubKey = CScript() << ParseHex("04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f") << OP_CHECKSIG;
     CBlockTemplate *pblocktemplate;
     CMutableTransaction tx,tx2;
@@ -155,8 +154,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     // We can't make transactions until we have inputs
     // Therefore, load 100 blocks :)
     std::vector<CTransaction*>txFirst;
-    for (unsigned int i = 0; i < sizeof(blockinfo)/sizeof(*blockinfo); ++i)
-    {
+    for (unsigned int i = 0; i < sizeof(blockinfo)/sizeof(*blockinfo); ++i) {
         // Simple block creation, nothing special yet:
         BOOST_CHECK(pblocktemplate = CreateNewBlock(CPubKey(),scriptPubKey,-1));
 
@@ -179,86 +177,86 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
         pblock->nNonce = uint256S(blockinfo[i].nonce_hex);
         pblock->nSolution = ParseHex(blockinfo[i].solution_hex);
 
-/*
-        {
-        arith_uint256 try_nonce(0);
-        unsigned int n = Params().EquihashN();
-        unsigned int k = Params().EquihashK();
+        /*
+                {
+                arith_uint256 try_nonce(0);
+                unsigned int n = Params().EquihashN();
+                unsigned int k = Params().EquihashK();
 
-        // Hash state
-        crypto_generichash_blake2b_state eh_state;
-        EhInitialiseState(n, k, eh_state);
+                // Hash state
+                crypto_generichash_blake2b_state eh_state;
+                EhInitialiseState(n, k, eh_state);
 
-        // I = the block header minus nonce and solution.
-        CEquihashInput I{*pblock};
-        CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
-        ss << I;
+                // I = the block header minus nonce and solution.
+                CEquihashInput I{*pblock};
+                CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
+                ss << I;
 
-        // H(I||...
-        crypto_generichash_blake2b_update(&eh_state, (unsigned char*)&ss[0], ss.size());
+                // H(I||...
+                crypto_generichash_blake2b_update(&eh_state, (unsigned char*)&ss[0], ss.size());
 
-        while (true) {
-            pblock->nNonce = ArithToUint256(try_nonce);
+                while (true) {
+                    pblock->nNonce = ArithToUint256(try_nonce);
 
-            // H(I||V||...
-            crypto_generichash_blake2b_state curr_state;
-            curr_state = eh_state;
-            crypto_generichash_blake2b_update(&curr_state,
-                                              pblock->nNonce.begin(),
-                                              pblock->nNonce.size());
+                    // H(I||V||...
+                    crypto_generichash_blake2b_state curr_state;
+                    curr_state = eh_state;
+                    crypto_generichash_blake2b_update(&curr_state,
+                                                      pblock->nNonce.begin(),
+                                                      pblock->nNonce.size());
 
-            // Create solver and initialize it.
-            equi eq(1);
-            eq.setstate(&curr_state);
+                    // Create solver and initialize it.
+                    equi eq(1);
+                    eq.setstate(&curr_state);
 
-            // Intialization done, start algo driver.
-            eq.digit0(0);
-            eq.xfull = eq.bfull = eq.hfull = 0;
-            eq.showbsizes(0);
-            for (u32 r = 1; r < WK; r++) {
-                (r&1) ? eq.digitodd(r, 0) : eq.digiteven(r, 0);
-                eq.xfull = eq.bfull = eq.hfull = 0;
-                eq.showbsizes(r);
-            }
-            eq.digitK(0);
+                    // Intialization done, start algo driver.
+                    eq.digit0(0);
+                    eq.xfull = eq.bfull = eq.hfull = 0;
+                    eq.showbsizes(0);
+                    for (u32 r = 1; r < WK; r++) {
+                        (r&1) ? eq.digitodd(r, 0) : eq.digiteven(r, 0);
+                        eq.xfull = eq.bfull = eq.hfull = 0;
+                        eq.showbsizes(r);
+                    }
+                    eq.digitK(0);
 
-            // Convert solution indices to byte array (decompress) and pass it to validBlock method.
-            std::set<std::vector<unsigned char>> solns;
-            for (size_t s = 0; s < eq.nsols; s++) {
-                LogPrint("pow", "Checking solution %d\n", s+1);
-                std::vector<eh_index> index_vector(PROOFSIZE);
-                for (size_t i = 0; i < PROOFSIZE; i++) {
-                    index_vector[i] = eq.sols[s][i];
+                    // Convert solution indices to byte array (decompress) and pass it to validBlock method.
+                    std::set<std::vector<unsigned char>> solns;
+                    for (size_t s = 0; s < eq.nsols; s++) {
+                        LogPrint("pow", "Checking solution %d\n", s+1);
+                        std::vector<eh_index> index_vector(PROOFSIZE);
+                        for (size_t i = 0; i < PROOFSIZE; i++) {
+                            index_vector[i] = eq.sols[s][i];
+                        }
+                        std::vector<unsigned char> sol_char = GetMinimalFromIndices(index_vector, DIGITBITS);
+                        solns.insert(sol_char);
+                    }
+
+                    bool ret;
+                    for (auto soln : solns) {
+                        EhIsValidSolution(n, k, curr_state, soln, ret);
+                        if (!ret) continue;
+                        pblock->nSolution = soln;
+
+                        CValidationState state;
+
+                        if (ProcessNewBlock(1,0,state, NULL, pblock, true, NULL) && state.IsValid()) {
+                            goto foundit;
+                        }
+
+                        //std::cout << state.GetRejectReason() << std::endl;
+                    }
+
+                    try_nonce += 1;
                 }
-                std::vector<unsigned char> sol_char = GetMinimalFromIndices(index_vector, DIGITBITS);
-                solns.insert(sol_char);
-            }
+                foundit:
 
-            bool ret;
-            for (auto soln : solns) {
-                EhIsValidSolution(n, k, curr_state, soln, ret);
-                if (!ret) continue;
-                pblock->nSolution = soln;
+                    std::cout << "    {\"" << pblock->nNonce.GetHex() << "\", \"";
+                    std::cout << HexStr(pblock->nSolution.begin(), pblock->nSolution.end());
+                    std::cout << "\"}," << std::endl;
 
-                CValidationState state;
-                
-                if (ProcessNewBlock(1,0,state, NULL, pblock, true, NULL) && state.IsValid()) {
-                    goto foundit;
                 }
-
-                //std::cout << state.GetRejectReason() << std::endl;
-            }
-
-            try_nonce += 1;
-        }
-        foundit:
-
-            std::cout << "    {\"" << pblock->nNonce.GetHex() << "\", \"";
-            std::cout << HexStr(pblock->nSolution.begin(), pblock->nSolution.end());
-            std::cout << "\"}," << std::endl;
-
-        }
-*/
+        */
 
         // These tests assume null hashFinalSaplingRoot (before Sapling)
         pblock->hashFinalSaplingRoot = uint256();
@@ -284,8 +282,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     tx.vin[0].prevout.n = 0;
     tx.vout.resize(1);
     tx.vout[0].nValue = 50000LL;
-    for (unsigned int i = 0; i < 1001; ++i)
-    {
+    for (unsigned int i = 0; i < 1001; ++i) {
         tx.vout[0].nValue -= 10;
         hash = tx.GetHash();
         bool spendsCoinbase = (i == 0) ? true : false; // only first tx spends coinbase
@@ -305,8 +302,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     tx.vin[0].scriptSig << OP_1;
     tx.vin[0].prevout.hash = txFirst[0]->GetHash();
     tx.vout[0].nValue = 50000LL;
-    for (unsigned int i = 0; i < 128; ++i)
-    {
+    for (unsigned int i = 0; i < 128; ++i) {
         tx.vout[0].nValue -= 350;
         hash = tx.GetHash();
         bool spendsCoinbase = (i == 0) ? true : false; // only first tx spends coinbase
@@ -447,7 +443,7 @@ BOOST_AUTO_TEST_CASE(CreateNewBlock_validity)
     mempool.clear();
 
     BOOST_FOREACH(CTransaction *tx, txFirst)
-        delete tx;
+    delete tx;
 
     fCheckpointsEnabled = true;
     fCoinbaseEnforcedProtectionEnabled = true;

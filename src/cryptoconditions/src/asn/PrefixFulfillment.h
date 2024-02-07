@@ -24,12 +24,12 @@ struct Fulfillment;
 
 /* PrefixFulfillment */
 typedef struct PrefixFulfillment {
-	OCTET_STRING_t	 prefix;
-	unsigned long	 maxMessageLength;
-	struct Fulfillment	*subfulfillment;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 prefix;
+    unsigned long	 maxMessageLength;
+    struct Fulfillment	*subfulfillment;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } PrefixFulfillment_t;
 
 /* Implementation */

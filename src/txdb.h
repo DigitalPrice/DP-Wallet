@@ -54,15 +54,14 @@ static const int64_t nMaxDbCache = sizeof(void*) > 4 ? 16384 : 1024;
 //! min. -dbcache in (MiB)
 static const int64_t nMinDbCache = 4;
 
-/** 
- * CCoinsView backed by the coin database (chainstate/) 
+/**
+ * CCoinsView backed by the coin database (chainstate/)
 */
-class CCoinsViewDB : public CCoinsView
-{
-protected:
+class CCoinsViewDB : public CCoinsView {
+  protected:
     CDBWrapper db;
     CCoinsViewDB(std::string dbName, size_t nCacheSize, bool fMemory = false, bool fWipe = false);
-public:
+  public:
     CCoinsViewDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
 
     bool GetSproutAnchorAt(const uint256 &rt, SproutMerkleTree &tree) const;
@@ -93,7 +92,7 @@ public:
     bool GetStats(CCoinsStats &stats) const;
 };
 
-/** 
+/**
  * Access to the block database (blocks/index/)
  * This database consists of:
  * - CBlockFileInfo records that contain info about the individual files that store blocks
@@ -105,12 +104,11 @@ public:
  * - timestamp index
  * - block hash / timestamp index
  */
-class CBlockTreeDB : public CDBWrapper
-{
-public:
+class CBlockTreeDB : public CDBWrapper {
+  public:
     /****
      * ctor
-     * 
+     *
      * @param nCacheSize leveldb cache size
      * @param fMemory use leveldb memory environment
      * @param fWipe wipe data
@@ -118,10 +116,10 @@ public:
      * @param maxOpenFiles leveldb max open files
      */
     CBlockTreeDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false, bool compression = true, int maxOpenFiles = 1000);
-private:
+  private:
     CBlockTreeDB(const CBlockTreeDB&);
     void operator=(const CBlockTreeDB&);
-public:
+  public:
     /***
      * Write a batch of records and sync
      * @param fileInfo the block file info records to write
@@ -129,8 +127,8 @@ public:
      * @param blockinfo the block index records to write
      * @returns true on success
      */
-    bool WriteBatchSync(const std::vector<std::pair<int, const CBlockFileInfo*> >& fileInfo, int nLastFile, 
-            const std::vector<CBlockIndex*>& blockinfo);
+    bool WriteBatchSync(const std::vector<std::pair<int, const CBlockFileInfo*> >& fileInfo, int nLastFile,
+                        const std::vector<CBlockIndex*>& blockinfo);
     /***
      * Erase a batch of block index records and sync
      * @param blockinfo the records
@@ -242,8 +240,8 @@ public:
      * @param vect the results
      * @returns true on success
      */
-    bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly, 
-            std::vector<std::pair<uint256, unsigned int> > &vect);
+    bool ReadTimestampIndex(const unsigned int &high, const unsigned int &low, const bool fActiveOnly,
+                            std::vector<std::pair<uint256, unsigned int> > &vect);
     /****
      * Write a block hash / timestamp record
      * @param blockhashIndex the key (the hash)

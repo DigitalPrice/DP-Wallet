@@ -34,83 +34,63 @@ typedef vector<unsigned char> valtype;
 
 unsigned nMaxDatacarrierBytes = MAX_OP_RETURN_RELAY;
 
-bool komodo_is_vSolutionsFixActive(); // didn't want to bring komodo headers here, it's a special case to bypass bad code in Solver() and ExtractDestination() 
+bool komodo_is_vSolutionsFixActive(); // didn't want to bring komodo headers here, it's a special case to bypass bad code in Solver() and ExtractDestination()
 
-COptCCParams::COptCCParams(std::vector<unsigned char> &vch)
-{
+COptCCParams::COptCCParams(std::vector<unsigned char> &vch) {
     CScript inScr = CScript(vch.begin(), vch.end());
-    if (inScr.size() > 1)
-    {
+    if (inScr.size() > 1) {
         CScript::const_iterator pc = inScr.begin();
         opcodetype opcode;
         std::vector<std::vector<unsigned char>> data;
         std::vector<unsigned char> param;
         bool valid = true;
 
-        while (pc < inScr.end())
-        {
+        while (pc < inScr.end()) {
             param.clear();
-            if (inScr.GetOp(pc, opcode, param))
-            {
-                if (opcode == OP_0)
-                {
+            if (inScr.GetOp(pc, opcode, param)) {
+                if (opcode == OP_0) {
                     param.resize(1);
                     param[0] = 0;
                     data.push_back(param);
-                }
-                else if (opcode >= OP_1 && opcode <= OP_16)
-                {
+                } else if (opcode >= OP_1 && opcode <= OP_16) {
                     param.resize(1);
                     param[0] = (opcode - OP_1) + 1;
                     data.push_back(param);
-                }
-                else if (opcode > 0 && opcode <= OP_PUSHDATA4 && param.size() > 0)
-                {
+                } else if (opcode > 0 && opcode <= OP_PUSHDATA4 && param.size() > 0) {
                     data.push_back(param);
-                }
-                else
-                {
+                } else {
                     valid = false;
                     break;
                 }
             }
         }
 
-        if (valid && pc == inScr.end() && data.size() > 0)
-        {
+        if (valid && pc == inScr.end() && data.size() > 0) {
             version = 0;
             param = data[0];
-            if (param.size() == 4)
-            {
+            if (param.size() == 4) {
                 version = param[0];
                 evalCode = param[1];
                 m = param[2];
                 n = param[3];
-                if (version != VERSION || m != 1 || (n != 1 && n != 2) || data.size() <= n)
-                {
+                if (version != VERSION || m != 1 || (n != 1 && n != 2) || data.size() <= n) {
                     // we only support one version, and 1 of 1 or 1 of 2 now, so set invalid
                     version = 0;
-                }
-                else
-                {
+                } else {
                     // load keys and data
                     vKeys.clear();
                     vData.clear();
                     int i;
-                    for (i = 1; i <= n; i++)
-                    {
+                    for (i = 1; i <= n; i++) {
                         vKeys.push_back(CPubKey(data[i]));
-                        if (!vKeys[vKeys.size() - 1].IsValid())
-                        {
+                        if (!vKeys[vKeys.size() - 1].IsValid()) {
                             version = 0;
                             break;
                         }
                     }
-                    if (version != 0)
-                    {
+                    if (version != 0) {
                         // get the rest of the data
-                        for ( ; i < data.size(); i++)
-                        {
+                        for ( ; i < data.size(); i++) {
                             vData.push_back(data[i]);
                         }
                     }
@@ -120,17 +100,14 @@ COptCCParams::COptCCParams(std::vector<unsigned char> &vch)
     }
 }
 
-std::vector<unsigned char> COptCCParams::AsVector()
-{
+std::vector<unsigned char> COptCCParams::AsVector() {
     CScript cData = CScript();
 
     cData << std::vector<unsigned char>({version, evalCode, n, m});
-    for (auto k : vKeys)
-    {
+    for (auto k : vKeys) {
         cData << std::vector<unsigned char>(k.begin(), k.end());
     }
-    for (auto d : vData)
-    {
+    for (auto d : vData) {
         cData << std::vector<unsigned char>(d);
     }
     return std::vector<unsigned char>(cData.begin(), cData.end());
@@ -138,18 +115,24 @@ std::vector<unsigned char> COptCCParams::AsVector()
 
 CScriptID::CScriptID(const CScript& in) : uint160(Hash160(in.begin(), in.end())) {}
 
-const char* GetTxnOutputType(txnouttype t)
-{
-    switch (t)
-    {
-    case TX_NONSTANDARD: return "nonstandard";
-    case TX_PUBKEY: return "pubkey";
-    case TX_PUBKEYHASH: return "pubkeyhash";
-    case TX_SCRIPTHASH: return "scripthash";
-    case TX_MULTISIG: return "multisig";
-    case TX_NULL_DATA: return "nulldata";
-    case TX_CRYPTOCONDITION: return "cryptocondition";
-    default: return "invalid";
+const char* GetTxnOutputType(txnouttype t) {
+    switch (t) {
+    case TX_NONSTANDARD:
+        return "nonstandard";
+    case TX_PUBKEY:
+        return "pubkey";
+    case TX_PUBKEYHASH:
+        return "pubkeyhash";
+    case TX_SCRIPTHASH:
+        return "scripthash";
+    case TX_MULTISIG:
+        return "multisig";
+    case TX_NULL_DATA:
+        return "nulldata";
+    case TX_CRYPTOCONDITION:
+        return "cryptocondition";
+    default:
+        return "invalid";
     }
     return NULL;
 }
@@ -157,8 +140,7 @@ const char* GetTxnOutputType(txnouttype t)
 /**
  * Return public keys or hashes from scriptPubKey, for 'standard' transaction types.
  */
-static bool MatchPayToPubkey(const CScript& script, valtype& pubkey)
-{
+static bool MatchPayToPubkey(const CScript& script, valtype& pubkey) {
     if (script.size() == CPubKey::PUBLIC_KEY_SIZE + 2 && script[0] == CPubKey::PUBLIC_KEY_SIZE && script.back() == OP_CHECKSIG) {
         pubkey = valtype(script.begin() + 1, script.begin() + CPubKey::PUBLIC_KEY_SIZE + 1);
         return CPubKey::ValidSize(pubkey);
@@ -170,8 +152,7 @@ static bool MatchPayToPubkey(const CScript& script, valtype& pubkey)
     return false;
 }
 
-static bool MatchPayToPubkeyHash(const CScript& script, valtype& pubkeyhash)
-    {
+static bool MatchPayToPubkeyHash(const CScript& script, valtype& pubkeyhash) {
     if (script.size() == 25 && script[0] == OP_DUP && script[1] == OP_HASH160 && script[2] == 20 && script[23] == OP_EQUALVERIFY && script[24] == OP_CHECKSIG) {
         pubkeyhash = valtype(script.begin () + 3, script.begin() + 23);
         return true;
@@ -180,13 +161,11 @@ static bool MatchPayToPubkeyHash(const CScript& script, valtype& pubkeyhash)
 }
 
 /** Test for "small positive integer" script opcodes - OP_1 through OP_16. */
-static constexpr bool IsSmallInteger(opcodetype opcode)
-{
+static constexpr bool IsSmallInteger(opcodetype opcode) {
     return opcode >= OP_1 && opcode <= OP_16;
 }
 
-static bool MatchMultisig(const CScript& script, unsigned int& required, std::vector<valtype>& pubkeys)
-{
+static bool MatchMultisig(const CScript& script, unsigned int& required, std::vector<valtype>& pubkeys) {
     opcodetype opcode;
     valtype data;
     CScript::const_iterator it = script.begin();
@@ -197,7 +176,7 @@ static bool MatchMultisig(const CScript& script, unsigned int& required, std::ve
     while (script.GetOp(it, opcode, data) && CPubKey::ValidSize(data)) {
         pubkeys.emplace_back(std::move(data));
     }
-    
+
     if (!IsSmallInteger(opcode)) return false;
     unsigned int keys = CScript::DecodeOP_N(opcode);
     if (pubkeys.size() != keys || keys < required) return false;
@@ -211,14 +190,12 @@ static bool MatchMultisig(const CScript& script, unsigned int& required, std::ve
  * @param[out] vSolutionsRet results
  * @returns true on success
  */
-bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::vector<unsigned char> >& vSolutionsRet)
-{
+bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::vector<unsigned char> >& vSolutionsRet) {
     vSolutionsRet.clear();
 
     // Shortcut for pay-to-script-hash, which are more constrained than the other types:
     // it is always OP_HASH160 20 [20 byte hash] OP_EQUAL
-    if (scriptPubKey.IsPayToScriptHash())
-    {
+    if (scriptPubKey.IsPayToScriptHash()) {
         typeRet = TX_SCRIPTHASH;
         vector<unsigned char> hashBytes(scriptPubKey.begin()+2, scriptPubKey.begin()+22);
         vSolutionsRet.push_back(hashBytes);
@@ -239,12 +216,13 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
         // Shortcut for pay-to-crypto-condition
         CScript ccSubScript = CScript();
         std::vector<std::vector<unsigned char>> vParams;
-        if (scriptPubKey.IsPayToCryptoCondition(&ccSubScript, vParams))
-        {
-            if (scriptPubKey.MayAcceptCryptoCondition())
-            {
+        if (scriptPubKey.IsPayToCryptoCondition(&ccSubScript, vParams)) {
+            if (scriptPubKey.MayAcceptCryptoCondition()) {
                 typeRet = TX_CRYPTOCONDITION;
-                vector<unsigned char> hashBytes; uint160 x; int32_t i; uint8_t hash20[20],*ptr;;
+                vector<unsigned char> hashBytes;
+                uint160 x;
+                int32_t i;
+                uint8_t hash20[20],*ptr;;
                 x = Hash160(ccSubScript);
                 memcpy(hash20,&x,20);
                 hashBytes.resize(20);
@@ -253,16 +231,12 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
                     ptr[i] = hash20[i];
                 vSolutionsRet.push_back(hashBytes);
 
-                if (!komodo_is_vSolutionsFixActive()) 
-                {
+                if (!komodo_is_vSolutionsFixActive()) {
                     // allow this code before the hardfork if anyone might accidentally try it
-                    if (vParams.size())
-                    {
+                    if (vParams.size()) {
                         COptCCParams cp = COptCCParams(vParams[0]);
-                        if (cp.IsValid())
-                        {
-                            for (auto k : cp.vKeys)
-                            {
+                        if (cp.IsValid()) {
+                            for (auto k : cp.vKeys) {
                                 vSolutionsRet.push_back(std::vector<unsigned char>(k.begin(), k.end()));  // we do not need opdrop pubkeys in vSolution as it breaks indexes
                             }
                         }
@@ -278,14 +252,14 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
     if (MatchPayToPubkey(scriptPubKey, data)) {
         typeRet = TX_PUBKEY;
         vSolutionsRet.push_back(std::move(data));
-                return true;
-            }
+        return true;
+    }
 
     if (MatchPayToPubkeyHash(scriptPubKey, data)) {
         typeRet = TX_PUBKEYHASH;
         vSolutionsRet.push_back(std::move(data));
         return true;
-            }
+    }
 
     unsigned int required;
     std::vector<std::vector<unsigned char>> keys;
@@ -302,10 +276,8 @@ bool Solver(const CScript& scriptPubKey, txnouttype& typeRet, std::vector<std::v
     return false;
 }
 
-int ScriptSigArgsExpected(txnouttype t, const std::vector<std::vector<unsigned char> >& vSolutions)
-{
-    switch (t)
-    {
+int ScriptSigArgsExpected(txnouttype t, const std::vector<std::vector<unsigned char> >& vSolutions) {
+    switch (t) {
     case TX_NONSTANDARD:
     case TX_NULL_DATA:
         return -1;
@@ -325,11 +297,9 @@ int ScriptSigArgsExpected(txnouttype t, const std::vector<std::vector<unsigned c
     return -1;
 }
 
-bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType)
-{
+bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType) {
     vector<valtype> vSolutions;
-    if (!Solver(scriptPubKey, whichType, vSolutions))
-    {
+    if (!Solver(scriptPubKey, whichType, vSolutions)) {
         //int32_t i; uint8_t *ptr = (uint8_t *)scriptPubKey.data();
         //for (i=0; i<scriptPubKey.size(); i++)
         //    LogPrintf("%02x",ptr[i]);
@@ -337,8 +307,7 @@ bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType)
         return false;
     }
 
-    if (whichType == TX_MULTISIG)
-    {
+    if (whichType == TX_MULTISIG) {
         unsigned char m = vSolutions.front()[0];
         unsigned char n = vSolutions.back()[0];
         // Support up to x-of-9 multisig txns as standard
@@ -350,15 +319,13 @@ bool IsStandard(const CScript& scriptPubKey, txnouttype& whichType)
     return whichType != TX_NONSTANDARD;
 }
 
-bool ExtractDestination(const CScript& _scriptPubKey, CTxDestination& addressRet, bool returnPubKey)
-{
+bool ExtractDestination(const CScript& _scriptPubKey, CTxDestination& addressRet, bool returnPubKey) {
     vector<valtype> vSolutions;
     txnouttype whichType;
     CScript scriptPubKey = _scriptPubKey;
 
     // if this is a CLTV script, get the destination after CLTV
-    if (scriptPubKey.IsCheckLockTimeVerify())
-    {
+    if (scriptPubKey.IsCheckLockTimeVerify()) {
         uint8_t pushOp = scriptPubKey[0];
         uint32_t scriptStart = pushOp + 3;
 
@@ -369,11 +336,9 @@ bool ExtractDestination(const CScript& _scriptPubKey, CTxDestination& addressRet
     if (!Solver(scriptPubKey, whichType, vSolutions))
         return false;
 
-    if (whichType == TX_PUBKEY)
-    {
+    if (whichType == TX_PUBKEY) {
         CPubKey pubKey(vSolutions[0]);
-        if (!pubKey.IsValid())
-        {
+        if (!pubKey.IsValid()) {
             //LogPrintf("TX_PUBKEY invalid pubkey\n");
             return false;
         }
@@ -385,27 +350,20 @@ bool ExtractDestination(const CScript& _scriptPubKey, CTxDestination& addressRet
         return true;
     }
 
-    else if (whichType == TX_PUBKEYHASH)
-    {
+    else if (whichType == TX_PUBKEYHASH) {
         addressRet = CKeyID(uint160(vSolutions[0]));
         return true;
-    }
-    else if (whichType == TX_SCRIPTHASH)
-    {
+    } else if (whichType == TX_SCRIPTHASH) {
         addressRet = CScriptID(uint160(vSolutions[0]));
         return true;
     }
 
-    else if (IsCryptoConditionsEnabled() != 0 && whichType == TX_CRYPTOCONDITION)
-    {
-        if (vSolutions.size() > 1 && !komodo_is_vSolutionsFixActive()) // allow this temporarily before the HF; actually this is incorrect to use opdrop's pubkey as the address
-        {
+    else if (IsCryptoConditionsEnabled() != 0 && whichType == TX_CRYPTOCONDITION) {
+        if (vSolutions.size() > 1 && !komodo_is_vSolutionsFixActive()) { // allow this temporarily before the HF; actually this is incorrect to use opdrop's pubkey as the address
             CPubKey pk = CPubKey((vSolutions[1]));
             addressRet = pk;
             return pk.IsValid();
-        }
-        else
-        {
+        } else {
             addressRet = CKeyID(uint160(vSolutions[0]));
         }
         return true;
@@ -414,15 +372,13 @@ bool ExtractDestination(const CScript& _scriptPubKey, CTxDestination& addressRet
     return false;
 }
 
-bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vector<CTxDestination>& addressRet, int& nRequiredRet)
-{
+bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vector<CTxDestination>& addressRet, int& nRequiredRet) {
     addressRet.clear();
     typeRet = TX_NONSTANDARD;
     vector<valtype> vSolutions;
 
     // if this is a CLTV script, get the destinations after CLTV
-    if (scriptPubKey.IsCheckLockTimeVerify())
-    {
+    if (scriptPubKey.IsCheckLockTimeVerify()) {
         uint8_t pushOp = scriptPubKey[0];
         uint32_t scriptStart = pushOp + 3;
 
@@ -435,16 +391,14 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
 
     if (!Solver(scriptPubKey, typeRet, vSolutions))
         return false;
-    if (typeRet == TX_NULL_DATA){
+    if (typeRet == TX_NULL_DATA) {
         // This is data, not addresses
         return false;
     }
 
-    if (typeRet == TX_MULTISIG)
-    {
+    if (typeRet == TX_MULTISIG) {
         nRequiredRet = vSolutions.front()[0];
-        for (unsigned int i = 1; i < vSolutions.size()-1; i++)
-        {
+        for (unsigned int i = 1; i < vSolutions.size()-1; i++) {
             CPubKey pubKey(vSolutions[i]);
             if (!pubKey.IsValid())
                 continue;
@@ -477,13 +431,11 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     //     if (addressRet.empty())
     //         return false;
     // }
-    else
-    {
+    else {
         nRequiredRet = 1;
         CTxDestination address;
-        if (!ExtractDestination(scriptPubKey, address))
-        {
-           return false;
+        if (!ExtractDestination(scriptPubKey, address)) {
+            return false;
         }
         addressRet.push_back(address);
     }
@@ -491,14 +443,14 @@ bool ExtractDestinations(const CScript& scriptPubKey, txnouttype& typeRet, vecto
     return true;
 }
 
-namespace
-{
-class CScriptVisitor : public boost::static_visitor<bool>
-{
-private:
+namespace {
+class CScriptVisitor : public boost::static_visitor<bool> {
+  private:
     CScript *script;
-public:
-    CScriptVisitor(CScript *scriptin) { script = scriptin; }
+  public:
+    CScriptVisitor(CScript *scriptin) {
+        script = scriptin;
+    }
 
     bool operator()(const CNoDestination &dest) const {
         script->clear();
@@ -525,21 +477,19 @@ public:
 };
 }
 
-CScript GetScriptForDestination(const CTxDestination& dest)
-{
+CScript GetScriptForDestination(const CTxDestination& dest) {
     CScript script;
 
     boost::apply_visitor(CScriptVisitor(&script), dest);
     return script;
 }
 
-CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys)
-{
+CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys) {
     CScript script;
 
     script << CScript::EncodeOP_N(nRequired);
     BOOST_FOREACH(const CPubKey& key, keys)
-        script << ToByteVector(key);
+    script << ToByteVector(key);
     script << CScript::EncodeOP_N(keys.size()) << OP_CHECKMULTISIG;
     return script;
 }

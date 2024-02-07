@@ -19,13 +19,13 @@ extern "C" {
 
 /* Dependencies */
 typedef enum ConditionTypes {
-	ConditionTypes_preImageSha256	= 0,
-	ConditionTypes_prefixSha256	= 1,
-	ConditionTypes_thresholdSha256	= 2,
-	ConditionTypes_rsaSha256	= 3,
-	ConditionTypes_ed25519Sha256	= 4,
-	ConditionTypes_secp256k1Sha256	= 5,
-	ConditionTypes_evalSha256	= 15
+    ConditionTypes_preImageSha256	= 0,
+    ConditionTypes_prefixSha256	= 1,
+    ConditionTypes_thresholdSha256	= 2,
+    ConditionTypes_rsaSha256	= 3,
+    ConditionTypes_ed25519Sha256	= 4,
+    ConditionTypes_secp256k1Sha256	= 5,
+    ConditionTypes_evalSha256	= 15
 } e_ConditionTypes;
 
 /* ConditionTypes */

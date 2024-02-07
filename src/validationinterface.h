@@ -34,7 +34,7 @@ void EraseFromWallets(const uint256 &hash);
 void RescanWallets();
 
 class CValidationInterface {
-protected:
+  protected:
     virtual void UpdatedBlockTip(const CBlockIndex *pindex) {}
     virtual void SyncTransaction(const CTransaction &tx, const CBlock *pblock) {}
     virtual void EraseFromWallet(const uint256 &hash) {}

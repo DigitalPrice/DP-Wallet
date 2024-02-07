@@ -18,8 +18,7 @@
 namespace {
 
 template <typename Stream, typename Data>
-bool SerializeDB(Stream& stream, const Data& data)
-{
+bool SerializeDB(Stream& stream, const Data& data) {
     // Write and commit header, data
     try {
         CHashWriter hasher(SER_DISK, CLIENT_VERSION);
@@ -34,8 +33,7 @@ bool SerializeDB(Stream& stream, const Data& data)
 }
 
 template <typename Data>
-bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data& data)
-{
+bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data& data) {
     // Generate random temporary filename
     unsigned short randv = 0;
     GetRandBytes((unsigned char*)&randv, sizeof(randv));
@@ -61,8 +59,7 @@ bool SerializeFileDB(const std::string& prefix, const fs::path& path, const Data
 }
 
 template <typename Stream, typename Data>
-bool DeserializeDB(Stream& stream, Data& data, bool fCheckSum = true)
-{
+bool DeserializeDB(Stream& stream, Data& data, bool fCheckSum = true) {
     try {
         CHashVerifier<Stream> verifier(&stream);
         // de-serialize file header (network specific magic number) and ..
@@ -83,8 +80,7 @@ bool DeserializeDB(Stream& stream, Data& data, bool fCheckSum = true)
                 return error("%s: Checksum mismatch, data corrupted", __func__);
             }
         }
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         return error("%s: Deserialize or I/O error - %s", __func__, e.what());
     }
 
@@ -92,8 +88,7 @@ bool DeserializeDB(Stream& stream, Data& data, bool fCheckSum = true)
 }
 
 template <typename Data>
-bool DeserializeFileDB(const fs::path& path, Data& data)
-{
+bool DeserializeFileDB(const fs::path& path, Data& data) {
     // open input file, and associate with CAutoFile
     FILE *file = fsbridge::fopen(path, "rb");
     CAutoFile filein(file, SER_DISK, CLIENT_VERSION);
@@ -105,18 +100,15 @@ bool DeserializeFileDB(const fs::path& path, Data& data)
 
 }
 
-CBanDB::CBanDB()
-{
+CBanDB::CBanDB() {
     pathBanlist = GetDataDir() / "banlist.dat";
 }
 
-bool CBanDB::Write(const banmap_t& banSet)
-{
+bool CBanDB::Write(const banmap_t& banSet) {
     return SerializeFileDB("banlist", pathBanlist, banSet);
 }
 
-bool CBanDB::Read(banmap_t& banSet)
-{
+bool CBanDB::Read(banmap_t& banSet) {
     return DeserializeFileDB(pathBanlist, banSet);
 }
 

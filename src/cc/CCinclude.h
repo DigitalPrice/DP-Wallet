@@ -25,29 +25,29 @@ Details.
 /// \mainpage Brief introduction into cryptocondition contracts
 /// There are only a very few types in bitcoin: pay to pubkey, pay to pubkey hash and pay to script hash (p2pk, p2pkh, p2sh).
 /// There are actually more that are possible, but those three are 99%+ of bitcoin transactions.
-/// So you can pay to a pubkey, or to its hash or to a script's hash. The last is how most of the more complex scripts are invoked. To spend a p2sh vout, you need to provide the redeemscript, 
+/// So you can pay to a pubkey, or to its hash or to a script's hash. The last is how most of the more complex scripts are invoked. To spend a p2sh vout, you need to provide the redeemscript,
 /// this script's hash is what the p2sh address was.
 /// All of the above are the standard bitcoin vout types and there should be plenty of materials about it.
 ///
 /// What I did with the cryptoconditions (CC) contracts (now rebranded as Antara modules) is created a fourth type of vout, the CC vout. This is using the cryptoconditions standard and it is even a different signature mechanism,
 /// ed25519 instead of secp256k1. It is basically a big extension to the bitcoin script. There is a special opcode that is added that says it is a CC script.
 ///
-/// But it gets more interesting. Each CC script has an evalcode. 
-/// This is just an arbitrary number but what it does is allows to create a self-contained universe of CC utxo that all have the same evalcode and that is 
+/// But it gets more interesting. Each CC script has an evalcode.
+/// This is just an arbitrary number but what it does is allows to create a self-contained universe of CC utxo that all have the same evalcode and that is
 /// how a faucet CC contract differentiates itself from a dice CC contract, the eval code is different.
 ///
-/// One effect from using a different eval code is that even if the rest of the CC script is the same, the bitcoin address that is calculated is different. 
+/// One effect from using a different eval code is that even if the rest of the CC script is the same, the bitcoin address that is calculated is different.
 /// What this means is that for each pubkey, there is a unique address for each different eval code!
 /// And this allows efficient segregation of one CC contracts transactions from another.
-/// The final part that will make it all clear how the funds can be locked inside the contract. 
-/// This is what makes a contract, a contract. 
-/// I put both the privkey and pubkey for a randomly chosen address and associate it with each CC contract. 
-/// That means anybody can sign outputs for that privkey. 
-/// However, it is a CC output, so in addition to the signature, whatever constraints a CC contract implements must also be satistifed. 
+/// The final part that will make it all clear how the funds can be locked inside the contract.
+/// This is what makes a contract, a contract.
+/// I put both the privkey and pubkey for a randomly chosen address and associate it with each CC contract.
+/// That means anybody can sign outputs for that privkey.
+/// However, it is a CC output, so in addition to the signature, whatever constraints a CC contract implements must also be satistifed.
 /// This allows funds to be locked and yet anybody is able to spend it, assuming they satisfy the CC's rules.
 ///
-/// One other technical note is that komodod has the insight-explorer extensions built in 
-/// so it can lookup directly all transactions to any address. 
+/// One other technical note is that komodod has the insight-explorer extensions built in
+/// so it can lookup directly all transactions to any address.
 /// This is a key performance boosting thing as if it wasnt there, trying to get all the utxo for an address not in the wallet is quite time consuming.
 ///
 /// More information about Antara framework:
@@ -113,15 +113,17 @@ enum opretid : uint8_t {
 /// @param vopret found opret blob as byte array
 /// @returns true if found
 /// @see opretid
-inline bool GetOpretBlob(const std::vector<std::pair<uint8_t, std::vector<uint8_t>>>  &oprets, uint8_t id, std::vector<uint8_t> &vopret)    {   
+inline bool GetOpretBlob(const std::vector<std::pair<uint8_t, std::vector<uint8_t>>>  &oprets, uint8_t id, std::vector<uint8_t> &vopret)    {
     vopret.clear();
-    for(auto p : oprets)  if (p.first == id) { vopret = p.second; return true; }
+    for(auto p : oprets)  if (p.first == id) {
+            vopret = p.second;
+            return true;
+        }
     return false;
 }
 
 /// \cond INTERNAL
-struct CC_utxo
-{
+struct CC_utxo {
     uint256 txid;
     int64_t nValue;
     int32_t vout;
@@ -131,8 +133,7 @@ struct CC_utxo
 /// \cond INTERNAL
 // these are the parameters stored after Verus crypto-condition vouts. new versions may change
 // the format
-struct CC_meta
-{
+struct CC_meta {
     std::vector<unsigned char> version;
     uint8_t evalCode;
     bool is1of2;
@@ -142,12 +143,11 @@ struct CC_meta
 /// \endcond
 
 /// CC contract (Antara module) info structure that contains data used for signing and validation of cc contract transactions
-struct CCcontract_info
-{
+struct CCcontract_info {
     uint8_t evalcode;  //!< cc contract eval code, set by CCinit function
-    uint8_t additionalTokensEvalcode2;  //!< additional eval code for spending from three-eval-code vouts with EVAL_TOKENS, evalcode, additionalTokensEvalcode2 
-                                        //!< or vouts with two evalcodes: EVAL_TOKENS, additionalTokensEvalcode2. 
-                                        //!< Set by AddTokenCCInputs function
+    uint8_t additionalTokensEvalcode2;  //!< additional eval code for spending from three-eval-code vouts with EVAL_TOKENS, evalcode, additionalTokensEvalcode2
+    //!< or vouts with two evalcodes: EVAL_TOKENS, additionalTokensEvalcode2.
+    //!< Set by AddTokenCCInputs function
 
     char unspendableCCaddr[64]; //!< global contract cryptocondition address, set by CCinit function
     char CChexstr[72];          //!< global contract pubkey in hex, set by CCinit function
@@ -183,7 +183,7 @@ struct CCcontract_info
     /// @param nIn not used at this time
     bool(*validate)(struct CCcontract_info *cp, Eval* eval, const CTransaction &tx, uint32_t nIn);
 
-    /// checks if the value of evalcode in cp object is present in the scriptSig parameter, 
+    /// checks if the value of evalcode in cp object is present in the scriptSig parameter,
     /// that is, the vin for this scriptSig will be validated by the cc contract (Antara module) defined by the eval code in this CCcontract_info object
     /// @param scriptSig scriptSig to check\n
     /// Example:
@@ -195,7 +195,7 @@ struct CCcontract_info
     ///         break;
     ///     }
     /// \endcode
-    bool (*ismyvin)(CScript const& scriptSig);	
+    bool (*ismyvin)(CScript const& scriptSig);
 
     /// @private
     uint8_t didinit;
@@ -215,8 +215,7 @@ struct CCcontract_info
 struct CCcontract_info *CCinit(struct CCcontract_info *cp,uint8_t evalcode);
 
 /// \cond INTERNAL
-struct oracleprice_info
-{
+struct oracleprice_info {
     CPubKey pk;
     std::vector <uint8_t> data;
     int32_t height;
@@ -275,7 +274,7 @@ bool NSPV_myGetTransaction(const uint256 &hash, CTransaction &txOut, uint256 &ha
 
 /// CCgettxout returns the amount of an utxo. The function does this without loading the utxo transaction from the chain, by using coin cache
 /// @param txid transaction id of the utxo
-/// @param vout utxo transaction vout order number 
+/// @param vout utxo transaction vout order number
 /// @param mempoolflag if true the function checks the mempool to
 /// @param lockflag if true the function locks the mempool while accesses it
 /// @returns utxo value or -1 if utxo not found
@@ -309,18 +308,18 @@ CScript GetScriptForMultisig(int nRequired, const std::vector<CPubKey>& keys);
 int64_t CCaddress_balance(char *coinaddr,int32_t CCflag);
 
 /// Creates a bitcoin address from a transaction id. This address can never be spent
-/// @param[out] txidaddr returned address created from txid value 
+/// @param[out] txidaddr returned address created from txid value
 /// @param txid transaction id
-/// @return the public key for the created address 
+/// @return the public key for the created address
 CPubKey CCtxidaddr(char *txidaddr,uint256 txid);
 
 /// Creates a custom bitcoin address from a transaction id. This address can never be spent
-/// @param[out] txidaddr returned address created from txid value 
+/// @param[out] txidaddr returned address created from txid value
 /// @param txid transaction id
 /// @param taddr custom address prefix
 /// @param prefix custom pubkey prefix
 /// @param prefix2 custom script prefix
-/// @return public key for the created address 
+/// @return public key for the created address
 CPubKey CCCustomtxidaddr(char *txidaddr,uint256 txid,uint8_t taddr,uint8_t prefix,uint8_t prefix2);
 
 // TODO: description
@@ -413,26 +412,26 @@ CScript EncodeTokenOpRet(uint256 tokenid, std::vector<CPubKey> voutPubkeys, std:
 /// Decodes opreturn scriptPubKey of token creation transaction. Normally this function is called internally by the token rpcs. You might call this function if your module should create a customized token.
 /// @param scriptPubKey OP_RETURN script to decode
 /// @param[out] origpubkey creator public key as a byte array
-/// @param[out] name token name 
-/// @param[out] description token description 
+/// @param[out] name token name
+/// @param[out] description token description
 /// @returns funcid ('c') or NULL if errors
 uint8_t DecodeTokenCreateOpRet(const CScript &scriptPubKey, std::vector<uint8_t> &origpubkey, std::string &name, std::string &description);
 
-/// Overload that decodes opreturn scriptPubKey of token creation transaction and also returns additional data blobs. 
+/// Overload that decodes opreturn scriptPubKey of token creation transaction and also returns additional data blobs.
 /// Normally this function is called internally by the token rpcs. You might want to call this function if your module should create a customized token.
 /// @param scriptPubKey OP_RETURN script to decode
 /// @param[out] origpubkey creator public key as a byte array
-/// @param[out] name token name 
-/// @param[out] description token description 
+/// @param[out] name token name
+/// @param[out] description token description
 /// @param[out] oprets vector of pairs of additional opreturn data added to the token opret. Could be empty if not set. The first element in the pair is opretid enum, the second is the data as byte array
 /// @returns funcid ('c') or NULL if errors
 uint8_t DecodeTokenCreateOpRet(const CScript &scriptPubKey, std::vector<uint8_t> &origpubkey, std::string &name, std::string &description, std::vector<std::pair<uint8_t, vscript_t>>  &oprets);
 
-/// Decodes opreturn scriptPubKey of token transaction, also returns additional data blobs. 
+/// Decodes opreturn scriptPubKey of token transaction, also returns additional data blobs.
 /// Normally this function is called internally by different token rpc. You might want to call if your module created a customized token.
 /// @param scriptPubKey OP_RETURN script to decode
 /// @param[out] evalCodeTokens should be EVAL_TOKENS
-/// @param[out] tokenid id of token 
+/// @param[out] tokenid id of token
 /// @param[out] voutPubkeys vector of token output validation pubkeys from the opreturn
 /// @param[out] oprets vector of pairs of additional opreturn data added to the token opret. Could be empty if not set. The first element in the pair is opretid enum, the second is the data as byte array
 /// @returns funcid ('c' if creation tx or 't' if token transfer tx) or NULL if errors
@@ -455,7 +454,7 @@ bool ExtractTokensCCVinPubkeys(const CTransaction &tx, std::vector<CPubKey> &vin
 /// @param cp CCcontract_info structure initialized for a evalcode
 /// @param[out] unspendablepriv if not null then in this parameter private key is returned. Must have at least 32 byte size
 /// @returns global contract pubkey.\n
-/// Example: 
+/// Example:
 /// \code
 /// struct CCcontract_info *cp, C;
 /// uint8_t ccAssetsPriv[32]
@@ -521,7 +520,7 @@ CC *MakeCCcond1(uint8_t evalcode,CPubKey pk);
 /// @returns cryptocondition object. Must be disposed with cc_free function when not used any more
 CC *MakeCCcond1of2(uint8_t evalcode,CPubKey pk1,CPubKey pk2);
 
-/// GetCryptoCondition retrieves the cryptocondition from a scriptSig object 
+/// GetCryptoCondition retrieves the cryptocondition from a scriptSig object
 /// @param scriptSig scriptSig object with a cryptocondition
 /// @returns cc object, must be disposed with cc_free when not used
 CC* GetCryptoCondition(CScript const& scriptSig);
@@ -594,7 +593,7 @@ CC *MakeTokensCCcond1of2(uint8_t evalcode, CPubKey pk1, CPubKey pk2);
 /// @returns cryptocondition object. Must be disposed with cc_free function when not used any more
 CC *MakeTokensCCcond1of2(uint8_t evalcode, uint8_t evalcode2, CPubKey pk1, CPubKey pk2);
 
-/// Creates a token transaction output with a cryptocondition that allows to spend it by one key. 
+/// Creates a token transaction output with a cryptocondition that allows to spend it by one key.
 /// The resulting vout will have two eval codes (EVAL_TOKENS and evalcode parameter value).
 /// The returned output should be added to a transaction vout array.
 /// @param evalcode cryptocondition eval code (transactions with this eval code in cc inputs will be forwarded to the contract associated with this eval code)
@@ -605,7 +604,7 @@ CC *MakeTokensCCcond1of2(uint8_t evalcode, uint8_t evalcode2, CPubKey pk1, CPubK
 /// @see CCcontract_info
 CTxOut MakeTokensCC1vout(uint8_t evalcode, CAmount nValue, CPubKey pk);
 
-/// Another MakeTokensCC1vout overloaded function that creates a token transaction output with a cryptocondition with two eval codes that allows to spend it by one key. 
+/// Another MakeTokensCC1vout overloaded function that creates a token transaction output with a cryptocondition with two eval codes that allows to spend it by one key.
 /// Resulting vout will have three eval codes (EVAL_TOKENS, evalcode and evalcode2 parameter values).
 /// The returned output should be added to a transaction vout array.
 /// @param evalcode cryptocondition eval code (transactions with this eval code in cc inputs will be forwarded to the contract associated with this eval code)
@@ -617,7 +616,7 @@ CTxOut MakeTokensCC1vout(uint8_t evalcode, CAmount nValue, CPubKey pk);
 /// @see CCcontract_info
 CTxOut MakeTokensCC1vout(uint8_t evalcode, uint8_t evalcode2, CAmount nValue, CPubKey pk);
 
-/// MakeTokensCC1of2vout creates a token transaction output with a 1of2 cryptocondition that allows to spend it by either of two keys. 
+/// MakeTokensCC1of2vout creates a token transaction output with a 1of2 cryptocondition that allows to spend it by either of two keys.
 /// The resulting vout will have two eval codes (EVAL_TOKENS and evalcode parameter value).
 /// The returned output should be added to a transaction vout array.
 /// @param evalcode cryptocondition eval code (transactions with this eval code in cc inputs will be forwarded to the contract associated with this eval code)
@@ -629,7 +628,7 @@ CTxOut MakeTokensCC1vout(uint8_t evalcode, uint8_t evalcode2, CAmount nValue, CP
 /// @see CCcontract_info
 CTxOut MakeTokensCC1of2vout(uint8_t evalcode, CAmount nValue, CPubKey pk1, CPubKey pk2);
 
-/// Another overload of MakeTokensCC1of2vout creates a token transaction output with a 1of2 cryptocondition with two eval codes that allows to spend it by either of two keys. 
+/// Another overload of MakeTokensCC1of2vout creates a token transaction output with a 1of2 cryptocondition with two eval codes that allows to spend it by either of two keys.
 /// The resulting vout will have three eval codes (EVAL_TOKENS, evalcode and evalcode2 parameter values).
 /// The returned output should be added to a transaction vout array.
 /// @param evalcode cryptocondition eval code (transactions with this eval code in cc inputs will be forwarded to the contract associated with this eval code)
@@ -668,7 +667,7 @@ void CCaddrTokens1of2set(struct CCcontract_info *cp, CPubKey pk1, CPubKey pk2, u
 /// @private
 int32_t CClib_initcp(struct CCcontract_info *cp,uint8_t evalcode);
 
-/// IsCCInput checks if scriptSig object contains a cryptocondition 
+/// IsCCInput checks if scriptSig object contains a cryptocondition
 /// @param scriptSig scriptSig object with a cryptocondition
 /// @returns true if the scriptSig object contains a cryptocondition
 bool IsCCInput(CScript const& scriptSig);
@@ -691,7 +690,7 @@ char *pubkey33_str(char *dest,uint8_t *pubkey33);
 /// \endcond
 
 /// converts public key as array of uint8_t to normal address
-/// @param[out] destaddr char array with the returned normal address, should have 64 chars 
+/// @param[out] destaddr char array with the returned normal address, should have 64 chars
 /// @param pubkey33 public key as array of uint8_t
 /// @returns true if the normal address is obtained successfully
 bool pubkey2addr(char *destaddr, uint8_t *pubkey33);
@@ -731,8 +730,8 @@ bool GetCCaddress(struct CCcontract_info *cp,char *destaddr,CPubKey pk);
 /// The evalcode is taken from the cp object
 /// @param cp object of CCcontract_info type
 /// @param[out] destaddr the address for the cc scriptPubKey. Should have at least 64 char buffer space
-/// @param pk first pubkey 1of2 cryptocondition 
-/// @param pk2 second pubkey of 1of2 cryptocondition 
+/// @param pk first pubkey 1of2 cryptocondition
+/// @param pk2 second pubkey of 1of2 cryptocondition
 /// @see CCcontract_info
 bool GetCCaddress1of2(struct CCcontract_info *cp,char *destaddr,CPubKey pk,CPubKey pk2);
 
@@ -799,7 +798,7 @@ extern std::vector<CPubKey> NULL_pubkeys; //!< constant value for use in functio
 /// @param mtx prepared transaction to sign
 /// @param mypk my pubkey to sign
 /// @param txfee transaction fee
-/// @param opret opreturn vout which function will add if it is not empty 
+/// @param opret opreturn vout which function will add if it is not empty
 /// @param pubkeys array of pubkeys to make multiple probe 1of2 cc's with the call Make1of2cond(cp->evalcode, globalpk, pubkeys[i])
 /// @returns signed transaction in hex encoding
 std::string FinalizeCCTx(uint64_t skipmask,struct CCcontract_info *cp,CMutableTransaction &mtx,CPubKey mypk,uint64_t txfee,CScript opret,std::vector<CPubKey> pubkeys = NULL_pubkeys);
@@ -819,12 +818,12 @@ std::string FinalizeCCTx(uint64_t skipmask,struct CCcontract_info *cp,CMutableTr
 /// @param mtx prepared transaction to sign
 /// @param mypk my pubkey to sign
 /// @param txfee transaction fee
-/// @param opret opreturn vout which function will add if it is not empty 
+/// @param opret opreturn vout which function will add if it is not empty
 /// @param pubkeys array of pubkeys to make multiple probe 1of2 cc's with the call Make1of2cond(cp->evalcode, globalpk, pubkeys[i])
 /// @returns signed transaction in hex encoding
 UniValue FinalizeCCTxExt(bool remote, uint64_t skipmask, struct CCcontract_info *cp, CMutableTransaction &mtx, CPubKey mypk, uint64_t txfee, CScript opret, std::vector<CPubKey> pubkeys = NULL_pubkeys);
 
-/// SetCCunspents returns a vector of unspent outputs on an address 
+/// SetCCunspents returns a vector of unspent outputs on an address
 /// @param[out] unspentOutputs vector of pairs of address key and amount
 /// @param coinaddr address where unspent outputs are searched
 /// @param CCflag if true the function searches for cc outputs, otherwise for normal outputs
@@ -854,7 +853,7 @@ void SetCCtxids(std::vector<uint256> &txids,char *coinaddr,bool ccflag, uint8_t 
 /// @returns amount of added normal inputs or amount of all normal inputs in the wallet
 int64_t NSPV_AddNormalinputs(CMutableTransaction &mtx,CPubKey mypk,int64_t total,int32_t maxinputs,struct NSPV_CCmtxinfo *ptr);
 
-/// AddNormalinputs wrapper for calling either AddNormalinputsLocal or AddNormalinputsRemote 
+/// AddNormalinputs wrapper for calling either AddNormalinputsLocal or AddNormalinputsRemote
 /// @param mtx mutable transaction object
 /// @param mypk not used
 /// @param total amount of inputs to add. If total equals to 0 the function does not add inputs but returns amount of all available normal inputs in the wallet
@@ -916,7 +915,11 @@ bits256 bits256_doublesha256(char *deprecated,uint8_t *data,int32_t datalen);
 /*! \cond INTERNAL */
 int64_t TotalPubkeyNormalInputs(const CTransaction &tx, const CPubKey &pubkey);
 int64_t TotalPubkeyCCInputs(const CTransaction &tx, const CPubKey &pubkey);
-inline std::string STR_TOLOWER(const std::string &str) { std::string out; for (std::string::const_iterator i = str.begin(); i != str.end(); i++) out += std::tolower(*i); return out; }
+inline std::string STR_TOLOWER(const std::string &str) {
+    std::string out;
+    for (std::string::const_iterator i = str.begin(); i != str.end(); i++) out += std::tolower(*i);
+    return out;
+}
 /*! \endcond */
 
 #define JSON_HEXTX "hex"
@@ -927,7 +930,7 @@ void AddSigData2UniValue(UniValue &result, int32_t vini, UniValue& ccjson, std::
 
 
 #ifndef LOGSTREAM_DEFINED
-#define LOGSTREAM_DEFINED 
+#define LOGSTREAM_DEFINED
 // bitcoin LogPrintStr with category "-debug" cmdarg support for C++ ostringstream:
 
 // log levels:
@@ -936,20 +939,19 @@ void AddSigData2UniValue(UniValue &result, int32_t vini, UniValue& ccjson, std::
 #define CCLOG_DEBUG1 1      //!< debug level 1
 #define CCLOG_DEBUG2 2      //!< debug level 2
 #define CCLOG_DEBUG3 3      //!< debug level 3
-#define CCLOG_MAXLEVEL 3    
+#define CCLOG_MAXLEVEL 3
 
 /// @private
 extern void CCLogPrintStr(const char *category, int level, const std::string &str);
 
 /// @private
 template <class T>
-void CCLogPrintStream(const char *category, int level, const char *functionName, T print_to_stream)
-{
+void CCLogPrintStream(const char *category, int level, const char *functionName, T print_to_stream) {
     std::ostringstream stream;
     print_to_stream(stream);
     if (functionName != NULL)
         stream << functionName << " ";
-    CCLogPrintStr(category, level, stream.str()); 
+    CCLogPrintStr(category, level, stream.str());
 }
 /// Macro for logging messages using bitcoin LogAcceptCategory and LogPrintStr functions.
 /// Supports error, info and three levels of debug messages.
@@ -964,15 +966,14 @@ void CCLogPrintStream(const char *category, int level, const char *functionName,
 /// example: LOGSTREAM("heir", CCLOG_INFO, stream << "heir public key is " << HexStr(heirPk) << std::endl);
 #define LOGSTREAM(category, level, logoperator) CCLogPrintStream( category, level, NULL, [=](std::ostringstream &stream) {logoperator;} )
 
-/// LOGSTREAMFN is a version of LOGSTREAM macro which adds calling function name with the standard define \_\_func\_\_ at the beginning of the printed string. 
+/// LOGSTREAMFN is a version of LOGSTREAM macro which adds calling function name with the standard define \_\_func\_\_ at the beginning of the printed string.
 /// LOGSTREAMFN parameters are the same as in LOGSTREAM
 /// @see LOGSTREAM
 #define LOGSTREAMFN(category, level, logoperator) CCLogPrintStream( category, level, __func__, [=](std::ostringstream &stream) {logoperator;} )
 
 /// @private
 template <class T>
-UniValue report_ccerror(const char *category, int level, T print_to_stream)
-{
+UniValue report_ccerror(const char *category, int level, T print_to_stream) {
     UniValue err(UniValue::VOBJ);
     std::ostringstream stream;
 

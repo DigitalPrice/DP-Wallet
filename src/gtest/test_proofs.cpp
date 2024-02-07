@@ -21,8 +21,7 @@ typedef libsnark::default_r1cs_ppzksnark_pp::Fqe_type curve_Fq2;
 #include "version.h"
 #include "utilstrencodings.h"
 
-TEST(proofs, g1_pairing_at_infinity)
-{
+TEST(proofs, g1_pairing_at_infinity) {
     for (size_t i = 0; i < 100; i++) {
         auto r1 = curve_G1::random_element();
         auto r2 = curve_G2::random_element();
@@ -66,8 +65,7 @@ TEST(proofs, g1_pairing_at_infinity)
     }
 }
 
-TEST(proofs, g2_subgroup_check)
-{
+TEST(proofs, g2_subgroup_check) {
     // all G2 elements are order r
     ASSERT_TRUE(libsnark::alt_bn128_modulus_r * curve_G2::random_element() == curve_G2::zero());
 
@@ -127,14 +125,12 @@ TEST(proofs, g2_subgroup_check)
     }
 }
 
-TEST(proofs, sqrt_zero)
-{
+TEST(proofs, sqrt_zero) {
     ASSERT_TRUE(curve_Fq::zero() == curve_Fq::zero().sqrt());
     ASSERT_TRUE(curve_Fq2::zero() == curve_Fq2::zero().sqrt());
 }
 
-TEST(proofs, sqrt_fq)
-{
+TEST(proofs, sqrt_fq) {
     // Poor man's PRNG
     curve_Fq acc = curve_Fq("348957923485290374852379485") ^ 1000;
 
@@ -173,12 +169,11 @@ TEST(proofs, sqrt_fq)
     ASSERT_THROW(curve_Fq("348579348569").sqrt(), std::runtime_error);
 }
 
-TEST(proofs, sqrt_fq2)
-{
+TEST(proofs, sqrt_fq2) {
     curve_Fq2 acc = curve_Fq2(
-        curve_Fq("3456293840592348059238409578239048769348760238476029347885092384059238459834") ^ 1000,
-        curve_Fq("2394578084760439457823945729347502374590283479582739485723945729384759823745") ^ 1000
-    );
+                        curve_Fq("3456293840592348059238409578239048769348760238476029347885092384059238459834") ^ 1000,
+                        curve_Fq("2394578084760439457823945729347502374590283479582739485723945729384759823745") ^ 1000
+                    );
 
     size_t quadratic_residues = 0;
     size_t quadratic_nonresidues = 0;
@@ -186,9 +181,9 @@ TEST(proofs, sqrt_fq2)
     for (size_t i = 1; i < 1000; i++) {
         try {
             acc = acc + curve_Fq2(
-                curve_Fq("5204065062716160319596273903996315000119019512886596366359652578430118331601") ^ i,
-                curve_Fq("348957923485290374852379485348957923485290374852379485348957923485290374852") ^ i
-            );
+                      curve_Fq("5204065062716160319596273903996315000119019512886596366359652578430118331601") ^ i,
+                      curve_Fq("348957923485290374852379485348957923485290374852379485348957923485290374852") ^ i
+                  );
 
             curve_Fq2 x = acc.sqrt();
             ASSERT_TRUE((x*x) == acc);
@@ -212,26 +207,26 @@ TEST(proofs, sqrt_fq2)
 
     // Test vectors
     ASSERT_THROW(curve_Fq2(
-        curve_Fq("2"),
-        curve_Fq("1")
-    ).sqrt(), std::runtime_error);
+                     curve_Fq("2"),
+                     curve_Fq("1")
+                 ).sqrt(), std::runtime_error);
 
     ASSERT_THROW(curve_Fq2(
-        curve_Fq("3345897230485723946872934576923485762803457692345760237495682347502347589473"),
-        curve_Fq("1234912378405347958234756902345768290345762348957605678245967234857634857676")
-    ).sqrt(), std::runtime_error);
+                     curve_Fq("3345897230485723946872934576923485762803457692345760237495682347502347589473"),
+                     curve_Fq("1234912378405347958234756902345768290345762348957605678245967234857634857676")
+                 ).sqrt(), std::runtime_error);
 
     curve_Fq2 x = curve_Fq2(
-        curve_Fq("12844195307879678418043983815760255909500142247603239203345049921980497041944"),
-        curve_Fq("7476417578426924565731404322659619974551724117137577781074613937423560117731")
-    );
+                      curve_Fq("12844195307879678418043983815760255909500142247603239203345049921980497041944"),
+                      curve_Fq("7476417578426924565731404322659619974551724117137577781074613937423560117731")
+                  );
 
     curve_Fq2 nx = -x;
 
     curve_Fq2 x2 = curve_Fq2(
-        curve_Fq("3345897230485723946872934576923485762803457692345760237495682347502347589474"),
-        curve_Fq("1234912378405347958234756902345768290345762348957605678245967234857634857676")
-    );
+                       curve_Fq("3345897230485723946872934576923485762803457692345760237495682347502347589474"),
+                       curve_Fq("1234912378405347958234756902345768290345762348957605678245967234857634857676")
+                   );
 
     ASSERT_TRUE(x == x2.sqrt());
     ASSERT_TRUE(nx == -x2.sqrt());
@@ -239,8 +234,7 @@ TEST(proofs, sqrt_fq2)
     ASSERT_TRUE(nx*nx == x2);
 }
 
-TEST(proofs, size_is_expected)
-{
+TEST(proofs, size_is_expected) {
     PHGRProof p;
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << p;
@@ -248,8 +242,7 @@ TEST(proofs, size_is_expected)
     ASSERT_EQ(ss.size(), 296);
 }
 
-TEST(proofs, fq_serializes_properly)
-{
+TEST(proofs, fq_serializes_properly) {
     for (size_t i = 0; i < 1000; i++) {
         curve_Fq e = curve_Fq::random_element();
 
@@ -267,8 +260,7 @@ TEST(proofs, fq_serializes_properly)
     }
 }
 
-TEST(proofs, fq2_serializes_properly)
-{
+TEST(proofs, fq2_serializes_properly) {
     for (size_t i = 0; i < 1000; i++) {
         curve_Fq2 e = curve_Fq2::random_element();
 
@@ -287,8 +279,7 @@ TEST(proofs, fq2_serializes_properly)
 }
 
 template<typename T>
-T deserialize_tv(std::string s)
-{
+T deserialize_tv(std::string s) {
     T e;
     CDataStream ss(ParseHex(s), SER_NETWORK, PROTOCOL_VERSION);
     ss >> e;
@@ -296,18 +287,15 @@ T deserialize_tv(std::string s)
     return e;
 }
 
-curve_Fq deserialize_fq(std::string s)
-{
+curve_Fq deserialize_fq(std::string s) {
     return deserialize_tv<Fq>(s).to_libsnark_fq<curve_Fq>();
 }
 
-curve_Fq2 deserialize_fq2(std::string s)
-{
+curve_Fq2 deserialize_fq2(std::string s) {
     return deserialize_tv<Fq2>(s).to_libsnark_fq2<curve_Fq2>();
 }
 
-TEST(proofs, fq_valid)
-{
+TEST(proofs, fq_valid) {
     curve_Fq e = deserialize_fq("30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd46");
 
     ASSERT_TRUE(e == curve_Fq("21888242871839275222246405745257275088696311157297823662689037894645226208582"));
@@ -318,8 +306,7 @@ TEST(proofs, fq_valid)
     ASSERT_TRUE(e2 == curve_Fq("21888242871839275222221885816603420866962577604863418715751138068690288573766"));
 }
 
-TEST(proofs, fq_invalid)
-{
+TEST(proofs, fq_invalid) {
     // Should not be able to deserialize the modulus
     ASSERT_THROW(
         deserialize_fq("30644e72e131a029b85045b68181585d97816a916871ca8d3c208c16d87cfd47"),
@@ -339,8 +326,7 @@ TEST(proofs, fq_invalid)
     );
 }
 
-TEST(proofs, fq2_valid)
-{
+TEST(proofs, fq2_valid) {
     // (q - 1) * q + q
     curve_Fq2 e = deserialize_fq2("0925c4b8763cbf9c599a6f7c0348d21cb00b85511637560626edfa5c34c6b38d04689e957a1242c84a50189c6d96cadca602072d09eac1013b5458a2275d69b0");
     ASSERT_TRUE(e.c0 == curve_Fq("21888242871839275222246405745257275088696311157297823662689037894645226208582"));
@@ -359,8 +345,7 @@ TEST(proofs, fq2_valid)
     ASSERT_TRUE(e4.c1 == curve_Fq("0"));
 }
 
-TEST(proofs, fq2_invalid)
-{
+TEST(proofs, fq2_invalid) {
     // (q - 1) * q + q is invalid
     ASSERT_THROW(
         deserialize_fq2("0925c4b8763cbf9c599a6f7c0348d21cb00b85511637560626edfa5c34c6b38d04689e957a1242c84a50189c6d96cadca602072d09eac1013b5458a2275d69b1"),
@@ -384,8 +369,7 @@ TEST(proofs, fq2_invalid)
     );
 }
 
-TEST(proofs, g1_serializes_properly)
-{
+TEST(proofs, g1_serializes_properly) {
     // Cannot serialize zero
     {
         ASSERT_THROW({CompressedG1 g = CompressedG1(curve_G1::zero());}, std::domain_error);
@@ -410,8 +394,7 @@ TEST(proofs, g1_serializes_properly)
     }
 }
 
-TEST(proofs, g2_serializes_properly)
-{
+TEST(proofs, g2_serializes_properly) {
     // Cannot serialize zero
     {
         ASSERT_THROW({CompressedG2 g = CompressedG2(curve_G2::zero());}, std::domain_error);
@@ -436,8 +419,7 @@ TEST(proofs, g2_serializes_properly)
     }
 }
 
-TEST(proofs, zksnark_serializes_properly)
-{
+TEST(proofs, zksnark_serializes_properly) {
     auto example = libsnark::generate_r1cs_example_with_field_input<curve_Fr>(250, 4);
     example.constraint_system.swap_AB_if_beneficial();
     auto kp = libsnark::r1cs_ppzksnark_generator<curve_pp>(example.constraint_system);
@@ -446,55 +428,55 @@ TEST(proofs, zksnark_serializes_properly)
     for (size_t i = 0; i < 20; i++) {
         auto badproof = PHGRProof::random_invalid();
         auto proof = badproof.to_libsnark_proof<libsnark::r1cs_ppzksnark_proof<curve_pp>>();
-        
+
         auto verifierEnabled = ProofVerifier::Strict();
         auto verifierDisabled = ProofVerifier::Disabled();
         // This verifier should catch the bad proof
         ASSERT_FALSE(verifierEnabled.check(
-            kp.vk,
-            vkprecomp,
-            example.primary_input,
-            proof
-        ));
+                         kp.vk,
+                         vkprecomp,
+                         example.primary_input,
+                         proof
+                     ));
         // This verifier won't!
         ASSERT_TRUE(verifierDisabled.check(
-            kp.vk,
-            vkprecomp,
-            example.primary_input,
-            proof
-        ));
+                        kp.vk,
+                        vkprecomp,
+                        example.primary_input,
+                        proof
+                    ));
     }
 
     for (size_t i = 0; i < 20; i++) {
         auto proof = libsnark::r1cs_ppzksnark_prover<curve_pp>(
-            kp.pk,
-            example.primary_input,
-            example.auxiliary_input,
-            example.constraint_system
-        );
+                         kp.pk,
+                         example.primary_input,
+                         example.auxiliary_input,
+                         example.constraint_system
+                     );
 
         {
             auto verifierEnabled = ProofVerifier::Strict();
             auto verifierDisabled = ProofVerifier::Disabled();
             ASSERT_TRUE(verifierEnabled.check(
-                kp.vk,
-                vkprecomp,
-                example.primary_input,
-                proof
-            ));
+                            kp.vk,
+                            vkprecomp,
+                            example.primary_input,
+                            proof
+                        ));
             ASSERT_TRUE(verifierDisabled.check(
-                kp.vk,
-                vkprecomp,
-                example.primary_input,
-                proof
-            ));
+                            kp.vk,
+                            vkprecomp,
+                            example.primary_input,
+                            proof
+                        ));
         }
 
         ASSERT_TRUE(libsnark::r1cs_ppzksnark_verifier_strong_IC<curve_pp>(
-            kp.vk,
-            example.primary_input,
-            proof
-        ));
+                        kp.vk,
+                        example.primary_input,
+                        proof
+                    ));
 
         PHGRProof compressed_proof_0(proof);
 
@@ -510,15 +492,14 @@ TEST(proofs, zksnark_serializes_properly)
 
         ASSERT_TRUE(proof == newproof);
         ASSERT_TRUE(libsnark::r1cs_ppzksnark_verifier_strong_IC<curve_pp>(
-            kp.vk,
-            example.primary_input,
-            newproof
-        ));
+                        kp.vk,
+                        example.primary_input,
+                        newproof
+                    ));
     }
 }
 
-TEST(proofs, g1_deserialization)
-{
+TEST(proofs, g1_deserialization) {
     CompressedG1 g;
     curve_G1 expected;
 
@@ -581,13 +562,12 @@ TEST(proofs, g1_deserialization)
         try {
             curve_G1 g_real = g.to_libsnark_g1<curve_G1>();
         } catch(...) {
-            
+
         }
     }
 }
 
-TEST(proofs, g2_deserialization)
-{
+TEST(proofs, g2_deserialization) {
     CompressedG2 g;
     curve_G2 expected = curve_G2::random_element();
 
@@ -597,13 +577,13 @@ TEST(proofs, g2_deserialization)
         ss >> g;
 
         expected.X = curve_Fq2(
-            curve_Fq("5923585509243758863255447226263146374209884951848029582715967108651637186684"),
-            curve_Fq("5336385337059958111259504403491065820971993066694750945459110579338490853570")
-        );
+                         curve_Fq("5923585509243758863255447226263146374209884951848029582715967108651637186684"),
+                         curve_Fq("5336385337059958111259504403491065820971993066694750945459110579338490853570")
+                     );
         expected.Y = curve_Fq2(
-            curve_Fq("10374495865873200088116930399159835104695426846400310764827677226300185211748"),
-            curve_Fq("5256529835065685814318509161957442385362539991735248614869838648137856366932")
-        );
+                         curve_Fq("10374495865873200088116930399159835104695426846400310764827677226300185211748"),
+                         curve_Fq("5256529835065685814318509161957442385362539991735248614869838648137856366932")
+                     );
         expected.Z = curve_Fq2::one();
 
         ASSERT_TRUE(g.to_libsnark_g2<curve_G2>() == expected);
@@ -615,13 +595,13 @@ TEST(proofs, g2_deserialization)
         ss >> g;
 
         expected.X = curve_Fq2(
-            curve_Fq("5923585509243758863255447226263146374209884951848029582715967108651637186684"),
-            curve_Fq("5336385337059958111259504403491065820971993066694750945459110579338490853570")
-        );
+                         curve_Fq("5923585509243758863255447226263146374209884951848029582715967108651637186684"),
+                         curve_Fq("5336385337059958111259504403491065820971993066694750945459110579338490853570")
+                     );
         expected.Y = curve_Fq2(
-            curve_Fq("10374495865873200088116930399159835104695426846400310764827677226300185211748"),
-            curve_Fq("5256529835065685814318509161957442385362539991735248614869838648137856366932")
-        );
+                         curve_Fq("10374495865873200088116930399159835104695426846400310764827677226300185211748"),
+                         curve_Fq("5256529835065685814318509161957442385362539991735248614869838648137856366932")
+                     );
         expected.Z = curve_Fq2::one();
 
         ASSERT_TRUE(g.to_libsnark_g2<curve_G2>() == -expected);
@@ -663,7 +643,7 @@ TEST(proofs, g2_deserialization)
         try {
             curve_G2 g_real = g.to_libsnark_g2<curve_G2>();
         } catch(...) {
-            
+
         }
     }
 }
@@ -671,8 +651,7 @@ TEST(proofs, g2_deserialization)
 #include "json_test_vectors.h"
 #include "test/data/g1_compressed.json.h"
 
-TEST(proofs, g1_test_vectors)
-{
+TEST(proofs, g1_test_vectors) {
     UniValue v = read_json(std::string(json_tests::g1_compressed, json_tests::g1_compressed + sizeof(json_tests::g1_compressed)));
 
     curve_G1 e = curve_Fr("34958239045823") * curve_G1::one();
@@ -687,8 +666,7 @@ TEST(proofs, g1_test_vectors)
 
 #include "test/data/g2_compressed.json.h"
 
-TEST(proofs, g2_test_vectors)
-{
+TEST(proofs, g2_test_vectors) {
     UniValue v = read_json(std::string(json_tests::g2_compressed, json_tests::g2_compressed + sizeof(json_tests::g2_compressed)));
 
     curve_G2 e = curve_Fr("34958239045823") * curve_G2::one();

@@ -37,7 +37,7 @@ uint256 GetRandHash();
 /**
  * Identity function for MappedShuffle, so that elements retain their original order.
  */
- int GenIdentity(int n);
+int GenIdentity(int n);
 
 /**
  * Rearranges the elements in the range [first,first+len) randomly, assuming
@@ -53,8 +53,7 @@ template <typename RandomAccessIterator, typename MapRandomAccessIterator>
 void MappedShuffle(RandomAccessIterator first,
                    MapRandomAccessIterator mapFirst,
                    size_t len,
-                   std::function<int(int)> gen)
-{
+                   std::function<int(int)> gen) {
     for (size_t i = len-1; i > 0; --i) {
         auto r = gen(i+1);
         assert(r >= 0);
@@ -79,8 +78,7 @@ void seed_insecure_rand(bool fDeterministic = false);
  */
 extern uint32_t insecure_rand_Rz;
 extern uint32_t insecure_rand_Rw;
-static inline uint32_t insecure_rand(void)
-{
+static inline uint32_t insecure_rand(void) {
     insecure_rand_Rz = 36969 * (insecure_rand_Rz & 65535) + (insecure_rand_Rz >> 16);
     insecure_rand_Rw = 18000 * (insecure_rand_Rw & 65535) + (insecure_rand_Rw >> 16);
     return (insecure_rand_Rw << 16) + insecure_rand_Rz;

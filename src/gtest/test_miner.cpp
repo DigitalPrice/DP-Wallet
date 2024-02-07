@@ -15,7 +15,7 @@ using ::testing::Return;
 
 #ifdef ENABLE_WALLET
 class MockReserveKey : public CReserveKey {
-public:
+  public:
     MockReserveKey() : CReserveKey(nullptr) { }
 
     MOCK_METHOD1(GetReservedKey, bool(CPubKey &pubkey));
@@ -29,7 +29,7 @@ TEST(Miner, GetMinerScriptPubKey) {
 #ifdef ENABLE_WALLET
     MockReserveKey reservekey;
     EXPECT_CALL(reservekey, GetReservedKey(::testing::_))
-        .WillRepeatedly(Return(false));
+    .WillRepeatedly(Return(false));
 #endif
 
     // No miner address set

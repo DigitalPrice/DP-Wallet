@@ -17,20 +17,18 @@
 std::string MYCCLIBNAME = (char *)"gamescc";
 
 // game specific code for daemon
-void games_packitemstr(char *packitemstr,struct games_packitem *item)
-{
+void games_packitemstr(char *packitemstr,struct games_packitem *item) {
     strcpy(packitemstr,"");
 }
 
-int64_t games_cashout(struct games_player *P)
-{
-    int32_t dungeonlevel = P->dungeonlevel; int64_t mult=10000,cashout = 0;
+int64_t games_cashout(struct games_player *P) {
+    int32_t dungeonlevel = P->dungeonlevel;
+    int64_t mult=10000,cashout = 0;
     cashout = (uint64_t)P->gold * mult;
     return(cashout);
 }
 
-void tetrisplayerjson(UniValue &obj,struct games_player *P)
-{
+void tetrisplayerjson(UniValue &obj,struct games_player *P) {
     obj.push_back(Pair("packsize",(int64_t)P->packsize));
     obj.push_back(Pair("hitpoints",(int64_t)P->hitpoints));
     obj.push_back(Pair("strength",(int64_t)(P->strength&0xffff)));
@@ -40,8 +38,7 @@ void tetrisplayerjson(UniValue &obj,struct games_player *P)
     obj.push_back(Pair("dungeonlevel",(int64_t)P->dungeonlevel));
 }
 
-int32_t disp_gamesplayer(char *str,struct games_player *P)
-{
+int32_t disp_gamesplayer(char *str,struct games_player *P) {
     str[0] = 0;
     //if ( P->gold <= 0 )//|| P->hitpoints <= 0 || (P->strength&0xffff) <= 0 || P->level <= 0 || P->experience <= 0 || P->dungeonlevel <= 0 )
     //    return(-1);
@@ -49,11 +46,12 @@ int32_t disp_gamesplayer(char *str,struct games_player *P)
     return(0);
 }
 
-int32_t games_payloadrecv(CPubKey pk,uint32_t timestamp,std::vector<uint8_t> payload)
-{
-    uint256 gametxid; int32_t i,len; char str[67]; uint32_t eventid = 0;
-    if ( (len= payload.size()) > 36 )
-    {
+int32_t games_payloadrecv(CPubKey pk,uint32_t timestamp,std::vector<uint8_t> payload) {
+    uint256 gametxid;
+    int32_t i,len;
+    char str[67];
+    uint32_t eventid = 0;
+    if ( (len= payload.size()) > 36 ) {
         len -= 36;
         for (i=0; i<32; i++)
             ((uint8_t *)&gametxid)[i] = payload[len+i];
@@ -68,20 +66,17 @@ int32_t games_payloadrecv(CPubKey pk,uint32_t timestamp,std::vector<uint8_t> pay
     } else return(-1);
 }
 
-UniValue games_bet(uint64_t txfee,struct CCcontract_info *cp,cJSON *params)
-{
+UniValue games_bet(uint64_t txfee,struct CCcontract_info *cp,cJSON *params) {
     UniValue result;
     return(result);
 }
 
-UniValue games_settle(uint64_t txfee,struct CCcontract_info *cp,cJSON *params)
-{
+UniValue games_settle(uint64_t txfee,struct CCcontract_info *cp,cJSON *params) {
     UniValue result;
     return(result);
 }
 
-bool games_validate(struct CCcontract_info *cp,int32_t height,Eval *eval,const CTransaction tx)
-{
+bool games_validate(struct CCcontract_info *cp,int32_t height,Eval *eval,const CTransaction tx) {
     return(true);
 }
 

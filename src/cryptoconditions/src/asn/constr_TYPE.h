@@ -28,11 +28,11 @@ struct asn_TYPE_member_s;	/* Forward declaration */
  * included into certain target language's structures, such as compound types.
  */
 typedef struct asn_struct_ctx_s {
-	short phase;		/* Decoding phase */
-	short step;		/* Elementary step of a phase */
-	int context;		/* Other context information */
-	void *ptr;		/* Decoder-specific stuff (stack elements) */
-	ber_tlv_len_t left;	/* Number of bytes left, -1 for indefinite */
+    short phase;		/* Decoding phase */
+    short step;		/* Elementary step of a phase */
+    int context;		/* Other context information */
+    void *ptr;		/* Decoder-specific stuff (stack elements) */
+    ber_tlv_len_t left;	/* Number of bytes left, -1 for indefinite */
 } asn_struct_ctx_t;
 
 #include "ber_decoder.h"	/* Basic Encoding Rules decoder */
@@ -51,8 +51,8 @@ typedef struct asn_struct_ctx_s {
  * dynamically.)
  */
 typedef void (asn_struct_free_f)(
-		struct asn_TYPE_descriptor_s *type_descriptor,
-		void *struct_ptr, int free_contents_only);
+    struct asn_TYPE_descriptor_s *type_descriptor,
+    void *struct_ptr, int free_contents_only);
 #define	ASN_STRUCT_FREE(asn_DEF, ptr)	(asn_DEF).free_struct(&(asn_DEF),ptr,0)
 #define	ASN_STRUCT_FREE_CONTENTS_ONLY(asn_DEF, ptr)	\
 					(asn_DEF).free_struct(&(asn_DEF),ptr,1)
@@ -61,10 +61,10 @@ typedef void (asn_struct_free_f)(
  * Print the structure according to its specification.
  */
 typedef int (asn_struct_print_f)(
-		struct asn_TYPE_descriptor_s *type_descriptor,
-		const void *struct_ptr,
-		int level,	/* Indentation level */
-		asn_app_consume_bytes_f *callback, void *app_key);
+    struct asn_TYPE_descriptor_s *type_descriptor,
+    const void *struct_ptr,
+    int level,	/* Indentation level */
+    asn_app_consume_bytes_f *callback, void *app_key);
 
 /*
  * Return the outmost tag of the type.
@@ -73,8 +73,8 @@ typedef int (asn_struct_print_f)(
  * Do not use it in your application.
  */
 typedef ber_tlv_tag_t (asn_outmost_tag_f)(
-		const struct asn_TYPE_descriptor_s *type_descriptor,
-		const void *struct_ptr, int tag_mode, ber_tlv_tag_t tag);
+    const struct asn_TYPE_descriptor_s *type_descriptor,
+    const void *struct_ptr, int tag_mode, ber_tlv_tag_t tag);
 /* The instance of the above function type; used internally. */
 asn_outmost_tag_f asn_TYPE_outmost_tag;
 
@@ -83,81 +83,81 @@ asn_outmost_tag_f asn_TYPE_outmost_tag;
  * The definitive description of the destination language's structure.
  */
 typedef struct asn_TYPE_descriptor_s {
-	const char *name;	/* A name of the ASN.1 type. "" in some cases. */
-	const char *xml_tag;	/* Name used in XML tag */
+    const char *name;	/* A name of the ASN.1 type. "" in some cases. */
+    const char *xml_tag;	/* Name used in XML tag */
 
-	/*
-	 * Generalized functions for dealing with the specific type.
-	 * May be directly invoked by applications.
-	 */
-	asn_struct_free_f  *free_struct;	/* Free the structure */
-	asn_struct_print_f *print_struct;	/* Human readable output */
-	asn_constr_check_f *check_constraints;	/* Constraints validator */
-	ber_type_decoder_f *ber_decoder;	/* Generic BER decoder */
-	der_type_encoder_f *der_encoder;	/* Canonical DER encoder */
-	xer_type_decoder_f *xer_decoder;	/* Generic XER decoder */
-	xer_type_encoder_f *xer_encoder;	/* [Canonical] XER encoder */
-	per_type_decoder_f *uper_decoder;	/* Unaligned PER decoder */
-	per_type_encoder_f *uper_encoder;	/* Unaligned PER encoder */
+    /*
+     * Generalized functions for dealing with the specific type.
+     * May be directly invoked by applications.
+     */
+    asn_struct_free_f  *free_struct;	/* Free the structure */
+    asn_struct_print_f *print_struct;	/* Human readable output */
+    asn_constr_check_f *check_constraints;	/* Constraints validator */
+    ber_type_decoder_f *ber_decoder;	/* Generic BER decoder */
+    der_type_encoder_f *der_encoder;	/* Canonical DER encoder */
+    xer_type_decoder_f *xer_decoder;	/* Generic XER decoder */
+    xer_type_encoder_f *xer_encoder;	/* [Canonical] XER encoder */
+    per_type_decoder_f *uper_decoder;	/* Unaligned PER decoder */
+    per_type_encoder_f *uper_encoder;	/* Unaligned PER encoder */
 
-	/***********************************************************************
-	 * Internally useful members. Not to be used by applications directly. *
-	 **********************************************************************/
+    /***********************************************************************
+     * Internally useful members. Not to be used by applications directly. *
+     **********************************************************************/
 
-	/*
-	 * Tags that are expected to occur.
-	 */
-	asn_outmost_tag_f  *outmost_tag;	/* <optional, internal> */
-	const ber_tlv_tag_t *tags;	/* Effective tags sequence for this type */
-	int tags_count;			/* Number of tags which are expected */
-	const ber_tlv_tag_t *all_tags;	/* Every tag for BER/containment */
-	int all_tags_count;		/* Number of tags */
+    /*
+     * Tags that are expected to occur.
+     */
+    asn_outmost_tag_f  *outmost_tag;	/* <optional, internal> */
+    const ber_tlv_tag_t *tags;	/* Effective tags sequence for this type */
+    int tags_count;			/* Number of tags which are expected */
+    const ber_tlv_tag_t *all_tags;	/* Every tag for BER/containment */
+    int all_tags_count;		/* Number of tags */
 
-	asn_per_constraints_t *per_constraints;	/* PER compiled constraints */
+    asn_per_constraints_t *per_constraints;	/* PER compiled constraints */
 
-	/*
-	 * An ASN.1 production type members (members of SEQUENCE, SET, CHOICE).
-	 */
-	struct asn_TYPE_member_s *elements;
-	int elements_count;
+    /*
+     * An ASN.1 production type members (members of SEQUENCE, SET, CHOICE).
+     */
+    struct asn_TYPE_member_s *elements;
+    int elements_count;
 
-	/*
-	 * Additional information describing the type, used by appropriate
-	 * functions above.
-	 */
-	const void *specifics;
+    /*
+     * Additional information describing the type, used by appropriate
+     * functions above.
+     */
+    const void *specifics;
 } asn_TYPE_descriptor_t;
 
 /*
  * This type describes an element of the constructed type,
  * i.e. SEQUENCE, SET, CHOICE, etc.
  */
-  enum asn_TYPE_flags_e {
-	ATF_NOFLAGS,
-	ATF_POINTER	= 0x01,	/* Represented by the pointer */
-	ATF_OPEN_TYPE	= 0x02	/* ANY type, without meaningful tag */
-  };
+enum asn_TYPE_flags_e {
+    ATF_NOFLAGS,
+    ATF_POINTER	= 0x01,	/* Represented by the pointer */
+    ATF_OPEN_TYPE	= 0x02	/* ANY type, without meaningful tag */
+};
 typedef struct asn_TYPE_member_s {
-	enum asn_TYPE_flags_e flags;	/* Element's presentation flags */
-	int optional;	/* Following optional members, including current */
-	int memb_offset;		/* Offset of the element */
-	ber_tlv_tag_t tag;		/* Outmost (most immediate) tag */
-	int tag_mode;		/* IMPLICIT/no/EXPLICIT tag at current level */
-	asn_TYPE_descriptor_t *type;	/* Member type descriptor */
-	asn_constr_check_f *memb_constraints;	/* Constraints validator */
-	asn_per_constraints_t *per_constraints;	/* PER compiled constraints */
-	int (*default_value)(int setval, void **sptr);	/* DEFAULT <value> */
-	const char *name;			/* ASN.1 identifier of the element */
+    enum asn_TYPE_flags_e flags;	/* Element's presentation flags */
+    int optional;	/* Following optional members, including current */
+    int memb_offset;		/* Offset of the element */
+    ber_tlv_tag_t tag;		/* Outmost (most immediate) tag */
+    int tag_mode;		/* IMPLICIT/no/EXPLICIT tag at current level */
+    asn_TYPE_descriptor_t *type;	/* Member type descriptor */
+    asn_constr_check_f *memb_constraints;	/* Constraints validator */
+    asn_per_constraints_t *per_constraints;	/* PER compiled constraints */
+    int (*default_value)(int setval, void **sptr);	/* DEFAULT <value> */
+    const char *name;			/* ASN.1 identifier of the element */
 } asn_TYPE_member_t;
 
 /*
  * BER tag to element number mapping.
  */
 typedef struct asn_TYPE_tag2member_s {
-	ber_tlv_tag_t el_tag;	/* Outmost tag of the member */
-	int el_no;		/* Index of the associated member, base 0 */
-	int toff_first;		/* First occurence of the el_tag, relative */
-	int toff_last;		/* Last occurence of the el_tag, relatvie */
+    ber_tlv_tag_t el_tag;	/* Outmost tag of the member */
+    int el_no;		/* Index of the associated member, base 0 */
+    int toff_first;		/* First occurence of the el_tag, relative */
+    int toff_last;		/* Last occurence of the el_tag, relatvie */
 } asn_TYPE_tag2member_t;
 
 /*
@@ -170,8 +170,8 @@ typedef struct asn_TYPE_tag2member_s {
  * (See also xer_fprint() in xer_encoder.h)
  */
 int asn_fprint(FILE *stream,		/* Destination stream descriptor */
-	asn_TYPE_descriptor_t *td,	/* ASN.1 type descriptor */
-	const void *struct_ptr);	/* Structure to be printed */
+               asn_TYPE_descriptor_t *td,	/* ASN.1 type descriptor */
+               const void *struct_ptr);	/* Structure to be printed */
 
 #ifdef __cplusplus
 }

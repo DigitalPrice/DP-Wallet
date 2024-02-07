@@ -16,29 +16,25 @@ class CSubNet;
 class CAddrMan;
 class CDataStream;
 
-typedef enum BanReason
-{
+typedef enum BanReason {
     BanReasonUnknown          = 0,
     BanReasonNodeMisbehaving  = 1,
     BanReasonManuallyAdded    = 2
 } BanReason;
 
-class CBanEntry
-{
-public:
+class CBanEntry {
+  public:
     static const int CURRENT_VERSION=1;
     int nVersion;
     int64_t nCreateTime;
     int64_t nBanUntil;
     uint8_t banReason;
 
-    CBanEntry()
-    {
+    CBanEntry() {
         SetNull();
     }
 
-    explicit CBanEntry(int64_t nCreateTimeIn)
-    {
+    explicit CBanEntry(int64_t nCreateTimeIn) {
         SetNull();
         nCreateTime = nCreateTimeIn;
     }
@@ -53,16 +49,14 @@ public:
         READWRITE(banReason);
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         nVersion = CBanEntry::CURRENT_VERSION;
         nCreateTime = 0;
         nBanUntil = 0;
         banReason = BanReasonUnknown;
     }
 
-    std::string banReasonToString() const
-    {
+    std::string banReasonToString() const {
         switch (banReason) {
         case BanReasonNodeMisbehaving:
             return "node misbehaving";
@@ -77,11 +71,10 @@ public:
 typedef std::map<CSubNet, CBanEntry> banmap_t;
 
 /** Access to the banlist database (banlist.dat) */
-class CBanDB
-{
-private:
+class CBanDB {
+  private:
     fs::path pathBanlist;
-public:
+  public:
     CBanDB();
     bool Write(const banmap_t& banSet);
     bool Read(banmap_t& banSet);

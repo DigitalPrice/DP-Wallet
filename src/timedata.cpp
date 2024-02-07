@@ -35,8 +35,7 @@ CTimeWarning timeWarning;
  * from local time.
  */
 
-int64_t CTimeWarning::AddTimeData(const CNetAddr& ip, int64_t nTime, int64_t now)
-{
+int64_t CTimeWarning::AddTimeData(const CNetAddr& ip, int64_t nTime, int64_t now) {
     assert(now >= 0 && now <= INT64_MAX - TIMEDATA_IGNORE_THRESHOLD);
 
     if (nTime <= now - TIMEDATA_IGNORE_THRESHOLD || nTime >= now + TIMEDATA_IGNORE_THRESHOLD) {
@@ -66,14 +65,13 @@ int64_t CTimeWarning::AddTimeData(const CNetAddr& ip, int64_t nTime, int64_t now
     return nTimeOffset;
 }
 
-void CTimeWarning::Warn(size_t peersAhead, size_t peersBehind)
-{
+void CTimeWarning::Warn(size_t peersAhead, size_t peersBehind) {
     std::string strMessage;
     if (peersBehind >= TIMEDATA_WARNING_MAJORITY) {
         strMessage = _("Warning: Your computer's date and time may be ahead of the rest of the network! If your clock is wrong Zcash will not work properly.");
     } else if (peersAhead >= TIMEDATA_WARNING_MAJORITY) {
         strMessage = _("Warning: Your computer's date and time may be behind the rest of the network! If your clock is wrong Zcash will not work properly.");
-            } else {
+    } else {
         strMessage = _("Warning: Please check that your computer's date and time are correct! If your clock is wrong Zcash will not work properly.");
     }
     LogPrintf("*** %s\n", strMessage);

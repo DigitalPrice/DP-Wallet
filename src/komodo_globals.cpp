@@ -82,12 +82,13 @@ int32_t ASSETCHAINS_STAKED;
 uint64_t ASSETCHAINS_COMMISSION,ASSETCHAINS_SUPPLY = 10,ASSETCHAINS_FOUNDERS_REWARD;
 
 uint32_t KOMODO_INITDONE;
-char KMDUSERPASS[8192+512+1],BTCUSERPASS[8192]; uint16_t KMD_PORT = 7771,BITCOIND_RPCPORT = 7771, DEST_PORT;
+char KMDUSERPASS[8192+512+1],BTCUSERPASS[8192];
+uint16_t KMD_PORT = 7771,BITCOIND_RPCPORT = 7771, DEST_PORT;
 uint64_t PENDING_KOMODO_TX;
 unsigned int MAX_BLOCK_SIGOPS = 20000;
 
 bool IS_KOMODO_TESTNODE;
-int32_t KOMODO_SNAPSHOT_INTERVAL; 
+int32_t KOMODO_SNAPSHOT_INTERVAL;
 CScript KOMODO_EARLYTXID_SCRIPTPUB;
 int32_t ASSETCHAINS_EARLYTXIDCONTRACT;
 int32_t ASSETCHAINS_STAKED_SPLIT_PERCENTAGE;
@@ -97,17 +98,17 @@ std::map <std::int8_t, int32_t> mapHeightEvalActivate;
 
 /**
  * @brief Given a currency name, return the index in the KOMODO_STATES array
- * 
+ *
  * @param origbase the currency name to look for
  * @return 0 for an asset chain, 1 for KMD, or -1
  */
-int32_t komodo_baseid(const char *origbase)
-{
+int32_t komodo_baseid(const char *origbase) {
     // convert to upper case
     std::string base(origbase);
-    std::transform(base.begin(),base.end(),base.begin(),[](char s){return toupper(s & 0xff);});
-    for(size_t i = 0; i < KOMODO_STATES_NUMBER; ++i)
-    {
+    std::transform(base.begin(),base.end(),base.begin(),[](char s) {
+        return toupper(s & 0xff);
+    });
+    for(size_t i = 0; i < KOMODO_STATES_NUMBER; ++i) {
         if (KOMODO_STATES[i].symbol == base)
             return i;
     }

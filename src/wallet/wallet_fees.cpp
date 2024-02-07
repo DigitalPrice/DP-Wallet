@@ -13,13 +13,11 @@
 #include "wallet/wallet.h"
 
 
-CAmount GetRequiredFee(unsigned int nTxBytes)
-{
+CAmount GetRequiredFee(unsigned int nTxBytes) {
     return std::max(CWallet::minTxFee.GetFee(nTxBytes), ::minRelayTxFee.GetFee(nTxBytes));
 }
 
-CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, const CTxMemPool& pool, const CBlockPolicyEstimator& estimator, FeeCalculation *feeCalc)
-{
+CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, const CTxMemPool& pool, const CBlockPolicyEstimator& estimator, FeeCalculation *feeCalc) {
     /* User control of how to calculate fee uses the following parameter precedence:
        1. coin_control.m_feerate
        2. coin_control.m_confirm_target
@@ -34,12 +32,10 @@ CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, c
         if (feeCalc) feeCalc->reason = FeeReason::PAYTXFEE;
         // Allow to override automatic min/max check over coin control instance
         if (coin_control.fOverrideFeeRate) return fee_needed;
-    }
-    else if (!coin_control.m_confirm_target && ::payTxFee != CFeeRate(0)) { // 3. TODO: remove magic value of 0 for global payTxFee
+    } else if (!coin_control.m_confirm_target && ::payTxFee != CFeeRate(0)) { // 3. TODO: remove magic value of 0 for global payTxFee
         fee_needed = ::payTxFee.GetFee(nTxBytes);
         if (feeCalc) feeCalc->reason = FeeReason::PAYTXFEE;
-    }
-    else { // 2. or 4.
+    } else { // 2. or 4.
         // We will use smart fee estimation
 //        unsigned int target = coin_control.m_confirm_target ? *coin_control.m_confirm_target : ::nTxConfirmTarget;
         // By default estimates are economical iff we are signaling opt-in-RBF
@@ -50,9 +46,9 @@ CAmount GetMinimumFee(unsigned int nTxBytes, const CCoinControl& coin_control, c
 
 //        fee_needed = estimator.estimateSmartFee(target, feeCalc, conservative_estimate).GetFee(nTxBytes);
 //        if (fee_needed == 0) {
-            // if we don't have enough data for estimateSmartFee, then use fallbackFee
-            fee_needed = CWallet::fallbackFee.GetFee(nTxBytes);
-            if (feeCalc) feeCalc->reason = FeeReason::FALLBACK;
+        // if we don't have enough data for estimateSmartFee, then use fallbackFee
+        fee_needed = CWallet::fallbackFee.GetFee(nTxBytes);
+        if (feeCalc) feeCalc->reason = FeeReason::FALLBACK;
 //        }
         // Obey mempool min fee when using smart fee estimation
 //        CAmount min_mempool_fee = pool.GetMinFee(GetArg("-maxmempool", DEFAULT_MAX_MEMPOOL_SIZE) * 1000000).GetFee(nTxBytes);

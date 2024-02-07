@@ -69,7 +69,7 @@ void loadFromFile(const std::string path, T& objIn) {
 
 template<size_t NumInputs, size_t NumOutputs>
 class JoinSplitCircuit : public JoinSplit<NumInputs, NumOutputs> {
-public:
+  public:
     typedef default_r1cs_ppzksnark_pp ppzksnark_ppT;
     typedef Fr<ppzksnark_ppT> FieldT;
 
@@ -85,8 +85,7 @@ public:
 
     static void generate(const std::string r1csPath,
                          const std::string vkPath,
-                         const std::string pkPath)
-    {
+                         const std::string pkPath) {
         protoboard<FieldT> pb;
 
         joinsplit_gadget<FieldT, NumInputs, NumOutputs> g(pb);
@@ -120,21 +119,21 @@ public:
             uint256 h_sig = this->h_sig(randomSeed, nullifiers, joinSplitPubKey);
 
             auto witness = joinsplit_gadget<FieldT, NumInputs, NumOutputs>::witness_map(
-                rt,
-                h_sig,
-                macs,
-                nullifiers,
-                commitments,
-                vpub_old,
-                vpub_new
-            );
+                               rt,
+                               h_sig,
+                               macs,
+                               nullifiers,
+                               commitments,
+                               vpub_old,
+                               vpub_new
+                           );
 
             return verifier.check(
-                vk,
-                vk_precomp,
-                witness,
-                r1cs_proof
-            );
+                       vk,
+                       vk_precomp,
+                       witness,
+                       r1cs_proof
+                   );
         } catch (...) {
             return false;
         }
@@ -361,27 +360,25 @@ public:
         }
 
         return PHGRProof(r1cs_ppzksnark_prover_streaming<ppzksnark_ppT>(
-            fh,
-            primary_input,
-            aux_input,
-            pb.constraint_system
-        ));
+                             fh,
+                             primary_input,
+                             aux_input,
+                             pb.constraint_system
+                         ));
     }
 };
 
 template<size_t NumInputs, size_t NumOutputs>
 void JoinSplit<NumInputs, NumOutputs>::Generate(const std::string r1csPath,
-                                                const std::string vkPath,
-                                                const std::string pkPath)
-{
+        const std::string vkPath,
+        const std::string pkPath) {
     initialize_curve_params();
     JoinSplitCircuit<NumInputs, NumOutputs>::generate(r1csPath, vkPath, pkPath);
 }
 
 template<size_t NumInputs, size_t NumOutputs>
 JoinSplit<NumInputs, NumOutputs>* JoinSplit<NumInputs, NumOutputs>::Prepared(const std::string vkPath,
-                                                                             const std::string pkPath)
-{
+        const std::string pkPath) {
     initialize_curve_params();
     return new JoinSplitCircuit<NumInputs, NumOutputs>(vkPath, pkPath);
 }
@@ -406,12 +403,11 @@ uint256 JoinSplit<NumInputs, NumOutputs>::h_sig(
     uint256 output;
 
     if (crypto_generichash_blake2b_salt_personal(output.begin(), 32,
-                                                 &block[0], block.size(),
-                                                 NULL, 0, // No key.
-                                                 NULL,    // No salt.
-                                                 personalization
-                                                ) != 0)
-    {
+            &block[0], block.size(),
+            NULL, 0, // No key.
+            NULL,    // No salt.
+            personalization
+                                                ) != 0) {
         throw std::logic_error("hash function failure");
     }
 
@@ -430,7 +426,7 @@ JSOutput::JSOutput() : addr(uint256(), uint256()), value(0) {
 }
 
 JSInput::JSInput() : witness(SproutMerkleTree().witness()),
-                     key(SproutSpendingKey::random()) {
+    key(SproutSpendingKey::random()) {
     note = SproutNote(key.address().a_pk, 0, random_uint256(), random_uint256());
     SproutMerkleTree dummy_tree;
     dummy_tree.append(note.cm());

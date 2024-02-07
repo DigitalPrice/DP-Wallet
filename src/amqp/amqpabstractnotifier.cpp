@@ -6,16 +6,13 @@
 #include "util.h"
 
 
-AMQPAbstractNotifier::~AMQPAbstractNotifier()
-{
+AMQPAbstractNotifier::~AMQPAbstractNotifier() {
 }
 
-bool AMQPAbstractNotifier::NotifyBlock(const CBlockIndex * /*CBlockIndex*/)
-{
+bool AMQPAbstractNotifier::NotifyBlock(const CBlockIndex * /*CBlockIndex*/) {
     return true;
 }
 
-bool AMQPAbstractNotifier::NotifyTransaction(const CTransaction &/*transaction*/)
-{
+bool AMQPAbstractNotifier::NotifyTransaction(const CTransaction &/*transaction*/) {
     return true;
 }

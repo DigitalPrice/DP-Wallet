@@ -9,11 +9,10 @@
 
 /** Macintosh-specific notification handler (supports UserNotificationCenter).
  */
-class MacNotificationHandler : public QObject
-{
+class MacNotificationHandler : public QObject {
     Q_OBJECT
 
-public:
+  public:
     /** shows a macOS 10.8+ UserNotification in the UserNotificationCenter
      */
     void showNotification(const QString &title, const QString &text);

@@ -171,20 +171,17 @@ void tg_print(tetris_game *obj, FILE *f);
 typedef uint16_t gamesevent; // can be 8, 16, 32, or 64 bits
 
 #define MAXPACK 23
-struct games_packitem
-{
+struct games_packitem {
     int32_t type,launch,count,which,hplus,dplus,arm,flags,group;
     char damage[8],hurldmg[8];
 };
 
-struct games_player
-{
+struct games_player {
     int32_t gold,hitpoints,strength,level,experience,packsize,dungeonlevel,amulet;
     struct games_packitem gamespack[MAXPACK];
 };
 
-struct games_state
-{
+struct games_state {
     uint64_t seed,origseed;
     char *keystrokeshex;
     uint32_t needflush,replaydone;

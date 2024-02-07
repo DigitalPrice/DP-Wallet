@@ -18,8 +18,7 @@
 using namespace libsnark;
 
 template<typename FieldT>
-void test_field()
-{
+void test_field() {
     bigint<1> rand1 = bigint<1>("76749407");
     bigint<1> rand2 = bigint<1>("44410867");
     bigint<1> randsum = bigint<1>("121160274");
@@ -52,10 +51,8 @@ void test_field()
 }
 
 template<typename FieldT>
-void test_sqrt()
-{
-    for (size_t i = 0; i < 100; ++i)
-    {
+void test_sqrt() {
+    for (size_t i = 0; i < 100; ++i) {
         FieldT a = FieldT::random_element();
         FieldT asq = a.squared();
         assert(asq.sqrt() == a || asq.sqrt() == -a);
@@ -63,8 +60,7 @@ void test_sqrt()
 }
 
 template<typename FieldT>
-void test_two_squarings()
-{
+void test_two_squarings() {
     FieldT a = FieldT::random_element();
     assert(a.squared() == a * a);
     assert(a.squared() == a.squared_complex());
@@ -72,13 +68,11 @@ void test_two_squarings()
 }
 
 template<typename FieldT>
-void test_Frobenius()
-{
+void test_Frobenius() {
     FieldT a = FieldT::random_element();
     assert(a.Frobenius_map(0) == a);
     FieldT a_q = a ^ FieldT::base_field_char();
-    for (size_t power = 1; power < 10; ++power)
-    {
+    for (size_t power = 1; power < 10; ++power) {
         const FieldT a_qi = a.Frobenius_map(power);
         assert(a_qi == a_q);
 
@@ -87,8 +81,7 @@ void test_Frobenius()
 }
 
 template<typename FieldT>
-void test_unitary_inverse()
-{
+void test_unitary_inverse() {
     EXPECT_EQ(FieldT::extension_degree() % 2, 0u);
     FieldT a = FieldT::random_element();
     FieldT aqcubed_minus1 = a.Frobenius_map(FieldT::extension_degree()/2) * a.inverse();
@@ -99,8 +92,7 @@ template<typename FieldT>
 void test_cyclotomic_squaring();
 
 template<>
-void test_cyclotomic_squaring<Fqk<edwards_pp> >()
-{
+void test_cyclotomic_squaring<Fqk<edwards_pp> >() {
     typedef Fqk<edwards_pp> FieldT;
     assert(FieldT::extension_degree() % 2 == 0);
     FieldT a = FieldT::random_element();
@@ -111,8 +103,7 @@ void test_cyclotomic_squaring<Fqk<edwards_pp> >()
 }
 
 template<>
-void test_cyclotomic_squaring<Fqk<mnt4_pp> >()
-{
+void test_cyclotomic_squaring<Fqk<mnt4_pp> >() {
     typedef Fqk<mnt4_pp> FieldT;
     assert(FieldT::extension_degree() % 2 == 0);
     FieldT a = FieldT::random_element();
@@ -123,8 +114,7 @@ void test_cyclotomic_squaring<Fqk<mnt4_pp> >()
 }
 
 template<>
-void test_cyclotomic_squaring<Fqk<mnt6_pp> >()
-{
+void test_cyclotomic_squaring<Fqk<mnt6_pp> >() {
     typedef Fqk<mnt6_pp> FieldT;
     assert(FieldT::extension_degree() % 2 == 0);
     FieldT a = FieldT::random_element();
@@ -135,8 +125,7 @@ void test_cyclotomic_squaring<Fqk<mnt6_pp> >()
 }
 
 template<typename ppT>
-void test_all_fields()
-{
+void test_all_fields() {
     test_field<Fr<ppT> >();
     test_field<Fq<ppT> >();
     test_field<Fqe<ppT> >();
@@ -153,11 +142,9 @@ void test_all_fields()
 }
 
 template<typename Fp4T>
-void test_Fp4_tom_cook()
-{
+void test_Fp4_tom_cook() {
     typedef typename Fp4T::my_Fp FieldT;
-    for (size_t i = 0; i < 100; ++i)
-    {
+    for (size_t i = 0; i < 100; ++i) {
         const Fp4T a = Fp4T::random_element();
         const Fp4T b = Fp4T::random_element();
         const Fp4T correct_res = a * b;
@@ -165,22 +152,22 @@ void test_Fp4_tom_cook()
         Fp4T res;
 
         const FieldT
-            &a0 = a.c0.c0,
-            &a1 = a.c1.c0,
-            &a2 = a.c0.c1,
-            &a3 = a.c1.c1;
+        &a0 = a.c0.c0,
+         &a1 = a.c1.c0,
+          &a2 = a.c0.c1,
+           &a3 = a.c1.c1;
 
         const FieldT
-            &b0 = b.c0.c0,
-            &b1 = b.c1.c0,
-            &b2 = b.c0.c1,
-            &b3 = b.c1.c1;
+        &b0 = b.c0.c0,
+         &b1 = b.c1.c0,
+          &b2 = b.c0.c1,
+           &b3 = b.c1.c1;
 
         FieldT
-            &c0 = res.c0.c0,
-            &c1 = res.c1.c0,
-            &c2 = res.c0.c1,
-            &c3 = res.c1.c1;
+        &c0 = res.c0.c0,
+         &c1 = res.c1.c0,
+          &c2 = res.c0.c1,
+           &c3 = res.c1.c1;
 
         const FieldT v0 = a0 * b0;
         const FieldT v1 = (a0 + a1 + a2 + a3) * (b0 + b1 + b2 + b3);
@@ -216,8 +203,7 @@ void test_Fp4_tom_cook()
     }
 }
 
-int main(void)
-{
+int main(void) {
     edwards_pp::init_public_params();
     test_all_fields<edwards_pp>();
     test_cyclotomic_squaring<Fqk<edwards_pp> >();

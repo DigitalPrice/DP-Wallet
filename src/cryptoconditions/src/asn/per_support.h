@@ -16,34 +16,34 @@ extern "C" {
  * Pre-computed PER constraints.
  */
 typedef const struct asn_per_constraint_s {
-	enum asn_per_constraint_flags {
-		APC_UNCONSTRAINED	= 0x0,	/* No PER visible constraints */
-		APC_SEMI_CONSTRAINED	= 0x1,	/* Constrained at "lb" */
-		APC_CONSTRAINED		= 0x2,	/* Fully constrained */
-		APC_EXTENSIBLE		= 0x4	/* May have extension */
-	} flags;
-	int  range_bits;		/* Full number of bits in the range */
-	int  effective_bits;		/* Effective bits */
-	long lower_bound;		/* "lb" value */
-	long upper_bound;		/* "ub" value */
+    enum asn_per_constraint_flags {
+        APC_UNCONSTRAINED	= 0x0,	/* No PER visible constraints */
+        APC_SEMI_CONSTRAINED	= 0x1,	/* Constrained at "lb" */
+        APC_CONSTRAINED		= 0x2,	/* Fully constrained */
+        APC_EXTENSIBLE		= 0x4	/* May have extension */
+    } flags;
+    int  range_bits;		/* Full number of bits in the range */
+    int  effective_bits;		/* Effective bits */
+    long lower_bound;		/* "lb" value */
+    long upper_bound;		/* "ub" value */
 } asn_per_constraint_t;
 typedef const struct asn_per_constraints_s {
-	struct asn_per_constraint_s value;
-	struct asn_per_constraint_s size;
-	int (*value2code)(unsigned int value);
-	int (*code2value)(unsigned int code);
+    struct asn_per_constraint_s value;
+    struct asn_per_constraint_s size;
+    int (*value2code)(unsigned int value);
+    int (*code2value)(unsigned int code);
 } asn_per_constraints_t;
 
 /*
  * This structure describes a position inside an incoming PER bit stream.
  */
 typedef struct asn_per_data_s {
-  const uint8_t *buffer;  /* Pointer to the octet stream */
-         size_t  nboff;   /* Bit offset to the meaningful bit */
-         size_t  nbits;   /* Number of bits in the stream */
-         size_t  moved;   /* Number of bits moved through this bit stream */
-  int (*refill)(struct asn_per_data_s *);
-  void *refill_key;
+    const uint8_t *buffer;  /* Pointer to the octet stream */
+    size_t  nboff;   /* Bit offset to the meaningful bit */
+    size_t  nbits;   /* Number of bits in the stream */
+    size_t  moved;   /* Number of bits moved through this bit stream */
+    int (*refill)(struct asn_per_data_s *);
+    void *refill_key;
 } asn_per_data_t;
 
 /*
@@ -62,14 +62,14 @@ void per_get_undo(asn_per_data_t *per_data, int get_nbits);
  * extracted due to EOD or other conditions.
  */
 int per_get_many_bits(asn_per_data_t *pd, uint8_t *dst, int right_align,
-			int get_nbits);
+                      int get_nbits);
 
 /*
  * Get the length "n" from the Unaligned PER stream.
  */
 ssize_t uper_get_length(asn_per_data_t *pd,
-			int effective_bound_bits,
-			int *repeat);
+                        int effective_bound_bits,
+                        int *repeat);
 
 /*
  * Get the normally small length "n".
@@ -91,13 +91,13 @@ char *per_data_string(asn_per_data_t *pd);
  * This structure supports forming PER output.
  */
 typedef struct asn_per_outp_s {
-	uint8_t *buffer;	/* Pointer into the (tmpspace) */
-	size_t nboff;		/* Bit offset to the meaningful bit */
-	size_t nbits;		/* Number of bits left in (tmpspace) */
-	uint8_t tmpspace[32];	/* Preliminary storage to hold data */
-	int (*outper)(const void *data, size_t size, void *op_key);
-	void *op_key;		/* Key for (outper) data callback */
-	size_t flushed_bytes;	/* Bytes already flushed through (outper) */
+    uint8_t *buffer;	/* Pointer into the (tmpspace) */
+    size_t nboff;		/* Bit offset to the meaningful bit */
+    size_t nbits;		/* Number of bits left in (tmpspace) */
+    uint8_t tmpspace[32];	/* Preliminary storage to hold data */
+    int (*outper)(const void *data, size_t size, void *op_key);
+    void *op_key;		/* Key for (outper) data callback */
+    size_t flushed_bytes;	/* Bytes already flushed through (outper) */
 } asn_per_outp_t;
 
 /* Output a small number of bits (<= 31) */

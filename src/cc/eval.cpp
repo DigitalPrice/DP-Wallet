@@ -38,8 +38,7 @@ Eval* EVAL_TEST = 0;
 struct CCcontract_info CCinfos[0x100];
 extern pthread_mutex_t KOMODO_CC_mutex;
 
-bool RunCCEval(const CC *cond, const CTransaction &tx, unsigned int nIn)
-{
+bool RunCCEval(const CC *cond, const CTransaction &tx, unsigned int nIn) {
     EvalRef eval;
     pthread_mutex_lock(&KOMODO_CC_mutex);
     bool out = eval->Dispatch(cond, tx, nIn);
@@ -52,15 +51,14 @@ bool RunCCEval(const CC *cond, const CTransaction &tx, unsigned int nIn)
 
     std::string lvl = eval->state.IsInvalid() ? "Invalid" : "Error!";
     LogPrintf( "CC Eval %s %s: %s spending tx %s\n",
-            EvalToStr(cond->code[0]).data(),
-            lvl.data(),
-            eval->state.GetRejectReason().data(),
-            tx.vin[nIn].prevout.hash.GetHex().data());
+               EvalToStr(cond->code[0]).data(),
+               lvl.data(),
+               eval->state.GetRejectReason().data(),
+               tx.vin[nIn].prevout.hash.GetHex().data());
     if (eval->state.IsError()) LogPrintf( "Culprit: %s\n", EncodeHexTx(tx).data());
-    CTransaction tmp; 
-    if (mempool.lookup(tx.GetHash(), tmp))
-    {
-        // This is to remove a payments airdrop if it gets stuck in the mempool. 
+    CTransaction tmp;
+    if (mempool.lookup(tx.GetHash(), tmp)) {
+        // This is to remove a payments airdrop if it gets stuck in the mempool.
         // Miner will mine 1 invalid block, but doesnt stop them mining until a restart.
         // This would almost never happen in normal use.
         std::list<CTransaction> dummy;
@@ -73,64 +71,56 @@ bool RunCCEval(const CC *cond, const CTransaction &tx, unsigned int nIn)
 /*
  * Test the validity of an Eval node
  */
-bool Eval::Dispatch(const CC *cond, const CTransaction &txTo, unsigned int nIn)
-{
+bool Eval::Dispatch(const CC *cond, const CTransaction &txTo, unsigned int nIn) {
     struct CCcontract_info *cp;
     if (cond->codeLength == 0)
         return Invalid("empty-eval");
 
     uint8_t ecode = cond->code[0];
-    if ( ASSETCHAINS_CCDISABLES[ecode] != 0 )
-    {
-        // check if a height activation has been set. 
-        if ( mapHeightEvalActivate[ecode] == 0 || this->GetCurrentHeight() == 0 || mapHeightEvalActivate[ecode] > this->GetCurrentHeight() )
-        {
+    if ( ASSETCHAINS_CCDISABLES[ecode] != 0 ) {
+        // check if a height activation has been set.
+        if ( mapHeightEvalActivate[ecode] == 0 || this->GetCurrentHeight() == 0 || mapHeightEvalActivate[ecode] > this->GetCurrentHeight() ) {
             LogPrintf("%s evalcode.%d %02x\n",txTo.GetHash().GetHex().c_str(),ecode,ecode);
             LogPrintf( "ac_ccactivateht: evalcode.%i activates at height.%i vs current height.%i\n", ecode, mapHeightEvalActivate[ecode], this->GetCurrentHeight());
             return Invalid("disabled-code, -ac_ccenables didnt include this ecode");
         }
     }
     std::vector<uint8_t> vparams(cond->code+1, cond->code+cond->codeLength);
-    if ( ecode >= EVAL_FIRSTUSER && ecode <= EVAL_LASTUSER )
-    {
+    if ( ecode >= EVAL_FIRSTUSER && ecode <= EVAL_LASTUSER ) {
         if ( ASSETCHAINS_CCLIB.size() > 0 && ASSETCHAINS_CCLIB == CClib_name() )
             return CClib_Dispatch(cond,this,vparams,txTo,nIn);
         else return Invalid("mismatched -ac_cclib vs CClib_name");
     }
     cp = &CCinfos[(int32_t)ecode];
-    if ( cp->didinit == 0 )
-    {
+    if ( cp->didinit == 0 ) {
         CCinit(cp,ecode);
         cp->didinit = 1;
     }
 
-    switch ( ecode )
-    {
-        case EVAL_IMPORTPAYOUT:
-            return ImportPayout(vparams, txTo, nIn);
-            break;
+    switch ( ecode ) {
+    case EVAL_IMPORTPAYOUT:
+        return ImportPayout(vparams, txTo, nIn);
+        break;
 
-        case EVAL_IMPORTCOIN:
-            return ImportCoin(vparams, txTo, nIn);
-            break;
+    case EVAL_IMPORTCOIN:
+        return ImportCoin(vparams, txTo, nIn);
+        break;
 
-        default:
-            return(ProcessCC(cp,this, vparams, txTo, nIn));
-            break;
+    default:
+        return(ProcessCC(cp,this, vparams, txTo, nIn));
+        break;
     }
     return Invalid("invalid-code, dont forget to add EVAL_NEWCC to Eval::Dispatch");
 }
 
 
-bool Eval::GetSpendsConfirmed(uint256 hash, std::vector<CTransaction> &spends) const
-{
+bool Eval::GetSpendsConfirmed(uint256 hash, std::vector<CTransaction> &spends) const {
     // NOT IMPLEMENTED
     return false;
 }
 
 
-bool Eval::GetTxUnconfirmed(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock) const
-{
+bool Eval::GetTxUnconfirmed(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock) const {
     return(myGetTransaction(hash, txOut,hashBlock));
     /*if (!myGetTransaction(hash, txOut,hashBlock)) {
         return(myGetTransaction(hash, txOut,hashBlock));
@@ -138,8 +128,7 @@ bool Eval::GetTxUnconfirmed(const uint256 &hash, CTransaction &txOut, uint256 &h
 }
 
 
-bool Eval::GetTxConfirmed(const uint256 &hash, CTransaction &txOut, CBlockIndex &block) const
-{
+bool Eval::GetTxConfirmed(const uint256 &hash, CTransaction &txOut, CBlockIndex &block) const {
     uint256 hashBlock;
     if (!GetTxUnconfirmed(hash, txOut, hashBlock))
         return false;
@@ -148,13 +137,11 @@ bool Eval::GetTxConfirmed(const uint256 &hash, CTransaction &txOut, CBlockIndex 
     return true;
 }
 
-unsigned int Eval::GetCurrentHeight() const
-{
+unsigned int Eval::GetCurrentHeight() const {
     return chainActive.Height();
 }
 
-bool Eval::GetBlock(uint256 hash, CBlockIndex& blockIdx) const
-{
+bool Eval::GetBlock(uint256 hash, CBlockIndex& blockIdx) const {
     auto r = mapBlockIndex.find(hash);
     if (r != mapBlockIndex.end()) {
         blockIdx = *r->second;
@@ -164,14 +151,12 @@ bool Eval::GetBlock(uint256 hash, CBlockIndex& blockIdx) const
     return false;
 }
 
-int32_t Eval::GetNotaries(uint8_t pubkeys[64][33], int32_t height, uint32_t timestamp) const
-{
+int32_t Eval::GetNotaries(uint8_t pubkeys[64][33], int32_t height, uint32_t timestamp) const {
     return komodo_notaries(pubkeys, height, timestamp);
 }
 
 
-bool Eval::CheckNotaryInputs(const CTransaction &tx, uint32_t height, uint32_t timestamp) const
-{
+bool Eval::CheckNotaryInputs(const CTransaction &tx, uint32_t height, uint32_t timestamp) const {
     if (tx.vin.size() < 11) return false;
 
     CrosschainAuthority auth;
@@ -185,8 +170,7 @@ bool Eval::CheckNotaryInputs(const CTransaction &tx, uint32_t height, uint32_t t
 /*
  * Get MoM from a notarisation tx hash (on KMD)
  */
-bool Eval::GetNotarisationData(const uint256 notaryHash, NotarisationData &data) const
-{
+bool Eval::GetNotarisationData(const uint256 notaryHash, NotarisationData &data) const {
     CTransaction notarisationTx;
     CBlockIndex block;
     if (!GetTxConfirmed(notaryHash, notarisationTx, block)) return false;
@@ -195,14 +179,12 @@ bool Eval::GetNotarisationData(const uint256 notaryHash, NotarisationData &data)
     return true;
 }
 
-uint32_t Eval::GetAssetchainsCC() const
-{
+uint32_t Eval::GetAssetchainsCC() const {
     return ASSETCHAINS_CC;
 }
 
 
-std::string Eval::GetAssetchainsSymbol() const
-{
+std::string Eval::GetAssetchainsSymbol() const {
     return chainName.symbol();
 }
 
@@ -210,8 +192,7 @@ std::string Eval::GetAssetchainsSymbol() const
 /*
  * Notarisation data, ie, OP_RETURN payload in notarisation transactions
  */
-bool ParseNotarisationOpReturn(const CTransaction &tx, NotarisationData &data)
-{
+bool ParseNotarisationOpReturn(const CTransaction &tx, NotarisationData &data) {
     if (tx.vout.size() < 2) return false;
     std::vector<unsigned char> vdata;
     if (!GetOpReturnData(tx.vout[1].scriptPubKey, vdata)) return false;
@@ -223,8 +204,7 @@ bool ParseNotarisationOpReturn(const CTransaction &tx, NotarisationData &data)
 /*
  * Misc
  */
-std::string EvalToStr(EvalCode c)
-{
+std::string EvalToStr(EvalCode c) {
     FOREACH_EVAL(EVAL_GENERATE_STRING);
     char s[10];
     sprintf(s, "0x%x", c);
@@ -233,20 +213,17 @@ std::string EvalToStr(EvalCode c)
 }
 
 
-uint256 SafeCheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex)
-{
+uint256 SafeCheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex) {
     if (nIndex == -1)
         return uint256();
-    for (auto it(vMerkleBranch.begin()); it != vMerkleBranch.end(); ++it)
-    {
+    for (auto it(vMerkleBranch.begin()); it != vMerkleBranch.end(); ++it) {
         if (nIndex & 1) {
             if (*it == hash) {
                 // non canonical. hash may be equal to node but never on the right.
                 return uint256();
             }
             hash = Hash(BEGIN(*it), END(*it), BEGIN(hash), END(hash));
-        }
-        else
+        } else
             hash = Hash(BEGIN(hash), END(hash), BEGIN(*it), END(*it));
         nIndex >>= 1;
     }
@@ -254,8 +231,7 @@ uint256 SafeCheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleB
 }
 
 
-uint256 GetMerkleRoot(const std::vector<uint256>& vLeaves)
-{
+uint256 GetMerkleRoot(const std::vector<uint256>& vLeaves) {
     bool fMutated;
     /* std::vector<uint256> vMerkleTree;
     return BuildMerkleTree(&fMutated, vLeaves, vMerkleTree); */

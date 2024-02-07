@@ -12,27 +12,22 @@
 
 OpenURIDialog::OpenURIDialog(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::OpenURIDialog)
-{
+    ui(new Ui::OpenURIDialog) {
     ui->setupUi(this);
     ui->uriEdit->setPlaceholderText("komodo:");
 }
 
-OpenURIDialog::~OpenURIDialog()
-{
+OpenURIDialog::~OpenURIDialog() {
     delete ui;
 }
 
-QString OpenURIDialog::getURI()
-{
+QString OpenURIDialog::getURI() {
     return ui->uriEdit->text();
 }
 
-void OpenURIDialog::accept()
-{
+void OpenURIDialog::accept() {
     SendCoinsRecipient rcp;
-    if(GUIUtil::parseKomodoURI(getURI(), &rcp))
-    {
+    if(GUIUtil::parseKomodoURI(getURI(), &rcp)) {
         /* Only accept value URIs */
         QDialog::accept();
     } else {
@@ -40,8 +35,7 @@ void OpenURIDialog::accept()
     }
 }
 
-void OpenURIDialog::on_selectFileButton_clicked()
-{
+void OpenURIDialog::on_selectFileButton_clicked() {
     QString filename = GUIUtil::getOpenFileName(this, tr("Select payment request file to open"), "", "", nullptr);
     if(filename.isEmpty())
         return;

@@ -71,14 +71,13 @@ static int find_output(UniValue obj, int n) {
 }
 
 AsyncRPCOperation_shieldcoinbase::AsyncRPCOperation_shieldcoinbase(
-        TransactionBuilder builder,
-        CMutableTransaction contextualTx,
-        std::vector<ShieldCoinbaseUTXO> inputs,
-        std::string toAddress,
-        CAmount fee,
-        UniValue contextInfo) :
-        builder_(builder), tx_(contextualTx), inputs_(inputs), fee_(fee), contextinfo_(contextInfo)
-{
+    TransactionBuilder builder,
+    CMutableTransaction contextualTx,
+    std::vector<ShieldCoinbaseUTXO> inputs,
+    std::string toAddress,
+    CAmount fee,
+    UniValue contextInfo) :
+    builder_(builder), tx_(contextualTx), inputs_(inputs), fee_(fee), contextinfo_(contextInfo) {
     assert(contextualTx.nVersion >= 2);  // transaction format version must support vjoinsplit
 
     if (fee < 0 || fee > MAX_MONEY) {
@@ -126,11 +125,11 @@ void AsyncRPCOperation_shieldcoinbase::main() {
     bool success = false;
 
 #ifdef ENABLE_MINING
-  #ifdef ENABLE_WALLET
+#ifdef ENABLE_WALLET
     GenerateBitcoins(false, NULL, 0);
-  #else
+#else
     GenerateBitcoins(false, 0);
-  #endif
+#endif
 #endif
 
     try {
@@ -155,11 +154,11 @@ void AsyncRPCOperation_shieldcoinbase::main() {
     }
 
 #ifdef ENABLE_MINING
-  #ifdef ENABLE_WALLET
+#ifdef ENABLE_WALLET
     GenerateBitcoins(GetBoolArg("-gen",false), pwalletMain, GetArg("-genproclimit", 1));
-  #else
+#else
     GenerateBitcoins(GetBoolArg("-gen",false), GetArg("-genproclimit", 1));
-  #endif
+#endif
 #endif
 
     stop_execution_clock();
@@ -212,8 +211,8 @@ bool AsyncRPCOperation_shieldcoinbase::main_impl() {
     }
     if (limit>0 && numInputs > limit) {
         throw JSONRPCError(RPC_WALLET_ERROR,
-            strprintf("Number of inputs %d is greater than mempooltxinputlimit of %d",
-            numInputs, limit));
+                           strprintf("Number of inputs %d is greater than mempooltxinputlimit of %d",
+                                     numInputs, limit));
     }
 
     CAmount targetAmount = 0;
@@ -223,13 +222,13 @@ bool AsyncRPCOperation_shieldcoinbase::main_impl() {
 
     if (targetAmount <= minersFee) {
         throw JSONRPCError(RPC_WALLET_INSUFFICIENT_FUNDS,
-            strprintf("Insufficient coinbase funds, have %s and miners fee is %s",
-            FormatMoney(targetAmount), FormatMoney(minersFee)));
+                           strprintf("Insufficient coinbase funds, have %s and miners fee is %s",
+                                     FormatMoney(targetAmount), FormatMoney(minersFee)));
     }
 
     CAmount sendAmount = targetAmount - minersFee;
     LogPrint("zrpc", "%s: spending %s to shield %s with fee %s\n",
-            getId(), FormatMoney(targetAmount), FormatMoney(sendAmount), FormatMoney(minersFee));
+             getId(), FormatMoney(targetAmount), FormatMoney(sendAmount), FormatMoney(minersFee));
 
     return boost::apply_visitor(ShieldToAddress(this, sendAmount), tozaddr_);
 }
@@ -285,13 +284,10 @@ bool ShieldToAddress::operator()(const libzcash::SaplingPaymentAddress &zaddr) c
 
     // Add transparent inputs
     for (auto t : m_op->inputs_) {
-        if (t.amount >= ASSETCHAINS_TIMELOCKGTE)
-        {
+        if (t.amount >= ASSETCHAINS_TIMELOCKGTE) {
             m_op->builder_.SetLockTime((uint32_t)(chainActive.Height()));
             m_op->builder_.AddTransparentInput(COutPoint(t.txid, t.vout), t.scriptPubKey, t.amount, 0xfffffffe);
-        }
-        else
-        {
+        } else {
             m_op->builder_.AddTransparentInput(COutPoint(t.txid, t.vout), t.scriptPubKey, t.amount);
         }
     }
@@ -343,8 +339,7 @@ bool ShieldToAddress::operator()(const libzcash::InvalidEncoding& no) const {
  * Sign and send a raw transaction.
  * Raw transaction as hex string should be in object field "rawtxn"
  */
-void AsyncRPCOperation_shieldcoinbase::sign_send_raw_transaction(UniValue obj)
-{
+void AsyncRPCOperation_shieldcoinbase::sign_send_raw_transaction(UniValue obj) {
     // Sign the raw transaction
     UniValue rawtxnValue = find_value(obj, "rawtxn");
     if (rawtxnValue.isNull()) {
@@ -436,18 +431,18 @@ UniValue AsyncRPCOperation_shieldcoinbase::perform_joinsplit(ShieldCoinbaseJSInf
     CMutableTransaction mtx(tx_);
 
     LogPrint("zrpcunsafe", "%s: creating joinsplit at index %d (vpub_old=%s, vpub_new=%s, in[0]=%s, in[1]=%s, out[0]=%s, out[1]=%s)\n",
-            getId(),
-            tx_.vjoinsplit.size(),
-            FormatMoney(info.vpub_old), FormatMoney(info.vpub_new),
-            FormatMoney(info.vjsin[0].note.value()), FormatMoney(info.vjsin[1].note.value()),
-            FormatMoney(info.vjsout[0].value), FormatMoney(info.vjsout[1].value)
+             getId(),
+             tx_.vjoinsplit.size(),
+             FormatMoney(info.vpub_old), FormatMoney(info.vpub_new),
+             FormatMoney(info.vjsin[0].note.value()), FormatMoney(info.vjsin[1].note.value()),
+             FormatMoney(info.vjsout[0].value), FormatMoney(info.vjsout[1].value)
             );
 
     // Generate the proof, this can take over a minute.
     std::array<libzcash::JSInput, ZC_NUM_JS_INPUTS> inputs
-            {info.vjsin[0], info.vjsin[1]};
+    {info.vjsin[0], info.vjsin[1]};
     std::array<libzcash::JSOutput, ZC_NUM_JS_OUTPUTS> outputs
-            {info.vjsout[0], info.vjsout[1]};
+    {info.vjsout[0], info.vjsout[1]};
 
     std::array<size_t, ZC_NUM_JS_INPUTS> inputMap;
     std::array<size_t, ZC_NUM_JS_OUTPUTS> outputMap;
@@ -455,18 +450,18 @@ UniValue AsyncRPCOperation_shieldcoinbase::perform_joinsplit(ShieldCoinbaseJSInf
     uint256 esk; // payment disclosure - secret
 
     JSDescription jsdesc = JSDescription::Randomized(
-            mtx.fOverwintered && (mtx.nVersion >= SAPLING_TX_VERSION),
-            *pzcashParams,
-            joinSplitPubKey_,
-            anchor,
-            inputs,
-            outputs,
-            inputMap,
-            outputMap,
-            info.vpub_old,
-            info.vpub_new,
-            !this->testmode,
-            &esk); // parameter expects pointer to esk, so pass in address
+                               mtx.fOverwintered && (mtx.nVersion >= SAPLING_TX_VERSION),
+                               *pzcashParams,
+                               joinSplitPubKey_,
+                               anchor,
+                               inputs,
+                               outputs,
+                               inputMap,
+                               outputMap,
+                               info.vpub_old,
+                               info.vpub_new,
+                               !this->testmode,
+                               &esk); // parameter expects pointer to esk, so pass in address
     {
         auto verifier = libzcash::ProofVerifier::Strict();
         if (!(jsdesc.Verify(*pzcashParams, verifier, joinSplitPubKey_))) {
@@ -483,19 +478,17 @@ UniValue AsyncRPCOperation_shieldcoinbase::perform_joinsplit(ShieldCoinbaseJSInf
 
     // Add the signature
     if (!(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
-            dataToBeSigned.begin(), 32,
-            joinSplitPrivKey_
-            ) == 0))
-    {
+                               dataToBeSigned.begin(), 32,
+                               joinSplitPrivKey_
+                              ) == 0)) {
         throw std::runtime_error("crypto_sign_detached failed");
     }
 
     // Sanity check
     if (!(crypto_sign_verify_detached(&mtx.joinSplitSig[0],
-            dataToBeSigned.begin(), 32,
-            mtx.joinSplitPubKey.begin()
-            ) == 0))
-    {
+                                      dataToBeSigned.begin(), 32,
+                                      mtx.joinSplitPubKey.begin()
+                                     ) == 0)) {
         throw std::runtime_error("crypto_sign_verify_detached failed");
     }
 
@@ -582,7 +575,7 @@ UniValue AsyncRPCOperation_shieldcoinbase::getStatus() const {
 /**
  * Lock input utxos
  */
- void AsyncRPCOperation_shieldcoinbase::lock_utxos() {
+void AsyncRPCOperation_shieldcoinbase::lock_utxos() {
     LOCK2(cs_main, pwalletMain->cs_wallet);
     for (auto utxo : inputs_) {
         COutPoint outpt(utxo.txid, utxo.vout);

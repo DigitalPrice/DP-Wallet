@@ -20,21 +20,16 @@ std::vector<uint64_t> alt_bn128_G1::fixed_base_exp_window_table;
 alt_bn128_G1 alt_bn128_G1::G1_zero;
 alt_bn128_G1 alt_bn128_G1::G1_one;
 
-alt_bn128_G1::alt_bn128_G1()
-{
+alt_bn128_G1::alt_bn128_G1() {
     this->X = G1_zero.X;
     this->Y = G1_zero.Y;
     this->Z = G1_zero.Z;
 }
 
-void alt_bn128_G1::print() const
-{
-    if (this->is_zero())
-    {
+void alt_bn128_G1::print() const {
+    if (this->is_zero()) {
         printf("O\n");
-    }
-    else
-    {
+    } else {
         alt_bn128_G1 copy(*this);
         copy.to_affine_coordinates();
         gmp_printf("(%Nd , %Nd)\n",
@@ -43,14 +38,10 @@ void alt_bn128_G1::print() const
     }
 }
 
-void alt_bn128_G1::print_coordinates() const
-{
-    if (this->is_zero())
-    {
+void alt_bn128_G1::print_coordinates() const {
+    if (this->is_zero()) {
         printf("O\n");
-    }
-    else
-    {
+    } else {
         gmp_printf("(%Nd : %Nd : %Nd)\n",
                    this->X.as_bigint().data, alt_bn128_Fq::num_limbs,
                    this->Y.as_bigint().data, alt_bn128_Fq::num_limbs,
@@ -58,16 +49,12 @@ void alt_bn128_G1::print_coordinates() const
     }
 }
 
-void alt_bn128_G1::to_affine_coordinates()
-{
-    if (this->is_zero())
-    {
+void alt_bn128_G1::to_affine_coordinates() {
+    if (this->is_zero()) {
         this->X = alt_bn128_Fq::zero();
         this->Y = alt_bn128_Fq::one();
         this->Z = alt_bn128_Fq::zero();
-    }
-    else
-    {
+    } else {
         alt_bn128_Fq Z_inv = Z.inverse();
         alt_bn128_Fq Z2_inv = Z_inv.squared();
         alt_bn128_Fq Z3_inv = Z2_inv * Z_inv;
@@ -77,30 +64,24 @@ void alt_bn128_G1::to_affine_coordinates()
     }
 }
 
-void alt_bn128_G1::to_special()
-{
+void alt_bn128_G1::to_special() {
     this->to_affine_coordinates();
 }
 
-bool alt_bn128_G1::is_special() const
-{
+bool alt_bn128_G1::is_special() const {
     return (this->is_zero() || this->Z == alt_bn128_Fq::one());
 }
 
-bool alt_bn128_G1::is_zero() const
-{
+bool alt_bn128_G1::is_zero() const {
     return (this->Z.is_zero());
 }
 
-bool alt_bn128_G1::operator==(const alt_bn128_G1 &other) const
-{
-    if (this->is_zero())
-    {
+bool alt_bn128_G1::operator==(const alt_bn128_G1 &other) const {
+    if (this->is_zero()) {
         return other.is_zero();
     }
 
-    if (other.is_zero())
-    {
+    if (other.is_zero()) {
         return false;
     }
 
@@ -116,37 +97,31 @@ bool alt_bn128_G1::operator==(const alt_bn128_G1 &other) const
     alt_bn128_Fq Z1_squared = (this->Z).squared();
     alt_bn128_Fq Z2_squared = (other.Z).squared();
 
-    if ((this->X * Z2_squared) != (other.X * Z1_squared))
-    {
+    if ((this->X * Z2_squared) != (other.X * Z1_squared)) {
         return false;
     }
 
     alt_bn128_Fq Z1_cubed = (this->Z) * Z1_squared;
     alt_bn128_Fq Z2_cubed = (other.Z) * Z2_squared;
 
-    if ((this->Y * Z2_cubed) != (other.Y * Z1_cubed))
-    {
+    if ((this->Y * Z2_cubed) != (other.Y * Z1_cubed)) {
         return false;
     }
 
     return true;
 }
 
-bool alt_bn128_G1::operator!=(const alt_bn128_G1& other) const
-{
+bool alt_bn128_G1::operator!=(const alt_bn128_G1& other) const {
     return !(operator==(other));
 }
 
-alt_bn128_G1 alt_bn128_G1::operator+(const alt_bn128_G1 &other) const
-{
+alt_bn128_G1 alt_bn128_G1::operator+(const alt_bn128_G1 &other) const {
     // handle special cases having to do with O
-    if (this->is_zero())
-    {
+    if (this->is_zero()) {
         return other;
     }
 
-    if (other.is_zero())
-    {
+    if (other.is_zero()) {
         return *this;
     }
 
@@ -174,8 +149,7 @@ alt_bn128_G1 alt_bn128_G1::operator+(const alt_bn128_G1 &other) const
     alt_bn128_Fq S1 = (this->Y) * Z2_cubed;      // S1 = Y1 * Z2 * Z2Z2
     alt_bn128_Fq S2 = (other.Y) * Z1_cubed;      // S2 = Y2 * Z1 * Z1Z1
 
-    if (U1 == U2 && S1 == S2)
-    {
+    if (U1 == U2 && S1 == S2) {
         // dbl case; nothing of above can be reused
         return this->dbl();
     }
@@ -195,27 +169,22 @@ alt_bn128_G1 alt_bn128_G1::operator+(const alt_bn128_G1 &other) const
     return alt_bn128_G1(X3, Y3, Z3);
 }
 
-alt_bn128_G1 alt_bn128_G1::operator-() const
-{
+alt_bn128_G1 alt_bn128_G1::operator-() const {
     return alt_bn128_G1(this->X, -(this->Y), this->Z);
 }
 
 
-alt_bn128_G1 alt_bn128_G1::operator-(const alt_bn128_G1 &other) const
-{
+alt_bn128_G1 alt_bn128_G1::operator-(const alt_bn128_G1 &other) const {
     return (*this) + (-other);
 }
 
-alt_bn128_G1 alt_bn128_G1::add(const alt_bn128_G1 &other) const
-{
+alt_bn128_G1 alt_bn128_G1::add(const alt_bn128_G1 &other) const {
     // handle special cases having to do with O
-    if (this->is_zero())
-    {
+    if (this->is_zero()) {
         return other;
     }
 
-    if (other.is_zero())
-    {
+    if (other.is_zero()) {
         return *this;
     }
 
@@ -223,8 +192,7 @@ alt_bn128_G1 alt_bn128_G1::add(const alt_bn128_G1 &other) const
     // (they cannot exist in a prime-order subgroup)
 
     // handle double case
-    if (this->operator==(other))
-    {
+    if (this->operator==(other)) {
         return this->dbl();
     }
 
@@ -254,20 +222,17 @@ alt_bn128_G1 alt_bn128_G1::add(const alt_bn128_G1 &other) const
     return alt_bn128_G1(X3, Y3, Z3);
 }
 
-alt_bn128_G1 alt_bn128_G1::mixed_add(const alt_bn128_G1 &other) const
-{
+alt_bn128_G1 alt_bn128_G1::mixed_add(const alt_bn128_G1 &other) const {
 #ifdef DEBUG
     assert_except(other.is_special());
 #endif
 
     // handle special cases having to do with O
-    if (this->is_zero())
-    {
+    if (this->is_zero()) {
         return other;
     }
 
-    if (other.is_zero())
-    {
+    if (other.is_zero()) {
         return *this;
     }
 
@@ -295,8 +260,7 @@ alt_bn128_G1 alt_bn128_G1::mixed_add(const alt_bn128_G1 &other) const
     const alt_bn128_Fq &S1 = (this->Y);                // S1 = Y1 * Z2 * Z2Z2
     const alt_bn128_Fq S2 = (other.Y) * Z1_cubed;      // S2 = Y2 * Z1 * Z1Z1
 
-    if (U1 == U2 && S1 == S2)
-    {
+    if (U1 == U2 && S1 == S2) {
         // dbl case; nothing of above can be reused
         return this->dbl();
     }
@@ -323,14 +287,12 @@ alt_bn128_G1 alt_bn128_G1::mixed_add(const alt_bn128_G1 &other) const
     return alt_bn128_G1(X3, Y3, Z3);
 }
 
-alt_bn128_G1 alt_bn128_G1::dbl() const
-{
+alt_bn128_G1 alt_bn128_G1::dbl() const {
 #ifdef PROFILE_OP_COUNTS
     this->dbl_cnt++;
 #endif
     // handle point at infinity
-    if (this->is_zero())
-    {
+    if (this->is_zero()) {
         return (*this);
     }
 
@@ -358,14 +320,10 @@ alt_bn128_G1 alt_bn128_G1::dbl() const
     return alt_bn128_G1(X3, Y3, Z3);
 }
 
-bool alt_bn128_G1::is_well_formed() const
-{
-    if (this->is_zero())
-    {
+bool alt_bn128_G1::is_well_formed() const {
+    if (this->is_zero()) {
         return true;
-    }
-    else
-    {
+    } else {
         /*
           y^2 = x^3 + b
 
@@ -387,23 +345,19 @@ bool alt_bn128_G1::is_well_formed() const
     }
 }
 
-alt_bn128_G1 alt_bn128_G1::zero()
-{
+alt_bn128_G1 alt_bn128_G1::zero() {
     return G1_zero;
 }
 
-alt_bn128_G1 alt_bn128_G1::one()
-{
+alt_bn128_G1 alt_bn128_G1::one() {
     return G1_one;
 }
 
-alt_bn128_G1 alt_bn128_G1::random_element()
-{
+alt_bn128_G1 alt_bn128_G1::random_element() {
     return (scalar_field::random_element().as_bigint()) * G1_one;
 }
 
-std::ostream& operator<<(std::ostream &out, const alt_bn128_G1 &g)
-{
+std::ostream& operator<<(std::ostream &out, const alt_bn128_G1 &g) {
     alt_bn128_G1 copy(g);
     copy.to_affine_coordinates();
 
@@ -418,8 +372,7 @@ std::ostream& operator<<(std::ostream &out, const alt_bn128_G1 &g)
     return out;
 }
 
-std::istream& operator>>(std::istream &in, alt_bn128_G1 &g)
-{
+std::istream& operator>>(std::istream &in, alt_bn128_G1 &g) {
     char is_zero;
     alt_bn128_Fq tX, tY;
 
@@ -438,46 +391,38 @@ std::istream& operator>>(std::istream &in, alt_bn128_G1 &g)
     Y_lsb -= '0';
 
     // y = +/- sqrt(x^3 + b)
-    if (!is_zero)
-    {
+    if (!is_zero) {
         alt_bn128_Fq tX2 = tX.squared();
         alt_bn128_Fq tY2 = tX2*tX + alt_bn128_coeff_b;
         tY = tY2.sqrt();
 
-        if ((tY.as_bigint().data[0] & 1) != Y_lsb)
-        {
+        if ((tY.as_bigint().data[0] & 1) != Y_lsb) {
             tY = -tY;
         }
     }
 #endif
     // using Jacobian coordinates
-    if (!is_zero)
-    {
+    if (!is_zero) {
         g.X = tX;
         g.Y = tY;
         g.Z = alt_bn128_Fq::one();
-    }
-    else
-    {
+    } else {
         g = alt_bn128_G1::zero();
     }
 
     return in;
 }
 
-std::ostream& operator<<(std::ostream& out, const std::vector<alt_bn128_G1> &v)
-{
+std::ostream& operator<<(std::ostream& out, const std::vector<alt_bn128_G1> &v) {
     out << v.size() << "\n";
-    for (const alt_bn128_G1& t : v)
-    {
+    for (const alt_bn128_G1& t : v) {
         out << t << OUTPUT_NEWLINE;
     }
 
     return out;
 }
 
-std::istream& operator>>(std::istream& in, std::vector<alt_bn128_G1> &v)
-{
+std::istream& operator>>(std::istream& in, std::vector<alt_bn128_G1> &v) {
     v.clear();
 
     size_t s;
@@ -486,8 +431,7 @@ std::istream& operator>>(std::istream& in, std::vector<alt_bn128_G1> &v)
 
     v.reserve(s);
 
-    for (size_t i = 0; i < s; ++i)
-    {
+    for (size_t i = 0; i < s; ++i) {
         alt_bn128_G1 g;
         in >> g;
         consume_OUTPUT_NEWLINE(in);
@@ -498,21 +442,18 @@ std::istream& operator>>(std::istream& in, std::vector<alt_bn128_G1> &v)
 }
 
 template<>
-void batch_to_special_all_non_zeros<alt_bn128_G1>(std::vector<alt_bn128_G1> &vec)
-{
+void batch_to_special_all_non_zeros<alt_bn128_G1>(std::vector<alt_bn128_G1> &vec) {
     std::vector<alt_bn128_Fq> Z_vec;
     Z_vec.reserve(vec.size());
 
-    for (auto &el: vec)
-    {
+    for (auto &el: vec) {
         Z_vec.emplace_back(el.Z);
     }
     batch_invert<alt_bn128_Fq>(Z_vec);
 
     const alt_bn128_Fq one = alt_bn128_Fq::one();
 
-    for (size_t i = 0; i < vec.size(); ++i)
-    {
+    for (size_t i = 0; i < vec.size(); ++i) {
         alt_bn128_Fq Z2 = Z_vec[i].squared();
         alt_bn128_Fq Z3 = Z_vec[i] * Z2;
 

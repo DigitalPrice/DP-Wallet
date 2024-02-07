@@ -52,8 +52,7 @@ int NOTARISATION_SCAN_LIMIT_BLOCKS = 1440;
  * @param symbol the asset chain to check
  * @returns the type of chain
  */
-CrosschainType CrossChain::GetSymbolAuthority(const std::string& symbol)
-{
+CrosschainType CrossChain::GetSymbolAuthority(const std::string& symbol) {
     if (symbol.find("TXSCL") == 0)
         return CROSSCHAIN_TXSCL;
 
@@ -68,29 +67,27 @@ CrosschainType CrossChain::GetSymbolAuthority(const std::string& symbol)
  * @param auth the authority object
  * @returns true on success
  */
-bool CrossChain::CheckTxAuthority(const CTransaction &tx, CrosschainAuthority auth)
-{
-    if (tx.vin.size() < auth.requiredSigs) 
+bool CrossChain::CheckTxAuthority(const CTransaction &tx, CrosschainAuthority auth) {
+    if (tx.vin.size() < auth.requiredSigs)
         return false;
 
     uint8_t seen[64] = {0};
-    for(const CTxIn &txIn : tx.vin) // check each vIn
-    {
+    for(const CTxIn &txIn : tx.vin) { // check each vIn
         // Get notary pubkey
         CTransaction tx;
         uint256 hashBlock;
         EvalRef eval;
-        if (!eval->GetTxUnconfirmed(txIn.prevout.hash, tx, hashBlock)) 
+        if (!eval->GetTxUnconfirmed(txIn.prevout.hash, tx, hashBlock))
             return false;
-        if (tx.vout.size() < txIn.prevout.n) 
+        if (tx.vout.size() < txIn.prevout.n)
             return false;
         CScript spk = tx.vout[txIn.prevout.n].scriptPubKey;
-        if (spk.size() != 35) 
+        if (spk.size() != 35)
             return false;
         const unsigned char *pk = &spk[0];
-        if (pk++[0] != 33) 
+        if (pk++[0] != 33)
             return false;
-        if (pk[33] != OP_CHECKSIG) 
+        if (pk[33] != OP_CHECKSIG)
             return false;
 
         // Check it's a notary
@@ -104,7 +101,8 @@ bool CrossChain::CheckTxAuthority(const CTransaction &tx, CrosschainAuthority au
         }
 
         return false;
-        found:;
+found:
+        ;
     }
     return true;
 }
@@ -120,8 +118,7 @@ bool CrossChain::CheckTxAuthority(const CTransaction &tx, CrosschainAuthority au
  * @returns the proof root, or 0 on error
  */
 uint256 CrossChain::CalculateProofRoot(const char* symbol, uint32_t targetCCid, int kmdHeight,
-        std::vector<uint256> &moms, uint256 &destNotarisationTxid)
-{
+                                       std::vector<uint256> &moms, uint256 &destNotarisationTxid) {
     /*
      * Notaries don't wait for confirmation on KMD before performing a backnotarisation,
      * but we need a determinable range that will encompass all merkle roots. Include MoMs
@@ -152,8 +149,7 @@ uint256 CrossChain::CalculateProofRoot(const char* symbol, uint32_t targetCCid, 
 
         // See if we have an own notarisation in this block
         for(Notarisation& nota : notarisations) {
-            if (strcmp(nota.second.symbol, symbol) == 0)
-            {
+            if (strcmp(nota.second.symbol, symbol) == 0) {
                 seenOwnNotarisations++;
                 if (seenOwnNotarisations == 1)
                     destNotarisationTxid = nota.first;
@@ -167,8 +163,8 @@ uint256 CrossChain::CalculateProofRoot(const char* symbol, uint32_t targetCCid, 
             for(Notarisation& nota : notarisations) {
                 if (GetSymbolAuthority(nota.second.symbol) == authority)
                     if (nota.second.ccId == targetCCid) {
-                      tmp_moms.insert(nota.second.MoM);
-                      //LogPrintf( "added mom: %s\n",nota.second.MoM.GetHex().data());
+                        tmp_moms.insert(nota.second.MoM);
+                        //LogPrintf( "added mom: %s\n",nota.second.MoM.GetHex().data());
                     }
             }
         }
@@ -180,7 +176,7 @@ uint256 CrossChain::CalculateProofRoot(const char* symbol, uint32_t targetCCid, 
     return uint256();
 
 end:
-    // add set to vector. Set makes sure there are no dupes included. 
+    // add set to vector. Set makes sure there are no dupes included.
     moms.clear();
     std::copy(tmp_moms.begin(), tmp_moms.end(), std::back_inserter(moms));
     return GetMerkleRoot(moms);
@@ -196,8 +192,7 @@ end:
  * @returns the height of the notarisation
  */
 template <typename IsTarget>
-int ScanNotarisationsFromHeight(int nHeight, const IsTarget f, Notarisation &found)
-{
+int ScanNotarisationsFromHeight(int nHeight, const IsTarget f, Notarisation &found) {
     int limit = std::min(nHeight + NOTARISATION_SCAN_LIMIT_BLOCKS, chainActive.Height());
     int start = std::max(nHeight, 1);
 
@@ -228,8 +223,7 @@ int ScanNotarisationsFromHeight(int nHeight, const IsTarget f, Notarisation &fou
  * @returns a pair of target chain notarisation txid and the merkle branch
  */
 TxProof CrossChain::GetCrossChainProof(const uint256 txid, const char* targetSymbol, uint32_t targetCCid,
-        const TxProof assetChainProof, int32_t offset)
-{
+                                       const TxProof assetChainProof, int32_t offset) {
     /*
      * Here we are given a proof generated by an assetchain A which goes from given txid to
      * an assetchain MoM. We need to go from the notarisationTxid for A to the MoMoM range of the
@@ -263,7 +257,7 @@ TxProof CrossChain::GetCrossChainProof(const uint256 txid, const char* targetSym
     kmdHeight = ScanNotarisationsFromHeight(kmdHeight, isTarget, nota);
     if (!kmdHeight)
         throw std::runtime_error("Cannot find notarisation for target inclusive of source");
-        
+
     if ( offset != 0 )
         kmdHeight += offset;
 
@@ -313,11 +307,10 @@ cont:
  * @param importTx
  * @param offset
  */
-void CrossChain::CompleteImportTransaction(CTransaction &importTx, int32_t offset)
-{
-    ImportProof proof; 
-    CTransaction burnTx; 
-    std::vector<CTxOut> payouts; 
+void CrossChain::CompleteImportTransaction(CTransaction &importTx, int32_t offset) {
+    ImportProof proof;
+    CTransaction burnTx;
+    std::vector<CTxOut> payouts;
 
     if (!UnmarshalImportTx(importTx, proof, burnTx, payouts))
         throw std::runtime_error("Couldn't unmarshal importTx");
@@ -332,8 +325,8 @@ void CrossChain::CompleteImportTransaction(CTransaction &importTx, int32_t offse
     TxProof merkleBranch;
     if( !proof.IsMerkleBranch(merkleBranch) )
         throw std::runtime_error("Incorrect import tx proof");
-    TxProof newMerkleBranch = GetCrossChainProof(burnTx.GetHash(), targetSymbol.data(), 
-            targetCCid, merkleBranch, offset);
+    TxProof newMerkleBranch = GetCrossChainProof(burnTx.GetHash(), targetSymbol.data(),
+                              targetCCid, merkleBranch, offset);
     ImportProof newProof(newMerkleBranch);
 
     importTx = MakeImportCoinTransaction(newProof, burnTx, payouts);
@@ -354,8 +347,7 @@ bool IsSameAssetChain(const Notarisation &nota) {
  * @param momom what to check
  * @returns true on success
  */
-bool CrossChain::CheckMoMoM(uint256 kmdNotarisationHash, uint256 momom)
-{
+bool CrossChain::CheckMoMoM(uint256 kmdNotarisationHash, uint256 momom) {
     /*
      * Given a notarisation hash and an MoMoM. Backnotarisations may arrive out of order
      * or multiple in the same block. So dereference the notarisation hash to the corresponding
@@ -371,7 +363,7 @@ bool CrossChain::CheckMoMoM(uint256 kmdNotarisationHash, uint256 momom)
     EvalRef eval;
     CBlockIndex block;
     CTransaction tx;
-    if (!eval->GetTxConfirmed(bn.first, tx, block)){
+    if (!eval->GetTxConfirmed(bn.first, tx, block)) {
         LogPrintf( "Can't get height of backnotarisation, this should not happen\n");
         return false;
     }
@@ -392,8 +384,7 @@ bool CrossChain::CheckMoMoM(uint256 kmdNotarisationHash, uint256 momom)
 * @param notaryTxids txids of notaries' proofs
 * @returns true on success
 */
-bool CrossChain::CheckNotariesApproval(uint256 burntxid, const std::vector<uint256> & notaryTxids) 
-{
+bool CrossChain::CheckNotariesApproval(uint256 burntxid, const std::vector<uint256> & notaryTxids) {
     int count = 0;
 
     // get notaries:
@@ -408,7 +399,7 @@ bool CrossChain::CheckNotariesApproval(uint256 burntxid, const std::vector<uint2
 
         // get notary approval tx
         if (eval->GetTxConfirmed(notarytxid, notarytx, block)) {
-            
+
             std::vector<uint8_t> vopret;
             if (!notarytx.vout.empty() && GetOpReturnData(notarytx.vout.back().scriptPubKey, vopret)) {
                 std::vector<uint8_t> txoutproof;
@@ -422,8 +413,8 @@ bool CrossChain::CheckNotariesApproval(uint256 burntxid, const std::vector<uint2
                         // extract proven txids:
                         merkleBlock.txn.ExtractMatches(prooftxids);
                         if (merkleBlock.txn.ExtractMatches(prooftxids) != merkleBlock.header.hashMerkleRoot ||  // check block merkle root is correct
-                            std::find(prooftxids.begin(), prooftxids.end(), burntxid) != prooftxids.end()) {    // check burn txid is in proven txids list
-                            
+                                std::find(prooftxids.begin(), prooftxids.end(), burntxid) != prooftxids.end()) {    // check burn txid is in proven txids list
+
                             if (komodo_notaries(notaries_pubkeys, block.nHeight, block.GetBlockTime()) >= 0) {
                                 // check it is a notary who signed approved tx:
                                 int i;
@@ -435,12 +426,11 @@ bool CrossChain::CheckNotariesApproval(uint256 burntxid, const std::vector<uint2
                                     decode_hex(test_notary_pubkey33, 33, test_notary_pubkey_hex);
 #endif
                                     if (CheckVinPubKey(notarytx, 0, notaries_pubkeys[i])   // is signed by a notary?
-                                        && std::find(alreadySigned.begin(), alreadySigned.end(), vnotarypubkey) == alreadySigned.end()   // check if notary not re-used
-#ifdef TESTMODE                                        
-                                        || CheckVinPubKey(notarytx, 0, test_notary_pubkey33)  // test
+                                            && std::find(alreadySigned.begin(), alreadySigned.end(), vnotarypubkey) == alreadySigned.end()   // check if notary not re-used
+#ifdef TESTMODE
+                                            || CheckVinPubKey(notarytx, 0, test_notary_pubkey33)  // test
 #endif
-                                    )   
-                                    {
+                                       ) {
                                         alreadySigned.push_back(vnotarypubkey);
                                         count++;
                                         LOGSTREAM("importcoin", CCLOG_DEBUG1, stream << "CheckNotariesApproval() notary approval checked, count=" << count << std::endl);
@@ -449,28 +439,22 @@ bool CrossChain::CheckNotariesApproval(uint256 burntxid, const std::vector<uint2
                                 }
                                 if (i == sizeof(notaries_pubkeys) / sizeof(notaries_pubkeys[0]))
                                     LOGSTREAM("importcoin", CCLOG_DEBUG1, stream << "CheckNotariesApproval() txproof not signed by a notary or reused" << std::endl);
-                            }
-                            else {
+                            } else {
                                 LOGSTREAM("importcoin", CCLOG_INFO, stream << "CheckNotariesApproval() cannot get current notaries pubkeys" << std::endl);
                             }
-                        }
-                        else  {
+                        } else  {
                             LOGSTREAM("importcoin", CCLOG_INFO, stream << "CheckNotariesApproval() burntxid not found in txoutproof or incorrect txoutproof" << std::endl);
                         }
-                    }
-                    else {
+                    } else {
                         LOGSTREAM("importcoin", CCLOG_INFO, stream << "CheckNotariesApproval() could not unmarshal merkleBlock" << std::endl);
                     }
-                }
-                else {
+                } else {
                     LOGSTREAM("importcoin", CCLOG_INFO, stream << "CheckNotariesApproval() could not unmarshal txoutproof" << std::endl);
                 }
-            }
-            else {
+            } else {
                 LOGSTREAM("importcoin", CCLOG_INFO, stream << "CheckNotariesApproval() no opret in the notary tx" << std::endl);
             }
-        }
-        else {
+        } else {
             LOGSTREAM("importcoin", CCLOG_INFO, stream << "CheckNotariesApproval() could not load notary tx" << std::endl);
         }
     }
@@ -479,12 +463,11 @@ bool CrossChain::CheckNotariesApproval(uint256 burntxid, const std::vector<uint2
 #ifdef TESTMODE
     if (count < 1) { // 1 for test
 #else
-    if (count < 5) { 
+    if (count < 5) {
 #endif
         LOGSTREAM("importcoin", CCLOG_INFO, stream << "CheckNotariesApproval() not enough signed notary transactions=" << count << std::endl);
         retcode = false;
-    }
-    else
+    } else
         retcode = true;
 
     return retcode;
@@ -498,8 +481,7 @@ bool CrossChain::CheckNotariesApproval(uint256 burntxid, const std::vector<uint2
  * @param burnTx
  * @returns a pair containing the notarisation tx hash and the merkle branch
  */
-TxProof CrossChain::GetAssetchainProof(uint256 hash,CTransaction burnTx)
-{
+TxProof CrossChain::GetAssetchainProof(uint256 hash,CTransaction burnTx) {
     int nIndex;
     CBlockIndex* blockIndex;
     Notarisation nota;

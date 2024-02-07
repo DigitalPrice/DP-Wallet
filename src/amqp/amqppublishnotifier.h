@@ -14,42 +14,37 @@
 
 class CBlockIndex;
 
-class AMQPAbstractPublishNotifier : public AMQPAbstractNotifier
-{
-private:
+class AMQPAbstractPublishNotifier : public AMQPAbstractNotifier {
+  private:
     uint64_t sequence_;                         // memory only, per notifier instance: upcounting message sequence number
 
     std::shared_ptr<std::thread> thread_;       // proton container thread, may be shared between notifiers
     std::shared_ptr<AMQPSender> handler_;      // proton container message handler, may be shared between notifiers
 
-public:
+  public:
     bool SendMessage(const char *command, const void* data, size_t size);
     bool Initialize();
     void Shutdown();
     void SpawnProtonContainer();
 };
 
-class AMQPPublishHashBlockNotifier : public AMQPAbstractPublishNotifier
-{
-public:
+class AMQPPublishHashBlockNotifier : public AMQPAbstractPublishNotifier {
+  public:
     bool NotifyBlock(const CBlockIndex *pindex);
 };
 
-class AMQPPublishHashTransactionNotifier : public AMQPAbstractPublishNotifier
-{
-public:
+class AMQPPublishHashTransactionNotifier : public AMQPAbstractPublishNotifier {
+  public:
     bool NotifyTransaction(const CTransaction &transaction);
 };
 
-class AMQPPublishRawBlockNotifier : public AMQPAbstractPublishNotifier
-{
-public:
+class AMQPPublishRawBlockNotifier : public AMQPAbstractPublishNotifier {
+  public:
     bool NotifyBlock(const CBlockIndex *pindex);
 };
 
-class AMQPPublishRawTransactionNotifier : public AMQPAbstractPublishNotifier
-{
-public:
+class AMQPPublishRawTransactionNotifier : public AMQPAbstractPublishNotifier {
+  public:
     bool NotifyTransaction(const CTransaction &transaction);
 };
 

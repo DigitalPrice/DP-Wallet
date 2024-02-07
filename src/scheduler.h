@@ -48,9 +48,8 @@
 // delete s; // Must be done after thread is interrupted/joined.
 //
 
-class CScheduler
-{
-public:
+class CScheduler {
+  public:
     CScheduler();
     ~CScheduler();
 
@@ -85,14 +84,16 @@ public:
     size_t getQueueInfo(boost::chrono::system_clock::time_point &first,
                         boost::chrono::system_clock::time_point &last) const;
 
-private:
+  private:
     std::multimap<boost::chrono::system_clock::time_point, Function> taskQueue;
     boost::condition_variable newTaskScheduled;
     mutable boost::mutex newTaskMutex;
     int nThreadsServicingQueue;
     bool stopRequested;
     bool stopWhenEmpty;
-    bool shouldStop() { return stopRequested || (stopWhenEmpty && taskQueue.empty()); }
+    bool shouldStop() {
+        return stopRequested || (stopWhenEmpty && taskQueue.empty());
+    }
 };
 
 #endif

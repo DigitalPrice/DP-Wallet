@@ -109,7 +109,7 @@ int32_t komodo_notarizeddata(int32_t nHeight,uint256 *notarized_hashp,uint256 *n
  * @param[in] MoMdepth the depth
  */
 void komodo_notarized_update(struct komodo_state *sp,int32_t nHeight,int32_t notarized_height,
-        uint256 notarized_hash,uint256 notarized_desttxid,uint256 MoM,int32_t MoMdepth);
+                             uint256 notarized_hash,uint256 notarized_desttxid,uint256 MoM,int32_t MoMdepth);
 
 /****
  * @brief Initialize genesis notaries into memory

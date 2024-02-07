@@ -23,8 +23,7 @@
 #include <secp256k1.h>
 #include <secp256k1_recovery.h>
 
-namespace
-{
+namespace {
 /* Global secp256k1_context object used for verification. */
 secp256k1_context* secp256k1_context_verify = NULL;
 }
@@ -116,8 +115,10 @@ bool CPubKey::Derive(CPubKey& pubkeyChild, ChainCode &ccChild, unsigned int nChi
 void CExtPubKey::Encode(unsigned char code[BIP32_EXTKEY_SIZE]) const {
     code[0] = nDepth;
     memcpy(code+1, vchFingerprint, 4);
-    code[5] = (nChild >> 24) & 0xFF; code[6] = (nChild >> 16) & 0xFF;
-    code[7] = (nChild >>  8) & 0xFF; code[8] = (nChild >>  0) & 0xFF;
+    code[5] = (nChild >> 24) & 0xFF;
+    code[6] = (nChild >> 16) & 0xFF;
+    code[7] = (nChild >>  8) & 0xFF;
+    code[8] = (nChild >>  0) & 0xFF;
     memcpy(code+9, chaincode.begin(), 32);
     assert(pubkey.size() == CPubKey::COMPRESSED_PUBLIC_KEY_SIZE);
     memcpy(code+41, pubkey.begin(), CPubKey::COMPRESSED_PUBLIC_KEY_SIZE);
@@ -151,8 +152,7 @@ bool CExtPubKey::Derive(CExtPubKey &out, unsigned int nChild) const {
 
 /* static */ int ECCVerifyHandle::refcount = 0;
 
-ECCVerifyHandle::ECCVerifyHandle()
-{
+ECCVerifyHandle::ECCVerifyHandle() {
     if (refcount == 0) {
         assert(secp256k1_context_verify == NULL);
         secp256k1_context_verify = secp256k1_context_create(SECP256K1_CONTEXT_VERIFY);
@@ -161,8 +161,7 @@ ECCVerifyHandle::ECCVerifyHandle()
     refcount++;
 }
 
-ECCVerifyHandle::~ECCVerifyHandle()
-{
+ECCVerifyHandle::~ECCVerifyHandle() {
     refcount--;
     if (refcount == 0) {
         assert(secp256k1_context_verify != NULL);

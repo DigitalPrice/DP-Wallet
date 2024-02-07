@@ -4,8 +4,7 @@
 
 #include "bech32.h"
 
-namespace
-{
+namespace {
 
 typedef std::vector<uint8_t> data;
 
@@ -15,18 +14,17 @@ const char* CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
 /** The Bech32 character set for decoding. */
 const int8_t CHARSET_REV[128] = {
     -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
-    15, -1, 10, 17, 21, 20, 26, 30,  7,  5, -1, -1, -1, -1, -1, -1,
-    -1, 29, -1, 24, 13, 25,  9,  8, 23, -1, 18, 22, 31, 27, 19, -1,
-     1,  0,  3, 16, 11, 28, 12, 14,  6,  4,  2, -1, -1, -1, -1, -1,
-    -1, 29, -1, 24, 13, 25,  9,  8, 23, -1, 18, 22, 31, 27, 19, -1,
-     1,  0,  3, 16, 11, 28, 12, 14,  6,  4,  2, -1, -1, -1, -1, -1
-};
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
+        15, -1, 10, 17, 21, 20, 26, 30,  7,  5, -1, -1, -1, -1, -1, -1,
+        -1, 29, -1, 24, 13, 25,  9,  8, 23, -1, 18, 22, 31, 27, 19, -1,
+        1,  0,  3, 16, 11, 28, 12, 14,  6,  4,  2, -1, -1, -1, -1, -1,
+        -1, 29, -1, 24, 13, 25,  9,  8, 23, -1, 18, 22, 31, 27, 19, -1,
+        1,  0,  3, 16, 11, 28, 12, 14,  6,  4,  2, -1, -1, -1, -1, -1
+    };
 
 /** Concatenate two byte arrays. */
-data Cat(data x, const data& y)
-{
+data Cat(data x, const data& y) {
     x.insert(x.end(), y.begin(), y.end());
     return x;
 }
@@ -34,8 +32,7 @@ data Cat(data x, const data& y)
 /** This function will compute what 6 5-bit values to XOR into the last 6 input values, in order to
  *  make the checksum 0. These 6 values are packed together in a single 30-bit integer. The higher
  *  bits correspond to earlier values. */
-uint32_t PolyMod(const data& v)
-{
+uint32_t PolyMod(const data& v) {
     // The input is interpreted as a list of coefficients of a polynomial over F = GF(32), with an
     // implicit 1 in front. If the input is [v0,v1,v2,v3,v4], that polynomial is v(x) =
     // 1*x^5 + v0*x^4 + v1*x^3 + v2*x^2 + v3*x + v4. The implicit 1 guarantees that
@@ -94,14 +91,12 @@ uint32_t PolyMod(const data& v)
 }
 
 /** Convert to lower case. */
-inline unsigned char LowerCase(unsigned char c)
-{
+inline unsigned char LowerCase(unsigned char c) {
     return (c >= 'A' && c <= 'Z') ? (c - 'A') + 'a' : c;
 }
 
 /** Expand a HRP for use in checksum computation. */
-data ExpandHRP(const std::string& hrp)
-{
+data ExpandHRP(const std::string& hrp) {
     data ret;
     ret.reserve(hrp.size() + 90);
     ret.resize(hrp.size() * 2 + 1);
@@ -115,8 +110,7 @@ data ExpandHRP(const std::string& hrp)
 }
 
 /** Verify a checksum. */
-bool VerifyChecksum(const std::string& hrp, const data& values)
-{
+bool VerifyChecksum(const std::string& hrp, const data& values) {
     // PolyMod computes what value to xor into the final values to make the checksum 0. However,
     // if we required that the checksum was 0, it would be the case that appending a 0 to a valid
     // list of values would result in a new valid list. For that reason, Bech32 requires the
@@ -125,8 +119,7 @@ bool VerifyChecksum(const std::string& hrp, const data& values)
 }
 
 /** Create a checksum. */
-data CreateChecksum(const std::string& hrp, const data& values)
-{
+data CreateChecksum(const std::string& hrp, const data& values) {
     data enc = Cat(ExpandHRP(hrp), values);
     enc.resize(enc.size() + 6); // Append 6 zeroes
     uint32_t mod = PolyMod(enc) ^ 1; // Determine what to XOR into those 6 zeroes.
@@ -140,8 +133,7 @@ data CreateChecksum(const std::string& hrp, const data& values)
 
 } // namespace
 
-namespace bech32
-{
+namespace bech32 {
 
 /** Encode a Bech32 string. */
 std::string Encode(const std::string& hrp, const data& values) {

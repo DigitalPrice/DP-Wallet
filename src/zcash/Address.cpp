@@ -7,7 +7,7 @@
 #include <librustzcash.h>
 
 const unsigned char ZCASH_SAPLING_FVFP_PERSONALIZATION[crypto_generichash_blake2b_PERSONALBYTES] =
-    {'Z', 'c', 'a', 's', 'h', 'S', 'a', 'p', 'l', 'i', 'n', 'g', 'F', 'V', 'F', 'P'};
+{'Z', 'c', 'a', 's', 'h', 'S', 'a', 'p', 'l', 'i', 'n', 'g', 'F', 'V', 'F', 'P'};
 
 const uint32_t SAPLING_BRANCH_ID = 0x76b809bb;
 
@@ -114,25 +114,25 @@ SaplingPaymentAddress SaplingSpendingKey::default_address() const {
 }
 
 class IsValidAddressForNetwork : public boost::static_visitor<bool> {
-    private:
-        uint32_t branchId;
-    public:
-        IsValidAddressForNetwork(uint32_t consensusBranchId) : branchId(consensusBranchId) {}
+  private:
+    uint32_t branchId;
+  public:
+    IsValidAddressForNetwork(uint32_t consensusBranchId) : branchId(consensusBranchId) {}
 
-        bool operator()(const libzcash::SproutPaymentAddress &addr) const {
+    bool operator()(const libzcash::SproutPaymentAddress &addr) const {
+        return true;
+    }
+
+    bool operator()(const libzcash::InvalidEncoding &addr) const {
+        return false;
+    }
+
+    bool operator()(const libzcash::SaplingPaymentAddress &addr) const {
+        if (SAPLING_BRANCH_ID == branchId)
             return true;
-        }
-
-        bool operator()(const libzcash::InvalidEncoding &addr) const {
+        else
             return false;
-        }
-
-        bool operator()(const libzcash::SaplingPaymentAddress &addr) const {
-            if (SAPLING_BRANCH_ID == branchId)
-                return true;
-            else
-                return false;
-        }
+    }
 };
 
 bool IsValidPaymentAddress(const libzcash::PaymentAddress& zaddr, uint32_t consensusBranchId) {

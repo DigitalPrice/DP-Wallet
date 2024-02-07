@@ -24,14 +24,14 @@ extern "C" {
 
 /* Dependencies */
 typedef enum Fulfillment_PR {
-	Fulfillment_PR_NOTHING,	/* No components present */
-	Fulfillment_PR_preimageSha256,
-	Fulfillment_PR_prefixSha256,
-	Fulfillment_PR_thresholdSha256,
-	Fulfillment_PR_rsaSha256,
-	Fulfillment_PR_ed25519Sha256,
-	Fulfillment_PR_secp256k1Sha256,
-	Fulfillment_PR_evalSha256
+    Fulfillment_PR_NOTHING,	/* No components present */
+    Fulfillment_PR_preimageSha256,
+    Fulfillment_PR_prefixSha256,
+    Fulfillment_PR_thresholdSha256,
+    Fulfillment_PR_rsaSha256,
+    Fulfillment_PR_ed25519Sha256,
+    Fulfillment_PR_secp256k1Sha256,
+    Fulfillment_PR_evalSha256
 } Fulfillment_PR;
 
 /* Forward declarations */
@@ -40,19 +40,19 @@ struct ThresholdFulfillment;
 
 /* Fulfillment */
 typedef struct Fulfillment {
-	Fulfillment_PR present;
-	union Fulfillment_u {
-		PreimageFulfillment_t	 preimageSha256;
-		struct PrefixFulfillment	*prefixSha256;
-		struct ThresholdFulfillment	*thresholdSha256;
-		RsaSha256Fulfillment_t	 rsaSha256;
-		Ed25519Sha512Fulfillment_t	 ed25519Sha256;
-		Secp256k1Fulfillment_t	 secp256k1Sha256;
-		EvalFulfillment_t	 evalSha256;
-	} choice;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    Fulfillment_PR present;
+    union Fulfillment_u {
+        PreimageFulfillment_t	 preimageSha256;
+        struct PrefixFulfillment	*prefixSha256;
+        struct ThresholdFulfillment	*thresholdSha256;
+        RsaSha256Fulfillment_t	 rsaSha256;
+        Ed25519Sha512Fulfillment_t	 ed25519Sha256;
+        Secp256k1Fulfillment_t	 secp256k1Sha256;
+        EvalFulfillment_t	 evalSha256;
+    } choice;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } Fulfillment_t;
 
 /* Implementation */

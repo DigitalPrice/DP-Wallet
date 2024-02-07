@@ -44,25 +44,22 @@
 /** Komodo unit definitions. Encapsulates parsing and formatting
    and serves as list model for drop-down selection boxes.
 */
-class KomodoUnits: public QAbstractListModel
-{
+class KomodoUnits: public QAbstractListModel {
     Q_OBJECT
 
-public:
+  public:
     explicit KomodoUnits(QObject *parent);
 
     /** Komodo units.
       @note Source: https://en.komodo.it/wiki/Units . Please add only sensible ones
      */
-    enum Unit
-    {
+    enum Unit {
         KMD,
         mKMD,
         uKMD
     };
 
-    enum SeparatorStyle
-    {
+    enum SeparatorStyle {
         separatorNever,
         separatorStandard,
         separatorAlways
@@ -109,8 +106,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     ///@}
 
-    static QString removeSpaces(QString text)
-    {
+    static QString removeSpaces(QString text) {
         text.remove(' ');
         text.remove(QChar(THIN_SP_CP));
 #if (THIN_SP_CP != REAL_THIN_SP_CP)
@@ -122,7 +118,7 @@ public:
     //! Return maximum number of base units (Satoshis)
     static CAmount maxMoney();
 
-private:
+  private:
     QList<KomodoUnits::Unit> unitlist;
 };
 typedef KomodoUnits::Unit KomodoUnit;

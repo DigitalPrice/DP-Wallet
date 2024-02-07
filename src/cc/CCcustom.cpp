@@ -32,11 +32,11 @@
 
 /*
  CCcustom has most of the functions that need to be extended to create a new CC contract.
- 
+
  A CC scriptPubKey can only be spent if it is properly signed and validated. By constraining the vins and vouts, it is possible to implement a variety of functionality. CC vouts have an otherwise non-standard form, but it is properly supported by the enhanced bitcoin protocol code as a "cryptoconditions" output and the same pubkey will create a different address.
- 
+
  This allows creation of a special address(es) for each contract type, which has the privkey public. That allows anybody to properly sign and spend it, but with the constraints on what is allowed in the validation code, the contract functionality can be implemented.
- 
+
  what needs to be done to add a new contract:
  1. add EVAL_CODE to eval.h
  2. initialize the variables in the CCinit function below
@@ -44,11 +44,11 @@
  4. make helper functions to create rawtx for RPC functions
  5. add rpc calls to rpcserver.cpp and rpcserver.h and in one of the rpc.cpp files
  6. add the new .cpp files to src/Makefile.am
- 
+
  IMPORTANT: make sure that all CC inputs and CC outputs are properly accounted for and reconcile to the satoshi. The built in utxo management will enforce overall vin/vout constraints but it wont know anything about the CC constraints. That is what your Validate function needs to do.
- 
+
  Generally speaking, there will be normal coins that change into CC outputs, CC outputs that go back to being normal coins, CC outputs that are spent to new CC outputs.
- 
+
  Make sure both the CC coins and normal coins are preserved and follow the rules that make sense. It is a good idea to define specific roles for specific vins and vouts to reduce the complexity of validation.
  */
 
@@ -192,7 +192,7 @@ uint8_t GatewaysCCpriv[32] = { 0xf7, 0x4b, 0x5b, 0xa2, 0x7a, 0x5e, 0x9c, 0xda, 0
 #define FUNCNAME IsTokensInput
 #define EVALCODE EVAL_TOKENS
 const char *TokensCCaddr = "RAMvUfoyURBRxAdVeTMHxn3giJZCFWeha2";
-const char *TokensNormaladdr = "RCNgAngYAdrfzujYyPgfbjCGNVQZzCgTad"; 
+const char *TokensNormaladdr = "RCNgAngYAdrfzujYyPgfbjCGNVQZzCgTad";
 char TokensCChexstr[67] = { "03e6191c70c9c9a28f9fd87089b9488d0e6c02fb629df64979c9cdb6b2b4a68d95" };
 uint8_t TokensCCpriv[32] = { 0x1d, 0x0d, 0x0d, 0xce, 0x2d, 0xd2, 0xe1, 0x9d, 0xf5, 0xb6, 0x26, 0xd5, 0xad, 0xa0, 0xf0, 0x0a, 0xdd, 0x7a, 0x72, 0x7d, 0x17, 0x35, 0xb5, 0xe3, 0x2c, 0x6c, 0xa9, 0xa2, 0x03, 0x16, 0x4b, 0xcf };
 #include "CCcustom.inc"
@@ -212,21 +212,22 @@ uint8_t CClibCCpriv[32] = { 0x57, 0xcf, 0x49, 0x71, 0x7d, 0xb4, 0x15, 0x1b, 0x4f
 #define FUNCNAME IsImportGatewayInput
 #define EVALCODE EVAL_IMPORTGATEWAY
 const char *ImportGatewayCCaddr = "RXJT6CRAXHFuQ2UjqdxMj7EfrayF6UJpzZ";
-const char *ImportGatewayNormaladdr = "RNFRho63Ddz1Rh2eGPETykrU4fA8r67S4Y"; 
+const char *ImportGatewayNormaladdr = "RNFRho63Ddz1Rh2eGPETykrU4fA8r67S4Y";
 char ImportGatewayCChexstr[67] = { "0397231cfe04ea32d5fafb2206773ec9fba6e15c5a4e86064468bca195f7542714" };
 uint8_t ImportGatewayCCpriv[32] = { 0x65, 0xef, 0x27, 0xeb, 0x3d, 0xb0, 0xb4, 0xae, 0x0f, 0xbc, 0x77, 0xdb, 0xf8, 0x40, 0x48, 0x90, 0x52, 0x20, 0x9e, 0x45, 0x3b, 0x49, 0xd8, 0x97, 0x60, 0x8c, 0x27, 0x4c, 0x59, 0x46, 0xe1, 0xdf };
 #include "CCcustom.inc"
 #undef FUNCNAME
 #undef EVALCODE
 
-int32_t CClib_initcp(struct CCcontract_info *cp,uint8_t evalcode)
-{
-    CPubKey pk; int32_t i; uint8_t pub33[33],check33[33],hash[32]; char CCaddr[64],checkaddr[64],str[67];
+int32_t CClib_initcp(struct CCcontract_info *cp,uint8_t evalcode) {
+    CPubKey pk;
+    int32_t i;
+    uint8_t pub33[33],check33[33],hash[32];
+    char CCaddr[64],checkaddr[64],str[67];
     cp->evalcode = evalcode;
     cp->ismyvin = IsCClibInput;
     memcpy(cp->CCpriv,CClibCCpriv,32);
-    if ( evalcode == EVAL_FIRSTUSER ) // eventually make a hashchain for each evalcode
-    {
+    if ( evalcode == EVAL_FIRSTUSER ) { // eventually make a hashchain for each evalcode
         strcpy(cp->CChexstr,CClibCChexstr);
         decode_hex(pub33,33,cp->CChexstr);
         pk = buf2pk(pub33);
@@ -234,24 +235,18 @@ int32_t CClib_initcp(struct CCcontract_info *cp,uint8_t evalcode)
         if ( strcmp(cp->normaladdr,CClibNormaladdr) != 0 )
             LogPrintf("CClib_initcp addr mismatch %s vs %s\n",cp->normaladdr,CClibNormaladdr);
         GetCCaddress(cp,cp->unspendableCCaddr,pk);
-        if ( priv2addr(checkaddr,check33,cp->CCpriv) != 0 )
-        {
-            if ( buf2pk(check33) == pk && strcmp(checkaddr,cp->normaladdr) == 0 )
-            {
+        if ( priv2addr(checkaddr,check33,cp->CCpriv) != 0 ) {
+            if ( buf2pk(check33) == pk && strcmp(checkaddr,cp->normaladdr) == 0 ) {
                 //LogPrintf("verified evalcode.%d %s %s\n",cp->evalcode,checkaddr,pubkey33_str(str,pub33));
                 return(0);
             } else LogPrintf("CClib_initcp mismatched privkey -> addr %s vs %s\n",checkaddr,cp->normaladdr);
         }
-    }
-    else
-    {
-        for (i=EVAL_FIRSTUSER; i<evalcode; i++)
-        {
+    } else {
+        for (i=EVAL_FIRSTUSER; i<evalcode; i++) {
             vcalc_sha256(0,hash,cp->CCpriv,32);
             memcpy(cp->CCpriv,hash,32);
         }
-        if ( priv2addr(cp->normaladdr,pub33,cp->CCpriv) != 0 )
-        {
+        if ( priv2addr(cp->normaladdr,pub33,cp->CCpriv) != 0 ) {
             pk = buf2pk(pub33);
             for (i=0; i<33; i++)
                 sprintf(&cp->CChexstr[i*2],"%02x",pub33[i]);
@@ -264,131 +259,129 @@ int32_t CClib_initcp(struct CCcontract_info *cp,uint8_t evalcode)
     return(-1);
 }
 
-struct CCcontract_info *CCinit(struct CCcontract_info *cp, uint8_t evalcode)
-{
+struct CCcontract_info *CCinit(struct CCcontract_info *cp, uint8_t evalcode) {
     // important to clear because not all members are always initialized!
     memset(cp, '\0', sizeof(*cp));
 
     cp->evalcode = evalcode;
-    switch ( evalcode )
-    {
-        case EVAL_ASSETS:
-            strcpy(cp->unspendableCCaddr,AssetsCCaddr);
-            strcpy(cp->normaladdr,AssetsNormaladdr);
-            strcpy(cp->CChexstr,AssetsCChexstr);
-            memcpy(cp->CCpriv,AssetsCCpriv,32);
-            cp->validate = AssetsValidate;
-            cp->ismyvin = IsAssetsInput;
-            break;
-        case EVAL_FAUCET:
-            strcpy(cp->unspendableCCaddr,FaucetCCaddr);
-            strcpy(cp->normaladdr,FaucetNormaladdr);
-            strcpy(cp->CChexstr,FaucetCChexstr);
-            memcpy(cp->CCpriv,FaucetCCpriv,32);
-            cp->validate = FaucetValidate;
-            cp->ismyvin = IsFaucetInput;
-            break;
-        case EVAL_REWARDS:
-            strcpy(cp->unspendableCCaddr,RewardsCCaddr);
-            strcpy(cp->normaladdr,RewardsNormaladdr);
-            strcpy(cp->CChexstr,RewardsCChexstr);
-            memcpy(cp->CCpriv,RewardsCCpriv,32);
-            cp->validate = RewardsValidate;
-            cp->ismyvin = IsRewardsInput;
-            break;
-        case EVAL_DICE:
-            strcpy(cp->unspendableCCaddr,DiceCCaddr);
-            strcpy(cp->normaladdr,DiceNormaladdr);
-            strcpy(cp->CChexstr,DiceCChexstr);
-            memcpy(cp->CCpriv,DiceCCpriv,32);
-            cp->validate = DiceValidate;
-            cp->ismyvin = IsDiceInput;
-            break;
-        case EVAL_LOTTO:
-            strcpy(cp->unspendableCCaddr,LottoCCaddr);
-            strcpy(cp->normaladdr,LottoNormaladdr);
-            strcpy(cp->CChexstr,LottoCChexstr);
-            memcpy(cp->CCpriv,LottoCCpriv,32);
-            cp->validate = LottoValidate;
-            cp->ismyvin = IsLottoInput;
-            break;
-        case EVAL_FSM:
-            strcpy(cp->unspendableCCaddr,FSMCCaddr);
-            strcpy(cp->normaladdr,FSMNormaladdr);
-            strcpy(cp->CChexstr,FSMCChexstr);
-            memcpy(cp->CCpriv,FSMCCpriv,32);
-            cp->validate = FSMValidate;
-            cp->ismyvin = IsFSMInput;
-            break;
-        case EVAL_AUCTION:
-            strcpy(cp->unspendableCCaddr,AuctionCCaddr);
-            strcpy(cp->normaladdr,AuctionNormaladdr);
-            strcpy(cp->CChexstr,AuctionCChexstr);
-            memcpy(cp->CCpriv,AuctionCCpriv,32);
-            cp->validate = AuctionValidate;
-            cp->ismyvin = IsAuctionInput;
-            break;
-        case EVAL_HEIR:
-            strcpy(cp->unspendableCCaddr,HeirCCaddr);
-            strcpy(cp->normaladdr,HeirNormaladdr);
-            strcpy(cp->CChexstr,HeirCChexstr);
-            memcpy(cp->CCpriv,HeirCCpriv,32);
-            cp->validate = HeirValidate;
-            cp->ismyvin = IsHeirInput;
-            break;
-        case EVAL_CHANNELS:
-            strcpy(cp->unspendableCCaddr,ChannelsCCaddr);
-            strcpy(cp->normaladdr,ChannelsNormaladdr);
-            strcpy(cp->CChexstr,ChannelsCChexstr);
-            memcpy(cp->CCpriv,ChannelsCCpriv,32);
-            cp->validate = ChannelsValidate;
-            cp->ismyvin = IsChannelsInput;
-            break;
-        case EVAL_ORACLES:
-            strcpy(cp->unspendableCCaddr,OraclesCCaddr);
-            strcpy(cp->normaladdr,OraclesNormaladdr);
-            strcpy(cp->CChexstr,OraclesCChexstr);
-            memcpy(cp->CCpriv,OraclesCCpriv,32);
-            cp->validate = OraclesValidate;
-            cp->ismyvin = IsOraclesInput;
-            break;
-        case EVAL_PAYMENTS:
-            strcpy(cp->unspendableCCaddr,PaymentsCCaddr);
-            strcpy(cp->normaladdr,PaymentsNormaladdr);
-            strcpy(cp->CChexstr,PaymentsCChexstr);
-            memcpy(cp->CCpriv,PaymentsCCpriv,32);
-            cp->validate = PaymentsValidate;
-            cp->ismyvin = IsPaymentsInput;
-            break;
-        case EVAL_GATEWAYS:
-            strcpy(cp->unspendableCCaddr,GatewaysCCaddr);
-            strcpy(cp->normaladdr,GatewaysNormaladdr);
-            strcpy(cp->CChexstr,GatewaysCChexstr);
-            memcpy(cp->CCpriv,GatewaysCCpriv,32);
-            cp->validate = GatewaysValidate;
-            cp->ismyvin = IsGatewaysInput;
-            break;
+    switch ( evalcode ) {
+    case EVAL_ASSETS:
+        strcpy(cp->unspendableCCaddr,AssetsCCaddr);
+        strcpy(cp->normaladdr,AssetsNormaladdr);
+        strcpy(cp->CChexstr,AssetsCChexstr);
+        memcpy(cp->CCpriv,AssetsCCpriv,32);
+        cp->validate = AssetsValidate;
+        cp->ismyvin = IsAssetsInput;
+        break;
+    case EVAL_FAUCET:
+        strcpy(cp->unspendableCCaddr,FaucetCCaddr);
+        strcpy(cp->normaladdr,FaucetNormaladdr);
+        strcpy(cp->CChexstr,FaucetCChexstr);
+        memcpy(cp->CCpriv,FaucetCCpriv,32);
+        cp->validate = FaucetValidate;
+        cp->ismyvin = IsFaucetInput;
+        break;
+    case EVAL_REWARDS:
+        strcpy(cp->unspendableCCaddr,RewardsCCaddr);
+        strcpy(cp->normaladdr,RewardsNormaladdr);
+        strcpy(cp->CChexstr,RewardsCChexstr);
+        memcpy(cp->CCpriv,RewardsCCpriv,32);
+        cp->validate = RewardsValidate;
+        cp->ismyvin = IsRewardsInput;
+        break;
+    case EVAL_DICE:
+        strcpy(cp->unspendableCCaddr,DiceCCaddr);
+        strcpy(cp->normaladdr,DiceNormaladdr);
+        strcpy(cp->CChexstr,DiceCChexstr);
+        memcpy(cp->CCpriv,DiceCCpriv,32);
+        cp->validate = DiceValidate;
+        cp->ismyvin = IsDiceInput;
+        break;
+    case EVAL_LOTTO:
+        strcpy(cp->unspendableCCaddr,LottoCCaddr);
+        strcpy(cp->normaladdr,LottoNormaladdr);
+        strcpy(cp->CChexstr,LottoCChexstr);
+        memcpy(cp->CCpriv,LottoCCpriv,32);
+        cp->validate = LottoValidate;
+        cp->ismyvin = IsLottoInput;
+        break;
+    case EVAL_FSM:
+        strcpy(cp->unspendableCCaddr,FSMCCaddr);
+        strcpy(cp->normaladdr,FSMNormaladdr);
+        strcpy(cp->CChexstr,FSMCChexstr);
+        memcpy(cp->CCpriv,FSMCCpriv,32);
+        cp->validate = FSMValidate;
+        cp->ismyvin = IsFSMInput;
+        break;
+    case EVAL_AUCTION:
+        strcpy(cp->unspendableCCaddr,AuctionCCaddr);
+        strcpy(cp->normaladdr,AuctionNormaladdr);
+        strcpy(cp->CChexstr,AuctionCChexstr);
+        memcpy(cp->CCpriv,AuctionCCpriv,32);
+        cp->validate = AuctionValidate;
+        cp->ismyvin = IsAuctionInput;
+        break;
+    case EVAL_HEIR:
+        strcpy(cp->unspendableCCaddr,HeirCCaddr);
+        strcpy(cp->normaladdr,HeirNormaladdr);
+        strcpy(cp->CChexstr,HeirCChexstr);
+        memcpy(cp->CCpriv,HeirCCpriv,32);
+        cp->validate = HeirValidate;
+        cp->ismyvin = IsHeirInput;
+        break;
+    case EVAL_CHANNELS:
+        strcpy(cp->unspendableCCaddr,ChannelsCCaddr);
+        strcpy(cp->normaladdr,ChannelsNormaladdr);
+        strcpy(cp->CChexstr,ChannelsCChexstr);
+        memcpy(cp->CCpriv,ChannelsCCpriv,32);
+        cp->validate = ChannelsValidate;
+        cp->ismyvin = IsChannelsInput;
+        break;
+    case EVAL_ORACLES:
+        strcpy(cp->unspendableCCaddr,OraclesCCaddr);
+        strcpy(cp->normaladdr,OraclesNormaladdr);
+        strcpy(cp->CChexstr,OraclesCChexstr);
+        memcpy(cp->CCpriv,OraclesCCpriv,32);
+        cp->validate = OraclesValidate;
+        cp->ismyvin = IsOraclesInput;
+        break;
+    case EVAL_PAYMENTS:
+        strcpy(cp->unspendableCCaddr,PaymentsCCaddr);
+        strcpy(cp->normaladdr,PaymentsNormaladdr);
+        strcpy(cp->CChexstr,PaymentsCChexstr);
+        memcpy(cp->CCpriv,PaymentsCCpriv,32);
+        cp->validate = PaymentsValidate;
+        cp->ismyvin = IsPaymentsInput;
+        break;
+    case EVAL_GATEWAYS:
+        strcpy(cp->unspendableCCaddr,GatewaysCCaddr);
+        strcpy(cp->normaladdr,GatewaysNormaladdr);
+        strcpy(cp->CChexstr,GatewaysCChexstr);
+        memcpy(cp->CCpriv,GatewaysCCpriv,32);
+        cp->validate = GatewaysValidate;
+        cp->ismyvin = IsGatewaysInput;
+        break;
 
-		case EVAL_TOKENS:
-			strcpy(cp->unspendableCCaddr, TokensCCaddr);
-			strcpy(cp->normaladdr, TokensNormaladdr);
-			strcpy(cp->CChexstr, TokensCChexstr);
-			memcpy(cp->CCpriv, TokensCCpriv, 32);
-			cp->validate = TokensValidate;
-			cp->ismyvin = IsTokensInput;
-			break;
-        case EVAL_IMPORTGATEWAY:
-			strcpy(cp->unspendableCCaddr, ImportGatewayCCaddr);
-			strcpy(cp->normaladdr, ImportGatewayNormaladdr);
-			strcpy(cp->CChexstr, ImportGatewayCChexstr);
-			memcpy(cp->CCpriv, ImportGatewayCCpriv, 32);
-			cp->validate = ImportGatewayValidate;
-			cp->ismyvin = IsImportGatewayInput;
-			break;
-        default:
-            if ( CClib_initcp(cp,evalcode) < 0 )
-                return(0);
-            break;
+    case EVAL_TOKENS:
+        strcpy(cp->unspendableCCaddr, TokensCCaddr);
+        strcpy(cp->normaladdr, TokensNormaladdr);
+        strcpy(cp->CChexstr, TokensCChexstr);
+        memcpy(cp->CCpriv, TokensCCpriv, 32);
+        cp->validate = TokensValidate;
+        cp->ismyvin = IsTokensInput;
+        break;
+    case EVAL_IMPORTGATEWAY:
+        strcpy(cp->unspendableCCaddr, ImportGatewayCCaddr);
+        strcpy(cp->normaladdr, ImportGatewayNormaladdr);
+        strcpy(cp->CChexstr, ImportGatewayCChexstr);
+        memcpy(cp->CCpriv, ImportGatewayCCpriv, 32);
+        cp->validate = ImportGatewayValidate;
+        cp->ismyvin = IsImportGatewayInput;
+        break;
+    default:
+        if ( CClib_initcp(cp,evalcode) < 0 )
+            return(0);
+        break;
     }
     return(cp);
 }

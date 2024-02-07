@@ -33,8 +33,7 @@
 /** All alphanumeric characters except for "0", "I", "O", and "l" */
 static const char* pszBase58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 
-bool DecodeBase58(const char* psz, std::vector<unsigned char>& vch)
-{
+bool DecodeBase58(const char* psz, std::vector<unsigned char>& vch) {
     // Skip leading spaces.
     while (*psz && isspace(*psz))
         psz++;
@@ -79,8 +78,7 @@ bool DecodeBase58(const char* psz, std::vector<unsigned char>& vch)
     return true;
 }
 
-std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend)
-{
+std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend) {
     // Skip & count leading zeroes.
     int zeroes = 0;
     while (pbegin != pend && *pbegin == 0) {
@@ -114,18 +112,15 @@ std::string EncodeBase58(const unsigned char* pbegin, const unsigned char* pend)
     return str;
 }
 
-std::string EncodeBase58(const std::vector<unsigned char>& vch)
-{
+std::string EncodeBase58(const std::vector<unsigned char>& vch) {
     return EncodeBase58(vch.data(), vch.data() + vch.size());
 }
 
-bool DecodeBase58(const std::string& str, std::vector<unsigned char>& vchRet)
-{
+bool DecodeBase58(const std::string& str, std::vector<unsigned char>& vchRet) {
     return DecodeBase58(str.c_str(), vchRet);
 }
 
-std::string EncodeBase58Check(const std::vector<unsigned char>& vchIn)
-{
+std::string EncodeBase58Check(const std::vector<unsigned char>& vchIn) {
     // add 4-byte hash check to the end
     std::vector<unsigned char> vch(vchIn);
     uint256 hash = Hash(vch.begin(), vch.end());
@@ -133,10 +128,9 @@ std::string EncodeBase58Check(const std::vector<unsigned char>& vchIn)
     return EncodeBase58(vch);
 }
 
-bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRet)
-{
+bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRet) {
     if (!DecodeBase58(psz, vchRet) ||
-        (vchRet.size() < 4)) {
+            (vchRet.size() < 4)) {
         vchRet.clear();
         return false;
     }
@@ -150,33 +144,28 @@ bool DecodeBase58Check(const char* psz, std::vector<unsigned char>& vchRet)
     return true;
 }
 
-bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRet)
-{
+bool DecodeBase58Check(const std::string& str, std::vector<unsigned char>& vchRet) {
     return DecodeBase58Check(str.c_str(), vchRet);
 }
 
 
-CBase58Data::CBase58Data()
-{
+CBase58Data::CBase58Data() {
     vchVersion.clear();
     vchData.clear();
 }
 
-void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const void* pdata, size_t nSize)
-{
+void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const void* pdata, size_t nSize) {
     vchVersion = vchVersionIn;
     vchData.resize(nSize);
     if (!vchData.empty())
         memcpy(&vchData[0], pdata, nSize);
 }
 
-void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const unsigned char* pbegin, const unsigned char* pend)
-{
+void CBase58Data::SetData(const std::vector<unsigned char>& vchVersionIn, const unsigned char* pbegin, const unsigned char* pend) {
     SetData(vchVersionIn, (void*)pbegin, pend - pbegin);
 }
 
-bool CBase58Data::SetString(const char* psz, unsigned int nVersionBytes)
-{
+bool CBase58Data::SetString(const char* psz, unsigned int nVersionBytes) {
     std::vector<unsigned char> vchTemp;
     bool rc58 = DecodeBase58Check(psz, vchTemp);
     if ((!rc58) || (vchTemp.size() < nVersionBytes)) {
@@ -192,20 +181,17 @@ bool CBase58Data::SetString(const char* psz, unsigned int nVersionBytes)
     return true;
 }
 
-bool CBase58Data::SetString(const std::string& str, unsigned int nVersionBytes)
-{
+bool CBase58Data::SetString(const std::string& str, unsigned int nVersionBytes) {
     return SetString(str.c_str(), nVersionBytes);
 }
 
-std::string CBase58Data::ToString() const
-{
+std::string CBase58Data::ToString() const {
     std::vector<unsigned char> vch = vchVersion;
     vch.insert(vch.end(), vchData.begin(), vchData.end());
     return EncodeBase58Check(vch);
 }
 
-int CBase58Data::CompareTo(const CBase58Data& b58) const
-{
+int CBase58Data::CompareTo(const CBase58Data& b58) const {
     if (vchVersion < b58.vchVersion)
         return -1;
     if (vchVersion > b58.vchVersion)
@@ -217,73 +203,70 @@ int CBase58Data::CompareTo(const CBase58Data& b58) const
     return 0;
 }
 
-namespace
-{
-class CBitcoinAddressVisitor : public boost::static_visitor<bool>
-{
-private:
+namespace {
+class CBitcoinAddressVisitor : public boost::static_visitor<bool> {
+  private:
     CBitcoinAddress* addr;
 
-public:
+  public:
     CBitcoinAddressVisitor(CBitcoinAddress* addrIn) : addr(addrIn) {}
 
-    bool operator()(const CKeyID& id) const { return addr->Set(id); }
-    bool operator()(const CPubKey& key) const { return addr->Set(key); }
-    bool operator()(const CScriptID& id) const { return addr->Set(id); }
-    bool operator()(const CNoDestination& no) const { return false; }
+    bool operator()(const CKeyID& id) const {
+        return addr->Set(id);
+    }
+    bool operator()(const CPubKey& key) const {
+        return addr->Set(key);
+    }
+    bool operator()(const CScriptID& id) const {
+        return addr->Set(id);
+    }
+    bool operator()(const CNoDestination& no) const {
+        return false;
+    }
 };
 
 } // anon namespace
 
-bool CBitcoinAddress::Set(const CKeyID& id)
-{
+bool CBitcoinAddress::Set(const CKeyID& id) {
     SetData(Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS), &id, 20);
     return true;
 }
 
-bool CBitcoinAddress::Set(const CPubKey& key)
-{
+bool CBitcoinAddress::Set(const CPubKey& key) {
     CKeyID id = key.GetID();
     SetData(Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS), &id, 20);
     return true;
 }
 
-bool CBitcoinAddress::Set(const CScriptID& id)
-{
+bool CBitcoinAddress::Set(const CScriptID& id) {
     SetData(Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS), &id, 20);
     return true;
 }
 
-bool CBitcoinAddress::Set(const CTxDestination& dest)
-{
+bool CBitcoinAddress::Set(const CTxDestination& dest) {
     return boost::apply_visitor(CBitcoinAddressVisitor(this), dest);
 }
 
-bool CBitcoinAddress::IsValid() const
-{
+bool CBitcoinAddress::IsValid() const {
     return IsValid(Params());
 }
 
-bool CBitcoinAddress::IsValid(const CChainParams& params) const
-{
+bool CBitcoinAddress::IsValid(const CChainParams& params) const {
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == params.Base58Prefix(CChainParams::PUBKEY_ADDRESS) ||
                          vchVersion == params.Base58Prefix(CChainParams::SCRIPT_ADDRESS);
     return fCorrectSize && fKnownVersion;
 }
 
-bool CBitcoinAddress::SetString(const char* pszAddress)
-{
+bool CBitcoinAddress::SetString(const char* pszAddress) {
     return CBase58Data::SetString(pszAddress, 1);//2);
 }
 
-bool CBitcoinAddress::SetString(const std::string& strAddress)
-{
+bool CBitcoinAddress::SetString(const std::string& strAddress) {
     return SetString(strAddress.c_str());
 }
 
-CTxDestination CBitcoinAddress::Get() const
-{
+CTxDestination CBitcoinAddress::Get() const {
     if (!IsValid())
         return CNoDestination();
     uint160 id;
@@ -296,8 +279,7 @@ CTxDestination CBitcoinAddress::Get() const
         return CNoDestination();
 }
 
-bool CBitcoinAddress::GetIndexKey(uint160& hashBytes, int& type, bool ccflag) const
-{
+bool CBitcoinAddress::GetIndexKey(uint160& hashBytes, int& type, bool ccflag) const {
     if (!IsValid()) {
         return false;
     } else if (vchVersion == Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS)) {
@@ -313,8 +295,7 @@ bool CBitcoinAddress::GetIndexKey(uint160& hashBytes, int& type, bool ccflag) co
     return false;
 }
 
-bool CBitcoinAddress::GetKeyID(CKeyID& keyID) const
-{
+bool CBitcoinAddress::GetKeyID(CKeyID& keyID) const {
     if (!IsValid() || vchVersion != Params().Base58Prefix(CChainParams::PUBKEY_ADDRESS))
         return false;
     uint160 id;
@@ -323,45 +304,38 @@ bool CBitcoinAddress::GetKeyID(CKeyID& keyID) const
     return true;
 }
 
-bool CBitcoinAddress::IsScript() const
-{
+bool CBitcoinAddress::IsScript() const {
     return IsValid() && vchVersion == Params().Base58Prefix(CChainParams::SCRIPT_ADDRESS);
 }
 
-bool CCustomBitcoinAddress::Set(const CKeyID& id)
-{
+bool CCustomBitcoinAddress::Set(const CKeyID& id) {
     SetData(base58Prefixes[0], &id, 20);
     return true;
 }
 
-bool CCustomBitcoinAddress::Set(const CPubKey& key)
-{
+bool CCustomBitcoinAddress::Set(const CPubKey& key) {
     CKeyID id = key.GetID();
     SetData(base58Prefixes[0], &id, 20);
     return true;
 }
 
-bool CCustomBitcoinAddress::Set(const CScriptID& id)
-{
+bool CCustomBitcoinAddress::Set(const CScriptID& id) {
     SetData(base58Prefixes[1], &id, 20);
     return true;
 }
 
-bool CCustomBitcoinAddress::Set(const CTxDestination& dest)
-{
+bool CCustomBitcoinAddress::Set(const CTxDestination& dest) {
     return boost::apply_visitor(CBitcoinAddressVisitor(this), dest);
 }
 
-bool CCustomBitcoinAddress::IsValid() const
-{
+bool CCustomBitcoinAddress::IsValid() const {
     bool fCorrectSize = vchData.size() == 20;
     bool fKnownVersion = vchVersion == base58Prefixes[0] ||
                          vchVersion == base58Prefixes[1];
     return fCorrectSize && fKnownVersion;
 }
 
-bool CCustomBitcoinAddress::GetKeyID(CKeyID& keyID) const
-{
+bool CCustomBitcoinAddress::GetKeyID(CKeyID& keyID) const {
     if (!IsValid() || vchVersion != base58Prefixes[0])
         return false;
     uint160 id;
@@ -370,8 +344,7 @@ bool CCustomBitcoinAddress::GetKeyID(CKeyID& keyID) const
     return true;
 }
 
-CTxDestination CCustomBitcoinAddress::Get() const
-{
+CTxDestination CCustomBitcoinAddress::Get() const {
     if (!IsValid())
         return CNoDestination();
     uint160 id;
@@ -384,8 +357,7 @@ CTxDestination CCustomBitcoinAddress::Get() const
         return CNoDestination();
 }
 
-bool CCustomBitcoinAddress::GetIndexKey(uint160& hashBytes, int& type, bool ccflag) const
-{
+bool CCustomBitcoinAddress::GetIndexKey(uint160& hashBytes, int& type, bool ccflag) const {
     if (!IsValid()) {
         return false;
     } else if (vchVersion == base58Prefixes[0]) {
@@ -401,47 +373,40 @@ bool CCustomBitcoinAddress::GetIndexKey(uint160& hashBytes, int& type, bool ccfl
     return false;
 }
 
-bool CCustomBitcoinAddress::IsScript() const
-{
+bool CCustomBitcoinAddress::IsScript() const {
     return IsValid() && vchVersion == base58Prefixes[1];
 }
 
-void CBitcoinSecret::SetKey(const CKey& vchSecret)
-{
+void CBitcoinSecret::SetKey(const CKey& vchSecret) {
     assert(vchSecret.IsValid());
     SetData(Params().Base58Prefix(CChainParams::SECRET_KEY), vchSecret.begin(), vchSecret.size());
     if (vchSecret.IsCompressed())
         vchData.push_back(1);
 }
 
-CKey CBitcoinSecret::GetKey()
-{
+CKey CBitcoinSecret::GetKey() {
     CKey ret;
     assert(vchData.size() >= 32);
     ret.Set(vchData.begin(), vchData.begin() + 32, vchData.size() > 32 && vchData[32] == 1);
     return ret;
 }
 
-bool CBitcoinSecret::IsValid() const
-{
+bool CBitcoinSecret::IsValid() const {
     bool fExpectedFormat = vchData.size() == 32 || (vchData.size() == 33 && vchData[32] == 1);
     bool fCorrectVersion = vchVersion == Params().Base58Prefix(CChainParams::SECRET_KEY);
     return fExpectedFormat && fCorrectVersion;
 }
 
-bool CBitcoinSecret::SetString(const char* pszSecret)
-{
+bool CBitcoinSecret::SetString(const char* pszSecret) {
     return CBase58Data::SetString(pszSecret, 1) && IsValid();
 }
 
-bool CBitcoinSecret::SetString(const std::string& strSecret)
-{
+bool CBitcoinSecret::SetString(const std::string& strSecret) {
     return SetString(strSecret.c_str());
 }
 
 template<class DATA_TYPE, CChainParams::Base58Type PREFIX, size_t SER_SIZE>
-bool CZCEncoding<DATA_TYPE, PREFIX, SER_SIZE>::Set(const DATA_TYPE& addr)
-{
+bool CZCEncoding<DATA_TYPE, PREFIX, SER_SIZE>::Set(const DATA_TYPE& addr) {
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << addr;
     std::vector<unsigned char> addrSerialized(ss.begin(), ss.end());
@@ -451,8 +416,7 @@ bool CZCEncoding<DATA_TYPE, PREFIX, SER_SIZE>::Set(const DATA_TYPE& addr)
 }
 
 template<class DATA_TYPE, CChainParams::Base58Type PREFIX, size_t SER_SIZE>
-DATA_TYPE CZCEncoding<DATA_TYPE, PREFIX, SER_SIZE>::Get() const
-{
+DATA_TYPE CZCEncoding<DATA_TYPE, PREFIX, SER_SIZE>::Get() const {
     if (vchData.size() != SER_SIZE) {
         throw std::runtime_error(
             PrependName(" is invalid")

@@ -11,15 +11,14 @@
 #include "netbase.h"
 #include "sync.h"
 
-class CTimeWarning
-{
-private:
+class CTimeWarning {
+  private:
     CCriticalSection cs;
     std::set<CNetAddr> setKnown;
     size_t nPeersAhead;
     size_t nPeersBehind;
 
-public:
+  public:
     static const size_t TIMEDATA_WARNING_SAMPLES = 8;
     static const size_t TIMEDATA_WARNING_MAJORITY = 6;
     static const size_t TIMEDATA_MAX_SAMPLES = 20;

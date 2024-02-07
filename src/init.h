@@ -28,8 +28,7 @@
 class CScheduler;
 class CWallet;
 
-namespace boost
-{
+namespace boost {
 class thread_group;
 } // namespace boost
 

@@ -28,7 +28,7 @@ ACTION(ThrowLogicError) {
 static const std::string tSecretRegtest = "cND2ZvtabDbJ1gucx9GWH6XT9kgTAqfb6cotPt5Q5CyxVDhid2EN";
 
 class MockWalletDB {
-public:
+  public:
     MOCK_METHOD0(TxnBegin, bool());
     MOCK_METHOD0(TxnCommit, bool());
     MOCK_METHOD0(TxnAbort, bool());
@@ -39,10 +39,10 @@ public:
 };
 
 template void CWallet::SetBestChainINTERNAL<MockWalletDB>(
-        MockWalletDB& walletdb, const CBlockLocator& loc);
+    MockWalletDB& walletdb, const CBlockLocator& loc);
 
 class TestWallet : public CWallet {
-public:
+  public:
     TestWallet() : CWallet() { }
 
     bool EncryptKeys(CKeyingMaterial& vMasterKeyIn) {
@@ -78,7 +78,7 @@ CWalletTx GetValidReceive(const libzcash::SproutSpendingKey& sk, CAmount value, 
 }
 
 libzcash::SproutNote GetNote(const libzcash::SproutSpendingKey& sk,
-                       const CTransaction& tx, size_t js, size_t n) {
+                             const CTransaction& tx, size_t js, size_t n) {
     return GetNote(*params, sk, tx, js, n);
 }
 
@@ -98,11 +98,11 @@ std::vector<SaplingOutPoint> SetSaplingNoteData(CWalletTx& wtx) {
 }
 
 std::pair<JSOutPoint, SaplingOutPoint> CreateValidBlock(TestWallet& wallet,
-                            const libzcash::SproutSpendingKey& sk,
-                            const CBlockIndex& index,
-                            CBlock& block,
-                            SproutMerkleTree& sproutTree,
-                            SaplingMerkleTree& saplingTree) {
+        const libzcash::SproutSpendingKey& sk,
+        const CBlockIndex& index,
+        CBlock& block,
+        SproutMerkleTree& sproutTree,
+        SaplingMerkleTree& saplingTree) {
     auto wtx = GetValidReceive(sk, 50, true, 4);
     auto note = GetNote(sk, wtx, 0, 1);
     auto nullifier = note.nullifier(sk);
@@ -122,10 +122,10 @@ std::pair<JSOutPoint, SaplingOutPoint> CreateValidBlock(TestWallet& wallet,
 }
 
 std::pair<uint256, uint256> GetWitnessesAndAnchors(TestWallet& wallet,
-                                std::vector<JSOutPoint>& sproutNotes,
-                                std::vector<SaplingOutPoint>& saplingNotes,
-                                std::vector<boost::optional<SproutWitness>>& sproutWitnesses,
-                                std::vector<boost::optional<SaplingWitness>>& saplingWitnesses) {
+        std::vector<JSOutPoint>& sproutNotes,
+        std::vector<SaplingOutPoint>& saplingNotes,
+        std::vector<boost::optional<SproutWitness>>& sproutWitnesses,
+        std::vector<boost::optional<SaplingWitness>>& saplingWitnesses) {
     sproutWitnesses.clear();
     saplingWitnesses.clear();
     uint256 sproutAnchor;
@@ -458,22 +458,22 @@ TEST(WalletTests, GetSproutNoteNullifier) {
     auto nullifier = note.nullifier(sk);
 
     auto hSig = wtx.vjoinsplit[0].h_sig(
-        *params, wtx.joinSplitPubKey);
+                    *params, wtx.joinSplitPubKey);
 
     auto ret = wallet.GetSproutNoteNullifier(
-        wtx.vjoinsplit[0],
-        address,
-        dec,
-        hSig, 1);
+                   wtx.vjoinsplit[0],
+                   address,
+                   dec,
+                   hSig, 1);
     EXPECT_NE(nullifier, ret);
 
     wallet.AddSproutSpendingKey(sk);
 
     ret = wallet.GetSproutNoteNullifier(
-        wtx.vjoinsplit[0],
-        address,
-        dec,
-        hSig, 1);
+              wtx.vjoinsplit[0],
+              address,
+              dec,
+              hSig, 1);
     EXPECT_EQ(nullifier, ret);
 }
 
@@ -733,10 +733,10 @@ TEST(WalletTests, GetConflictedSaplingNotes) {
 
     // Decrypt output note B
     auto maybe_pt = libzcash::SaplingNotePlaintext::decrypt(
-            wtx.vShieldedOutput[0].encCiphertext,
-            ivk,
-            wtx.vShieldedOutput[0].ephemeralKey,
-            wtx.vShieldedOutput[0].cm);
+                        wtx.vShieldedOutput[0].encCiphertext,
+                        ivk,
+                        wtx.vShieldedOutput[0].ephemeralKey,
+                        wtx.vShieldedOutput[0].cm);
     ASSERT_EQ(static_cast<bool>(maybe_pt), true);
     auto maybe_note = maybe_pt.get().note(ivk);
     ASSERT_EQ(static_cast<bool>(maybe_note), true);
@@ -1144,10 +1144,10 @@ TEST(WalletTests, SpentSaplingNoteIsFromMe) {
 
     // Decrypt note B
     auto maybe_pt = libzcash::SaplingNotePlaintext::decrypt(
-        wtx.vShieldedOutput[0].encCiphertext,
-        ivk,
-        wtx.vShieldedOutput[0].ephemeralKey,
-        wtx.vShieldedOutput[0].cm);
+                        wtx.vShieldedOutput[0].encCiphertext,
+                        ivk,
+                        wtx.vShieldedOutput[0].ephemeralKey,
+                        wtx.vShieldedOutput[0].cm);
     ASSERT_EQ(static_cast<bool>(maybe_pt), true);
     auto maybe_note = maybe_pt.get().note(ivk);
     ASSERT_EQ(static_cast<bool>(maybe_note), true);
@@ -1411,7 +1411,7 @@ TEST(WalletTests, CachedWitnessesDecrementFirst) {
         anchors2 = GetWitnessesAndAnchors(wallet, sproutNotes, saplingNotes, sproutWitnesses, saplingWitnesses);
     }
 
-{
+    {
         // Third transaction - never mined
         auto wtx = GetValidReceive(sk, 20, true, 4);
         auto note = GetNote(sk, wtx, 0, 1);
@@ -1616,65 +1616,65 @@ TEST(WalletTests, WriteWitnessCache) {
 
     // TxnBegin fails
     EXPECT_CALL(walletdb, TxnBegin())
-        .WillOnce(Return(false));
+    .WillOnce(Return(false));
     wallet.SetBestChain(walletdb, loc);
     EXPECT_CALL(walletdb, TxnBegin())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
 
     // WriteTx fails
     EXPECT_CALL(walletdb, WriteTx(wtx))
-        .WillOnce(Return(false));
+    .WillOnce(Return(false));
     EXPECT_CALL(walletdb, TxnAbort())
-        .Times(1);
+    .Times(1);
     wallet.SetBestChain(walletdb, loc);
 
     // WriteTx throws
     EXPECT_CALL(walletdb, WriteTx(wtx))
-        .WillOnce(ThrowLogicError());
+    .WillOnce(ThrowLogicError());
     EXPECT_CALL(walletdb, TxnAbort())
-        .Times(1);
+    .Times(1);
     wallet.SetBestChain(walletdb, loc);
     EXPECT_CALL(walletdb, WriteTx(wtx))
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
 
     // WriteWitnessCacheSize fails
     EXPECT_CALL(walletdb, WriteWitnessCacheSize(0))
-        .WillOnce(Return(false));
+    .WillOnce(Return(false));
     EXPECT_CALL(walletdb, TxnAbort())
-        .Times(1);
+    .Times(1);
     wallet.SetBestChain(walletdb, loc);
 
     // WriteWitnessCacheSize throws
     EXPECT_CALL(walletdb, WriteWitnessCacheSize(0))
-        .WillOnce(ThrowLogicError());
+    .WillOnce(ThrowLogicError());
     EXPECT_CALL(walletdb, TxnAbort())
-        .Times(1);
+    .Times(1);
     wallet.SetBestChain(walletdb, loc);
     EXPECT_CALL(walletdb, WriteWitnessCacheSize(0))
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
 
     // WriteBestBlock fails
     EXPECT_CALL(walletdb, WriteBestBlock(loc))
-        .WillOnce(Return(false));
+    .WillOnce(Return(false));
     EXPECT_CALL(walletdb, TxnAbort())
-        .Times(1);
+    .Times(1);
     wallet.SetBestChain(walletdb, loc);
 
     // WriteBestBlock throws
     EXPECT_CALL(walletdb, WriteBestBlock(loc))
-        .WillOnce(ThrowLogicError());
+    .WillOnce(ThrowLogicError());
     EXPECT_CALL(walletdb, TxnAbort())
-        .Times(1);
+    .Times(1);
     wallet.SetBestChain(walletdb, loc);
     EXPECT_CALL(walletdb, WriteBestBlock(loc))
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
 
     // TxCommit fails
     EXPECT_CALL(walletdb, TxnCommit())
-        .WillOnce(Return(false));
+    .WillOnce(Return(false));
     wallet.SetBestChain(walletdb, loc);
     EXPECT_CALL(walletdb, TxnCommit())
-        .WillRepeatedly(Return(true));
+    .WillRepeatedly(Return(true));
 
     // Everything succeeds
     wallet.SetBestChain(walletdb, loc);
@@ -1721,23 +1721,23 @@ TEST(WalletTests, SetBestChainIgnoresTxsWithoutShieldedData) {
     wallet.AddToWallet(wtxSproutTransparent, true, NULL);
 
     EXPECT_CALL(walletdb, TxnBegin())
-        .WillOnce(Return(true));
+    .WillOnce(Return(true));
     EXPECT_CALL(walletdb, WriteTx(wtxTransparent))
-        .Times(0);
+    .Times(0);
     EXPECT_CALL(walletdb, WriteTx(wtxSprout))
-        .Times(1).WillOnce(Return(true));
+    .Times(1).WillOnce(Return(true));
     EXPECT_CALL(walletdb, WriteTx(wtxSproutTransparent))
-        .Times(0);
+    .Times(0);
     EXPECT_CALL(walletdb, WriteTx(wtxSapling))
-        .Times(1).WillOnce(Return(true));
+    .Times(1).WillOnce(Return(true));
     EXPECT_CALL(walletdb, WriteTx(wtxSaplingTransparent))
-        .Times(0);
+    .Times(0);
     EXPECT_CALL(walletdb, WriteWitnessCacheSize(0))
-        .WillOnce(Return(true));
+    .WillOnce(Return(true));
     EXPECT_CALL(walletdb, WriteBestBlock(loc))
-        .WillOnce(Return(true));
+    .WillOnce(Return(true));
     EXPECT_CALL(walletdb, TxnCommit())
-        .WillOnce(Return(true));
+    .WillOnce(Return(true));
     wallet.SetBestChain(walletdb, loc);
 }
 
@@ -1928,7 +1928,7 @@ TEST(WalletTests, UpdatedSaplingNoteData) {
     // EXPECT_EQ(wtx.mapSaplingNoteData, wtx2.mapSaplingNoteData);
     // because nullifiers (if part of == comparator) have not all been computed
     // Also note that mapwallet[hash] is not updated with the updated wtx.
-   // wtx = wallet.mapWallet[hash];
+    // wtx = wallet.mapWallet[hash];
 
     EXPECT_EQ(2, wtx.mapSaplingNoteData.size());
     EXPECT_EQ(2, wtx2.mapSaplingNoteData.size());
@@ -2053,7 +2053,7 @@ TEST(WalletTests, MarkAffectedSaplingTransactionsDirty) {
 
     // Prepare to spend the note that was just created
     auto maybe_pt = libzcash::SaplingNotePlaintext::decrypt(
-            tx1.vShieldedOutput[0].encCiphertext, ivk, tx1.vShieldedOutput[0].ephemeralKey, tx1.vShieldedOutput[0].cm);
+                        tx1.vShieldedOutput[0].encCiphertext, ivk, tx1.vShieldedOutput[0].ephemeralKey, tx1.vShieldedOutput[0].cm);
     ASSERT_EQ(static_cast<bool>(maybe_pt), true);
     auto maybe_note = maybe_pt.get().note(ivk);
     ASSERT_EQ(static_cast<bool>(maybe_note), true);

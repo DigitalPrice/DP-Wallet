@@ -23,7 +23,7 @@ extern "C" {
  * Non-negative return values indicate success, and ignored.
  */
 typedef int (asn_app_consume_bytes_f)(const void *buffer, size_t size,
-	void *application_specific_key);
+                                      void *application_specific_key);
 
 /*
  * A callback of this type is called whenever constraint validation fails
@@ -34,9 +34,9 @@ typedef int (asn_app_consume_bytes_f)(const void *buffer, size_t size,
  * particular constraint has failed.
  */
 typedef void (asn_app_constraint_failed_f)(void *application_specific_key,
-	struct asn_TYPE_descriptor_s *type_descriptor_which_failed,
-	const void *structure_which_failed_ptr,
-	const char *error_message_format, ...) GCC_PRINTFLIKE(4, 5);
+        struct asn_TYPE_descriptor_s *type_descriptor_which_failed,
+        const void *structure_which_failed_ptr,
+        const char *error_message_format, ...) GCC_PRINTFLIKE(4, 5);
 
 #ifdef __cplusplus
 }

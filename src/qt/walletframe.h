@@ -26,11 +26,10 @@ QT_END_NAMESPACE
  * modifications to KomodoOceanGUI, thus greatly simplifying merges while
  * reducing the risk of breaking top-level stuff.
  */
-class WalletFrame : public QFrame
-{
+class WalletFrame : public QFrame {
     Q_OBJECT
 
-public:
+  public:
     explicit WalletFrame(const PlatformStyle *platformStyle, KomodoOceanGUI *_gui = 0);
     ~WalletFrame();
 
@@ -45,11 +44,11 @@ public:
 
     void showOutOfSyncWarning(bool fShow);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /** Notify that the user has requested more information about the out-of-sync warning */
     void requestedSyncWarningInfo();
 
-private:
+  private:
     QStackedWidget *walletStack;
     KomodoOceanGUI *gui;
     ClientModel *clientModel;
@@ -61,7 +60,7 @@ private:
 
     WalletView *currentWalletView();
 
-public Q_SLOTS:
+  public Q_SLOTS:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
     /** Switch to history (transactions) page */

@@ -26,8 +26,7 @@
 #include "primitives/transaction.h"
 #include "komodo_bitcoind.h"
 
-std::vector<CC*> BetProtocol::PlayerConditions()
-{
+std::vector<CC*> BetProtocol::PlayerConditions() {
     std::vector<CC*> subs;
     for (int i=0; i<players.size(); i++)
         subs.push_back(CCNewSecp256k1(players[i]));
@@ -35,11 +34,10 @@ std::vector<CC*> BetProtocol::PlayerConditions()
 }
 
 
-CC* BetProtocol::MakeDisputeCond()
-{
+CC* BetProtocol::MakeDisputeCond() {
     CC *disputePoker = CCNewEval(E_MARSHAL(
-        ss << disputeCode << VARINT(waitBlocks) << vmParams;
-    ));
+                                     ss << disputeCode << VARINT(waitBlocks) << vmParams;
+                                 ));
 
     CC *anySig = CCNewThreshold(1, PlayerConditions());
 
@@ -51,8 +49,7 @@ CC* BetProtocol::MakeDisputeCond()
  * spendFee is the amount assigned to each output, for the purposes of posting
  * dispute / evidence.
  */
-CMutableTransaction BetProtocol::MakeSessionTx(CAmount spendFee)
-{
+CMutableTransaction BetProtocol::MakeSessionTx(CAmount spendFee) {
     CMutableTransaction mtx = CreateNewContextualCMutableTransaction(Params().GetConsensus(), komodo_nextheight());
 
     CC *disputeCond = MakeDisputeCond();
@@ -68,8 +65,7 @@ CMutableTransaction BetProtocol::MakeSessionTx(CAmount spendFee)
 }
 
 
-CMutableTransaction BetProtocol::MakeDisputeTx(uint256 signedSessionTxHash, uint256 vmResultHash)
-{
+CMutableTransaction BetProtocol::MakeDisputeTx(uint256 signedSessionTxHash, uint256 vmResultHash) {
     CMutableTransaction mtx = CreateNewContextualCMutableTransaction(Params().GetConsensus(), komodo_nextheight());
 
     CC *disputeCond = MakeDisputeCond();
@@ -82,8 +78,7 @@ CMutableTransaction BetProtocol::MakeDisputeTx(uint256 signedSessionTxHash, uint
 
 
 CMutableTransaction BetProtocol::MakePostEvidenceTx(uint256 signedSessionTxHash,
-        int playerIdx, std::vector<unsigned char> state)
-{
+        int playerIdx, std::vector<unsigned char> state) {
     CMutableTransaction mtx = CreateNewContextualCMutableTransaction(Params().GetConsensus(), komodo_nextheight());
 
     mtx.vin.push_back(CTxIn(signedSessionTxHash, playerIdx+1, CScript()));
@@ -93,16 +88,15 @@ CMutableTransaction BetProtocol::MakePostEvidenceTx(uint256 signedSessionTxHash,
 }
 
 
-CC* BetProtocol::MakePayoutCond(uint256 signedSessionTxHash)
-{
+CC* BetProtocol::MakePayoutCond(uint256 signedSessionTxHash) {
     // TODO: 2/3 majority
     CC* agree = CCNewThreshold(players.size(), PlayerConditions());
 
     CC *import;
     {
         CC *importEval = CCNewEval(E_MARSHAL(
-            ss << EVAL_IMPORTPAYOUT << signedSessionTxHash;
-        ));
+                                       ss << EVAL_IMPORTPAYOUT << signedSessionTxHash;
+                                   ));
 
         CC *oneof = CCNewThreshold(1, PlayerConditions());
 
@@ -113,8 +107,7 @@ CC* BetProtocol::MakePayoutCond(uint256 signedSessionTxHash)
 }
 
 
-CMutableTransaction BetProtocol::MakeStakeTx(CAmount totalPayout, uint256 signedSessionTxHash)
-{
+CMutableTransaction BetProtocol::MakeStakeTx(CAmount totalPayout, uint256 signedSessionTxHash) {
     CMutableTransaction mtx = CreateNewContextualCMutableTransaction(Params().GetConsensus(), komodo_nextheight());
 
     CC *payoutCond = MakePayoutCond(signedSessionTxHash);
@@ -126,8 +119,7 @@ CMutableTransaction BetProtocol::MakeStakeTx(CAmount totalPayout, uint256 signed
 
 
 CMutableTransaction BetProtocol::MakeAgreePayoutTx(std::vector<CTxOut> payouts,
-        uint256 signedStakeTxHash)
-{
+        uint256 signedStakeTxHash) {
     CMutableTransaction mtx = CreateNewContextualCMutableTransaction(Params().GetConsensus(), komodo_nextheight());
     mtx.vin.push_back(CTxIn(signedStakeTxHash, 0, CScript()));
     mtx.vout = payouts;
@@ -136,8 +128,7 @@ CMutableTransaction BetProtocol::MakeAgreePayoutTx(std::vector<CTxOut> payouts,
 
 
 CMutableTransaction BetProtocol::MakeImportPayoutTx(std::vector<CTxOut> payouts,
-        CTransaction signedDisputeTx, uint256 signedStakeTxHash, MoMProof momProof)
-{
+        CTransaction signedDisputeTx, uint256 signedStakeTxHash, MoMProof momProof) {
     CMutableTransaction mtx = CreateNewContextualCMutableTransaction(Params().GetConsensus(), komodo_nextheight());
     mtx.vin.push_back(CTxIn(signedStakeTxHash, 0, CScript()));
     mtx.vout = payouts;
@@ -148,8 +139,7 @@ CMutableTransaction BetProtocol::MakeImportPayoutTx(std::vector<CTxOut> payouts,
 }
 
 
-bool GetOpReturnHash(CScript script, uint256 &hash)
-{
+bool GetOpReturnHash(CScript script, uint256 &hash) {
     std::vector<unsigned char> vHash;
     GetOpReturnData(script, vHash);
     if (vHash.size() != 32) return false;
@@ -179,8 +169,7 @@ bool GetOpReturnHash(CScript script, uint256 &hash)
  *   out 0:      OP_RETURN hash of payouts
  *   out 1-:     anything
  */
-bool Eval::ImportPayout(const std::vector<uint8_t> params, const CTransaction &importTx, unsigned int nIn)
-{
+bool Eval::ImportPayout(const std::vector<uint8_t> params, const CTransaction &importTx, unsigned int nIn) {
     if (importTx.vout.size() == 0) return Invalid("no-vouts");
 
     // load data from vout[0]
@@ -239,8 +228,7 @@ bool Eval::ImportPayout(const std::vector<uint8_t> params, const CTransaction &i
  *   in  0:      Spends Session TX first output, reveals DisputeHeader
  *   out 0:      OP_RETURN hash of payouts
  */
-bool Eval::DisputePayout(AppVM &vm, std::vector<uint8_t> params, const CTransaction &disputeTx, unsigned int nIn)
-{
+bool Eval::DisputePayout(AppVM &vm, std::vector<uint8_t> params, const CTransaction &disputeTx, unsigned int nIn) {
     if (disputeTx.vout.size() == 0) return Invalid("no-vouts");
 
     // get payouts hash
@@ -258,7 +246,7 @@ bool Eval::DisputePayout(AppVM &vm, std::vector<uint8_t> params, const CTransact
     {
         CTransaction sessionTx;
         CBlockIndex sessionBlock;
-        
+
         // if unconformed its too soon
         if (!GetTxConfirmed(disputeTx.vin[0].prevout.hash, sessionTx, sessionBlock))
             return Error("couldnt-get-parent");
@@ -275,8 +263,7 @@ bool Eval::DisputePayout(AppVM &vm, std::vector<uint8_t> params, const CTransact
     // verify result from VM
     int maxLength = -1;
     uint256 bestPayout;
-    for (int i=1; i<spends.size(); i++)
-    {
+    for (int i=1; i<spends.size(); i++) {
         std::vector<unsigned char> vmState;
         if (spends[i].vout.size() == 0) continue;
         if (!GetOpReturnData(spends[i].vout[0].scriptPubKey, vmState)) continue;

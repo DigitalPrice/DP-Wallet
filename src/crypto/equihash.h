@@ -40,21 +40,20 @@ eh_index ArrayToEhIndex(const unsigned char* array);
 eh_trunc TruncateIndex(const eh_index i, const unsigned int ilen);
 
 std::vector<eh_index> GetIndicesFromMinimal(std::vector<unsigned char> minimal,
-                                            size_t cBitLen);
+        size_t cBitLen);
 std::vector<unsigned char> GetMinimalFromIndices(std::vector<eh_index> indices,
-                                                 size_t cBitLen);
+        size_t cBitLen);
 
 template<size_t WIDTH>
-class StepRow
-{
+class StepRow {
     template<size_t W>
     friend class StepRow;
     friend class CompareSR;
 
-protected:
+  protected:
     unsigned char hash[WIDTH];
 
-public:
+  public:
     StepRow(const unsigned char* hashIn, size_t hInLen,
             size_t hLen, size_t cBitLen);
     ~StepRow() { }
@@ -63,47 +62,53 @@ public:
     StepRow(const StepRow<W>& a);
 
     bool IsZero(size_t len);
-    std::string GetHex(size_t len) { return HexStr(hash, hash+len); }
+    std::string GetHex(size_t len) {
+        return HexStr(hash, hash+len);
+    }
 
     template<size_t W>
     friend bool HasCollision(StepRow<W>& a, StepRow<W>& b, size_t l);
 };
 
-class CompareSR
-{
-private:
+class CompareSR {
+  private:
     size_t len;
 
-public:
+  public:
     CompareSR(size_t l) : len {l} { }
 
     template<size_t W>
-    inline bool operator()(const StepRow<W>& a, const StepRow<W>& b) { return memcmp(a.hash, b.hash, len) < 0; }
+    inline bool operator()(const StepRow<W>& a, const StepRow<W>& b) {
+        return memcmp(a.hash, b.hash, len) < 0;
+    }
 };
 
 template<size_t WIDTH>
 bool HasCollision(StepRow<WIDTH>& a, StepRow<WIDTH>& b, size_t l);
 
 template<size_t WIDTH>
-class FullStepRow : public StepRow<WIDTH>
-{
+class FullStepRow : public StepRow<WIDTH> {
     template<size_t W>
     friend class FullStepRow;
 
     using StepRow<WIDTH>::hash;
 
-public:
+  public:
     FullStepRow(const unsigned char* hashIn, size_t hInLen,
                 size_t hLen, size_t cBitLen, eh_index i);
     ~FullStepRow() { }
 
-    FullStepRow(const FullStepRow<WIDTH>& a) : StepRow<WIDTH> {a} { }
+    FullStepRow(const FullStepRow<WIDTH>& a) : StepRow<WIDTH> {
+        a
+    } { }
 
     template<size_t W>
     FullStepRow(const FullStepRow<W>& a, const FullStepRow<W>& b, size_t len, size_t lenIndices, size_t trim);
     FullStepRow& operator=(const FullStepRow<WIDTH>& a);
 
-    inline bool IndicesBefore(const FullStepRow<WIDTH>& a, size_t len, size_t lenIndices) const { return memcmp(hash+len, a.hash+len, lenIndices) < 0; }
+    inline bool IndicesBefore(const FullStepRow<WIDTH>& a, size_t len, size_t lenIndices) const {
+        return memcmp(hash+len, a.hash+len, lenIndices) < 0;
+    }
     std::vector<unsigned char> GetIndices(size_t len, size_t lenIndices,
                                           size_t cBitLen) const;
 
@@ -115,30 +120,32 @@ public:
 };
 
 template<size_t WIDTH>
-class TruncatedStepRow : public StepRow<WIDTH>
-{
+class TruncatedStepRow : public StepRow<WIDTH> {
     template<size_t W>
     friend class TruncatedStepRow;
 
     using StepRow<WIDTH>::hash;
 
-public:
+  public:
     TruncatedStepRow(const unsigned char* hashIn, size_t hInLen,
                      size_t hLen, size_t cBitLen,
                      eh_index i, unsigned int ilen);
     ~TruncatedStepRow() { }
 
-    TruncatedStepRow(const TruncatedStepRow<WIDTH>& a) : StepRow<WIDTH> {a} { }
+    TruncatedStepRow(const TruncatedStepRow<WIDTH>& a) : StepRow<WIDTH> {
+        a
+    } { }
     template<size_t W>
     TruncatedStepRow(const TruncatedStepRow<W>& a, const TruncatedStepRow<W>& b, size_t len, size_t lenIndices, int trim);
     TruncatedStepRow& operator=(const TruncatedStepRow<WIDTH>& a);
 
-    inline bool IndicesBefore(const TruncatedStepRow<WIDTH>& a, size_t len, size_t lenIndices) const { return memcmp(hash+len, a.hash+len, lenIndices) < 0; }
+    inline bool IndicesBefore(const TruncatedStepRow<WIDTH>& a, size_t len, size_t lenIndices) const {
+        return memcmp(hash+len, a.hash+len, lenIndices) < 0;
+    }
     std::shared_ptr<eh_trunc> GetTruncatedIndices(size_t len, size_t lenIndices) const;
 };
 
-enum EhSolverCancelCheck
-{
+enum EhSolverCancelCheck {
     ListGeneration,
     ListSorting,
     ListColliding,
@@ -152,33 +159,32 @@ enum EhSolverCancelCheck
     PartialEnd
 };
 
-class EhSolverCancelledException : public std::exception
-{
+class EhSolverCancelledException : public std::exception {
     virtual const char* what() const throw() {
         return "Equihash solver was cancelled";
     }
 };
 
-inline constexpr const size_t max(const size_t A, const size_t B) { return A > B ? A : B; }
+inline constexpr const size_t max(const size_t A, const size_t B) {
+    return A > B ? A : B;
+}
 
 inline constexpr size_t equihash_solution_size(unsigned int N, unsigned int K) {
     return (1 << K)*(N/(K+1)+1)/8;
 }
 
-constexpr uint8_t GetSizeInBytes(size_t N)
-{
+constexpr uint8_t GetSizeInBytes(size_t N) {
     return static_cast<uint8_t>((N + 7) / 8);
 }
 
 template<unsigned int N, unsigned int K>
-class Equihash
-{
-private:
+class Equihash {
+  private:
     BOOST_STATIC_ASSERT(K < N);
     //BOOST_STATIC_ASSERT(N % 8 == 0);
     BOOST_STATIC_ASSERT((N/(K+1)) + 1 < 8*sizeof(eh_index));
 
-public:
+  public:
     enum : size_t { IndicesPerHashOutput=512/N };
     enum : size_t { HashOutput = IndicesPerHashOutput * GetSizeInBytes(N) };
     enum : size_t { CollisionBitLength=N/(K+1) };
@@ -239,18 +245,17 @@ static Equihash<210,9> Eh210_9;
 
 #ifdef ENABLE_MINING
 inline bool EhBasicSolve(unsigned int n, unsigned int k, const eh_HashState& base_state,
-                    const std::function<bool(const std::vector<unsigned char>&)> validBlock,
-                    const std::function<bool(EhSolverCancelCheck)> cancelled)
-{
+                         const std::function<bool(const std::vector<unsigned char>&)> validBlock,
+                         const std::function<bool(EhSolverCancelCheck)> cancelled) {
     if (n == 200 && k == 9) {
         return Eh200_9.BasicSolve(base_state, validBlock, cancelled);
     } else if (n == 150 && k == 5) {
         return Eh150_5.BasicSolve(base_state, validBlock, cancelled);
-    } else if (n == 144 && k == 5) { 
+    } else if (n == 144 && k == 5) {
         return Eh144_5.BasicSolve(base_state, validBlock, cancelled);
-    } else if (n == ASSETCHAINS_N && k == ASSETCHAINS_K) { 
+    } else if (n == ASSETCHAINS_N && k == ASSETCHAINS_K) {
         return Eh96_5.BasicSolve(base_state, validBlock, cancelled);
-    } else if (n == 48 && k == 5) { 
+    } else if (n == 48 && k == 5) {
         return Eh48_5.BasicSolve(base_state, validBlock, cancelled);
     } else if (n == 210 && k == 9) {
         return Eh210_9.BasicSolve(base_state, validBlock, cancelled);
@@ -260,25 +265,25 @@ inline bool EhBasicSolve(unsigned int n, unsigned int k, const eh_HashState& bas
 }
 
 inline bool EhBasicSolveUncancellable(unsigned int n, unsigned int k, const eh_HashState& base_state,
-                    const std::function<bool(const std::vector<unsigned char>&)> validBlock)
-{
+                                      const std::function<bool(const std::vector<unsigned char>&)> validBlock) {
     return EhBasicSolve(n, k, base_state, validBlock,
-                        [](EhSolverCancelCheck pos) { return false; });
+    [](EhSolverCancelCheck pos) {
+        return false;
+    });
 }
 
 inline bool EhOptimisedSolve(unsigned int n, unsigned int k, const eh_HashState& base_state,
-                    const std::function<bool(const std::vector<unsigned char>&)> validBlock,
-                    const std::function<bool(EhSolverCancelCheck)> cancelled)
-{
+                             const std::function<bool(const std::vector<unsigned char>&)> validBlock,
+                             const std::function<bool(EhSolverCancelCheck)> cancelled) {
     if (n == 200 && k == 9) {
         return Eh200_9.OptimisedSolve(base_state, validBlock, cancelled);
     } else if (n == 150 && k == 5) {
         return Eh150_5.OptimisedSolve(base_state, validBlock, cancelled);
-    } else if (n == 144 && k == 5) { 
+    } else if (n == 144 && k == 5) {
         return Eh144_5.OptimisedSolve(base_state, validBlock, cancelled);
-    } else if (n == ASSETCHAINS_N && k == ASSETCHAINS_K) { 
+    } else if (n == ASSETCHAINS_N && k == ASSETCHAINS_K) {
         return Eh96_5.OptimisedSolve(base_state, validBlock, cancelled);
-    } else if (n == 48 && k == 5) { 
+    } else if (n == 48 && k == 5) {
         return Eh48_5.OptimisedSolve(base_state, validBlock, cancelled);
     } else if (n == 210 && k == 9) {
         return Eh210_9.OptimisedSolve(base_state, validBlock, cancelled);
@@ -288,10 +293,11 @@ inline bool EhOptimisedSolve(unsigned int n, unsigned int k, const eh_HashState&
 }
 
 inline bool EhOptimisedSolveUncancellable(unsigned int n, unsigned int k, const eh_HashState& base_state,
-                    const std::function<bool(const std::vector<unsigned char>&)> validBlock)
-{
+        const std::function<bool(const std::vector<unsigned char>&)> validBlock) {
     return EhOptimisedSolve(n, k, base_state, validBlock,
-                            [](EhSolverCancelCheck pos) { return false; });
+    [](EhSolverCancelCheck pos) {
+        return false;
+    });
 }
 #endif // ENABLE_MINING
 

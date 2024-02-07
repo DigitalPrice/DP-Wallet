@@ -51,10 +51,10 @@ static const struct {
     enum RetFormat rf;
     const char* name;
 } rf_names[] = {
-      {RF_UNDEF, ""},
-      {RF_BINARY, "bin"},
-      {RF_HEX, "hex"},
-      {RF_JSON, "json"},
+    {RF_UNDEF, ""},
+    {RF_BINARY, "bin"},
+    {RF_HEX, "hex"},
+    {RF_JSON, "json"},
 };
 
 struct CCoin {
@@ -65,23 +65,20 @@ struct CCoin {
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action)
-    {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(nTxVer);
         READWRITE(nHeight);
         READWRITE(out);
     }
 };
 
-static bool RESTERR(HTTPRequest* req, enum HTTPStatusCode status, string message)
-{
+static bool RESTERR(HTTPRequest* req, enum HTTPStatusCode status, string message) {
     req->WriteHeader("Content-Type", "text/plain");
     req->WriteReply(status, message + "\r\n");
     return false;
 }
 
-static enum RetFormat ParseDataFormat(vector<string>& params, const string& strReq)
-{
+static enum RetFormat ParseDataFormat(vector<string>& params, const string& strReq) {
     boost::split(params, strReq, boost::is_any_of("."));
     if (params.size() > 1) {
         for (unsigned int i = 0; i < ARRAYLEN(rf_names); i++)
@@ -92,8 +89,7 @@ static enum RetFormat ParseDataFormat(vector<string>& params, const string& strR
     return rf_names[0].rf;
 }
 
-static string AvailableDataFormatsString()
-{
+static string AvailableDataFormatsString() {
     string formats = "";
     for (unsigned int i = 0; i < ARRAYLEN(rf_names); i++)
         if (strlen(rf_names[i].name) > 0) {
@@ -108,8 +104,7 @@ static string AvailableDataFormatsString()
     return formats;
 }
 
-static bool ParseHashStr(const string& strReq, uint256& v)
-{
+static bool ParseHashStr(const string& strReq, uint256& v) {
     if (!IsHex(strReq) || (strReq.size() != 64))
         return false;
 
@@ -117,17 +112,15 @@ static bool ParseHashStr(const string& strReq, uint256& v)
     return true;
 }
 
-static bool CheckWarmup(HTTPRequest* req)
-{
+static bool CheckWarmup(HTTPRequest* req) {
     std::string statusmessage;
     if (RPCIsInWarmup(&statusmessage))
-         return RESTERR(req, HTTP_SERVICE_UNAVAILABLE, "Service temporarily unavailable: " + statusmessage);
+        return RESTERR(req, HTTP_SERVICE_UNAVAILABLE, "Service temporarily unavailable: " + statusmessage);
     return true;
 }
 
 static bool rest_headers(HTTPRequest* req,
-                         const std::string& strURIPart)
-{
+                         const std::string& strURIPart) {
     if (!CheckWarmup(req))
         return false;
     vector<string> params;
@@ -207,8 +200,7 @@ static bool rest_headers(HTTPRequest* req,
 
 static bool rest_block(HTTPRequest* req,
                        const std::string& strURIPart,
-                       bool showTxDetails)
-{
+                       bool showTxDetails) {
     if (!CheckWarmup(req))
         return false;
     vector<string> params;
@@ -269,21 +261,18 @@ static bool rest_block(HTTPRequest* req,
     return true; // continue to process further HTTP reqs on this cxn
 }
 
-static bool rest_block_extended(HTTPRequest* req, const std::string& strURIPart)
-{
+static bool rest_block_extended(HTTPRequest* req, const std::string& strURIPart) {
     return rest_block(req, strURIPart, true);
 }
 
-static bool rest_block_notxdetails(HTTPRequest* req, const std::string& strURIPart)
-{
+static bool rest_block_notxdetails(HTTPRequest* req, const std::string& strURIPart) {
     return rest_block(req, strURIPart, false);
 }
 
 // A bit of a hack - dependency on a function defined in rpc/blockchain.cpp
 UniValue getblockchaininfo(const UniValue& params, bool fHelp, const CPubKey& mypk);
 
-static bool rest_chaininfo(HTTPRequest* req, const std::string& strURIPart)
-{
+static bool rest_chaininfo(HTTPRequest* req, const std::string& strURIPart) {
     if (!CheckWarmup(req))
         return false;
     vector<string> params;
@@ -307,8 +296,7 @@ static bool rest_chaininfo(HTTPRequest* req, const std::string& strURIPart)
     return true; // continue to process further HTTP reqs on this cxn
 }
 
-static bool rest_mempool_info(HTTPRequest* req, const std::string& strURIPart)
-{
+static bool rest_mempool_info(HTTPRequest* req, const std::string& strURIPart) {
     if (!CheckWarmup(req))
         return false;
     vector<string> params;
@@ -332,8 +320,7 @@ static bool rest_mempool_info(HTTPRequest* req, const std::string& strURIPart)
     return true; // continue to process further HTTP reqs on this cxn
 }
 
-static bool rest_mempool_contents(HTTPRequest* req, const std::string& strURIPart)
-{
+static bool rest_mempool_contents(HTTPRequest* req, const std::string& strURIPart) {
     if (!CheckWarmup(req))
         return false;
     vector<string> params;
@@ -357,8 +344,7 @@ static bool rest_mempool_contents(HTTPRequest* req, const std::string& strURIPar
     return true; // continue to process further HTTP reqs on this cxn
 }
 
-static bool rest_tx(HTTPRequest* req, const std::string& strURIPart)
-{
+static bool rest_tx(HTTPRequest* req, const std::string& strURIPart) {
     if (!CheckWarmup(req))
         return false;
     vector<string> params;
@@ -410,16 +396,14 @@ static bool rest_tx(HTTPRequest* req, const std::string& strURIPart)
     return true; // continue to process further HTTP reqs on this cxn
 }
 
-static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
-{
+static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart) {
     if (!CheckWarmup(req))
         return false;
     vector<string> params;
     enum RetFormat rf = ParseDataFormat(params, strURIPart);
 
     vector<string> uriParts;
-    if (params.size() > 0 && params[0].length() > 1)
-    {
+    if (params.size() > 0 && params[0].length() > 1) {
         std::string strUriParams = params[0].substr(1);
         boost::split(uriParts, strUriParams, boost::is_any_of("/"));
     }
@@ -436,15 +420,13 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
     // parse/deserialize input
     // input-format = output-format, rest/getutxos/bin requires binary input, gives binary output, ...
 
-    if (uriParts.size() > 0)
-    {
+    if (uriParts.size() > 0) {
 
         //inputs is sent over URI scheme (/rest/getutxos/checkmempool/txid1-n/txid2-n/...)
         if (uriParts.size() > 0 && uriParts[0] == "checkmempool")
             fCheckMemPool = true;
 
-        for (size_t i = (fCheckMemPool) ? 1 : 0; i < uriParts.size(); i++)
-        {
+        for (size_t i = (fCheckMemPool) ? 1 : 0; i < uriParts.size(); i++) {
             uint256 txid;
             int32_t nOutput;
             std::string strTxid = uriParts[i].substr(0, uriParts[i].find("-"));
@@ -473,8 +455,7 @@ static bool rest_getutxos(HTTPRequest* req, const std::string& strURIPart)
     case RF_BINARY: {
         try {
             //deserialize only if user sent a request
-            if (strRequestMutable.size() > 0)
-            {
+            if (strRequestMutable.size() > 0) {
                 if (fInputParsed) //don't allow sending input over URI and HTTP RAW DATA
                     return RESTERR(req, HTTP_INTERNAL_SERVER_ERROR, "Combination of URI scheme inputs and raw post data is not allowed");
 
@@ -610,29 +591,26 @@ static const struct {
     const char* prefix;
     bool (*handler)(HTTPRequest* req, const std::string& strReq);
 } uri_prefixes[] = {
-      {"/rest/tx/", rest_tx},
-      {"/rest/block/notxdetails/", rest_block_notxdetails},
-      {"/rest/block/", rest_block_extended},
-      {"/rest/chaininfo", rest_chaininfo},
-      {"/rest/mempool/info", rest_mempool_info},
-      {"/rest/mempool/contents", rest_mempool_contents},
-      {"/rest/headers/", rest_headers},
-      {"/rest/getutxos", rest_getutxos},
+    {"/rest/tx/", rest_tx},
+    {"/rest/block/notxdetails/", rest_block_notxdetails},
+    {"/rest/block/", rest_block_extended},
+    {"/rest/chaininfo", rest_chaininfo},
+    {"/rest/mempool/info", rest_mempool_info},
+    {"/rest/mempool/contents", rest_mempool_contents},
+    {"/rest/headers/", rest_headers},
+    {"/rest/getutxos", rest_getutxos},
 };
 
-bool StartREST()
-{
+bool StartREST() {
     for (unsigned int i = 0; i < ARRAYLEN(uri_prefixes); i++)
         RegisterHTTPHandler(uri_prefixes[i].prefix, false, uri_prefixes[i].handler);
     return true;
 }
 
-void InterruptREST()
-{
+void InterruptREST() {
 }
 
-void StopREST()
-{
+void StopREST() {
     for (unsigned int i = 0; i < ARRAYLEN(uri_prefixes); i++)
         UnregisterHTTPHandler(uri_prefixes[i].prefix, false);
 }

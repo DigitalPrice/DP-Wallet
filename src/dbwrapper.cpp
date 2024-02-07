@@ -14,8 +14,7 @@
 #include <memenv.h>
 #include <stdint.h>
 
-static leveldb::Options GetOptions(size_t nCacheSize, bool compression, int maxOpenFiles)
-{
+static leveldb::Options GetOptions(size_t nCacheSize, bool compression, int maxOpenFiles) {
     leveldb::Options options;
     options.block_cache = leveldb::NewLRUCache(nCacheSize / 2);
     options.write_buffer_size = nCacheSize / 4; // up to two write buffers may be held in memory simultaneously
@@ -30,8 +29,7 @@ static leveldb::Options GetOptions(size_t nCacheSize, bool compression, int maxO
     return options;
 }
 
-CDBWrapper::CDBWrapper(const boost::filesystem::path& path, size_t nCacheSize, bool fMemory, bool fWipe, bool compression, int maxOpenFiles)
-{
+CDBWrapper::CDBWrapper(const boost::filesystem::path& path, size_t nCacheSize, bool fMemory, bool fWipe, bool compression, int maxOpenFiles) {
     penv = NULL;
     readoptions.verify_checksums = true;
     iteroptions.verify_checksums = true;
@@ -62,8 +60,7 @@ CDBWrapper::CDBWrapper(const boost::filesystem::path& path, size_t nCacheSize, b
     }
 }
 
-CDBWrapper::~CDBWrapper()
-{
+CDBWrapper::~CDBWrapper() {
     delete pdb;
     pdb = NULL;
     delete options.filter_policy;
@@ -74,31 +71,40 @@ CDBWrapper::~CDBWrapper()
     options.env = NULL;
 }
 
-bool CDBWrapper::WriteBatch(CDBBatch& batch, bool fSync)
-{
+bool CDBWrapper::WriteBatch(CDBBatch& batch, bool fSync) {
     leveldb::Status status = pdb->Write(fSync ? syncoptions : writeoptions, &batch.batch);
     dbwrapper_private::HandleError(status);
     return true;
 }
 
-bool CDBWrapper::IsEmpty()
-{
+bool CDBWrapper::IsEmpty() {
     boost::scoped_ptr<CDBIterator> it(NewIterator());
     it->SeekToFirst();
     return !(it->Valid());
 }
 
-CDBIterator::~CDBIterator() { delete piter; }
-bool CDBIterator::Valid() { return piter->Valid(); }
-void CDBIterator::SeekToFirst() { piter->SeekToFirst(); }
-void CDBIterator::SeekToLast() { piter->SeekToLast(); }
-void CDBIterator::Next() { piter->Next(); }
-void CDBIterator::Prev() { piter->Prev(); }
+CDBIterator::~CDBIterator() {
+    delete piter;
+}
+bool CDBIterator::Valid() {
+    return piter->Valid();
+}
+void CDBIterator::SeekToFirst() {
+    piter->SeekToFirst();
+}
+void CDBIterator::SeekToLast() {
+    piter->SeekToLast();
+}
+void CDBIterator::Next() {
+    piter->Next();
+}
+void CDBIterator::Prev() {
+    piter->Prev();
+}
 
 namespace dbwrapper_private {
 
-void HandleError(const leveldb::Status& status)
-{
+void HandleError(const leveldb::Status& status) {
     if (status.ok())
         return;
     LogPrintf("%s\n", status.ToString());

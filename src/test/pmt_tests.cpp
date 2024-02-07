@@ -18,9 +18,8 @@
 
 using namespace std;
 
-class CPartialMerkleTreeTester : public CPartialMerkleTree
-{
-public:
+class CPartialMerkleTreeTester : public CPartialMerkleTree {
+  public:
     // flip one bit in one of the hashes - this should break the authentication
     void Damage() {
         unsigned int n = insecure_rand() % vHash.size();
@@ -31,8 +30,7 @@ public:
 
 BOOST_FIXTURE_TEST_SUITE(pmt_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(pmt_test1)
-{
+BOOST_AUTO_TEST_CASE(pmt_test1) {
     seed_insecure_rand(false);
     static const unsigned int nTxCounts[] = {1, 4, 7, 17, 56, 100, 127, 256, 312, 513, 1000, 4095};
 
@@ -108,15 +106,14 @@ BOOST_AUTO_TEST_CASE(pmt_test1)
     }
 }
 
-BOOST_AUTO_TEST_CASE(pmt_malleability)
-{
+BOOST_AUTO_TEST_CASE(pmt_malleability) {
     std::vector<uint256> vTxid = boost::assign::list_of
-        (ArithToUint256(1))(ArithToUint256(2))
-        (ArithToUint256(3))(ArithToUint256(4))
-        (ArithToUint256(5))(ArithToUint256(6))
-        (ArithToUint256(7))(ArithToUint256(8))
-        (ArithToUint256(9))(ArithToUint256(10))
-        (ArithToUint256(9))(ArithToUint256(10));
+                                 (ArithToUint256(1))(ArithToUint256(2))
+                                 (ArithToUint256(3))(ArithToUint256(4))
+                                 (ArithToUint256(5))(ArithToUint256(6))
+                                 (ArithToUint256(7))(ArithToUint256(8))
+                                 (ArithToUint256(9))(ArithToUint256(10))
+                                 (ArithToUint256(9))(ArithToUint256(10));
     std::vector<bool> vMatch = boost::assign::list_of(false)(false)(false)(false)(false)(false)(false)(false)(false)(true)(true)(false);
 
     CPartialMerkleTree tree(vTxid, vMatch);

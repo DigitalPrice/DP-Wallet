@@ -10,10 +10,10 @@ don't exist in 8859-1,  in which case the last column is 'TBD'.
 Only 32 are used in ncurses.  So caution is advised. */
 
 #ifdef USE_ISO8859_CHARSET
-   #define CHOOSE( A, B, C)   (C)
-   #define TBD '!'
+#define CHOOSE( A, B, C)   (C)
+#define TBD '!'
 #else
-   #define CHOOSE( A, B, C) (USE_UNICODE_ACS_CHARS ? B : A)
+#define CHOOSE( A, B, C) (USE_UNICODE_ACS_CHARS ? B : A)
 #endif
 
 /* Codes found from https://en.wikipedia.org/wiki/Code_page_437 */
@@ -188,77 +188,76 @@ Only 32 are used in ncurses.  So caution is advised. */
 
 
 
-      /* It says at http://unicode.org/charts/PDF/U2300.pdf */
-      /* that '...the scan line numbers here refer to old,  */
-      /* low-resolution technology for terminals, with only */
-      /* nine scan lines per fixed-size character glyph.    */
-      /* Even-numbered scan lines are unified with box      */
-      /* drawing graphics."                                 */
-      /*  The utility of these is questionable;  they'd     */
-      /* work Just Fine in wingdi (_if_ the appropriate     */
-      /* glyphs are available),  but not elsewhere.         */
+/* It says at http://unicode.org/charts/PDF/U2300.pdf */
+/* that '...the scan line numbers here refer to old,  */
+/* low-resolution technology for terminals, with only */
+/* nine scan lines per fixed-size character glyph.    */
+/* Even-numbered scan lines are unified with box      */
+/* drawing graphics."                                 */
+/*  The utility of these is questionable;  they'd     */
+/* work Just Fine in wingdi (_if_ the appropriate     */
+/* glyphs are available),  but not elsewhere.         */
 #define HORIZ_SCAN_LINE_1                 CHOOSE( 0x2d,  0x23ba,   16)
 #define HORIZ_SCAN_LINE_3                 CHOOSE( 0x2d,  0x23bb,   17)
 #define HORIZ_SCAN_LINE_7                 CHOOSE( 0x2d,  0x23bc,   19)
 #define HORIZ_SCAN_LINE_9                 CHOOSE(  '_',  0x23bd,   20)
 
-      /* Code page 437 lacks a 'for real' not-equals,  so for that, */
-      /* we use the double-horizontal single-vertical box drawing : */
+/* Code page 437 lacks a 'for real' not-equals,  so for that, */
+/* we use the double-horizontal single-vertical box drawing : */
 #define NOT_EQUALS_SIGN                   CHOOSE( 0xd8, 0x2260,    29)
 
 # define A(x) ((chtype)x | A_ALTCHARSET)
 
-chtype acs_map[128] =
-{
-   A(0), A(1), A(2), A(3), A(4), A(5), A(6), A(7), A(8),
-   A(9), A(10),
-   CLUB, HEART, SPADE, SMILE, REV_SMILE,                      /* 11 12 13 14 15 */
-   MEDIUM_BULLET, WHITE_BULLET, PILCROW, SECTION_SIGN,        /* 16 17 18 19 */
-   A_ORDINAL, O_ORDINAL, LOWERCASE_PHI,                       /* 20 21 22 */
-   INVERTED_EXCLAMATION_MARK, INVERTED_QUESTION_MARK,         /* 23 24 */
-   REVERSED_NOT_SIGN, NOT_SIGN,                               /* 25 26 */
-   UPPER_HALF_INTEGRAL_SIGN, LOWER_HALF_INTEGRAL_SIGN,        /* 27 28   */
-   SUPERSCRIPT_N, CENTERED_SQUARE, F_WITH_HOOK,               /* 29 30 31 */
+chtype acs_map[128] = {
+    A(0), A(1), A(2), A(3), A(4), A(5), A(6), A(7), A(8),
+    A(9), A(10),
+    CLUB, HEART, SPADE, SMILE, REV_SMILE,                      /* 11 12 13 14 15 */
+    MEDIUM_BULLET, WHITE_BULLET, PILCROW, SECTION_SIGN,        /* 16 17 18 19 */
+    A_ORDINAL, O_ORDINAL, LOWERCASE_PHI,                       /* 20 21 22 */
+    INVERTED_EXCLAMATION_MARK, INVERTED_QUESTION_MARK,         /* 23 24 */
+    REVERSED_NOT_SIGN, NOT_SIGN,                               /* 25 26 */
+    UPPER_HALF_INTEGRAL_SIGN, LOWER_HALF_INTEGRAL_SIGN,        /* 27 28   */
+    SUPERSCRIPT_N, CENTERED_SQUARE, F_WITH_HOOK,               /* 29 30 31 */
 
-   RIGHT_ARROW, LEFT_ARROW, UP_ARROW, DOWN_ARROW,             /* 32 !"# */
+    RIGHT_ARROW, LEFT_ARROW, UP_ARROW, DOWN_ARROW,             /* 32 !"# */
 
-   PI, NOT_EQUALS_SIGN,  VULGAR_HALF, VULGAR_QUARTER,         /* $%&' */
-   '(',
-   LEFT_ANGLE_QUOTE_MARK, RIGHT_ANGLE_QUOTE_MARK,             /* )* */
-   DARK_SHADE, SUPERSCRIPT_2, INFINITY_SIGN,                  /* +,- */
-   ALPHA, BETA, GAMMA, UPPERCASE_SIGMA, LOWERCASE_SIGMA,      /* ./012  */
-   '3',
-   MU, TAU, UPPERCASE_PHI, THETA, OMEGA, DELTA, EPSILON,      /* 456789: */
+    PI, NOT_EQUALS_SIGN,  VULGAR_HALF, VULGAR_QUARTER,         /* $%&' */
+    '(',
+    LEFT_ANGLE_QUOTE_MARK, RIGHT_ANGLE_QUOTE_MARK,             /* )* */
+    DARK_SHADE, SUPERSCRIPT_2, INFINITY_SIGN,                  /* +,- */
+    ALPHA, BETA, GAMMA, UPPERCASE_SIGMA, LOWERCASE_SIGMA,      /* ./012  */
+    '3',
+    MU, TAU, UPPERCASE_PHI, THETA, OMEGA, DELTA, EPSILON,      /* 456789: */
 
-   BOX_SD_LRCORNER, BOX_SD_URCORNER, BOX_SD_ULCORNER,         /* ;<= */
-   BOX_SD_LLCORNER, BOX_SD_PLUS,                              /* >? */
-   BOX_SD_LTEE, BOX_SD_RTEE, BOX_SD_BTEE, BOX_SD_TTEE,        /* @ABC */
+    BOX_SD_LRCORNER, BOX_SD_URCORNER, BOX_SD_ULCORNER,         /* ;<= */
+    BOX_SD_LLCORNER, BOX_SD_PLUS,                              /* >? */
+    BOX_SD_LTEE, BOX_SD_RTEE, BOX_SD_BTEE, BOX_SD_TTEE,        /* @ABC */
 
-   BOX_D_LRCORNER, BOX_D_URCORNER, BOX_D_ULCORNER,             /* DEF */
-   BOX_D_LLCORNER, BOX_D_PLUS,                                 /* GH */
-   BOX_D_LTEE, BOX_D_RTEE, BOX_D_BTEE, BOX_D_TTEE,             /* IJKL */
+    BOX_D_LRCORNER, BOX_D_URCORNER, BOX_D_ULCORNER,             /* DEF */
+    BOX_D_LLCORNER, BOX_D_PLUS,                                 /* GH */
+    BOX_D_LTEE, BOX_D_RTEE, BOX_D_BTEE, BOX_D_TTEE,             /* IJKL */
 
-   BOX_DS_LRCORNER, BOX_DS_URCORNER, BOX_DS_ULCORNER,          /* MNO */
-   BOX_DS_LLCORNER, BOX_DS_PLUS,                               /* PQ */
-   BOX_DS_LTEE, BOX_DS_RTEE, BOX_DS_BTEE, BOX_DS_TTEE,         /* RSTU */
+    BOX_DS_LRCORNER, BOX_DS_URCORNER, BOX_DS_ULCORNER,          /* MNO */
+    BOX_DS_LLCORNER, BOX_DS_PLUS,                               /* PQ */
+    BOX_DS_LTEE, BOX_DS_RTEE, BOX_DS_BTEE, BOX_DS_TTEE,         /* RSTU */
 
-   BOX_LRCORNER, BOX_URCORNER, BOX_ULCORNER,                   /* VWX */
-   BOX_LLCORNER, BOX_PLUS,                                     /* YZ */
-   BOX_LTEE, BOX_RTEE, BOX_BTEE, BOX_TTEE,                     /* [\]^ */
+    BOX_LRCORNER, BOX_URCORNER, BOX_ULCORNER,                   /* VWX */
+    BOX_LLCORNER, BOX_PLUS,                                     /* YZ */
+    BOX_LTEE, BOX_RTEE, BOX_BTEE, BOX_TTEE,                     /* [\]^ */
 
-   BOX_HLINE, BOX_VLINE, BOX_D_HLINE, BOX_D_VLINE,             /* _`ab */
+    BOX_HLINE, BOX_VLINE, BOX_D_HLINE, BOX_D_VLINE,             /* _`ab */
 
-   DIVISION_SIGN, APPROXIMATELY_EQUALS_SIGN,                   /* cd */
-   INTERSECTION, TRIPLE_BAR,                                   /* ef */
-   SMALL_BULLET, LARGE_BULLET, SQUARE_ROOT,                    /* ghi */
-   DIAMOND, MEDIUM_SHADE,                                      /* jk */
-   HORIZ_SCAN_LINE_1, HORIZ_SCAN_LINE_3,                       /* lm */
-   HORIZ_SCAN_LINE_7, HORIZ_SCAN_LINE_9,                       /* no */
-   UPPER_HALF_BLOCK, LOWER_HALF_BLOCK,                         /* pq */
-   LEFT_HALF_BLOCK, RIGHT_HALF_BLOCK, FULL_BLOCK,              /* rst */
-   LESSER_THAN_OR_EQUAL_TO, GREATER_THAN_OR_EQUAL_TO,          /* uv */
-   DEGREE_SIGN, PLUS_OR_MINUS, LIGHT_SHADE, SPLAT,             /* wxyz */
-   CENT_SIGN, YEN_SIGN, PESETA_SIGN, STERLING_SIGN,            /* {|}~ */
+    DIVISION_SIGN, APPROXIMATELY_EQUALS_SIGN,                   /* cd */
+    INTERSECTION, TRIPLE_BAR,                                   /* ef */
+    SMALL_BULLET, LARGE_BULLET, SQUARE_ROOT,                    /* ghi */
+    DIAMOND, MEDIUM_SHADE,                                      /* jk */
+    HORIZ_SCAN_LINE_1, HORIZ_SCAN_LINE_3,                       /* lm */
+    HORIZ_SCAN_LINE_7, HORIZ_SCAN_LINE_9,                       /* no */
+    UPPER_HALF_BLOCK, LOWER_HALF_BLOCK,                         /* pq */
+    LEFT_HALF_BLOCK, RIGHT_HALF_BLOCK, FULL_BLOCK,              /* rst */
+    LESSER_THAN_OR_EQUAL_TO, GREATER_THAN_OR_EQUAL_TO,          /* uv */
+    DEGREE_SIGN, PLUS_OR_MINUS, LIGHT_SHADE, SPLAT,             /* wxyz */
+    CENT_SIGN, YEN_SIGN, PESETA_SIGN, STERLING_SIGN,            /* {|}~ */
     A(127)
 };
 

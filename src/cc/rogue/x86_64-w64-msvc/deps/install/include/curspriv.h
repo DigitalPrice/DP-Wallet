@@ -30,8 +30,7 @@
 
 /*----------------------------------------------------------------------*/
 
-typedef struct           /* structure for ripped off lines */
-{
+typedef struct {         /* structure for ripped off lines */
     int line;
     int (*init)(WINDOW *, int);
 } RIPPEDOFFLINE;

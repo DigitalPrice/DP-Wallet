@@ -20,10 +20,10 @@ extern "C" {
 
 /* RsaFingerprintContents */
 typedef struct RsaFingerprintContents {
-	OCTET_STRING_t	 modulus;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 modulus;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } RsaFingerprintContents_t;
 
 /* Implementation */

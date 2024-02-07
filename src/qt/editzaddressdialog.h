@@ -10,7 +10,7 @@
 class ZAddressTableModel;
 
 namespace Ui {
-    class EditZAddressDialog;
+class EditZAddressDialog;
 }
 
 QT_BEGIN_NAMESPACE
@@ -19,11 +19,10 @@ QT_END_NAMESPACE
 
 /** Dialog for editing an address and associated information.
  */
-class EditZAddressDialog : public QDialog
-{
+class EditZAddressDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     enum Mode {
         NewReceivingAddress,
         NewSendingAddress,
@@ -40,10 +39,10 @@ public:
     QString getAddress() const;
     void setAddress(const QString &address);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void accept();
 
-private:
+  private:
     bool saveCurrentRow();
 
     Ui::EditZAddressDialog *ui;

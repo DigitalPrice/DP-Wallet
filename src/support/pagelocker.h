@@ -26,24 +26,20 @@
  * something like an interval tree would be the preferred data structure.
  */
 template <class Locker>
-class LockedPageManagerBase
-{
-public:
-    LockedPageManagerBase(size_t page_size) : page_size(page_size)
-    {
+class LockedPageManagerBase {
+  public:
+    LockedPageManagerBase(size_t page_size) : page_size(page_size) {
         // Determine bitmask for extracting page from address
         assert(!(page_size & (page_size - 1))); // size must be power of two
         page_mask = ~(page_size - 1);
     }
 
-    ~LockedPageManagerBase()
-    {
+    ~LockedPageManagerBase() {
     }
 
 
     // For all pages in affected range, increase lock count
-    void LockRange(void* p, size_t size)
-    {
+    void LockRange(void* p, size_t size) {
         boost::mutex::scoped_lock lock(mutex);
         if (!size)
             return;
@@ -52,20 +48,17 @@ public:
         const size_t end_page = (base_addr + size - 1) & page_mask;
         for (size_t page = start_page; page <= end_page; page += page_size) {
             Histogram::iterator it = histogram.find(page);
-            if (it == histogram.end()) // Newly locked page
-            {
+            if (it == histogram.end()) { // Newly locked page
                 locker.Lock(reinterpret_cast<void*>(page), page_size);
                 histogram.insert(std::make_pair(page, 1));
-            } else // Page was already locked; increase counter
-            {
+            } else { // Page was already locked; increase counter
                 it->second += 1;
             }
         }
     }
 
     // For all pages in affected range, decrease lock count
-    void UnlockRange(void* p, size_t size)
-    {
+    void UnlockRange(void* p, size_t size) {
         boost::mutex::scoped_lock lock(mutex);
         if (!size)
             return;
@@ -77,8 +70,7 @@ public:
             assert(it != histogram.end()); // Cannot unlock an area that was not locked
             // Decrease counter for page, when it is zero, the page will be unlocked
             it->second -= 1;
-            if (it->second == 0) // Nothing on the page anymore that keeps it locked
-            {
+            if (it->second == 0) { // Nothing on the page anymore that keeps it locked
                 // Unlock page and remove the count from histogram
                 locker.Unlock(reinterpret_cast<void*>(page), page_size);
                 histogram.erase(it);
@@ -87,13 +79,12 @@ public:
     }
 
     // Get number of locked pages for diagnostics
-    int GetLockedPageCount()
-    {
+    int GetLockedPageCount() {
         boost::mutex::scoped_lock lock(mutex);
         return histogram.size();
     }
 
-private:
+  private:
     Locker locker;
     boost::mutex mutex;
     size_t page_size, page_mask;
@@ -107,9 +98,8 @@ private:
  * OS-dependent memory page locking/unlocking.
  * Defined as policy class to make stubbing for test possible.
  */
-class MemoryPageLocker
-{
-public:
+class MemoryPageLocker {
+  public:
     /** Lock memory pages.
      * addr and len must be a multiple of the system page size
      */
@@ -131,20 +121,17 @@ public:
  * secure_allocator are created. So instead of having LockedPageManager also be
  * static-initialized, it is created on demand.
  */
-class LockedPageManager : public LockedPageManagerBase<MemoryPageLocker>
-{
-public:
-    static LockedPageManager& Instance()
-    {
+class LockedPageManager : public LockedPageManagerBase<MemoryPageLocker> {
+  public:
+    static LockedPageManager& Instance() {
         boost::call_once(LockedPageManager::CreateInstance, LockedPageManager::init_flag);
         return *LockedPageManager::_instance;
     }
 
-private:
+  private:
     LockedPageManager();
 
-    static void CreateInstance()
-    {
+    static void CreateInstance() {
         // Using a local static instance guarantees that the object is initialized
         // when it's first needed and also destructed after all objects that use
         // it are done with it.  I can think of one unlikely scenario where we may
@@ -163,14 +150,12 @@ private:
 // Intended for non-dynamically allocated structures.
 //
 template <typename T>
-void LockObject(const T& t)
-{
+void LockObject(const T& t) {
     LockedPageManager::Instance().LockRange((void*)(&t), sizeof(T));
 }
 
 template <typename T>
-void UnlockObject(const T& t)
-{
+void UnlockObject(const T& t) {
     memory_cleanse((void*)(&t), sizeof(T));
     LockedPageManager::Instance().UnlockRange((void*)(&t), sizeof(T));
 }

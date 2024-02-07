@@ -64,7 +64,7 @@ const std::string CLIENT_NAME = GetArg("-clientname", "MagicBean");
 #include "build.h"
 #endif
 
-//! git will put "#define GIT_ARCHIVE 1" on the next line inside archives. 
+//! git will put "#define GIT_ARCHIVE 1" on the next line inside archives.
 #define GIT_ARCHIVE 1
 #ifdef GIT_ARCHIVE
 #define GIT_COMMIT_ID "29"
@@ -117,8 +117,7 @@ const std::string CLIENT_NAME = GetArg("-clientname", "MagicBean");
 const std::string CLIENT_BUILD(BUILD_DESC CLIENT_VERSION_SUFFIX);
 const std::string CLIENT_DATE(BUILD_DATE);
 
-std::string FormatVersion(int nVersion)
-{
+std::string FormatVersion(int nVersion) {
     if (nVersion % 100 < 25)
         return strprintf("%d.%d.%d-beta%d", nVersion / 1000000, (nVersion / 10000) % 100, (nVersion / 100) % 100, (nVersion % 100)+1);
     if (nVersion % 100 < 50)
@@ -129,21 +128,18 @@ std::string FormatVersion(int nVersion)
         return strprintf("%d.%d.%d-%d", nVersion / 1000000, (nVersion / 10000) % 100, (nVersion / 100) % 100, (nVersion % 100)-50);
 }
 
-std::string FormatFullVersion()
-{
+std::string FormatFullVersion() {
     return CLIENT_BUILD;
 }
 
-/** 
- * Format the subversion field according to BIP 14 spec (https://github.com/bitcoin/bips/blob/master/bip-0014.mediawiki) 
+/**
+ * Format the subversion field according to BIP 14 spec (https://github.com/bitcoin/bips/blob/master/bip-0014.mediawiki)
  */
-std::string FormatSubVersion(const std::string& name, int nClientVersion, const std::vector<std::string>& comments)
-{
+std::string FormatSubVersion(const std::string& name, int nClientVersion, const std::vector<std::string>& comments) {
     std::ostringstream ss;
     ss << "/";
     ss << name << ":" << FormatVersion(nClientVersion);
-    if (!comments.empty())
-    {
+    if (!comments.empty()) {
         std::vector<std::string>::const_iterator it(comments.begin());
         ss << "(" << *it;
         for(++it; it != comments.end(); ++it)

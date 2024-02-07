@@ -96,9 +96,8 @@ static const double DEFAULT_DECAY = .998;
  * The tracking of unconfirmed (mempool) transactions is completely independent of the
  * historical tracking of transactions that have been confirmed in a block.
  */
-class TxConfirmStats
-{
-private:
+class TxConfirmStats {
+  private:
     //Define the buckets we will group transactions into (both fee buckets and priority buckets)
     std::vector<double> buckets;              // The upper-bound of the range for the bucket (inclusive)
     std::map<double, unsigned int> bucketMap; // Map of bucket upper-bound to index into all vectors by bucket
@@ -135,7 +134,7 @@ private:
     // transactions still unconfirmed after MAX_CONFIRMS for each bucket
     std::vector<int> oldUnconfTxs;
 
-public:
+  public:
     unsigned int FindBucketIndex(double val);
     /**
      * Initialize the data structures.  This is called by BlockPolicyEstimator's
@@ -185,7 +184,9 @@ public:
                              double minSuccess, bool requireGreater, unsigned int nBlockHeight);
 
     /** Return the max number of confirms we're tracking */
-    unsigned int GetMaxConfirms() { return confAvg.size(); }
+    unsigned int GetMaxConfirms() {
+        return confAvg.size();
+    }
 
     /** Write state of estimation data to a file*/
     void Write(CAutoFile& fileout);
@@ -234,9 +235,8 @@ static const double PRI_SPACING = 2;
  * a certain number of blocks.  Every time a block is added to the best chain, this class records
  * stats on the transactions included in that block
  */
-class CBlockPolicyEstimator
-{
-public:
+class CBlockPolicyEstimator {
+  public:
     /** Create new BlockPolicyEstimator and initialize stats tracking classes with default values */
     CBlockPolicyEstimator();
     ~CBlockPolicyEstimator();
@@ -275,12 +275,11 @@ public:
     /** Read estimation data from a file */
     void Read(CAutoFile& filein);
 
-private:
+  private:
     CFeeRate minTrackedFee; //! Passed to constructor to avoid dependency on main
     double minTrackedPriority; //! Set to AllowFreeThreshold
     unsigned int nBestSeenHeight;
-    struct TxStatsInfo
-    {
+    struct TxStatsInfo {
         TxConfirmStats *stats;
         unsigned int blockHeight;
         unsigned int bucketIndex;

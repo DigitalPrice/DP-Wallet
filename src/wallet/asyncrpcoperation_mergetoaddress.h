@@ -67,39 +67,38 @@ struct MergeToAddressWitnessAnchorData {
     uint256 anchor;
 };
 
-class AsyncRPCOperation_mergetoaddress : public AsyncRPCOperation
-{
-public:
+class AsyncRPCOperation_mergetoaddress : public AsyncRPCOperation {
+  public:
     AsyncRPCOperation_mergetoaddress(
-                                     boost::optional<TransactionBuilder> builder,
-                                     CMutableTransaction contextualTx,
-                                     std::vector<MergeToAddressInputUTXO> utxoInputs,
-                                     std::vector<MergeToAddressInputSproutNote> sproutNoteInputs,
-                                     std::vector<MergeToAddressInputSaplingNote> saplingNoteInputs,
-                                     MergeToAddressRecipient recipient,
-                                     CAmount fee = MERGE_TO_ADDRESS_OPERATION_DEFAULT_MINERS_FEE,
-                                     UniValue contextInfo = NullUniValue);
+        boost::optional<TransactionBuilder> builder,
+        CMutableTransaction contextualTx,
+        std::vector<MergeToAddressInputUTXO> utxoInputs,
+        std::vector<MergeToAddressInputSproutNote> sproutNoteInputs,
+        std::vector<MergeToAddressInputSaplingNote> saplingNoteInputs,
+        MergeToAddressRecipient recipient,
+        CAmount fee = MERGE_TO_ADDRESS_OPERATION_DEFAULT_MINERS_FEE,
+        UniValue contextInfo = NullUniValue);
     virtual ~AsyncRPCOperation_mergetoaddress();
-    
+
     // We don't want to be copied or moved around
     AsyncRPCOperation_mergetoaddress(AsyncRPCOperation_mergetoaddress const&) = delete;            // Copy construct
     AsyncRPCOperation_mergetoaddress(AsyncRPCOperation_mergetoaddress&&) = delete;                 // Move construct
     AsyncRPCOperation_mergetoaddress& operator=(AsyncRPCOperation_mergetoaddress const&) = delete; // Copy assign
     AsyncRPCOperation_mergetoaddress& operator=(AsyncRPCOperation_mergetoaddress&&) = delete;      // Move assign
-    
+
     virtual void main();
-    
+
     virtual UniValue getStatus() const;
-    
+
     bool testmode = false; // Set to true to disable sending txs and generating proofs
-    
+
     bool paymentDisclosureMode = true; // Set to true to save esk for encrypted notes in payment disclosure database.
-    
-private:
+
+  private:
     friend class TEST_FRIEND_AsyncRPCOperation_mergetoaddress; // class for unit testing
-    
+
     UniValue contextinfo_; // optional data to include in return value from getStatus()
-    
+
     bool isUsingBuilder_; // Indicates that no Sprout addresses are involved
     uint32_t consensusBranchId_;
     CAmount fee_;
@@ -109,105 +108,95 @@ private:
     bool isToZaddr_;
     CTxDestination toTaddr_;
     PaymentAddress toPaymentAddress_;
-    
+
     uint256 joinSplitPubKey_;
     unsigned char joinSplitPrivKey_[crypto_sign_SECRETKEYBYTES];
-    
+
     // The key is the result string from calling JSOutPoint::ToString()
     std::unordered_map<std::string, MergeToAddressWitnessAnchorData> jsopWitnessAnchorMap;
-    
+
     std::vector<MergeToAddressInputUTXO> utxoInputs_;
     std::vector<MergeToAddressInputSproutNote> sproutNoteInputs_;
     std::vector<MergeToAddressInputSaplingNote> saplingNoteInputs_;
-    
+
     TransactionBuilder builder_;
     CTransaction tx_;
-    
+
     std::array<unsigned char, ZC_MEMO_SIZE> get_memo_from_hex_string(std::string s);
     bool main_impl();
-    
+
     // JoinSplit without any input notes to spend
     UniValue perform_joinsplit(MergeToAddressJSInfo&);
-    
+
     // JoinSplit with input notes to spend (JSOutPoints))
     UniValue perform_joinsplit(MergeToAddressJSInfo&, std::vector<JSOutPoint>&);
-    
+
     // JoinSplit where you have the witnesses and anchor
     UniValue perform_joinsplit(
-                               MergeToAddressJSInfo& info,
-                               std::vector<boost::optional<SproutWitness>> witnesses,
-                               uint256 anchor);
-    
+        MergeToAddressJSInfo& info,
+        std::vector<boost::optional<SproutWitness>> witnesses,
+        uint256 anchor);
+
     void sign_send_raw_transaction(UniValue obj); // throws exception if there was an error
-    
+
     void lock_utxos();
-    
+
     void unlock_utxos();
-    
+
     void lock_notes();
-    
+
     void unlock_notes();
-    
+
     // payment disclosure!
     std::vector<PaymentDisclosureKeyInfo> paymentDisclosureData_;
 };
 
 
 // To test private methods, a friend class can act as a proxy
-class TEST_FRIEND_AsyncRPCOperation_mergetoaddress
-{
-public:
+class TEST_FRIEND_AsyncRPCOperation_mergetoaddress {
+  public:
     std::shared_ptr<AsyncRPCOperation_mergetoaddress> delegate;
-    
+
     TEST_FRIEND_AsyncRPCOperation_mergetoaddress(std::shared_ptr<AsyncRPCOperation_mergetoaddress> ptr) : delegate(ptr) {}
-    
-    CTransaction getTx()
-    {
+
+    CTransaction getTx() {
         return delegate->tx_;
     }
-    
-    void setTx(CTransaction tx)
-    {
+
+    void setTx(CTransaction tx) {
         delegate->tx_ = tx;
     }
-    
+
     // Delegated methods
-    
-    std::array<unsigned char, ZC_MEMO_SIZE> get_memo_from_hex_string(std::string s)
-    {
+
+    std::array<unsigned char, ZC_MEMO_SIZE> get_memo_from_hex_string(std::string s) {
         return delegate->get_memo_from_hex_string(s);
     }
-    
-    bool main_impl()
-    {
+
+    bool main_impl() {
         return delegate->main_impl();
     }
-    
-    UniValue perform_joinsplit(MergeToAddressJSInfo& info)
-    {
+
+    UniValue perform_joinsplit(MergeToAddressJSInfo& info) {
         return delegate->perform_joinsplit(info);
     }
-    
-    UniValue perform_joinsplit(MergeToAddressJSInfo& info, std::vector<JSOutPoint>& v)
-    {
+
+    UniValue perform_joinsplit(MergeToAddressJSInfo& info, std::vector<JSOutPoint>& v) {
         return delegate->perform_joinsplit(info, v);
     }
-    
+
     UniValue perform_joinsplit(
-                               MergeToAddressJSInfo& info,
-                               std::vector<boost::optional<SproutWitness>> witnesses,
-                               uint256 anchor)
-    {
+        MergeToAddressJSInfo& info,
+        std::vector<boost::optional<SproutWitness>> witnesses,
+        uint256 anchor) {
         return delegate->perform_joinsplit(info, witnesses, anchor);
     }
-    
-    void sign_send_raw_transaction(UniValue obj)
-    {
+
+    void sign_send_raw_transaction(UniValue obj) {
         delegate->sign_send_raw_transaction(obj);
     }
-    
-    void set_state(OperationStatus state)
-    {
+
+    void set_state(OperationStatus state) {
         delegate->state_.store(state);
     }
 };

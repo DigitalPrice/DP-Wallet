@@ -49,7 +49,7 @@
 
 #include "bits256.h"
 
-#undef lines 
+#undef lines
 
 #define NOOP(x) (x += 0)
 #define CCHAR(x) ( (char) (x & A_CHARTEXT) )
@@ -354,8 +354,7 @@
 
 #include "rogue_player.h" // interface to rpc
 
-struct rogue_state
-{
+struct rogue_state {
     uint64_t seed;
     char *keystrokes,*keystrokeshex;
     uint32_t needflush,replaydone;
@@ -441,36 +440,36 @@ struct stats {
  */
 union thing {
     struct {
-	union thing *_l_next, *_l_prev;	/* Next pointer in link */
-	coord _t_pos;			/* Position */
-	bool _t_turn;			/* If slowed, is it a turn to move */
-	char _t_type;			/* What it is */
-	char _t_disguise;		/* What mimic looks like */
-	char _t_oldch;			/* Character that was where it was */
-	coord *_t_dest;			/* Where it is running to */
-	short _t_flags;			/* State word */
-	struct stats _t_stats;		/* Physical description */
-	struct room *_t_room;		/* Current room for thing */
-	union thing *_t_pack;		/* What the thing is carrying */
+        union thing *_l_next, *_l_prev;	/* Next pointer in link */
+        coord _t_pos;			/* Position */
+        bool _t_turn;			/* If slowed, is it a turn to move */
+        char _t_type;			/* What it is */
+        char _t_disguise;		/* What mimic looks like */
+        char _t_oldch;			/* Character that was where it was */
+        coord *_t_dest;			/* Where it is running to */
+        short _t_flags;			/* State word */
+        struct stats _t_stats;		/* Physical description */
+        struct room *_t_room;		/* Current room for thing */
+        union thing *_t_pack;		/* What the thing is carrying */
         int _t_reserved;
     } _t;
     struct {
-	union thing *_l_next, *_l_prev;	/* Next pointer in link */
-	int _o_type;			/* What kind of object it is */
-	coord _o_pos;			/* Where it lives on the screen */
-	char *_o_text;			/* What it says if you read it */
-	int  _o_launch;			/* What you need to launch it */
-	char _o_packch;			/* What character it is in the pack */
-	char _o_damage[8];		/* Damage if used like sword */
-	char _o_hurldmg[8];		/* Damage if thrown */
-	int _o_count;			/* count for plural objects */
-	int _o_which;			/* Which object of a type it is */
-	int _o_hplus;			/* Plusses to hit */
-	int _o_dplus;			/* Plusses to damage */
-	int _o_arm;			/* Armor protection */
-	int _o_flags;			/* information about objects */
-	int _o_group;			/* group number for this object */
-	char *_o_label;			/* Label for object */
+        union thing *_l_next, *_l_prev;	/* Next pointer in link */
+        int _o_type;			/* What kind of object it is */
+        coord _o_pos;			/* Where it lives on the screen */
+        char *_o_text;			/* What it says if you read it */
+        int  _o_launch;			/* What you need to launch it */
+        char _o_packch;			/* What character it is in the pack */
+        char _o_damage[8];		/* Damage if used like sword */
+        char _o_hurldmg[8];		/* Damage if thrown */
+        int _o_count;			/* count for plural objects */
+        int _o_which;			/* Which object of a type it is */
+        int _o_hplus;			/* Plusses to hit */
+        int _o_dplus;			/* Plusses to damage */
+        int _o_arm;			/* Armor protection */
+        int _o_flags;			/* information about objects */
+        int _o_group;			/* group number for this object */
+        char *_o_label;			/* Label for object */
     } _o;
 };
 
@@ -543,20 +542,20 @@ extern struct room passages[MAXPASS];
 extern struct obj_info things[NUMTHINGS],ring_info[MAXRINGS],pot_info[MAXPOTIONS],arm_info[MAXARMORS],scr_info[MAXSCROLLS],weap_info[MAXWEAPONS + 1],ws_info[MAXSTICKS];
 
 extern bool	after, again, allscore, amulet, door_stop, fight_flush,
-		firstmove, has_hit, inv_describe, jump, kamikaze,
-		lower_msg, move_on, msg_esc, pack_used[],
-		passgo, playing, q_comm, running, save_msg, see_floor,
-		seenstairs, stat_msg, terse, to_death, tombstone;
+       firstmove, has_hit, inv_describe, jump, kamikaze,
+       lower_msg, move_on, msg_esc, pack_used[],
+       passgo, playing, q_comm, running, save_msg, see_floor,
+       seenstairs, stat_msg, terse, to_death, tombstone;
 
 extern char	dir_ch, file_name[], home[], huh[],
-		l_last_comm, l_last_dir, last_comm, last_dir, *Numname,
-		outbuf[],  *release, *s_names[], runch, take;
+       l_last_comm, l_last_dir, last_comm, last_dir, *Numname,
+       outbuf[],  *release, *s_names[], runch, take;
 extern const char *ws_made[], *r_stones[], *p_colors[], *ws_type[];
 
 extern int	count, food_left, hungry_state, inpack,
-		inv_type, lastscore, level, max_hit, max_level, mpos,
-		n_objs, no_command, no_food, no_move, noscore, ntraps, purse,
-		quiet, vf_hit;
+        inv_type, lastscore, level, max_hit, max_level, mpos,
+        n_objs, no_command, no_food, no_move, noscore, ntraps, purse,
+        quiet, vf_hit;
 
 extern unsigned int	numscores;
 
@@ -569,7 +568,7 @@ extern coord	delta, oldpos, stairs;
 extern PLACE	places[];
 
 extern THING	*cur_armor, *cur_ring[], *cur_weapon, *l_last_pick,
-		*last_pick, *lvl_obj, *mlist, player;
+          *last_pick, *lvl_obj, *mlist, player;
 
 
 extern struct room	*oldrp, rooms[];
@@ -759,7 +758,7 @@ bool	dropcheck(struct rogue_state *rs,THING *obj);
 bool	fallpos(coord *pos, coord *newpos);
 bool	find_floor(struct rogue_state *rs,struct room *rp, coord *cp, int limit, bool monst);
 bool	is_magic(THING *obj);
-bool    is_symlink(char *sp); 
+bool    is_symlink(char *sp);
 bool	levit_check(struct rogue_state *rs);
 bool	pack_room(struct rogue_state *rs,bool from_floor, THING *obj);
 bool	roll_em(THING *thatt, THING *thdef, THING *weap, bool hurl);

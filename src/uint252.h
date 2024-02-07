@@ -8,10 +8,10 @@
 // Wrapper of uint256 with guarantee that first
 // four bits are zero.
 class uint252 {
-private:
+  private:
     uint256 contents;
 
-public:
+  public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
@@ -23,13 +23,11 @@ public:
         }
     }
 
-    const unsigned char* begin() const
-    {
+    const unsigned char* begin() const {
         return contents.begin();
     }
 
-    const unsigned char* end() const
-    {
+    const unsigned char* end() const {
         return contents.end();
     }
 
@@ -44,7 +42,9 @@ public:
         return contents;
     }
 
-    friend inline bool operator==(const uint252& a, const uint252& b) { return a.contents == b.contents; }
+    friend inline bool operator==(const uint252& a, const uint252& b) {
+        return a.contents == b.contents;
+    }
 };
 
 #endif

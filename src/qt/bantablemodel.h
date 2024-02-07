@@ -18,14 +18,13 @@ struct CCombinedBan {
     CBanEntry banEntry;
 };
 
-class BannedNodeLessThan
-{
-public:
+class BannedNodeLessThan {
+  public:
     BannedNodeLessThan(int nColumn, Qt::SortOrder fOrder) :
         column(nColumn), order(fOrder) {}
     bool operator()(const CCombinedBan& left, const CCombinedBan& right) const;
 
-private:
+  private:
     int column;
     Qt::SortOrder order;
 };
@@ -34,11 +33,10 @@ private:
    Qt model providing information about connected peers, similar to the
    "getpeerinfo" RPC call. Used by the rpc console UI.
  */
-class BanTableModel : public QAbstractTableModel
-{
+class BanTableModel : public QAbstractTableModel {
     Q_OBJECT
 
-public:
+  public:
     explicit BanTableModel(ClientModel *parent = 0);
     ~BanTableModel();
     void startAutoRefresh();
@@ -61,10 +59,10 @@ public:
     bool shouldShow();
     /*@}*/
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void refresh();
 
-private:
+  private:
     ClientModel *clientModel;
     QStringList columns;
     std::unique_ptr<BanTablePriv> priv;

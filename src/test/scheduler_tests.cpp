@@ -15,8 +15,7 @@
 
 BOOST_AUTO_TEST_SUITE(scheduler_tests)
 
-static void microTask(CScheduler& s, boost::mutex& mutex, int& counter, int delta, boost::chrono::system_clock::time_point rescheduleTime)
-{
+static void microTask(CScheduler& s, boost::mutex& mutex, int& counter, int delta, boost::chrono::system_clock::time_point rescheduleTime) {
     {
         boost::unique_lock<boost::mutex> lock(mutex);
         counter += delta;
@@ -28,13 +27,11 @@ static void microTask(CScheduler& s, boost::mutex& mutex, int& counter, int delt
     }
 }
 
-static void MicroSleep(uint64_t n)
-{
+static void MicroSleep(uint64_t n) {
     boost::this_thread::sleep_for(boost::chrono::microseconds(n));
 }
 
-BOOST_AUTO_TEST_CASE(manythreads)
-{
+BOOST_AUTO_TEST_CASE(manythreads) {
     seed_insecure_rand(false);
 
     // Stress test: hundreds of microsecond-scheduled tasks,

@@ -16,7 +16,7 @@
 #include "net.h"
 #include "netbase.h"
 #include "txdb.h" // for -dbcache defaults
-#include "intro.h" 
+#include "intro.h"
 #include "main.h"
 
 #ifdef ENABLE_WALLET
@@ -32,19 +32,16 @@
 #include <QStringList>
 
 OptionsModel::OptionsModel(QObject *parent, bool resetSettings) :
-    QAbstractListModel(parent)
-{
+    QAbstractListModel(parent) {
     Init(resetSettings);
 }
 
-void OptionsModel::addOverriddenOption(const std::string &option)
-{
+void OptionsModel::addOverriddenOption(const std::string &option) {
     strOverriddenByCommandLine += QString::fromStdString(option) + "=" + QString::fromStdString(GetArg(option, "")) + " ";
 }
 
 // Writes all missing QSettings with their default values
-void OptionsModel::Init(bool resetSettings)
-{
+void OptionsModel::Init(bool resetSettings) {
     if (resetSettings)
         Reset();
 
@@ -62,7 +59,7 @@ void OptionsModel::Init(bool resetSettings)
         settings.setValue("fHideTrayIcon", false);
     fHideTrayIcon = settings.value("fHideTrayIcon").toBool();
     Q_EMIT hideTrayIconChanged(fHideTrayIcon);
-    
+
     if (!settings.contains("fMinimizeToTray"))
         settings.setValue("fMinimizeToTray", false);
     fMinimizeToTray = settings.value("fMinimizeToTray").toBool() && !fHideTrayIcon;
@@ -78,7 +75,9 @@ void OptionsModel::Init(bool resetSettings)
 
     std::string defaultStrThirdPartyTxUrls = "https://kmdexplorer.io/tx/%s|https://kmd.explorer.dexstats.info/tx/%s";
     std::string strAssetchainName = std::string(chainName.symbol().c_str());
-    std::transform(strAssetchainName.begin(), strAssetchainName.end(), strAssetchainName.begin(), [](unsigned char c){ return std::tolower(c); });
+    std::transform(strAssetchainName.begin(), strAssetchainName.end(), strAssetchainName.begin(), [](unsigned char c) {
+        return std::tolower(c);
+    });
 
     if (!strAssetchainName.empty()) {
         defaultStrThirdPartyTxUrls = "https://" + strAssetchainName + ".explorer.dexstats.info/tx/%s|" + defaultStrThirdPartyTxUrls;
@@ -160,24 +159,21 @@ void OptionsModel::Init(bool resetSettings)
 /** Helper function to copy contents from one QSettings to another.
  * By using allKeys this also covers nested settings in a hierarchy.
  */
-static void CopySettings(QSettings& dst, const QSettings& src)
-{
+static void CopySettings(QSettings& dst, const QSettings& src) {
     for (const QString& key : src.allKeys()) {
         dst.setValue(key, src.value(key));
     }
 }
 
 /** Back up a QSettings to an ini-formatted file. */
-static void BackupSettings(const fs::path& filename, const QSettings& src)
-{
+static void BackupSettings(const fs::path& filename, const QSettings& src) {
     qWarning() << "Backing up GUI settings to" << GUIUtil::boostPathToQString(filename);
     QSettings dst(GUIUtil::boostPathToQString(filename), QSettings::IniFormat);
     dst.clear();
     CopySettings(dst, src);
 }
 
-void OptionsModel::Reset()
-{
+void OptionsModel::Reset() {
     QSettings settings;
 
     // Backup old settings to chain-specific datadir for troubleshooting
@@ -201,19 +197,15 @@ void OptionsModel::Reset()
         GUIUtil::SetStartOnSystemStartup(false);
 }
 
-int OptionsModel::rowCount(const QModelIndex & parent) const
-{
+int OptionsModel::rowCount(const QModelIndex & parent) const {
     return OptionIDRowCount;
 }
 
 // read QSettings values and return them
-QVariant OptionsModel::data(const QModelIndex & index, int role) const
-{
-    if(role == Qt::EditRole)
-    {
+QVariant OptionsModel::data(const QModelIndex & index, int role) const {
+    if(role == Qt::EditRole) {
         QSettings settings;
-        switch(index.row())
-        {
+        switch(index.row()) {
         case StartAtStartup:
             return GUIUtil::GetStartOnSystemStartup();
         case HideTrayIcon:
@@ -283,21 +275,18 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
 }
 
 // write QSettings values
-bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, int role)
-{
+bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, int role) {
     bool successful = true; /* set to false on parse error */
-    if(role == Qt::EditRole)
-    {
+    if(role == Qt::EditRole) {
         QSettings settings;
-        switch(index.row())
-        {
+        switch(index.row()) {
         case StartAtStartup:
             successful = GUIUtil::SetStartOnSystemStartup(value.toBool());
             break;
         case HideTrayIcon:
             fHideTrayIcon = value.toBool();
             settings.setValue("fHideTrayIcon", fHideTrayIcon);
-    		Q_EMIT hideTrayIconChanged(fHideTrayIcon);
+            Q_EMIT hideTrayIconChanged(fHideTrayIcon);
             break;
         case MinimizeToTray:
             fMinimizeToTray = value.toBool();
@@ -430,10 +419,8 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
 }
 
 /** Updates current unit in memory, settings and emits displayUnitChanged(newUnit) signal */
-void OptionsModel::setDisplayUnit(const QVariant &value)
-{
-    if (!value.isNull())
-    {
+void OptionsModel::setDisplayUnit(const QVariant &value) {
+    if (!value.isNull()) {
         QSettings settings;
         nDisplayUnit = value.toInt();
         settings.setValue("nDisplayUnit", nDisplayUnit);
@@ -442,8 +429,7 @@ void OptionsModel::setDisplayUnit(const QVariant &value)
 }
 
 #ifdef ENABLE_BIP70
-bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
-{
+bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const {
     // Directly query current base proxy, because
     // GUI settings can be overridden with -proxy.
     proxyType curProxy;
@@ -453,35 +439,30 @@ bool OptionsModel::getProxySettings(QNetworkProxy& proxy) const
         proxy.setPort(curProxy.proxy.GetPort());
 
         return true;
-    }
-    else
+    } else
         proxy.setType(QNetworkProxy::NoProxy);
 
     return false;
 }
 #endif
 
-void OptionsModel::setRestartRequired(bool fRequired)
-{
+void OptionsModel::setRestartRequired(bool fRequired) {
     QSettings settings;
     return settings.setValue("fRestartRequired", fRequired);
 }
 
-bool OptionsModel::isRestartRequired() const
-{
+bool OptionsModel::isRestartRequired() const {
     QSettings settings;
     return settings.value("fRestartRequired", false).toBool();
 }
 
-void OptionsModel::checkAndMigrate()
-{
+void OptionsModel::checkAndMigrate() {
     // Migration of default values
     // Check if the QSettings container was already loaded with this client version
     QSettings settings;
     static const char strSettingsVersionKey[] = "nSettingsVersion";
     int settingsVersion = settings.contains(strSettingsVersionKey) ? settings.value(strSettingsVersionKey).toInt() : 0;
-    if (settingsVersion < CLIENT_VERSION)
-    {
+    if (settingsVersion < CLIENT_VERSION) {
         // -dbcache was bumped from 100 to 300 in 0.13
         // see https://github.com/komodo/komodo/pull/8273
         // force people to upgrade to the new value if they are using 100MB

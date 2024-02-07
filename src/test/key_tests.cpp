@@ -35,8 +35,7 @@ static const std::string strAddressBad = "t1aMkLwU1LcMZYN7TgXUJAwzA1r44dbLkSp";
 
 
 #ifdef KEY_TESTS_DUMPINFO
-void dumpKeyInfo(uint256 privkey)
-{
+void dumpKeyInfo(uint256 privkey) {
     CKey key;
     key.resize(32);
     memcpy(&secret[0], &privkey, 32);
@@ -45,8 +44,7 @@ void dumpKeyInfo(uint256 privkey)
     memcpy(&sec[0], &secret[0], 32);
     printf("  * secret (hex): %s\n", HexStr(sec).c_str());
 
-    for (int nCompressed=0; nCompressed<2; nCompressed++)
-    {
+    for (int nCompressed=0; nCompressed<2; nCompressed++) {
         bool fCompressed = nCompressed == 1;
         printf("  * %s:\n", fCompressed ? "compressed" : "uncompressed");
         CBitcoinSecret bsecret;
@@ -64,8 +62,7 @@ void dumpKeyInfo(uint256 privkey)
 
 BOOST_FIXTURE_TEST_SUITE(key_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(key_test1)
-{
+BOOST_AUTO_TEST_CASE(key_test1) {
     CKey key1  = DecodeSecret(strSecret1);
     BOOST_CHECK(key1.IsValid() && !key1.IsCompressed());
     CKey key2  = DecodeSecret(strSecret2);
@@ -107,8 +104,7 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(DecodeDestination(addr1C) == CTxDestination(pubkey1C.GetID()));
     BOOST_CHECK(DecodeDestination(addr2C) == CTxDestination(pubkey2C.GetID()));
 
-    for (int n=0; n<16; n++)
-    {
+    for (int n=0; n<16; n++) {
         string strMsg = strprintf("Very secret message %i: 11", n);
         uint256 hashMsg = Hash(strMsg.begin(), strMsg.end());
 
@@ -186,8 +182,7 @@ BOOST_AUTO_TEST_CASE(key_test1)
     BOOST_CHECK(detsigc == ParseHex("2052d8a32079c11e79db95af63bb9600c5b04f21a9ca33dc129c2bfa8ac9dc1cd561d8ae5e0f6c1a16bde3719c64c2fd70e404b6428ab9a69566962e8771b5944d"));
 }
 
-BOOST_AUTO_TEST_CASE(zc_address_test)
-{
+BOOST_AUTO_TEST_CASE(zc_address_test) {
     for (size_t i = 0; i < 1000; i++) {
         auto sk = SproutSpendingKey::random();
         {
@@ -221,8 +216,7 @@ BOOST_AUTO_TEST_CASE(zc_address_test)
     }
 }
 
-BOOST_AUTO_TEST_CASE(zs_address_test)
-{
+BOOST_AUTO_TEST_CASE(zs_address_test) {
     SelectParams(CBaseChainParams::REGTEST);
 
     std::vector<unsigned char, secure_allocator<unsigned char>> rawSeed(32);

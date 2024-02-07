@@ -52,9 +52,8 @@ struct TransparentInputInfo {
         CAmount value) : scriptPubKey(scriptPubKey), value(value) {}
 };
 
-class TransactionBuilder
-{
-private:
+class TransactionBuilder {
+  private:
     Consensus::Params consensusParams;
     int nHeight;
     const CKeyStore* keystore;
@@ -71,7 +70,7 @@ private:
 
     bool AddOpRetLast(CScript &s);
 
-public:
+  public:
     TransactionBuilder() {}
     TransactionBuilder(const Consensus::Params& consensusParams, int nHeight, CKeyStore* keyStore = nullptr);
 
@@ -89,7 +88,7 @@ public:
         uint256 ovk,
         libzcash::SaplingPaymentAddress to,
         CAmount value,
-        std::array<unsigned char, ZC_MEMO_SIZE> memo = {{0}});
+    std::array<unsigned char, ZC_MEMO_SIZE> memo = {{0}});
 
     // Assumes that the value correctly corresponds to the provided UTXO.
     void AddTransparentInput(COutPoint utxo, CScript scriptPubKey, CAmount value, uint32_t nSequence = 0xffffffff);
@@ -104,7 +103,9 @@ public:
 
     bool SendChangeTo(CTxDestination& changeAddr);
 
-    void SetLockTime(uint32_t time) { this->mtx.nLockTime = time; }
+    void SetLockTime(uint32_t time) {
+        this->mtx.nLockTime = time;
+    }
 
     boost::optional<CTransaction> Build();
 };

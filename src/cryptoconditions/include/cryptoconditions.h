@@ -55,19 +55,39 @@ typedef struct CC {
     struct CCType *type;
     union {
         // public key types
-        struct { uint8_t *publicKey, *signature; };
+        struct {
+            uint8_t *publicKey, *signature;
+        };
         // preimage
-        struct { uint8_t *preimage; size_t preimageLength; };
+        struct {
+            uint8_t *preimage;
+            size_t preimageLength;
+        };
         // threshold
-        struct { long threshold; uint8_t size; struct CC **subconditions; };
+        struct {
+            long threshold;
+            uint8_t size;
+            struct CC **subconditions;
+        };
         // prefix
-        struct { uint8_t *prefix; size_t prefixLength; struct CC *subcondition;
-                 size_t maxMessageLength; };
+        struct {
+            uint8_t *prefix;
+            size_t prefixLength;
+            struct CC *subcondition;
+            size_t maxMessageLength;
+        };
         // eval
-        struct { uint8_t *code; size_t codeLength; };
+        struct {
+            uint8_t *code;
+            size_t codeLength;
+        };
         // anon
-        struct { uint8_t fingerprint[32]; uint32_t subtypes; unsigned long cost; 
-                 struct CCType *conditionType; };
+        struct {
+            uint8_t fingerprint[32];
+            uint32_t subtypes;
+            unsigned long cost;
+            struct CCType *conditionType;
+        };
     };
 } CC;
 
@@ -87,11 +107,11 @@ typedef struct CCVisitor {
  */
 int             cc_isFulfilled(const CC *cond);
 int             cc_verify(const struct CC *cond, const uint8_t *msg, size_t msgLength,
-                        int doHashMessage, const uint8_t *condBin, size_t condBinLength,
-                        VerifyEval verifyEval, void *evalContext);
+                          int doHashMessage, const uint8_t *condBin, size_t condBinLength,
+                          VerifyEval verifyEval, void *evalContext);
 int             cc_visit(CC *cond, struct CCVisitor visitor);
 int             cc_signTreeEd25519(CC *cond, const uint8_t *privateKey, const uint8_t *msg,
-                        const size_t msgLength);
+                                   const size_t msgLength);
 int             cc_signTreeSecp256k1Msg32(CC *cond, const uint8_t *privateKey, const uint8_t *msg32);
 int             cc_secp256k1VerifyTreeMsg32(const CC *cond, const uint8_t *msg32);
 size_t          cc_conditionBinary(const CC *cond, uint8_t *buf);

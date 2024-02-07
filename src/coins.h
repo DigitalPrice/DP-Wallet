@@ -40,7 +40,7 @@
 #include <boost/unordered_map.hpp>
 #include "zcash/IncrementalMerkleTree.hpp"
 
-/** 
+/**
  * Pruned version of CTransaction: only retains metadata and unspent transaction outputs
  *
  * Serialized format:
@@ -92,9 +92,8 @@
  *              * 8c988f1a4a4de2161e0f50aac7f17e7f9555caa4: address uint160
  *  - height = 120891
  */
-class CCoins
-{
-public:
+class CCoins {
+  public:
     //! whether transaction is a coinbase
     bool fCoinBase;
 
@@ -158,13 +157,13 @@ public:
 
     //! equality test
     friend bool operator==(const CCoins &a, const CCoins &b) {
-         // Empty CCoins objects are always equal.
-         if (a.IsPruned() && b.IsPruned())
-             return true;
-         return a.fCoinBase == b.fCoinBase &&
-                a.nHeight == b.nHeight &&
-                a.nVersion == b.nVersion &&
-                a.vout == b.vout;
+        // Empty CCoins objects are always equal.
+        if (a.IsPruned() && b.IsPruned())
+            return true;
+        return a.fCoinBase == b.fCoinBase &&
+               a.nHeight == b.nHeight &&
+               a.nVersion == b.nVersion &&
+               a.vout == b.vout;
     }
     friend bool operator!=(const CCoins &a, const CCoins &b) {
         return !(a == b);
@@ -251,8 +250,8 @@ public:
     //! note that only !IsPruned() CCoins can be serialized
     bool IsPruned() const {
         BOOST_FOREACH(const CTxOut &out, vout)
-            if (!out.IsNull())
-                return false;
+        if (!out.IsNull())
+            return false;
         return true;
     }
 
@@ -273,12 +272,11 @@ public:
     }
 };
 
-class CCoinsKeyHasher
-{
-private:
+class CCoinsKeyHasher {
+  private:
     uint256 salt;
 
-public:
+  public:
     CCoinsKeyHasher();
 
     /**
@@ -291,8 +289,7 @@ public:
     }
 };
 
-struct CCoinsCacheEntry
-{
+struct CCoinsCacheEntry {
     CCoins coins; // The actual cached data.
     unsigned char flags;
 
@@ -304,8 +301,7 @@ struct CCoinsCacheEntry
     CCoinsCacheEntry() : coins(), flags(0) {}
 };
 
-struct CAnchorsSproutCacheEntry
-{
+struct CAnchorsSproutCacheEntry {
     bool entered; // This will be false if the anchor is removed from the cache
     SproutMerkleTree tree; // The tree itself
     unsigned char flags;
@@ -317,8 +313,7 @@ struct CAnchorsSproutCacheEntry
     CAnchorsSproutCacheEntry() : entered(false), flags(0) {}
 };
 
-struct CAnchorsSaplingCacheEntry
-{
+struct CAnchorsSaplingCacheEntry {
     bool entered; // This will be false if the anchor is removed from the cache
     SaplingMerkleTree tree; // The tree itself
     unsigned char flags;
@@ -330,8 +325,7 @@ struct CAnchorsSaplingCacheEntry
     CAnchorsSaplingCacheEntry() : entered(false), flags(0) {}
 };
 
-struct CNullifiersCacheEntry
-{
+struct CNullifiersCacheEntry {
     bool entered; // If the nullifier is spent or not
     unsigned char flags;
 
@@ -342,8 +336,7 @@ struct CNullifiersCacheEntry
     CNullifiersCacheEntry() : entered(false), flags(0) {}
 };
 
-enum ShieldedType
-{
+enum ShieldedType {
     SPROUT,
     SAPLING,
 };
@@ -353,8 +346,7 @@ typedef boost::unordered_map<uint256, CAnchorsSproutCacheEntry, CCoinsKeyHasher>
 typedef boost::unordered_map<uint256, CAnchorsSaplingCacheEntry, CCoinsKeyHasher> CAnchorsSaplingMap;
 typedef boost::unordered_map<uint256, CNullifiersCacheEntry, CCoinsKeyHasher> CNullifiersMap;
 
-struct CCoinsStats
-{
+struct CCoinsStats {
     int nHeight;
     uint256 hashBlock;
     uint64_t nTransactions;
@@ -368,9 +360,8 @@ struct CCoinsStats
 
 
 /** Abstract view on the open txout dataset. */
-class CCoinsView
-{
-public:
+class CCoinsView {
+  public:
     //! Retrieve the tree (Sprout) at a particular anchored root in the chain
     virtual bool GetSproutAnchorAt(const uint256 &rt, SproutMerkleTree &tree) const;
 
@@ -413,12 +404,11 @@ public:
 
 
 /** CCoinsView backed by another CCoinsView */
-class CCoinsViewBacked : public CCoinsView
-{
-protected:
+class CCoinsViewBacked : public CCoinsView {
+  protected:
     CCoinsView *base;
 
-public:
+  public:
     CCoinsViewBacked(CCoinsView *viewIn);
     bool GetSproutAnchorAt(const uint256 &rt, SproutMerkleTree &tree) const;
     bool GetSaplingAnchorAt(const uint256 &rt, SaplingMerkleTree &tree) const;
@@ -442,46 +432,47 @@ public:
 
 class CCoinsViewCache;
 
-/** 
+/**
  * A reference to a mutable cache entry. Encapsulating it allows us to run
  *  cleanup code after the modification is finished, and keeping track of
  *  concurrent modifications.
  */
-class CCoinsModifier
-{
-private:
+class CCoinsModifier {
+  private:
     CCoinsViewCache& cache;
     CCoinsMap::iterator it;
     size_t cachedCoinUsage; // Cached memory usage of the CCoins object before modification
     CCoinsModifier(CCoinsViewCache& cache_, CCoinsMap::iterator it_, size_t usage);
 
-public:
-    CCoins* operator->() { return &it->second.coins; }
-    CCoins& operator*() { return it->second.coins; }
+  public:
+    CCoins* operator->() {
+        return &it->second.coins;
+    }
+    CCoins& operator*() {
+        return it->second.coins;
+    }
     ~CCoinsModifier();
     friend class CCoinsViewCache;
 };
 
-class CTransactionExceptionData
-{
-    public:
-        CScript scriptPubKey;
-        uint64_t voutMask;
-        CTransactionExceptionData() : scriptPubKey(), voutMask() {}
+class CTransactionExceptionData {
+  public:
+    CScript scriptPubKey;
+    uint64_t voutMask;
+    CTransactionExceptionData() : scriptPubKey(), voutMask() {}
 };
 
-/** 
- * CCoinsView that adds a memory cache in front of another CCoinsView 
+/**
+ * CCoinsView that adds a memory cache in front of another CCoinsView
  */
-class CCoinsViewCache : public CCoinsViewBacked
-{
-protected:
+class CCoinsViewCache : public CCoinsViewBacked {
+  protected:
     /* Whether this cache has an active modifier. */
     bool hasModifier;
 
     /**
      * Make mutable so that we can "fill the cache" even from Get-methods
-     * declared as "const". 
+     * declared as "const".
      */
     mutable uint256 hashBlock;
     mutable CCoinsMap cacheCoins;
@@ -495,7 +486,7 @@ protected:
     /* Cached dynamic memory usage for the inner CCoins objects. */
     mutable size_t cachedCoinsUsage;
 
-public:
+  public:
     CCoinsViewCache(CCoinsView *baseIn);
     ~CCoinsViewCache();
 
@@ -556,7 +547,7 @@ public:
     //! Calculate the size of the cache (in bytes)
     size_t DynamicMemoryUsage() const;
 
-    /** 
+    /**
      * @brief get amount of bitcoins coming in to a transaction
      * @note lightweight clients may not know anything besides the hash of previous transactions,
      * so may not be able to calculate this.
@@ -593,7 +584,7 @@ public:
 
     friend class CCoinsModifier;
 
-private:
+  private:
     CCoinsMap::iterator FetchCoins(const uint256 &txid);
     CCoinsMap::const_iterator FetchCoins(const uint256 &txid) const;
 

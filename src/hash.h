@@ -36,9 +36,9 @@ typedef uint256 ChainCode;
 
 /** A hasher class for Bitcoin's 256-bit hash (double SHA-256). */
 class CHash256 {
-private:
+  private:
     CSHA256 sha;
-public:
+  public:
     static const size_t OUTPUT_SIZE = CSHA256::OUTPUT_SIZE;
 
     void Finalize(unsigned char hash[OUTPUT_SIZE]) {
@@ -60,9 +60,9 @@ public:
 
 /** A hasher class for Bitcoin's 160-bit hash (SHA-256 + RIPEMD-160). */
 class CHash160 {
-private:
+  private:
     CSHA256 sha;
-public:
+  public:
     static const size_t OUTPUT_SIZE = CRIPEMD160::OUTPUT_SIZE;
 
     void Finalize(unsigned char hash[OUTPUT_SIZE]) {
@@ -84,12 +84,11 @@ public:
 
 /** Compute the 256-bit hash of an object. */
 template<typename T1>
-inline uint256 Hash(const T1 pbegin, const T1 pend)
-{
+inline uint256 Hash(const T1 pbegin, const T1 pend) {
     static const unsigned char pblank[1] = {};
     uint256 result;
     CHash256().Write(pbegin == pend ? pblank : (const unsigned char*)&pbegin[0], (pend - pbegin) * sizeof(pbegin[0]))
-              .Finalize((unsigned char*)&result);
+    .Finalize((unsigned char*)&result);
     return result;
 }
 
@@ -100,8 +99,8 @@ inline uint256 Hash(const T1 p1begin, const T1 p1end,
     static const unsigned char pblank[1] = {};
     uint256 result;
     CHash256().Write(p1begin == p1end ? pblank : (const unsigned char*)&p1begin[0], (p1end - p1begin) * sizeof(p1begin[0]))
-              .Write(p2begin == p2end ? pblank : (const unsigned char*)&p2begin[0], (p2end - p2begin) * sizeof(p2begin[0]))
-              .Finalize((unsigned char*)&result);
+    .Write(p2begin == p2end ? pblank : (const unsigned char*)&p2begin[0], (p2end - p2begin) * sizeof(p2begin[0]))
+    .Finalize((unsigned char*)&result);
     return result;
 }
 
@@ -113,50 +112,50 @@ inline uint256 Hash(const T1 p1begin, const T1 p1end,
     static const unsigned char pblank[1] = {};
     uint256 result;
     CHash256().Write(p1begin == p1end ? pblank : (const unsigned char*)&p1begin[0], (p1end - p1begin) * sizeof(p1begin[0]))
-              .Write(p2begin == p2end ? pblank : (const unsigned char*)&p2begin[0], (p2end - p2begin) * sizeof(p2begin[0]))
-              .Write(p3begin == p3end ? pblank : (const unsigned char*)&p3begin[0], (p3end - p3begin) * sizeof(p3begin[0]))
-              .Finalize((unsigned char*)&result);
+    .Write(p2begin == p2end ? pblank : (const unsigned char*)&p2begin[0], (p2end - p2begin) * sizeof(p2begin[0]))
+    .Write(p3begin == p3end ? pblank : (const unsigned char*)&p3begin[0], (p3end - p3begin) * sizeof(p3begin[0]))
+    .Finalize((unsigned char*)&result);
     return result;
 }
 
 /** Compute the 160-bit hash an object. */
 template<typename T1>
-inline uint160 Hash160(const T1 pbegin, const T1 pend)
-{
+inline uint160 Hash160(const T1 pbegin, const T1 pend) {
     static unsigned char pblank[1] = {};
     uint160 result;
     CHash160().Write(pbegin == pend ? pblank : (const unsigned char*)&pbegin[0], (pend - pbegin) * sizeof(pbegin[0]))
-              .Finalize((unsigned char*)&result);
+    .Finalize((unsigned char*)&result);
     return result;
 }
 
 /** Compute the 160-bit hash of a vector. */
-inline uint160 Hash160(const std::vector<unsigned char>& vch)
-{
+inline uint160 Hash160(const std::vector<unsigned char>& vch) {
     return Hash160(vch.begin(), vch.end());
 }
 
 /** Compute the 160-bit hash of a vector. */
 template<unsigned int N>
-inline uint160 Hash160(const prevector<N, unsigned char>& vch)
-{
+inline uint160 Hash160(const prevector<N, unsigned char>& vch) {
     return Hash160(vch.begin(), vch.end());
 }
 
 /** A writer stream (for serialization) that computes a 256-bit hash. */
-class CHashWriter
-{
-private:
+class CHashWriter {
+  private:
     CHash256 ctx;
 
     const int nType;
     const int nVersion;
-public:
+  public:
 
     CHashWriter(int nTypeIn, int nVersionIn) : nType(nTypeIn), nVersion(nVersionIn) {}
 
-    int GetType() const { return nType; }
-    int GetVersion() const { return nVersion; }
+    int GetType() const {
+        return nType;
+    }
+    int GetVersion() const {
+        return nVersion;
+    }
 
     void write(const char *pch, size_t size) {
         ctx.Write((const unsigned char*)pch, size);
@@ -179,22 +178,19 @@ public:
 
 /** Reads data from an underlying stream, while hashing the read data. */
 template<typename Source>
-class CHashVerifier : public CHashWriter
-{
-private:
+class CHashVerifier : public CHashWriter {
+  private:
     Source* source;
 
-public:
+  public:
     explicit CHashVerifier(Source* source_) : CHashWriter(source_->GetType(), source_->GetVersion()), source(source_) {}
 
-    void read(char* pch, size_t nSize)
-    {
+    void read(char* pch, size_t nSize) {
         source->read(pch, nSize);
         this->write(pch, nSize);
     }
 
-    void ignore(size_t nSize)
-    {
+    void ignore(size_t nSize) {
         char data[1024];
         while (nSize > 0) {
             size_t now = std::min<size_t>(nSize, 1024);
@@ -204,8 +200,7 @@ public:
     }
 
     template<typename T>
-    CHashVerifier<Source>& operator>>(T& obj)
-    {
+    CHashVerifier<Source>& operator>>(T& obj) {
         // Unserialize from this stream
         ::Unserialize(*this, obj);
         return (*this);
@@ -213,26 +208,29 @@ public:
 };
 
 /** A writer stream (for serialization) that computes a 256-bit BLAKE2b hash. */
-class CBLAKE2bWriter
-{
-private:
+class CBLAKE2bWriter {
+  private:
     crypto_generichash_blake2b_state state;
 
-public:
+  public:
     int nType;
     int nVersion;
 
     CBLAKE2bWriter(int nTypeIn, int nVersionIn, const unsigned char* personal) : nType(nTypeIn), nVersion(nVersionIn) {
         assert(crypto_generichash_blake2b_init_salt_personal(
-            &state,
-            NULL, 0, // No key.
-            32,
-            NULL,    // No salt.
-            personal) == 0);
+                   &state,
+                   NULL, 0, // No key.
+                   32,
+                   NULL,    // No salt.
+                   personal) == 0);
     }
 
-    int GetType() const { return nType; }
-    int GetVersion() const { return nVersion; }
+    int GetType() const {
+        return nType;
+    }
+    int GetVersion() const {
+        return nVersion;
+    }
 
     CBLAKE2bWriter& write(const char *pch, size_t size) {
         crypto_generichash_blake2b_update(&state, (const unsigned char*)pch, size);
@@ -256,8 +254,7 @@ public:
 
 /** Compute the 256-bit hash of an object's serialization. */
 template<typename T>
-uint256 SerializeHash(const T& obj, int nType=SER_GETHASH, int nVersion=PROTOCOL_VERSION)
-{
+uint256 SerializeHash(const T& obj, int nType=SER_GETHASH, int nVersion=PROTOCOL_VERSION) {
     CHashWriter ss(nType, nVersion);
     ss << obj;
     return ss.GetHash();

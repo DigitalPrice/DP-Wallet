@@ -43,7 +43,11 @@
 
 #define KOMODO_PUBTYPE 60
 
-struct rmd160_vstate { uint64_t length; uint8_t buf[64]; uint32_t curlen, state[5]; };
+struct rmd160_vstate {
+    uint64_t length;
+    uint8_t buf[64];
+    uint32_t curlen, state[5];
+};
 
 void vcalc_sha256(char deprecated[(256 >> 3) * 2 + 1],uint8_t hash[256 >> 3],uint8_t *src,int32_t len);
 

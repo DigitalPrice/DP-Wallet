@@ -37,7 +37,7 @@ static const unsigned char REJECT_HAVEBETTER = 0x44;
 
 /** Capture information about block/transaction validation */
 class CValidationState {
-private:
+  private:
     enum mode_state {
         MODE_VALID,   //! everything ok
         MODE_INVALID, //! network rule violation (DoS value may be set)
@@ -47,11 +47,11 @@ private:
     std::string strRejectReason;
     unsigned char chRejectCode;
     bool corruptionPossible;
-public:
+  public:
     CValidationState() : mode(MODE_VALID), nDoS(0), chRejectCode(0), corruptionPossible(false) {}
     virtual bool DoS(int level, bool ret = false,
-             unsigned char chRejectCodeIn=0, std::string strRejectReasonIn="",
-             bool corruptionIn=false) {
+                     unsigned char chRejectCodeIn=0, std::string strRejectReasonIn="",
+                     bool corruptionIn=false) {
         chRejectCode = chRejectCodeIn;
         strRejectReason = strRejectReasonIn;
         corruptionPossible = corruptionIn;
@@ -62,7 +62,7 @@ public:
         return ret;
     }
     virtual bool Invalid(bool ret = false,
-                 unsigned char _chRejectCode=0, std::string _strRejectReason="") {
+                         unsigned char _chRejectCode=0, std::string _strRejectReason="") {
         return DoS(0, ret, _chRejectCode, _strRejectReason);
     }
     virtual bool Error(const std::string& strRejectReasonIn) {
@@ -90,16 +90,19 @@ public:
     virtual bool CorruptionPossible() const {
         return corruptionPossible;
     }
-    virtual unsigned char GetRejectCode() const { return chRejectCode; }
-    virtual std::string GetRejectReason() const { return strRejectReason; }
+    virtual unsigned char GetRejectCode() const {
+        return chRejectCode;
+    }
+    virtual std::string GetRejectReason() const {
+        return strRejectReason;
+    }
 };
 
 // These implement the weight = (stripped_size * 4) + witness_size formula,
 // using only serialization with and without witness data. As witness_size
 // is equal to total_size - stripped_size, this formula is identical to:
 // weight = (stripped_size * 3) + total_size.
-static inline int64_t GetTransactionWeight(const CTransaction& tx)
-{
+static inline int64_t GetTransactionWeight(const CTransaction& tx) {
     return ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION | SERIALIZE_TRANSACTION_NO_WITNESS) * (WITNESS_SCALE_FACTOR - 1) + ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
 }
 

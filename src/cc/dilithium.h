@@ -18,20 +18,20 @@
 static inline uint64_t cpucycles_start(void) {
     const uint32_t ecx = (1U << 30) + 1;
     uint64_t result;
-    
+
     asm volatile("cpuid; movl %1,%%ecx; rdpmc; shlq $32,%%rdx; orq %%rdx,%%rax"
                  : "=&a" (result) : "r" (ecx) : "rbx", "rcx", "rdx");
-    
+
     return result;
 }
 
 static inline uint64_t cpucycles_stop(void) {
     const uint32_t ecx = (1U << 30) + 1;
     uint64_t result, dummy;
-    
+
     asm volatile("rdpmc; shlq $32,%%rdx; orq %%rdx,%%rax; movq %%rax,%0; cpuid"
                  : "=&r" (result), "=c" (dummy) : "c" (ecx) : "rax", "rbx", "rdx");
-    
+
     return result;
 }
 
@@ -40,20 +40,20 @@ static inline uint64_t cpucycles_stop(void) {
 static inline uint64_t cpucycles_start(void) {
     const uint32_t ecx = (1U << 30) + 1;
     uint64_t result;
-    
+
     asm volatile("rdpmc; shlq $32,%%rdx; orq %%rdx,%%rax"
                  : "=a" (result) : "c" (ecx) : "rdx");
-    
+
     return result;
 }
 
 static inline uint64_t cpucycles_stop(void) {
     const uint32_t ecx = (1U << 30) + 1;
     uint64_t result;
-    
+
     asm volatile("rdpmc; shlq $32,%%rdx; orq %%rdx,%%rax"
                  : "=a" (result) : "c" (ecx) : "rdx");
-    
+
     return result;
 }
 
@@ -63,19 +63,19 @@ static inline uint64_t cpucycles_stop(void) {
 
 static inline uint64_t cpucycles_start(void) {
     uint64_t result;
-    
+
     asm volatile("cpuid; rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
                  : "=a" (result) : : "%rbx", "%rcx", "%rdx");
-    
+
     return result;
 }
 
 static inline uint64_t cpucycles_stop(void) {
     uint64_t result;
-    
+
     asm volatile("rdtscp; shlq $32,%%rdx; orq %%rdx,%%rax; mov %%rax,%0; cpuid"
                  : "=r" (result) : : "%rax", "%rbx", "%rcx", "%rdx");
-    
+
     return result;
 }
 
@@ -83,19 +83,19 @@ static inline uint64_t cpucycles_stop(void) {
 
 static inline uint64_t cpucycles_start(void) {
     uint64_t result;
-    
+
     asm volatile("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
                  : "=a" (result) : : "%rdx");
-    
+
     return result;
 }
 
 static inline uint64_t cpucycles_stop(void) {
     uint64_t result;
-    
+
     asm volatile("rdtsc; shlq $32,%%rdx; orq %%rdx,%%rax"
                  : "=a" (result) : : "%rdx");
-    
+
     return result;
 }
 
@@ -277,8 +277,8 @@ void polyvecl_add(polyvecl *w, const polyvecl *u, const polyvecl *v);
 
 void polyvecl_ntt(polyvecl *v);
 void polyvecl_pointwise_acc_invmontgomery(poly *w,
-                                          const polyvecl *u,
-                                          const polyvecl *v);
+        const polyvecl *u,
+        const polyvecl *v);
 
 int polyvecl_chknorm(const polyvecl *v, uint32_t B);
 
@@ -305,8 +305,8 @@ int polyveck_chknorm(const polyveck *v, uint32_t B);
 void polyveck_power2round(polyveck *v1, polyveck *v0, const polyveck *v);
 void polyveck_decompose(polyveck *v1, polyveck *v0, const polyveck *v);
 uint32_t polyveck_make_hint(polyveck *h,
-                                const polyveck *u,
-                                const polyveck *v);
+                            const polyveck *u,
+                            const polyveck *v);
 void polyveck_use_hint(polyveck *w, const polyveck *v, const polyveck *h);
 
 #endif
@@ -349,7 +349,7 @@ void unpack_sk(uint8_t rho[SEEDBYTES],
                polyveck *t0,
                const uint8_t sk[CRYPTO_SECRETKEYBYTES]);
 int unpack_sig(polyvecl *z, polyveck *h, poly *c,
-                const uint8_t sig[CRYPTO_BYTES]);
+               const uint8_t sig[CRYPTO_BYTES]);
 
 #endif
 #ifndef REDUCE_H

@@ -21,31 +21,31 @@ extern "C" {
 
 /* Dependencies */
 typedef enum Condition_PR {
-	Condition_PR_NOTHING,	/* No components present */
-	Condition_PR_preimageSha256,
-	Condition_PR_prefixSha256,
-	Condition_PR_thresholdSha256,
-	Condition_PR_rsaSha256,
-	Condition_PR_ed25519Sha256,
-	Condition_PR_secp256k1Sha256,
-	Condition_PR_evalSha256
+    Condition_PR_NOTHING,	/* No components present */
+    Condition_PR_preimageSha256,
+    Condition_PR_prefixSha256,
+    Condition_PR_thresholdSha256,
+    Condition_PR_rsaSha256,
+    Condition_PR_ed25519Sha256,
+    Condition_PR_secp256k1Sha256,
+    Condition_PR_evalSha256
 } Condition_PR;
 
 /* Condition */
 typedef struct Condition {
-	Condition_PR present;
-	union Condition_u {
-		SimpleSha256Condition_t	 preimageSha256;
-		CompoundSha256Condition_t	 prefixSha256;
-		CompoundSha256Condition_t	 thresholdSha256;
-		SimpleSha256Condition_t	 rsaSha256;
-		SimpleSha256Condition_t	 ed25519Sha256;
-		SimpleSha256Condition_t	 secp256k1Sha256;
-		SimpleSha256Condition_t	 evalSha256;
-	} choice;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    Condition_PR present;
+    union Condition_u {
+        SimpleSha256Condition_t	 preimageSha256;
+        CompoundSha256Condition_t	 prefixSha256;
+        CompoundSha256Condition_t	 thresholdSha256;
+        SimpleSha256Condition_t	 rsaSha256;
+        SimpleSha256Condition_t	 ed25519Sha256;
+        SimpleSha256Condition_t	 secp256k1Sha256;
+        SimpleSha256Condition_t	 evalSha256;
+    } choice;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } Condition_t;
 
 /* Implementation */

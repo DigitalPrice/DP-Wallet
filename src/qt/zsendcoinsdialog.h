@@ -18,7 +18,7 @@ class SendCoinsEntry;
 class SendCoinsRecipient;
 
 namespace Ui {
-    class ZSendCoinsDialog;
+class ZSendCoinsDialog;
 }
 
 QT_BEGIN_NAMESPACE
@@ -26,11 +26,10 @@ class QUrl;
 QT_END_NAMESPACE
 
 /** Dialog for sending coins */
-class ZSendCoinsDialog : public QDialog
-{
+class ZSendCoinsDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     explicit ZSendCoinsDialog(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~ZSendCoinsDialog();
 
@@ -46,7 +45,7 @@ public:
     bool handlePaymentRequest(const SendCoinsRecipient &recipient);
     void setOperationId(const AsyncRPCOperationId& operationId);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void clear();
     void reject();
     void accept();
@@ -56,7 +55,7 @@ public Q_SLOTS:
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
     void updatePayFromList();
 
-private:
+  private:
     Ui::ZSendCoinsDialog *ui;
     ClientModel *clientModel;
     WalletModel *model;
@@ -70,14 +69,14 @@ private:
     // Update the passed in CCoinControl with state from the GUI
     void updateCoinControlState(CCoinControl& ctrl);
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void on_sendButton_clicked();
     void removeEntry(SendCoinsEntry* entry);
     void useAvailableBalance(SendCoinsEntry* entry);
     void updateDisplayUnit();
     void coinControlUpdateLabels();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     // Fired when a message should be reported to the user
     void message(const QString &title, const QString &message, unsigned int style);
 };

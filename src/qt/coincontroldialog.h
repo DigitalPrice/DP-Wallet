@@ -22,14 +22,13 @@ class WalletModel;
 class CCoinControl;
 
 namespace Ui {
-    class CoinControlDialog;
+class CoinControlDialog;
 }
 
 #define ASYMP_UTF8 "\xE2\x89\x88"
 
-class CCoinControlWidgetItem : public QTreeWidgetItem
-{
-public:
+class CCoinControlWidgetItem : public QTreeWidgetItem {
+  public:
     explicit CCoinControlWidgetItem(QTreeWidget *parent, int type = Type) : QTreeWidgetItem(parent, type) {}
     explicit CCoinControlWidgetItem(int type = Type) : QTreeWidgetItem(type) {}
     explicit CCoinControlWidgetItem(QTreeWidgetItem *parent, int type = Type) : QTreeWidgetItem(parent, type) {}
@@ -38,11 +37,10 @@ public:
 };
 
 
-class CoinControlDialog : public QDialog
-{
+class CoinControlDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     explicit CoinControlDialog(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~CoinControlDialog();
 
@@ -55,7 +53,7 @@ public:
     static CCoinControl *coinControl;
     static bool fSubtractFeeFromAmount;
 
-private:
+  private:
     Ui::CoinControlDialog *ui;
     WalletModel *model;
     int sortColumn;
@@ -72,8 +70,7 @@ private:
     void sortView(int, Qt::SortOrder);
     void updateView();
 
-    enum
-    {
+    enum {
         COLUMN_CHECKBOX = 0,
         COLUMN_AMOUNT,
         COLUMN_LABEL,
@@ -85,7 +82,7 @@ private:
     };
     friend class CCoinControlWidgetItem;
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void showMenu(const QPoint &);
     void copyAmount();
     void copyLabel();

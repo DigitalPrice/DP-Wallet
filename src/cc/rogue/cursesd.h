@@ -63,8 +63,7 @@
 
 #define ERR (-1)
 
-struct cursesd_info
-{
+struct cursesd_info {
     uint8_t screen[LINES][COLS];
     int32_t x,y;
 };

@@ -52,23 +52,22 @@ extern std::string ASSETCHAINS_SELFIMPORT;
 // Overwinter transaction version
 static const int32_t OVERWINTER_TX_VERSION = 3;
 static_assert(OVERWINTER_TX_VERSION >= OVERWINTER_MIN_TX_VERSION,
-    "Overwinter tx version must not be lower than minimum");
+              "Overwinter tx version must not be lower than minimum");
 static_assert(OVERWINTER_TX_VERSION <= OVERWINTER_MAX_TX_VERSION,
-    "Overwinter tx version must not be higher than maximum");
+              "Overwinter tx version must not be higher than maximum");
 
 // Sapling transaction version
 static const int32_t SAPLING_TX_VERSION = 4;
 static_assert(SAPLING_TX_VERSION >= SAPLING_MIN_TX_VERSION,
-    "Sapling tx version must not be lower than minimum");
+              "Sapling tx version must not be lower than minimum");
 static_assert(SAPLING_TX_VERSION <= SAPLING_MAX_TX_VERSION,
-    "Sapling tx version must not be higher than maximum");
+              "Sapling tx version must not be higher than maximum");
 
 /**
  * A shielded input to a transaction. It contains data that describes a Spend transfer.
  */
-class SpendDescription
-{
-public:
+class SpendDescription {
+  public:
     typedef std::array<unsigned char, 64> spend_auth_sig_t;
 
     uint256 cv;                    //!< A value commitment to the value of the input note.
@@ -92,20 +91,18 @@ public:
         READWRITE(spendAuthSig);
     }
 
-    friend bool operator==(const SpendDescription& a, const SpendDescription& b)
-    {
+    friend bool operator==(const SpendDescription& a, const SpendDescription& b) {
         return (
-            a.cv == b.cv &&
-            a.anchor == b.anchor &&
-            a.nullifier == b.nullifier &&
-            a.rk == b.rk &&
-            a.zkproof == b.zkproof &&
-            a.spendAuthSig == b.spendAuthSig
-            );
+                   a.cv == b.cv &&
+                   a.anchor == b.anchor &&
+                   a.nullifier == b.nullifier &&
+                   a.rk == b.rk &&
+                   a.zkproof == b.zkproof &&
+                   a.spendAuthSig == b.spendAuthSig
+               );
     }
 
-    friend bool operator!=(const SpendDescription& a, const SpendDescription& b)
-    {
+    friend bool operator!=(const SpendDescription& a, const SpendDescription& b) {
         return !(a == b);
     }
 };
@@ -113,9 +110,8 @@ public:
 /**
  * A shielded output to a transaction. It contains data that describes an Output transfer.
  */
-class OutputDescription
-{
-public:
+class OutputDescription {
+  public:
     uint256 cv;                     //!< A value commitment to the value of the output note.
     uint256 cm;                     //!< The note commitment for the output note.
     uint256 ephemeralKey;           //!< A Jubjub public key.
@@ -137,43 +133,38 @@ public:
         READWRITE(zkproof);
     }
 
-    friend bool operator==(const OutputDescription& a, const OutputDescription& b)
-    {
+    friend bool operator==(const OutputDescription& a, const OutputDescription& b) {
         return (
-            a.cv == b.cv &&
-            a.cm == b.cm &&
-            a.ephemeralKey == b.ephemeralKey &&
-            a.encCiphertext == b.encCiphertext &&
-            a.outCiphertext == b.outCiphertext &&
-            a.zkproof == b.zkproof
-            );
+                   a.cv == b.cv &&
+                   a.cm == b.cm &&
+                   a.ephemeralKey == b.ephemeralKey &&
+                   a.encCiphertext == b.encCiphertext &&
+                   a.outCiphertext == b.outCiphertext &&
+                   a.zkproof == b.zkproof
+               );
     }
 
-    friend bool operator!=(const OutputDescription& a, const OutputDescription& b)
-    {
+    friend bool operator!=(const OutputDescription& a, const OutputDescription& b) {
         return !(a == b);
     }
 };
 
 template <typename Stream>
-class SproutProofSerializer : public boost::static_visitor<>
-{
+class SproutProofSerializer : public boost::static_visitor<> {
     Stream& s;
     bool useGroth;
 
-public:
+  public:
     SproutProofSerializer(Stream& s, bool useGroth) : s(s), useGroth(useGroth) {}
 
-    void operator()(const libzcash::PHGRProof& proof) const
-    {
+    void operator()(const libzcash::PHGRProof& proof) const {
         if (useGroth) {
             throw std::ios_base::failure("Invalid Sprout proof for transaction format (expected GrothProof, found PHGRProof)");
         }
         ::Serialize(s, proof);
     }
 
-    void operator()(const libzcash::GrothProof& proof) const
-    {
+    void operator()(const libzcash::GrothProof& proof) const {
         if (!useGroth) {
             throw std::ios_base::failure("Invalid Sprout proof for transaction format (expected PHGRProof, found GrothProof)");
         }
@@ -182,15 +173,13 @@ public:
 };
 
 template<typename Stream, typename T>
-inline void SerReadWriteSproutProof(Stream& s, const T& proof, bool useGroth, CSerActionSerialize ser_action)
-{
+inline void SerReadWriteSproutProof(Stream& s, const T& proof, bool useGroth, CSerActionSerialize ser_action) {
     auto ps = SproutProofSerializer<Stream>(s, useGroth);
     boost::apply_visitor(ps, proof);
 }
 
 template<typename Stream, typename T>
-inline void SerReadWriteSproutProof(Stream& s, T& proof, bool useGroth, CSerActionUnserialize ser_action)
-{
+inline void SerReadWriteSproutProof(Stream& s, T& proof, bool useGroth, CSerActionUnserialize ser_action) {
     if (useGroth) {
         libzcash::GrothProof grothProof;
         ::Unserialize(s, grothProof);
@@ -202,9 +191,8 @@ inline void SerReadWriteSproutProof(Stream& s, T& proof, bool useGroth, CSerActi
     }
 }
 
-class JSDescription
-{
-public:
+class JSDescription {
+  public:
     // These values 'enter from' and 'exit to' the value
     // pool, respectively.
     CAmount vpub_old;
@@ -253,32 +241,32 @@ public:
     JSDescription(): vpub_old(0), vpub_new(0) { }
 
     JSDescription(
-            bool makeGrothProof,
-            ZCJoinSplit& params,
-            const uint256& joinSplitPubKey,
-            const uint256& rt,
-            const std::array<libzcash::JSInput, ZC_NUM_JS_INPUTS>& inputs,
-            const std::array<libzcash::JSOutput, ZC_NUM_JS_OUTPUTS>& outputs,
-            CAmount vpub_old,
-            CAmount vpub_new,
-            bool computeProof = true, // Set to false in some tests
-            uint256 *esk = nullptr // payment disclosure
+        bool makeGrothProof,
+        ZCJoinSplit& params,
+        const uint256& joinSplitPubKey,
+        const uint256& rt,
+        const std::array<libzcash::JSInput, ZC_NUM_JS_INPUTS>& inputs,
+        const std::array<libzcash::JSOutput, ZC_NUM_JS_OUTPUTS>& outputs,
+        CAmount vpub_old,
+        CAmount vpub_new,
+        bool computeProof = true, // Set to false in some tests
+        uint256 *esk = nullptr // payment disclosure
     );
 
     static JSDescription Randomized(
-            bool makeGrothProof,
-            ZCJoinSplit& params,
-            const uint256& joinSplitPubKey,
-            const uint256& rt,
-            std::array<libzcash::JSInput, ZC_NUM_JS_INPUTS>& inputs,
-            std::array<libzcash::JSOutput, ZC_NUM_JS_OUTPUTS>& outputs,
-            std::array<size_t, ZC_NUM_JS_INPUTS>& inputMap,
-            std::array<size_t, ZC_NUM_JS_OUTPUTS>& outputMap,
-            CAmount vpub_old,
-            CAmount vpub_new,
-            bool computeProof = true, // Set to false in some tests
-            uint256 *esk = nullptr, // payment disclosure
-            std::function<int(int)> gen = GetRandInt
+        bool makeGrothProof,
+        ZCJoinSplit& params,
+        const uint256& joinSplitPubKey,
+        const uint256& rt,
+        std::array<libzcash::JSInput, ZC_NUM_JS_INPUTS>& inputs,
+        std::array<libzcash::JSOutput, ZC_NUM_JS_OUTPUTS>& outputs,
+        std::array<size_t, ZC_NUM_JS_INPUTS>& inputMap,
+        std::array<size_t, ZC_NUM_JS_OUTPUTS>& outputMap,
+        CAmount vpub_old,
+        CAmount vpub_new,
+        bool computeProof = true, // Set to false in some tests
+        uint256 *esk = nullptr, // payment disclosure
+        std::function<int(int)> gen = GetRandInt
     );
 
     // Verifies that the JoinSplit proof is correct.
@@ -313,36 +301,38 @@ public:
         READWRITE(ciphertexts);
     }
 
-    friend bool operator==(const JSDescription& a, const JSDescription& b)
-    {
+    friend bool operator==(const JSDescription& a, const JSDescription& b) {
         return (
-            a.vpub_old == b.vpub_old &&
-            a.vpub_new == b.vpub_new &&
-            a.anchor == b.anchor &&
-            a.nullifiers == b.nullifiers &&
-            a.commitments == b.commitments &&
-            a.ephemeralKey == b.ephemeralKey &&
-            a.ciphertexts == b.ciphertexts &&
-            a.randomSeed == b.randomSeed &&
-            a.macs == b.macs &&
-            a.proof == b.proof
-            );
+                   a.vpub_old == b.vpub_old &&
+                   a.vpub_new == b.vpub_new &&
+                   a.anchor == b.anchor &&
+                   a.nullifiers == b.nullifiers &&
+                   a.commitments == b.commitments &&
+                   a.ephemeralKey == b.ephemeralKey &&
+                   a.ciphertexts == b.ciphertexts &&
+                   a.randomSeed == b.randomSeed &&
+                   a.macs == b.macs &&
+                   a.proof == b.proof
+               );
     }
 
-    friend bool operator!=(const JSDescription& a, const JSDescription& b)
-    {
+    friend bool operator!=(const JSDescription& a, const JSDescription& b) {
         return !(a == b);
     }
 };
 
-class BaseOutPoint
-{
-public:
+class BaseOutPoint {
+  public:
     uint256 hash;
     uint32_t n;
 
-    BaseOutPoint() { SetNull(); }
-    BaseOutPoint(uint256 hashIn, uint32_t nIn) { hash = hashIn; n = nIn; }
+    BaseOutPoint() {
+        SetNull();
+    }
+    BaseOutPoint(uint256 hashIn, uint32_t nIn) {
+        hash = hashIn;
+        n = nIn;
+    }
 
     ADD_SERIALIZE_METHODS;
 
@@ -352,29 +342,30 @@ public:
         READWRITE(n);
     }
 
-    void SetNull() { hash.SetNull(); n = (uint32_t) -1; }
-    bool IsNull() const { return (hash.IsNull() && n == (uint32_t) -1); }
+    void SetNull() {
+        hash.SetNull();
+        n = (uint32_t) -1;
+    }
+    bool IsNull() const {
+        return (hash.IsNull() && n == (uint32_t) -1);
+    }
 
-    friend bool operator<(const BaseOutPoint& a, const BaseOutPoint& b)
-    {
+    friend bool operator<(const BaseOutPoint& a, const BaseOutPoint& b) {
         return (a.hash < b.hash || (a.hash == b.hash && a.n < b.n));
     }
 
-    friend bool operator==(const BaseOutPoint& a, const BaseOutPoint& b)
-    {
+    friend bool operator==(const BaseOutPoint& a, const BaseOutPoint& b) {
         return (a.hash == b.hash && a.n == b.n);
     }
 
-    friend bool operator!=(const BaseOutPoint& a, const BaseOutPoint& b)
-    {
+    friend bool operator!=(const BaseOutPoint& a, const BaseOutPoint& b) {
         return !(a == b);
     }
 };
 
 /** An outpoint - a combination of a transaction hash and an index n into its vout */
-class COutPoint : public BaseOutPoint
-{
-public:
+class COutPoint : public BaseOutPoint {
+  public:
     COutPoint() : BaseOutPoint() {};
     COutPoint(uint256 hashIn, uint32_t nIn) : BaseOutPoint(hashIn, nIn) {};
     std::string ToString() const;
@@ -382,11 +373,10 @@ public:
 
 /** An outpoint - a combination of a transaction hash and an index n into its sapling
  * output description (vShieldedOutput) */
-class SaplingOutPoint : public BaseOutPoint
-{
-public:
+class SaplingOutPoint : public BaseOutPoint {
+  public:
     SaplingOutPoint() : BaseOutPoint() {};
-    SaplingOutPoint(uint256 hashIn, uint32_t nIn) : BaseOutPoint(hashIn, nIn) {}; 
+    SaplingOutPoint(uint256 hashIn, uint32_t nIn) : BaseOutPoint(hashIn, nIn) {};
     std::string ToString() const;
 };
 
@@ -394,15 +384,13 @@ public:
  * transaction's output that it claims and a signature that matches the
  * output's public key.
  */
-class CTxIn
-{
-public:
+class CTxIn {
+  public:
     COutPoint prevout;
     CScript scriptSig;
     uint32_t nSequence;
 
-    CTxIn()
-    {
+    CTxIn() {
         nSequence = std::numeric_limits<unsigned int>::max();
     }
 
@@ -418,20 +406,17 @@ public:
         READWRITE(nSequence);
     }
 
-    bool IsFinal() const
-    {
+    bool IsFinal() const {
         return (nSequence == std::numeric_limits<uint32_t>::max());
     }
 
-    friend bool operator==(const CTxIn& a, const CTxIn& b)
-    {
+    friend bool operator==(const CTxIn& a, const CTxIn& b) {
         return (a.prevout   == b.prevout &&
                 a.scriptSig == b.scriptSig &&
                 a.nSequence == b.nSequence);
     }
 
-    friend bool operator!=(const CTxIn& a, const CTxIn& b)
-    {
+    friend bool operator!=(const CTxIn& a, const CTxIn& b) {
         return !(a == b);
     }
 
@@ -441,14 +426,12 @@ public:
 /** An output of a transaction.  It contains the public key that the next input
  * must be able to sign with to claim it.
  */
-class CTxOut
-{
-public:
+class CTxOut {
+  public:
     CAmount nValue;
     CScript scriptPubKey;
     uint64_t interest;
-    CTxOut()
-    {
+    CTxOut() {
         SetNull();
     }
 
@@ -462,21 +445,18 @@ public:
         READWRITE(*(CScriptBase*)(&scriptPubKey));
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         nValue = -1;
         scriptPubKey.clear();
     }
 
-    bool IsNull() const
-    {
+    bool IsNull() const {
         return (nValue == -1);
     }
 
     uint256 GetHash() const;
 
-    CAmount GetDustThreshold(const CFeeRate &minRelayTxFee) const
-    {
+    CAmount GetDustThreshold(const CFeeRate &minRelayTxFee) const {
         // "Dust" is defined in terms of CTransaction::minRelayTxFee,
         // which has units satoshis-per-kilobyte.
         // If you'd pay more than 1/3 in fees
@@ -492,18 +472,15 @@ public:
         return 3*minRelayTxFee.GetFee(nSize);
     }
 
-    bool IsDust(const CFeeRate &minRelayTxFee) const
-    {
+    bool IsDust(const CFeeRate &minRelayTxFee) const {
         return (nValue < GetDustThreshold(minRelayTxFee));
     }
 
-    friend bool operator==(const CTxOut& a, const CTxOut& b)
-    {
+    friend bool operator==(const CTxOut& a, const CTxOut& b) {
         return (a.nValue == b.nValue && a.scriptPubKey == b.scriptPubKey);
     }
 
-    friend bool operator!=(const CTxOut& a, const CTxOut& b)
-    {
+    friend bool operator!=(const CTxOut& a, const CTxOut& b) {
         return !(a == b);
     }
 
@@ -523,20 +500,19 @@ struct CMutableTransaction;
 /** The basic transaction that is broadcasted on the network and contained in
  * blocks.  A transaction can contain multiple inputs and outputs.
  */
-class CTransaction
-{
-private:
+class CTransaction {
+  private:
     /** Memory only. */
     const uint256 hash;
     void UpdateHash() const;
 
-protected:
+  protected:
     /** Developer testing only.  Set evilDeveloperFlag to true.
      * Convert a CMutableTransaction into a CTransaction without invoking UpdateHash()
      */
     CTransaction(const CMutableTransaction &tx, bool evilDeveloperFlag);
 
-public:
+  public:
     typedef std::array<unsigned char, 64> joinsplit_sig_t;
     typedef std::array<unsigned char, 64> binding_sig_t;
 
@@ -556,14 +532,14 @@ public:
 
     static_assert( (OVERWINTER_MAX_CURRENT_VERSION <= OVERWINTER_MAX_TX_VERSION &&
                     OVERWINTER_MAX_CURRENT_VERSION >= OVERWINTER_MIN_CURRENT_VERSION),
-                  "standard rule for tx version should be consistent with network rule");
+                   "standard rule for tx version should be consistent with network rule");
 
     static_assert(SAPLING_MIN_CURRENT_VERSION >= SAPLING_MIN_TX_VERSION,
                   "standard rule for tx version should be consistent with network rule");
 
     static_assert( (SAPLING_MAX_CURRENT_VERSION <= SAPLING_MAX_TX_VERSION &&
                     SAPLING_MAX_CURRENT_VERSION >= SAPLING_MIN_CURRENT_VERSION),
-                  "standard rule for tx version should be consistent with network rule");
+                   "standard rule for tx version should be consistent with network rule");
 
     // The local variables are made const to prevent unintended modification
     // without updating the cached hash value. However, CTransaction is not
@@ -703,30 +679,25 @@ public:
      */
     unsigned int GetTotalSize() const;
 
-    bool IsMint() const
-    {
+    bool IsMint() const {
         return IsCoinImport() || IsCoinBase();
     }
 
-    bool IsCoinBase() const
-    {
+    bool IsCoinBase() const {
         return (vin.size() == 1 && vin[0].prevout.IsNull());
     }
 
     int64_t UnlockTime(uint32_t voutNum) const;
 
-    bool IsCoinImport() const
-    {
+    bool IsCoinImport() const {
         return (vin.size() == 1 && vin[0].prevout.n == 10e8);
     }
 
-    friend bool operator==(const CTransaction& a, const CTransaction& b)
-    {
+    friend bool operator==(const CTransaction& a, const CTransaction& b) {
         return a.hash == b.hash;
     }
 
-    friend bool operator!=(const CTransaction& a, const CTransaction& b)
-    {
+    friend bool operator!=(const CTransaction& a, const CTransaction& b) {
         return a.hash != b.hash;
     }
 
@@ -734,8 +705,7 @@ public:
 };
 
 /** A mutable version of CTransaction. */
-struct CMutableTransaction
-{
+struct CMutableTransaction {
     bool fOverwintered;
     int32_t nVersion;
     uint32_t nVersionGroupId;

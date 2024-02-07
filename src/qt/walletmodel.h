@@ -43,9 +43,8 @@ QT_BEGIN_NAMESPACE
 class QTimer;
 QT_END_NAMESPACE
 
-class SendCoinsRecipient
-{
-public:
+class SendCoinsRecipient {
+  public:
     explicit SendCoinsRecipient() : amount(0), fSubtractFeeFromAmount(false), nVersion(SendCoinsRecipient::CURRENT_VERSION) { }
     explicit SendCoinsRecipient(const QString &addr, const QString &_label, const CAmount& _amount, const QString &_message):
         address(addr), label(_label), amount(_amount), message(_message), fSubtractFeeFromAmount(false), nVersion(SendCoinsRecipient::CURRENT_VERSION) {}
@@ -61,14 +60,14 @@ public:
     // If from a payment request, this is used for storing the memo
     QString message;
 
-    #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
     // If from a payment request, paymentRequest.IsInitialized() will be true
     PaymentRequestPlus paymentRequest;
-    #else
+#else
     // If building with BIP70 is disabled, keep the payment request around as
     // serialized string to ensure load/store is lossless
     std::string sPaymentRequest;
-    #endif
+#endif
 
     // Empty if no authentication or invalid signature/cert/etc.
     QString authenticatedMerchant;
@@ -85,11 +84,11 @@ public:
         std::string sAddress = address.toStdString();
         std::string sLabel = label.toStdString();
         std::string sMessage = message.toStdString();
-        #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
         std::string sPaymentRequest;
         if (!ser_action.ForRead() && paymentRequest.IsInitialized())
             paymentRequest.SerializeToString(&sPaymentRequest);
-        #endif
+#endif
         std::string sAuthenticatedMerchant = authenticatedMerchant.toStdString();
 
         READWRITE(this->nVersion);
@@ -100,31 +99,28 @@ public:
         READWRITE(sPaymentRequest);
         READWRITE(sAuthenticatedMerchant);
 
-        if (ser_action.ForRead())
-        {
+        if (ser_action.ForRead()) {
             address = QString::fromStdString(sAddress);
             label = QString::fromStdString(sLabel);
             message = QString::fromStdString(sMessage);
-            #ifdef ENABLE_BIP70
+#ifdef ENABLE_BIP70
             if (!sPaymentRequest.empty())
                 paymentRequest.parse(QByteArray::fromRawData(sPaymentRequest.data(), (int)(sPaymentRequest.size())));
-            #endif
+#endif
             authenticatedMerchant = QString::fromStdString(sAuthenticatedMerchant);
         }
     }
 };
 
 /** Interface to Komodo wallet from Qt view code. */
-class WalletModel : public QObject
-{
+class WalletModel : public QObject {
     Q_OBJECT
 
-public:
+  public:
     explicit WalletModel(const PlatformStyle *platformStyle, CWallet *wallet, OptionsModel *optionsModel, QObject *parent = 0);
     ~WalletModel();
 
-    enum StatusCode // Returned by sendCoins
-    {
+    enum StatusCode { // Returned by sendCoins
         OK,
         InvalidAmount,
         InvalidFromAddress,
@@ -148,8 +144,7 @@ public:
         PaymentRequestExpired
     };
 
-    enum EncryptionStatus
-    {
+    enum EncryptionStatus {
         Unencrypted,  // !wallet->IsCrypted()
         Locked,       // wallet->IsCrypted() && wallet->IsLocked()
         Unlocked      // wallet->IsCrypted() && !wallet->IsLocked()
@@ -176,12 +171,10 @@ public:
     bool validateAddress(const QString &address, bool allowZAddresses=false);
 
     // Return status record for SendCoins, contains error id + information
-    struct SendCoinsReturn
-    {
+    struct SendCoinsReturn {
         SendCoinsReturn(StatusCode _status = OK, QString _reasonCommitFailed = "")
             : status(_status),
-              reasonCommitFailed(_reasonCommitFailed)
-        {
+              reasonCommitFailed(_reasonCommitFailed) {
         }
         StatusCode status;
         QString reasonCommitFailed;
@@ -208,18 +201,24 @@ public:
     bool backupWallet(const QString &filename);
 
     // RAI object for unlocking wallet, returned by requestUnlock()
-    class UnlockContext
-    {
-    public:
+    class UnlockContext {
+      public:
         UnlockContext(WalletModel *wallet, bool valid, bool relock);
         ~UnlockContext();
 
-        bool isValid() const { return valid; }
+        bool isValid() const {
+            return valid;
+        }
 
         // Copy operator and constructor transfer the context
-        UnlockContext(const UnlockContext& obj) { CopyFrom(obj); }
-        UnlockContext& operator=(const UnlockContext& rhs) { CopyFrom(rhs); return *this; }
-    private:
+        UnlockContext(const UnlockContext& obj) {
+            CopyFrom(obj);
+        }
+        UnlockContext& operator=(const UnlockContext& rhs) {
+            CopyFrom(rhs);
+            return *this;
+        }
+      private:
         WalletModel *wallet;
         bool valid;
         mutable bool relock; // mutable, as it can be set to false by copying
@@ -255,7 +254,7 @@ public:
     std::map<libzcash::PaymentAddress, CAmount> getZAddressBalances();
     CAmount getAddressBalance(const std::string &sAddress);
 
-private:
+  private:
     CWallet *wallet;
     bool fHaveWatchOnly;
     bool fForceCheckBalanceChanged;
@@ -287,7 +286,7 @@ private:
     void unsubscribeFromCoreSignals();
     void checkBalanceChanged();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     // Signal that balance in wallet changed
     void balanceChanged(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance,
                         const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance,
@@ -316,7 +315,7 @@ Q_SIGNALS:
     // Watch-only address added
     void notifyWatchonlyChanged(bool fHaveWatchonly);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     /* Wallet status might have changed */
     void updateStatus();
     /* New transaction, or transaction changed status */

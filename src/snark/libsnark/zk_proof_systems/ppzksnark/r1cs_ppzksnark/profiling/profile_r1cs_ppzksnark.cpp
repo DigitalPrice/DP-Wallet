@@ -33,29 +33,24 @@
 
 using namespace libsnark;
 
-int main(int argc, const char * argv[])
-{
+int main(int argc, const char * argv[]) {
     default_r1cs_ppzksnark_pp::init_public_params();
     start_profiling();
 
-    if (argc == 2 && strcmp(argv[1], "-v") == 0)
-    {
+    if (argc == 2 && strcmp(argv[1], "-v") == 0) {
         print_compilation_info();
         return 0;
     }
 
-    if (argc != 3 && argc != 4)
-    {
+    if (argc != 3 && argc != 4) {
         printf("usage: %s num_constraints input_size [Fr|bytes]\n", argv[0]);
         return 1;
     }
     const int num_constraints = atoi(argv[1]);
     int input_size = atoi(argv[2]);
-    if (argc == 4)
-    {
+    if (argc == 4) {
         assert(strcmp(argv[3], "Fr") == 0 || strcmp(argv[3], "bytes") == 0);
-        if (strcmp(argv[3], "bytes") == 0)
-        {
+        if (strcmp(argv[3], "bytes") == 0) {
             input_size = div_ceil(8 * input_size, Fr<default_ec_pp>::capacity());
         }
     }

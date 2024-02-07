@@ -47,11 +47,10 @@ class ClickableProgressBar;
   Komodo GUI main class. This class represents the main window of the Komodo UI. It communicates with both the client and
   wallet models to give the user an up-to-date view of the current core state.
 */
-class KomodoOceanGUI : public QMainWindow
-{
+class KomodoOceanGUI : public QMainWindow {
     Q_OBJECT
 
-public:
+  public:
     static const QString DEFAULT_WALLET;
     static const std::string DEFAULT_UIPLATFORM;
 
@@ -75,7 +74,7 @@ public:
 #endif // ENABLE_WALLET
     bool enableWallet = false;
 
-protected:
+  protected:
     void changeEvent(QEvent *e);
     void closeEvent(QCloseEvent *event);
     void showEvent(QShowEvent *event);
@@ -83,7 +82,7 @@ protected:
     void dropEvent(QDropEvent *event);
     bool eventFilter(QObject *object, QEvent *event);
 
-private:
+  private:
     ClientModel* clientModel = nullptr;
     WalletFrame* walletFrame = nullptr;
 
@@ -160,13 +159,13 @@ private:
 
     void updateHeadersSyncProgressLabel();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /** Signal raised when a URI was entered or dragged to the GUI */
     void receivedURI(const QString &uri);
 
     void setPrivacy(bool privacy);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     /** Set number of connections shown in the UI */
     void setNumConnections(int count);
     /** Set network state shown in the UI */
@@ -202,7 +201,7 @@ public Q_SLOTS:
     void incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label);
 #endif // ENABLE_WALLET
 
-public Q_SLOTS:
+  public Q_SLOTS:
 #ifdef ENABLE_WALLET
     /** Switch to overview (home) page */
     void gotoOverviewPage();
@@ -242,7 +241,9 @@ public Q_SLOTS:
 #endif
 
     /** Show window if hidden, unminimize when minimized, rise when obscured or show if hidden and fToggleHidden is true */
-    void showNormalIfMinimized() { showNormalIfMinimized(false); }
+    void showNormalIfMinimized() {
+        showNormalIfMinimized(false);
+    }
     void showNormalIfMinimized(bool fToggleHidden);
     /** Simply calls showNormalIfMinimized(true) for use in SLOT() macro */
     void toggleHidden();
@@ -252,7 +253,7 @@ public Q_SLOTS:
 
     /** Show progress dialog e.g. for verifychain */
     void showProgress(const QString &title, int nProgress);
-    
+
     /** When hideTrayIcon setting is changed in OptionsModel hide or show the icon accordingly. */
     void setTrayIconVisible(bool);
 
@@ -262,20 +263,19 @@ public Q_SLOTS:
     void showModalOverlay();
 };
 
-class UnitDisplayStatusBarControl : public QLabel
-{
+class UnitDisplayStatusBarControl : public QLabel {
     Q_OBJECT
 
-public:
+  public:
     explicit UnitDisplayStatusBarControl(const PlatformStyle *platformStyle);
     /** Lets the control know about the Options Model (and its signals) */
     void setOptionsModel(OptionsModel *optionsModel);
 
-protected:
+  protected:
     /** So that it responds to left-button clicks */
     void mousePressEvent(QMouseEvent *event);
 
-private:
+  private:
     OptionsModel *optionsModel;
     QMenu* menu;
 
@@ -284,7 +284,7 @@ private:
     /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
     void createContextMenu();
 
-private Q_SLOTS:
+  private Q_SLOTS:
     /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
     void updateDisplayUnit(int newUnits);
     /** Tells underlying optionsModel to update its current display unit. */

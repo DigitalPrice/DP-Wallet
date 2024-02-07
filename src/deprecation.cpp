@@ -35,7 +35,7 @@ void EnforceNodeDeprecation(int nHeight, bool forceLogging, bool fThread) {
     std::string networkID = Params().NetworkIDString();
     std::string msg;
 
-    if (networkID != "main" || !chainName.isKMD() ) 
+    if (networkID != "main" || !chainName.isKMD() )
         return;
 
     int blocksToDeprecation = DEPRECATION_HEIGHT - nHeight;
@@ -48,8 +48,8 @@ void EnforceNodeDeprecation(int nHeight, bool forceLogging, bool fThread) {
         // - The node is starting
         if (blocksToDeprecation == 0 || forceLogging) {
             msg = strprintf(_("This version has been deprecated as of block height %d."),
-                                 DEPRECATION_HEIGHT) + " " +
-                       _("You should upgrade to the latest version of Komodo.");
+                            DEPRECATION_HEIGHT) + " " +
+                  _("You should upgrade to the latest version of Komodo.");
             LogPrintf("*** %s\n", msg);
             CAlert::Notify(msg, fThread);
             uiInterface.ThreadSafeMessageBox(msg, "", CClientUIInterface::MSG_ERROR);
@@ -57,8 +57,8 @@ void EnforceNodeDeprecation(int nHeight, bool forceLogging, bool fThread) {
         StartShutdown();
     } else if (blocksToDeprecation == DEPRECATION_WARN_LIMIT || (blocksToDeprecation < DEPRECATION_WARN_LIMIT && forceLogging)) {
         msg = strprintf(_("This version will be deprecated at block height %d, and will automatically shut down."),
-                            DEPRECATION_HEIGHT) + " " +
-                  _("You should upgrade to the latest version of Komodo.");
+                        DEPRECATION_HEIGHT) + " " +
+              _("You should upgrade to the latest version of Komodo.");
         LogPrintf("*** %s\n", msg);
         CAlert::Notify(msg, fThread);
         uiInterface.ThreadSafeMessageBox(msg, "", CClientUIInterface::MSG_WARNING);

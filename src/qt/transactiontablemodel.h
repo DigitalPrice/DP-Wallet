@@ -19,11 +19,10 @@ class CWallet;
 
 /** UI model for the transaction table of a wallet.
  */
-class TransactionTableModel : public QAbstractTableModel
-{
+class TransactionTableModel : public QAbstractTableModel {
     Q_OBJECT
 
-public:
+  public:
     explicit TransactionTableModel(const PlatformStyle *platformStyle, CWallet* wallet, WalletModel *parent = 0);
     ~TransactionTableModel();
 
@@ -79,9 +78,11 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
-    bool processingQueuedTransactions() const { return fProcessingQueuedTransactions; }
+    bool processingQueuedTransactions() const {
+        return fProcessingQueuedTransactions;
+    }
 
-private:
+  private:
     CWallet* wallet;
     WalletModel *walletModel;
     QStringList columns;
@@ -104,7 +105,7 @@ private:
     QVariant txWatchonlyDecoration(const TransactionRecord *wtx) const;
     QVariant txAddressDecoration(const TransactionRecord *wtx) const;
 
-public Q_SLOTS:
+  public Q_SLOTS:
     /* New transaction, or transaction changed status */
     void updateTransaction(const QString &hash, int status, bool showTransaction);
     void updateConfirmations();
@@ -112,7 +113,9 @@ public Q_SLOTS:
     /** Updates the column title to "Amount (DisplayUnit)" and emits headerDataChanged() signal for table headers to react. */
     void updateAmountColumnTitle();
     /* Needed to update fProcessingQueuedTransactions through a QueuedConnection */
-    void setProcessingQueuedTransactions(bool value) { fProcessingQueuedTransactions = value; }
+    void setProcessingQueuedTransactions(bool value) {
+        fProcessingQueuedTransactions = value;
+    }
 
     friend class TransactionTablePriv;
 };

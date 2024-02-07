@@ -46,8 +46,7 @@ class uint160;
 class uint256;
 
 /** Error statuses for the wallet database */
-enum DBErrors
-{
+enum DBErrors {
     DB_LOAD_OK,
     DB_CORRUPT,
     DB_NONCRITICAL_ERROR,
@@ -57,9 +56,8 @@ enum DBErrors
 };
 
 /* simple hd chain data model */
-class CHDChain
-{
-public:
+class CHDChain {
+  public:
     static const int VERSION_HD_BASE = 1;
     static const int CURRENT_VERSION = VERSION_HD_BASE;
     int nVersion;
@@ -67,21 +65,21 @@ public:
     int64_t nCreateTime; // 0 means unknown
     uint32_t saplingAccountCounter;
 
-    CHDChain() { SetNull(); }
+    CHDChain() {
+        SetNull();
+    }
 
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action)
-    {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(nVersion);
         READWRITE(seedFp);
         READWRITE(nCreateTime);
         READWRITE(saplingAccountCounter);
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         nVersion = CHDChain::CURRENT_VERSION;
         seedFp.SetNull();
         nCreateTime = 0;
@@ -89,9 +87,8 @@ public:
     }
 };
 
-class CKeyMetadata
-{
-public:
+class CKeyMetadata {
+  public:
     static const int VERSION_BASIC=1;
     static const int VERSION_WITH_HDDATA=10;
     static const int CURRENT_VERSION=VERSION_WITH_HDDATA;
@@ -100,12 +97,10 @@ public:
     std::string hdKeypath; //optional HD/zip32 keypath
     uint256 seedFp;
 
-    CKeyMetadata()
-    {
+    CKeyMetadata() {
         SetNull();
     }
-    CKeyMetadata(int64_t nCreateTime_)
-    {
+    CKeyMetadata(int64_t nCreateTime_) {
         SetNull();
         nCreateTime = nCreateTime_;
     }
@@ -116,15 +111,13 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(this->nVersion);
         READWRITE(nCreateTime);
-        if (this->nVersion >= VERSION_WITH_HDDATA)
-        {
+        if (this->nVersion >= VERSION_WITH_HDDATA) {
             READWRITE(hdKeypath);
             READWRITE(seedFp);
         }
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         nVersion = CKeyMetadata::CURRENT_VERSION;
         nCreateTime = 0;
         hdKeypath.clear();
@@ -133,11 +126,9 @@ public:
 };
 
 /** Access to the wallet database (wallet.dat) */
-class CWalletDB : public CDB
-{
-public:
-    CWalletDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnClose = true) : CDB(strFilename, pszMode, fFlushOnClose)
-    {
+class CWalletDB : public CDB {
+  public:
+    CWalletDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnClose = true) : CDB(strFilename, pszMode, fFlushOnClose) {
     }
 
     bool WriteName(const std::string& strAddress, const std::string& strName);
@@ -212,13 +203,13 @@ public:
                           const std::vector<unsigned char>& vchCryptedSecret,
                           const CKeyMetadata &keyMeta);
     bool WriteCryptedSaplingZKey(const libzcash::SaplingExtendedFullViewingKey &extfvk,
-                          const std::vector<unsigned char>& vchCryptedSecret,
-                          const CKeyMetadata &keyMeta);
+                                 const std::vector<unsigned char>& vchCryptedSecret,
+                                 const CKeyMetadata &keyMeta);
 
     bool WriteSproutViewingKey(const libzcash::SproutViewingKey &vk);
     bool EraseSproutViewingKey(const libzcash::SproutViewingKey &vk);
 
-private:
+  private:
     CWalletDB(const CWalletDB&);
     void operator=(const CWalletDB&);
 

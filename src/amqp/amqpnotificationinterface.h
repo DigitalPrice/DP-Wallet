@@ -12,14 +12,13 @@
 class CBlockIndex;
 class AMQPAbstractNotifier;
 
-class AMQPNotificationInterface : public CValidationInterface
-{
-public:
+class AMQPNotificationInterface : public CValidationInterface {
+  public:
     virtual ~AMQPNotificationInterface();
 
     static AMQPNotificationInterface* CreateWithArguments(const std::map<std::string, std::string> &args);
 
-protected:
+  protected:
     bool Initialize();
     void Shutdown();
 
@@ -27,7 +26,7 @@ protected:
     void SyncTransaction(const CTransaction &tx, const CBlock *pblock);
     void UpdatedBlockTip(const CBlockIndex *pindex);
 
-private:
+  private:
     AMQPNotificationInterface();
 
     std::list<AMQPAbstractNotifier*> notifiers;

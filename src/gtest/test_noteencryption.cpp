@@ -12,7 +12,7 @@
 #include "librustzcash.h"
 
 class TestNoteDecryption : public ZCNoteDecryption {
-public:
+  public:
     TestNoteDecryption(uint256 sk_enc) : ZCNoteDecryption(sk_enc) {}
 
     void change_pk_enc(uint256 to) {
@@ -20,8 +20,7 @@ public:
     }
 };
 
-TEST(noteencryption, NotePlaintext)
-{
+TEST(noteencryption, NotePlaintext) {
     using namespace libzcash;
     auto xsk = SaplingSpendingKey(uint256()).expanded_spending_key();
     auto fvk = xsk.full_viewing_key();
@@ -55,19 +54,19 @@ TEST(noteencryption, NotePlaintext)
 
     // Try to decrypt with incorrect commitment
     ASSERT_FALSE(SaplingNotePlaintext::decrypt(
-        ct,
-        ivk,
-        epk,
-        uint256()
-    ));
+                     ct,
+                     ivk,
+                     epk,
+                     uint256()
+                 ));
 
     // Try to decrypt with correct commitment
     auto foo = SaplingNotePlaintext::decrypt(
-        ct,
-        ivk,
-        epk,
-        cmu
-    );
+                   ct,
+                   ivk,
+                   epk,
+                   cmu
+               );
 
     if (!foo) {
         FAIL();
@@ -103,19 +102,19 @@ TEST(noteencryption, NotePlaintext)
     auto cm = random_uint256();
 
     auto out_ct = out_pt.encrypt(
-        ovk,
-        cv,
-        cm,
-        encryptor
-    );
+                      ovk,
+                      cv,
+                      cm,
+                      encryptor
+                  );
 
     auto decrypted_out_ct = out_pt.decrypt(
-        out_ct,
-        ovk,
-        cv,
-        cm,
-        encryptor.get_epk()
-    );
+                                out_ct,
+                                ovk,
+                                cv,
+                                cm,
+                                encryptor.get_epk()
+                            );
 
     if (!decrypted_out_ct) {
         FAIL();
@@ -139,12 +138,12 @@ TEST(noteencryption, NotePlaintext)
 
     // Test sender can decrypt the note ciphertext.
     foo = SaplingNotePlaintext::decrypt(
-        ct,
-        epk,
-        decrypted_out_ct_unwrapped.esk,
-        decrypted_out_ct_unwrapped.pk_d,
-        cmu
-    );
+              ct,
+              epk,
+              decrypted_out_ct_unwrapped.esk,
+              decrypted_out_ct_unwrapped.pk_d,
+              cmu
+          );
 
     if (!foo) {
         FAIL();
@@ -158,8 +157,7 @@ TEST(noteencryption, NotePlaintext)
     ASSERT_TRUE(bar.rcm == pt.rcm);
 }
 
-TEST(noteencryption, SaplingApi)
-{
+TEST(noteencryption, SaplingApi) {
     using namespace libzcash;
 
     // Create recipient addresses
@@ -188,9 +186,9 @@ TEST(noteencryption, SaplingApi)
     // Encrypt to pk_1
     auto enc = *SaplingNoteEncryption::FromDiversifier(pk_1.d);
     auto ciphertext_1 = *enc.encrypt_to_recipient(
-        pk_1.pk_d,
-        message
-    );
+                            pk_1.pk_d,
+                            message
+                        );
     auto epk_1 = enc.get_epk();
     {
         uint256 test_epk;
@@ -201,42 +199,42 @@ TEST(noteencryption, SaplingApi)
     auto cv_1 = random_uint256();
     auto cm_1 = random_uint256();
     auto out_ciphertext_1 = enc.encrypt_to_ourselves(
-        sk.ovk,
-        cv_1,
-        cm_1,
-        small_message
-    );
+                                sk.ovk,
+                                cv_1,
+                                cm_1,
+                                small_message
+                            );
 
     // Encrypt to pk_2
     enc = *SaplingNoteEncryption::FromDiversifier(pk_2.d);
     auto ciphertext_2 = *enc.encrypt_to_recipient(
-        pk_2.pk_d,
-        message
-    );
+                            pk_2.pk_d,
+                            message
+                        );
     auto epk_2 = enc.get_epk();
 
     auto cv_2 = random_uint256();
     auto cm_2 = random_uint256();
     auto out_ciphertext_2 = enc.encrypt_to_ourselves(
-        sk.ovk,
-        cv_2,
-        cm_2,
-        small_message
-    );
+                                sk.ovk,
+                                cv_2,
+                                cm_2,
+                                small_message
+                            );
 
     // Test nonce-reuse resistance of API
     {
         auto tmp_enc = *SaplingNoteEncryption::FromDiversifier(pk_1.d);
-        
+
         tmp_enc.encrypt_to_recipient(
             pk_1.pk_d,
             message
         );
 
         ASSERT_THROW(tmp_enc.encrypt_to_recipient(
-            pk_1.pk_d,
-            message
-        ), std::logic_error);
+                         pk_1.pk_d,
+                         message
+                     ), std::logic_error);
 
         tmp_enc.encrypt_to_ourselves(
             sk.ovk,
@@ -246,109 +244,107 @@ TEST(noteencryption, SaplingApi)
         );
 
         ASSERT_THROW(tmp_enc.encrypt_to_ourselves(
-            sk.ovk,
-            cv_2,
-            cm_2,
-            small_message
-        ), std::logic_error);
+                         sk.ovk,
+                         cv_2,
+                         cm_2,
+                         small_message
+                     ), std::logic_error);
     }
 
     // Try to decrypt
     auto plaintext_1 = *AttemptSaplingEncDecryption(
-        ciphertext_1,
-        ivk,
-        epk_1
-    );
+                           ciphertext_1,
+                           ivk,
+                           epk_1
+                       );
     ASSERT_TRUE(message == plaintext_1);
 
     auto small_plaintext_1 = *AttemptSaplingOutDecryption(
-        out_ciphertext_1,
-        sk.ovk,
-        cv_1,
-        cm_1,
-        epk_1
-    );
+                                 out_ciphertext_1,
+                                 sk.ovk,
+                                 cv_1,
+                                 cm_1,
+                                 epk_1
+                             );
     ASSERT_TRUE(small_message == small_plaintext_1);
 
     auto plaintext_2 = *AttemptSaplingEncDecryption(
-        ciphertext_2,
-        ivk,
-        epk_2
-    );
+                           ciphertext_2,
+                           ivk,
+                           epk_2
+                       );
     ASSERT_TRUE(message == plaintext_2);
 
     auto small_plaintext_2 = *AttemptSaplingOutDecryption(
-        out_ciphertext_2,
-        sk.ovk,
-        cv_2,
-        cm_2,
-        epk_2
-    );
+                                 out_ciphertext_2,
+                                 sk.ovk,
+                                 cv_2,
+                                 cm_2,
+                                 epk_2
+                             );
     ASSERT_TRUE(small_message == small_plaintext_2);
 
     // Try to decrypt out ciphertext with wrong key material
     ASSERT_FALSE(AttemptSaplingOutDecryption(
-        out_ciphertext_1,
-        random_uint256(),
-        cv_1,
-        cm_1,
-        epk_1
-    ));
+                     out_ciphertext_1,
+                     random_uint256(),
+                     cv_1,
+                     cm_1,
+                     epk_1
+                 ));
     ASSERT_FALSE(AttemptSaplingOutDecryption(
-        out_ciphertext_1,
-        sk.ovk,
-        random_uint256(),
-        cm_1,
-        epk_1
-    ));
+                     out_ciphertext_1,
+                     sk.ovk,
+                     random_uint256(),
+                     cm_1,
+                     epk_1
+                 ));
     ASSERT_FALSE(AttemptSaplingOutDecryption(
-        out_ciphertext_1,
-        sk.ovk,
-        cv_1,
-        random_uint256(),
-        epk_1
-    ));
+                     out_ciphertext_1,
+                     sk.ovk,
+                     cv_1,
+                     random_uint256(),
+                     epk_1
+                 ));
     ASSERT_FALSE(AttemptSaplingOutDecryption(
-        out_ciphertext_1,
-        sk.ovk,
-        cv_1,
-        cm_1,
-        random_uint256()
-    ));
+                     out_ciphertext_1,
+                     sk.ovk,
+                     cv_1,
+                     cm_1,
+                     random_uint256()
+                 ));
 
     // Try to decrypt with wrong ephemeral key
     ASSERT_FALSE(AttemptSaplingEncDecryption(
-        ciphertext_1,
-        ivk,
-        epk_2
-    ));
+                     ciphertext_1,
+                     ivk,
+                     epk_2
+                 ));
     ASSERT_FALSE(AttemptSaplingEncDecryption(
-        ciphertext_2,
-        ivk,
-        epk_1
-    ));
+                     ciphertext_2,
+                     ivk,
+                     epk_1
+                 ));
 
     // Try to decrypt with wrong ivk
     ASSERT_FALSE(AttemptSaplingEncDecryption(
-        ciphertext_1,
-        uint256(),
-        epk_1
-    ));
+                     ciphertext_1,
+                     uint256(),
+                     epk_1
+                 ));
     ASSERT_FALSE(AttemptSaplingEncDecryption(
-        ciphertext_2,
-        uint256(),
-        epk_2
-    ));
+                     ciphertext_2,
+                     uint256(),
+                     epk_2
+                 ));
 }
 
-TEST(noteencryption, api)
-{
+TEST(noteencryption, api) {
     uint256 sk_enc = ZCNoteEncryption::generate_privkey(uint252(uint256S("21035d60bc1983e37950ce4803418a8fb33ea68d5b937ca382ecbae7564d6a07")));
     uint256 pk_enc = ZCNoteEncryption::generate_pubkey(sk_enc);
 
     ZCNoteEncryption b = ZCNoteEncryption(uint256());
-    for (size_t i = 0; i < 100; i++)
-    {
+    for (size_t i = 0; i < 100; i++) {
         ZCNoteEncryption c = ZCNoteEncryption(uint256());
 
         ASSERT_TRUE(b.get_epk() != c.get_epk());
@@ -373,7 +369,7 @@ TEST(noteencryption, api)
             // Test wrong nonce
             ASSERT_THROW(decrypter.decrypt(ciphertext, b.get_epk(), uint256(), (i == 0) ? 1 : (i - 1)),
                          libzcash::note_decryption_failed);
-        
+
             // Test wrong ephemeral key
             {
                 ZCNoteEncryption c = ZCNoteEncryption(uint256());
@@ -381,11 +377,11 @@ TEST(noteencryption, api)
                 ASSERT_THROW(decrypter.decrypt(ciphertext, c.get_epk(), uint256(), i),
                              libzcash::note_decryption_failed);
             }
-        
+
             // Test wrong seed
             ASSERT_THROW(decrypter.decrypt(ciphertext, b.get_epk(), uint256S("11035d60bc1983e37950ce4803418a8fb33ea68d5b937ca382ecbae7564d6a77"), i),
                          libzcash::note_decryption_failed);
-        
+
             // Test corrupted ciphertext
             ciphertext[10] ^= 0xff;
             ASSERT_THROW(decrypter.decrypt(ciphertext, b.get_epk(), uint256(), i),
@@ -420,11 +416,9 @@ TEST(noteencryption, api)
     try {
         b.encrypt(pk_enc, message);
         FAIL() << "Expected std::logic_error";
-    }
-    catch(std::logic_error const & err) {
+    } catch(std::logic_error const & err) {
         EXPECT_EQ(err.what(), std::string("no additional nonce space for KDF"));
-    }
-    catch(...) {
+    } catch(...) {
         FAIL() << "Expected std::logic_error";
     }
 }
@@ -446,8 +440,7 @@ uint256 test_prf(
     return ret;
 }
 
-TEST(noteencryption, prf_addr)
-{
+TEST(noteencryption, prf_addr) {
     for (size_t i = 0; i < 100; i++) {
         uint252 a_sk = libzcash::random_uint252();
         uint256 rest;
@@ -466,8 +459,7 @@ TEST(noteencryption, prf_addr)
     }
 }
 
-TEST(noteencryption, prf_nf)
-{
+TEST(noteencryption, prf_nf) {
     for (size_t i = 0; i < 100; i++) {
         uint252 a_sk = libzcash::random_uint252();
         uint256 rho = libzcash::random_uint256();
@@ -477,8 +469,7 @@ TEST(noteencryption, prf_nf)
     }
 }
 
-TEST(noteencryption, prf_pk)
-{
+TEST(noteencryption, prf_pk) {
     for (size_t i = 0; i < 100; i++) {
         uint252 a_sk = libzcash::random_uint252();
         uint256 h_sig = libzcash::random_uint256();
@@ -500,8 +491,7 @@ TEST(noteencryption, prf_pk)
     ASSERT_THROW(PRF_pk(dummy_a, 2, dummy_b), std::domain_error);
 }
 
-TEST(noteencryption, prf_rho)
-{
+TEST(noteencryption, prf_rho) {
     for (size_t i = 0; i < 100; i++) {
         uint252 phi = libzcash::random_uint252();
         uint256 h_sig = libzcash::random_uint256();
@@ -523,7 +513,6 @@ TEST(noteencryption, prf_rho)
     ASSERT_THROW(PRF_rho(dummy_a, 2, dummy_b), std::domain_error);
 }
 
-TEST(noteencryption, uint252)
-{
+TEST(noteencryption, uint252) {
     ASSERT_THROW(uint252(uint256S("f6da8716682d600f74fc16bd0187faad6a26b4aa4c24d5c055b216d94516847e")), std::domain_error);
 }

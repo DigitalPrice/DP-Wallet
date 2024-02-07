@@ -27,8 +27,8 @@
  * @param vouts collection of vouts
  * @returns the hex string of the import transaction
  */
-std::string MakeCodaImportTx(uint64_t txfee, const std::string& receipt, 
-        const std::string& srcaddr, const std::vector<CTxOut>& vouts);
+std::string MakeCodaImportTx(uint64_t txfee, const std::string& receipt,
+                             const std::string& srcaddr, const std::vector<CTxOut>& vouts);
 
 /******
  * @brief make sure vin is signed by a particular key

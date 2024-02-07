@@ -34,37 +34,42 @@ enum ProofKind : uint8_t {
  */
 class ImportProof {
 
-private:
+  private:
     uint8_t proofKind;
     TxProof proofBranch;
     std::vector<uint256> notaryTxids;
     std::vector<uint8_t> proofBlock;
 
-public:
+  public:
     /****
      * @brief Default ctor
      */
-    ImportProof() { proofKind = PROOF_NONE; }
+    ImportProof() {
+        proofKind = PROOF_NONE;
+    }
     /****
      * @brief Merkle branch proof ctor
      * @param _proofBranch the Merkle branch
      */
     ImportProof(const TxProof &_proofBranch) {
-        proofKind = PROOF_MERKLEBRANCH; proofBranch = _proofBranch;
+        proofKind = PROOF_MERKLEBRANCH;
+        proofBranch = _proofBranch;
     }
     /****
      * @brief Notary TXID proof ctor
      * @param _notaryTxids the collection of txids
      */
     ImportProof(const std::vector<uint256> &_notaryTxids) {
-        proofKind = PROOF_NOTARYTXIDS; notaryTxids = _notaryTxids;
+        proofKind = PROOF_NOTARYTXIDS;
+        notaryTxids = _notaryTxids;
     }
     /*****
      * @brief Merkle block proof ctor
      * @param _proofBlock the Merkle block
      */
     ImportProof(const std::vector<uint8_t> &_proofBlock) {
-        proofKind = PROOF_MERKLEBLOCK; proofBlock = _proofBlock;
+        proofKind = PROOF_MERKLEBLOCK;
+        proofBlock = _proofBlock;
     }
 
     ADD_SERIALIZE_METHODS
@@ -90,8 +95,7 @@ public:
         if (proofKind == PROOF_MERKLEBRANCH) {
             _proofBranch = proofBranch;
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -103,8 +107,7 @@ public:
         if (proofKind == PROOF_NOTARYTXIDS) {
             _notaryTxids = notaryTxids;
             return true;
-        }
-        else
+        } else
             return false;
     }
 
@@ -116,8 +119,7 @@ public:
         if (proofKind == PROOF_MERKLEBLOCK) {
             _proofBlock = proofBlock;
             return true;
-        }
-        else
+        } else
             return false;
     }
 };
@@ -148,12 +150,12 @@ CTransaction MakeImportCoinTransaction(const ImportProof proof, const CTransacti
  * @param rawproof
  * @returns the txout
  */
-CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& targetSymbol, 
-        const std::vector<CTxOut> payouts, const std::vector<uint8_t> rawproof);
+CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& targetSymbol,
+                      const std::vector<CTxOut> payouts, const std::vector<uint8_t> rawproof);
 
 /******
  * @brief make a burn output
- * @param value 
+ * @param value
  * @param targetCCid the target ccid
  * @param targetSymbol the target symbol
  * @param payouts the outputs
@@ -169,10 +171,10 @@ CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& tar
  * @param amount
  * @returns the txout
  */
-CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& targetSymbol, 
-        const std::vector<CTxOut> payouts,std::vector<uint8_t> rawproof, uint256 bindtxid,
-        std::vector<CPubKey> publishers,std::vector<uint256>txids,uint256 burntxid,int32_t height,
-        int32_t burnvout,const std::string& rawburntx,CPubKey destpub, int64_t amount);
+CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& targetSymbol,
+                      const std::vector<CTxOut> payouts,std::vector<uint8_t> rawproof, uint256 bindtxid,
+                      std::vector<CPubKey> publishers,std::vector<uint256>txids,uint256 burntxid,int32_t height,
+                      int32_t burnvout,const std::string& rawburntx,CPubKey destpub, int64_t amount);
 
 /******
  * @brief make a burn output
@@ -185,9 +187,9 @@ CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& tar
  * @param receipt
  * @returns the txout
  */
-CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& targetSymbol, 
-        const std::vector<CTxOut> payouts,std::vector<uint8_t> rawproof, const std::string& srcaddr,
-        const std::string& receipt);
+CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& targetSymbol,
+                      const std::vector<CTxOut> payouts,std::vector<uint8_t> rawproof, const std::string& srcaddr,
+                      const std::string& receipt);
 
 /****
  * @brief break a serialized burn tx into its components
@@ -198,8 +200,8 @@ CTxOut MakeBurnOutput(CAmount value, uint32_t targetCCid, const std::string& tar
  * @param[out] rawproof the bytes of the proof
  * @returns true on success
  */
-bool UnmarshalBurnTx(const CTransaction burnTx, std::string &targetSymbol, uint32_t *targetCCid, 
-        uint256 &payoutsHash,std::vector<uint8_t> &rawproof);
+bool UnmarshalBurnTx(const CTransaction burnTx, std::string &targetSymbol, uint32_t *targetCCid,
+                     uint256 &payoutsHash,std::vector<uint8_t> &rawproof);
 
 /****
  * @brief break a serialized burn tx into its components
@@ -225,8 +227,8 @@ bool UnmarshalBurnTx(const CTransaction burnTx, std::string &srcaddr, std::strin
  * @returns true on success
  */
 bool UnmarshalBurnTx(const CTransaction burnTx,uint256 &bindtxid,std::vector<CPubKey> &publishers,
-        std::vector<uint256> &txids,uint256& burntxid,int32_t &height,int32_t &burnvout,
-        std::string &rawburntx,CPubKey &destpub, int64_t &amount);
+                     std::vector<uint256> &txids,uint256& burntxid,int32_t &height,int32_t &burnvout,
+                     std::string &rawburntx,CPubKey &destpub, int64_t &amount);
 
 /****
  * @brief break a serialized import tx into its components
@@ -236,12 +238,12 @@ bool UnmarshalBurnTx(const CTransaction burnTx,uint256 &bindtxid,std::vector<CPu
  * @param[out] payouts the collection of tx outs
  * @returns true on success
  */
-bool UnmarshalImportTx(const CTransaction importTx, ImportProof &proof, 
-        CTransaction &burnTx,std::vector<CTxOut> &payouts);
+bool UnmarshalImportTx(const CTransaction importTx, ImportProof &proof,
+                       CTransaction &burnTx,std::vector<CTxOut> &payouts);
 
 /*****
  * @brief verify a coin import signature
- * @note CoinImport is different enough from normal script execution that it's not worth 
+ * @note CoinImport is different enough from normal script execution that it's not worth
  * making all the mods neccesary in the interpreter to do the dispatch correctly.
  * @param[in] scriptSig the signature
  * @param[in] checker the checker to use

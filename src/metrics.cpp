@@ -43,8 +43,7 @@
 
 #include "komodo_defs.h"
 
-void AtomicTimer::start()
-{
+void AtomicTimer::start() {
     std::unique_lock<std::mutex> lock(mtx);
     if (threads < 1) {
         start_time = GetTime();
@@ -52,8 +51,7 @@ void AtomicTimer::start()
     ++threads;
 }
 
-void AtomicTimer::stop()
-{
+void AtomicTimer::stop() {
     std::unique_lock<std::mutex> lock(mtx);
     // Ignore excess calls to stop()
     if (threads > 0) {
@@ -65,20 +63,17 @@ void AtomicTimer::stop()
     }
 }
 
-bool AtomicTimer::running()
-{
+bool AtomicTimer::running() {
     std::unique_lock<std::mutex> lock(mtx);
     return threads > 0;
 }
 
-uint64_t AtomicTimer::threadCount()
-{
+uint64_t AtomicTimer::threadCount() {
     std::unique_lock<std::mutex> lock(mtx);
     return threads;
 }
 
-double AtomicTimer::rate(const AtomicCounter& count)
-{
+double AtomicTimer::rate(const AtomicCounter& count) {
     std::unique_lock<std::mutex> lock(mtx);
     int64_t duration = total_time;
     if (threads > 0) {
@@ -97,8 +92,7 @@ static AtomicCounter minedBlocks;
 AtomicTimer miningTimer;
 CCriticalSection cs_metrics;
 
-double AtomicTimer::rate(const int64_t count)
-{
+double AtomicTimer::rate(const int64_t count) {
     std::unique_lock<std::mutex> lock(mtx);
     LOCK(cs_metrics);
     int64_t duration = total_time;
@@ -117,69 +111,61 @@ static bool loaded = false;
 
 extern int64_t GetNetworkHashPS(int lookup, int height);
 
-void TrackMinedBlock(uint256 hash)
-{
+void TrackMinedBlock(uint256 hash) {
     LOCK(cs_metrics);
     minedBlocks.increment();
     trackedBlocks->push_back(hash);
 }
 
-void MarkStartTime()
-{
+void MarkStartTime() {
     *nNodeStartTime = GetTime();
 }
 
-int64_t GetUptime()
-{
+int64_t GetUptime() {
     return GetTime() - *nNodeStartTime;
 }
 
-double GetLocalSolPS()
-{
+double GetLocalSolPS() {
     return miningTimer.rate(solutionTargetChecks);
 }
 
 int EstimateNetHeightInner(int height, int64_t tipmediantime,
                            int heightLastCheckpoint, int64_t timeLastCheckpoint,
-                           int64_t genesisTime, int64_t targetSpacing)
-{
+                           int64_t genesisTime, int64_t targetSpacing) {
     // We average the target spacing with the observed spacing to the last
     // checkpoint (either from below or above depending on the current height),
     // and use that to estimate the current network height.
     int medianHeight = height > CBlockIndex::nMedianTimeSpan ?
-            height - (1 + ((CBlockIndex::nMedianTimeSpan - 1) / 2)) :
-            height / 2;
+                       height - (1 + ((CBlockIndex::nMedianTimeSpan - 1) / 2)) :
+                       height / 2;
     double checkpointSpacing = medianHeight > heightLastCheckpoint ?
-            (double (tipmediantime - timeLastCheckpoint)) / (medianHeight - heightLastCheckpoint) :
-            (double (timeLastCheckpoint - genesisTime)) / heightLastCheckpoint;
+                               (double (tipmediantime - timeLastCheckpoint)) / (medianHeight - heightLastCheckpoint) :
+                               (double (timeLastCheckpoint - genesisTime)) / heightLastCheckpoint;
     double averageSpacing = (targetSpacing + checkpointSpacing) / 2;
     int netheight = medianHeight + ((GetTime() - tipmediantime) / averageSpacing);
     // Round to nearest ten to reduce noise
     return ((netheight + 5) / 10) * 10;
 }
 
-int EstimateNetHeight(int height, int64_t tipmediantime, CChainParams chainParams)
-{
+int EstimateNetHeight(int height, int64_t tipmediantime, CChainParams chainParams) {
     auto checkpointData = chainParams.Checkpoints();
     return EstimateNetHeightInner(
-        height, tipmediantime,
-        Checkpoints::GetTotalBlocksEstimate(checkpointData),
-        checkpointData.nTimeLastCheckpoint,
-        chainParams.GenesisBlock().nTime,
-        chainParams.GetConsensus().nPowTargetSpacing);
+               height, tipmediantime,
+               Checkpoints::GetTotalBlocksEstimate(checkpointData),
+               checkpointData.nTimeLastCheckpoint,
+               chainParams.GenesisBlock().nTime,
+               chainParams.GetConsensus().nPowTargetSpacing);
 }
 
-void TriggerRefresh()
-{
+void TriggerRefresh() {
     *nNextRefresh = GetTime();
     // Ensure that the refresh has started before we return
     MilliSleep(200);
 }
 
 static bool metrics_ThreadSafeMessageBox(const std::string& message,
-                                      const std::string& caption,
-                                      unsigned int style)
-{
+        const std::string& caption,
+        unsigned int style) {
     // The SECURE flag has no effect in the metrics UI.
     style &= ~CClientUIInterface::SECURE;
 
@@ -209,18 +195,15 @@ static bool metrics_ThreadSafeMessageBox(const std::string& message,
     return false;
 }
 
-static bool metrics_ThreadSafeQuestion(const std::string& /* ignored interactive message */, const std::string& message, const std::string& caption, unsigned int style)
-{
+static bool metrics_ThreadSafeQuestion(const std::string& /* ignored interactive message */, const std::string& message, const std::string& caption, unsigned int style) {
     return metrics_ThreadSafeMessageBox(message, caption, style);
 }
 
-static void metrics_InitMessage(const std::string& message)
-{
+static void metrics_InitMessage(const std::string& message) {
     *initMessage = message;
 }
 
-void ConnectMetricsScreen()
-{
+void ConnectMetricsScreen() {
     uiInterface.ThreadSafeMessageBox.disconnect_all_slots();
     uiInterface.ThreadSafeMessageBox.connect(metrics_ThreadSafeMessageBox);
     uiInterface.ThreadSafeQuestion.disconnect_all_slots();
@@ -229,8 +212,7 @@ void ConnectMetricsScreen()
     uiInterface.InitMessage.connect(metrics_InitMessage);
 }
 
-int printStats(bool mining)
-{
+int printStats(bool mining) {
     // Number of lines that are always displayed
     int lines = 4;
 
@@ -265,8 +247,7 @@ int printStats(bool mining)
     return lines;
 }
 
-int printMiningStatus(bool mining)
-{
+int printMiningStatus(bool mining) {
 #ifdef ENABLE_MINING
     // Number of lines that are always displayed
     int lines = 1;
@@ -304,8 +285,7 @@ int printMiningStatus(bool mining)
 #endif // !ENABLE_MINING
 }
 
-int printMetrics(size_t cols, bool mining)
-{
+int printMetrics(size_t cols, bool mining) {
     // Number of lines that are always displayed
     int lines = 3;
 
@@ -333,11 +313,11 @@ int printMetrics(size_t cols, bool mining)
 
     int validatedCount = transactionsValidated.get();
     if (validatedCount > 1) {
-      std::cout << "- " << strprintf(_("You have validated %d transactions!"), validatedCount) << std::endl;
+        std::cout << "- " << strprintf(_("You have validated %d transactions!"), validatedCount) << std::endl;
     } else if (validatedCount == 1) {
-      std::cout << "- " << _("You have validated a transaction!") << std::endl;
+        std::cout << "- " << _("You have validated a transaction!") << std::endl;
     } else {
-      std::cout << "- " << _("You have validated no transactions.") << std::endl;
+        std::cout << "- " << _("You have validated no transactions.") << std::endl;
     }
 
     if (mining && loaded) {
@@ -367,7 +347,7 @@ int printMetrics(size_t cols, bool mining)
                     }
 
                     if ((std::max( 0U, Params().CoinbaseMaturity() - (tipHeight - height)) > 0) ||
-                        (tipHeight < komodo_block_unlocktime(height) && subsidy >= ASSETCHAINS_TIMELOCKGTE)) {
+                            (tipHeight < komodo_block_unlocktime(height) && subsidy >= ASSETCHAINS_TIMELOCKGTE)) {
                         immature += subsidy;
                     } else {
                         mature += subsidy;
@@ -387,9 +367,9 @@ int printMetrics(size_t cols, bool mining)
             std::cout << "- " << strprintf(_("You have mined %d blocks!"), mined) << std::endl;
             std::cout << "  "
                       << strprintf(_("Orphaned: %d blocks, Immature: %u %s, Mature: %u %s"),
-                                     orphaned,
-                                     FormatMoney(immature), units,
-                                     FormatMoney(mature), units)
+                                   orphaned,
+                                   FormatMoney(immature), units,
+                                   FormatMoney(mature), units)
                       << std::endl;
             lines += 2;
         }
@@ -399,8 +379,7 @@ int printMetrics(size_t cols, bool mining)
     return lines;
 }
 
-int printMessageBox(size_t cols)
-{
+int printMessageBox(size_t cols) {
     boost::strict_lock_ptr<std::list<std::string>> u = messageBox.synchronize();
 
     if (u->size() == 0) {
@@ -430,8 +409,7 @@ int printMessageBox(size_t cols)
     return lines;
 }
 
-int printInitMessage()
-{
+int printInitMessage() {
     if (loaded) {
         return 0;
     }
@@ -450,8 +428,7 @@ int printInitMessage()
 #ifdef WIN32
 #define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
 
-bool enableVTMode()
-{
+bool enableVTMode() {
     // Set output mode to handle virtual terminal sequences
     HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
     if (hOut == INVALID_HANDLE_VALUE) {
@@ -471,8 +448,7 @@ bool enableVTMode()
 }
 #endif
 
-void ThreadShowMetricsScreen()
-{
+void ThreadShowMetricsScreen() {
     // Make this thread recognisable as the metrics screen thread
     RenameThread("zcash-metrics-screen");
 

@@ -35,8 +35,7 @@
 
 using namespace std;
 
-string FormatScript(const CScript& script)
-{
+string FormatScript(const CScript& script) {
     string ret;
     CScript::const_iterator it = script.begin();
     opcodetype op;
@@ -87,8 +86,7 @@ const map<unsigned char, string> mapSigHashTypes =
  *                                     of a signature. Only pass true for scripts you believe could contain signatures. For example,
  *                                     pass false, or omit the this argument (defaults to false), for scriptPubKeys.
  */
-string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode)
-{
+string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode) {
     string str;
     opcodetype opcode;
     vector<unsigned char> vch;
@@ -131,16 +129,14 @@ string ScriptToAsmStr(const CScript& script, const bool fAttemptSighashDecode)
     return str;
 }
 
-string EncodeHexTx(const CTransaction& tx)
-{
+string EncodeHexTx(const CTransaction& tx) {
     CDataStream ssTx(SER_NETWORK, PROTOCOL_VERSION);
     ssTx << tx;
     return HexStr(ssTx.begin(), ssTx.end());
 }
 
 void ScriptPubKeyToUniv(const CScript& scriptPubKey,
-                        UniValue& out, bool fIncludeHex)
-{
+                        UniValue& out, bool fIncludeHex) {
     txnouttype type;
     vector<CTxDestination> addresses;
     int nRequired;
@@ -164,8 +160,7 @@ void ScriptPubKeyToUniv(const CScript& scriptPubKey,
     out.pushKV("addresses", a);
 }
 
-void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry)
-{
+void TxToUniv(const CTransaction& tx, const uint256& hashBlock, UniValue& entry) {
     entry.pushKV("txid", tx.GetHash().GetHex());
     entry.pushKV("version", tx.nVersion);
     entry.pushKV("locktime", (int64_t)tx.nLockTime);

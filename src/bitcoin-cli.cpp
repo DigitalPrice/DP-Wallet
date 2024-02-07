@@ -43,8 +43,7 @@ using namespace std;
 static const int DEFAULT_HTTP_CLIENT_TIMEOUT=900;
 static const int CONTINUE_EXECUTION=-1;
 
-std::string HelpMessageCli()
-{
+std::string HelpMessageCli() {
     std::string strUsage;
     strUsage += HelpMessageGroup(_("Options:"));
     strUsage += HelpMessageOpt("-?", _("This help message"));
@@ -52,7 +51,7 @@ std::string HelpMessageCli()
     strUsage += HelpMessageOpt("-datadir=<dir>", _("Specify data directory"));
     strUsage += HelpMessageOpt("-testnet", _("Use the test network"));
     strUsage += HelpMessageOpt("-regtest", _("Enter regression test mode, which uses a special chain in which blocks can be "
-                                             "solved instantly. This is intended for regression testing tools and app development."));
+                               "solved instantly. This is intended for regression testing tools and app development."));
     strUsage += HelpMessageOpt("-rpcconnect=<ip>", strprintf(_("Send commands to node running on <ip> (default: %s)"), "127.0.0.1"));
     strUsage += HelpMessageOpt("-rpcport=<port>", strprintf(_("Connect to JSON-RPC on <port> (default: %u or testnet: %u)"), 8232, 18232));
     strUsage += HelpMessageOpt("-rpcwait", _("Wait for RPC server to start"));
@@ -73,9 +72,8 @@ std::string HelpMessageCli()
 // Exception thrown on connection error.  This error is used to determine
 // when to wait if -rpcwait is given.
 //
-class CConnectionFailed : public std::runtime_error
-{
-public:
+class CConnectionFailed : public std::runtime_error {
+  public:
 
     explicit inline CConnectionFailed(const std::string& msg) :
         std::runtime_error(msg)
@@ -87,8 +85,7 @@ public:
 // This function returns either one of EXIT_ codes when it's expected to stop the process or
 // CONTINUE_EXECUTION when it's expected to continue further.
 //
-static int AppInitRPC(int argc, char* argv[])
-{
+static int AppInitRPC(int argc, char* argv[]) {
     static_assert(CONTINUE_EXECUTION != EXIT_FAILURE,
                   "CONTINUE_EXECUTION should be different from EXIT_FAILURE");
     static_assert(CONTINUE_EXECUTION != EXIT_SUCCESS,
@@ -105,9 +102,9 @@ static int AppInitRPC(int argc, char* argv[])
         std::string strUsage = _("Komodo RPC client version") + " " + FormatFullVersion() + "\n" + PrivacyInfo();
         if (!mapArgs.count("-version")) {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  komodo-cli [options] <command> [params]  " + _("Send command to Komodo") + "\n" +
-                  "  komodo-cli [options] help                " + _("List commands") + "\n" +
-                  "  komodo-cli [options] help <command>      " + _("Get help for a command") + "\n";
+                        "  komodo-cli [options] <command> [params]  " + _("Send command to Komodo") + "\n" +
+                        "  komodo-cli [options] help                " + _("List commands") + "\n" +
+                        "  komodo-cli [options] help <command>      " + _("Get help for a command") + "\n";
 
             strUsage += "\n" + HelpMessageCli();
         } else {
@@ -136,8 +133,7 @@ static int AppInitRPC(int argc, char* argv[])
         fprintf(stderr, "Error: Invalid combination of -regtest and -testnet.\n");
         return EXIT_FAILURE;
     }
-    if (GetBoolArg("-rpcssl", false))
-    {
+    if (GetBoolArg("-rpcssl", false)) {
         fprintf(stderr, "Error: SSL mode for RPC (-rpcssl) is no longer supported.\n");
         return EXIT_FAILURE;
     }
@@ -146,8 +142,7 @@ static int AppInitRPC(int argc, char* argv[])
 
 
 /** Reply structure for request_done to fill in */
-struct HTTPReply
-{
+struct HTTPReply {
     HTTPReply(): status(0), error(-1) {}
 
     int status;
@@ -155,8 +150,7 @@ struct HTTPReply
     std::string body;
 };
 
-const char *http_errorstring(int code)
-{
+const char *http_errorstring(int code) {
     switch(code) {
 #if LIBEVENT_VERSION_NUMBER >= 0x02010300
     case EVREQ_HTTP_TIMEOUT:
@@ -177,8 +171,7 @@ const char *http_errorstring(int code)
     }
 }
 
-static void http_request_done(struct evhttp_request *req, void *ctx)
-{
+static void http_request_done(struct evhttp_request *req, void *ctx) {
     HTTPReply *reply = static_cast<HTTPReply*>(ctx);
 
     if (req == NULL) {
@@ -192,8 +185,7 @@ static void http_request_done(struct evhttp_request *req, void *ctx)
     reply->status = evhttp_request_get_response_code(req);
 
     struct evbuffer *buf = evhttp_request_get_input_buffer(req);
-    if (buf)
-    {
+    if (buf) {
         size_t size = evbuffer_get_length(buf);
         const char *data = (const char*)evbuffer_pullup(buf, size);
         if (data)
@@ -203,15 +195,13 @@ static void http_request_done(struct evhttp_request *req, void *ctx)
 }
 
 #if LIBEVENT_VERSION_NUMBER >= 0x02010300
-static void http_error_cb(enum evhttp_request_error err, void *ctx)
-{
+static void http_error_cb(enum evhttp_request_error err, void *ctx) {
     HTTPReply *reply = static_cast<HTTPReply*>(ctx);
     reply->error = err;
 }
 #endif
 
-UniValue CallRPC(const std::string& strMethod, const UniValue& params)
-{
+UniValue CallRPC(const std::string& strMethod, const UniValue& params) {
     std::string host = GetArg("-rpcconnect", "127.0.0.1");
     int port = GetArg("-rpcport", BaseParams().RPCPort());
     BITCOIND_RPCPORT = port;
@@ -236,9 +226,9 @@ UniValue CallRPC(const std::string& strMethod, const UniValue& params)
         // Try fall back to cookie-based authentication if no password is provided
         if (!GetAuthCookie(&strRPCUserColonPass)) {
             throw std::runtime_error(strprintf(
-                _("Could not locate RPC credentials. No authentication cookie could be found,\n"
-                  "and no rpcpassword is set in the configuration file (%s)."),
-                    GetConfigFile().string().c_str()));
+                                         _("Could not locate RPC credentials. No authentication cookie could be found,\n"
+                                           "and no rpcpassword is set in the configuration file (%s)."),
+                                         GetConfigFile().string().c_str()));
 
         }
     } else {
@@ -285,8 +275,7 @@ UniValue CallRPC(const std::string& strMethod, const UniValue& params)
     return reply;
 }
 
-int CommandLineRPC(int argc, char *argv[])
-{
+int CommandLineRPC(int argc, char *argv[]) {
     std::string strPrint;
     int nRet = 0;
     try {
@@ -324,8 +313,7 @@ int CommandLineRPC(int argc, char *argv[])
                         throw CConnectionFailed("server in warmup");
                     strPrint = "error: " + error.write();
                     nRet = abs(code);
-                    if (error.isObject())
-                    {
+                    if (error.isObject()) {
                         UniValue errCode = find_value(error, "code");
                         UniValue errMsg  = find_value(error, "message");
                         strPrint = errCode.isNull() ? "" : "error code: "+errCode.getValStr()+"\n";
@@ -344,23 +332,19 @@ int CommandLineRPC(int argc, char *argv[])
                 }
                 // Connection succeeded, no need to retry.
                 break;
-            }
-            catch (const CConnectionFailed&) {
+            } catch (const CConnectionFailed&) {
                 if (fWait)
                     MilliSleep(1000);
                 else
                     throw;
             }
         } while (fWait);
-    }
-    catch (const boost::thread_interrupted&) {
+    } catch (const boost::thread_interrupted&) {
         throw;
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         strPrint = std::string("error: ") + e.what();
         nRet = EXIT_FAILURE;
-    }
-    catch (...) {
+    } catch (...) {
         PrintExceptionContinue(NULL, "CommandLineRPC()");
         throw;
     }
@@ -371,8 +355,7 @@ int CommandLineRPC(int argc, char *argv[])
     return nRet;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     SetupEnvironment();
     if (!SetupNetworking()) {
         fprintf(stderr, "Error: Initializing networking failed\n");
@@ -383,8 +366,7 @@ int main(int argc, char* argv[])
         int ret = AppInitRPC(argc, argv);
         if (ret != CONTINUE_EXECUTION)
             return ret;
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInitRPC()");
         return EXIT_FAILURE;
     } catch (...) {
@@ -395,8 +377,7 @@ int main(int argc, char* argv[])
     int ret = EXIT_FAILURE;
     try {
         ret = CommandLineRPC(argc, argv);
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "CommandLineRPC()");
     } catch (...) {
         PrintExceptionContinue(NULL, "CommandLineRPC()");

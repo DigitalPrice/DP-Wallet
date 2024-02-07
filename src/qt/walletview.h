@@ -33,11 +33,10 @@ QT_END_NAMESPACE
   It communicates with both the client and the wallet models to give the user an up-to-date view of the
   current core state.
 */
-class WalletView : public QStackedWidget
-{
+class WalletView : public QStackedWidget {
     Q_OBJECT
 
-public:
+  public:
     explicit WalletView(const PlatformStyle *platformStyle, QWidget *parent);
     ~WalletView();
 
@@ -56,7 +55,7 @@ public:
 
     void showOutOfSyncWarning(bool fShow);
 
-private:
+  private:
     ClientModel *clientModel;
     WalletModel *walletModel;
 
@@ -74,7 +73,7 @@ private:
     QProgressDialog *progressDialog;
     const PlatformStyle *platformStyle;
 
-public Q_SLOTS:
+  public Q_SLOTS:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
     /** Switch to history (transactions) page */
@@ -121,7 +120,7 @@ public Q_SLOTS:
     /** User has requested more information about the out of sync state */
     void requestedSyncWarningInfo();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     /** Signal that we want to show the main window */
     void showNormalIfMinimized();
     /**  Fired when a message should be reported to the user */

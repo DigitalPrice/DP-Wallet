@@ -22,12 +22,12 @@ extern "C" {
 
 /* CompoundSha256Condition */
 typedef struct CompoundSha256Condition {
-	OCTET_STRING_t	 fingerprint;
-	unsigned long	 cost;
-	ConditionTypes_t	 subtypes;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 fingerprint;
+    unsigned long	 cost;
+    ConditionTypes_t	 subtypes;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } CompoundSha256Condition_t;
 
 /* Implementation */

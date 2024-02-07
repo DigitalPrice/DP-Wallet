@@ -239,7 +239,7 @@ void AsyncRPCQueue::wait_for_worker_threads() {
         std::lock_guard<std::mutex> guard(lock_);
         this->condition_.notify_all();
     }
-        
+
     for (std::thread & t : this->workers_) {
         if (t.joinable()) {
             t.join();

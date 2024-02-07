@@ -33,9 +33,8 @@
  * in the block is a special one that creates a new coin owned by the creator
  * of the block.
  */
-class CBlockHeader
-{
-public:
+class CBlockHeader {
+  public:
     // header
     static const size_t HEADER_SIZE=4+32+32+32+4+4+32; // excluding Equihash solution
     static const int32_t CURRENT_VERSION=4;
@@ -51,8 +50,7 @@ public:
     uint256 nNonce;
     std::vector<unsigned char> nSolution;
 
-    CBlockHeader()
-    {
+    CBlockHeader() {
         SetNull();
     }
 
@@ -70,8 +68,7 @@ public:
         READWRITE(nSolution);
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         nVersion = CBlockHeader::CURRENT_VERSION;
         hashPrevBlock.SetNull();
         hashMerkleRoot.SetNull();
@@ -82,21 +79,18 @@ public:
         nSolution.clear();
     }
 
-    bool IsNull() const
-    {
+    bool IsNull() const {
         return (nBits == 0);
     }
 
-    uint256 GetHash() const
-    {
+    uint256 GetHash() const {
         return (this->*hashFunction)();
     }
 
     uint256 GetSHA256DHash() const;
     static void SetSHA256DHash();
 
-    int64_t GetBlockTime() const
-    {
+    int64_t GetBlockTime() const {
         return (int64_t)nTime;
     }
 };
@@ -107,18 +101,15 @@ public:
 // between CBlock and CBlockHeader more brittle.
 // by using this intentionally specified class instead, we remove an instability in the code that could break
 // due to unrelated changes, but stay compatible with the old method.
-class CNetworkBlockHeader : public CBlockHeader
-{
-    public:
-        std::vector<CTransaction> compatVec;
+class CNetworkBlockHeader : public CBlockHeader {
+  public:
+    std::vector<CTransaction> compatVec;
 
-    CNetworkBlockHeader() : CBlockHeader()
-    {
+    CNetworkBlockHeader() : CBlockHeader() {
         SetNull();
     }
 
-    CNetworkBlockHeader(const CBlockHeader &header)
-    {
+    CNetworkBlockHeader(const CBlockHeader &header) {
         SetNull();
         *((CBlockHeader*)this) = header;
     }
@@ -131,29 +122,25 @@ class CNetworkBlockHeader : public CBlockHeader
         READWRITE(compatVec);
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         CBlockHeader::SetNull();
-        compatVec.clear();    
+        compatVec.clear();
     }
 };
 
-class CBlock : public CBlockHeader
-{
-public:
+class CBlock : public CBlockHeader {
+  public:
     // network and disk
     std::vector<CTransaction> vtx;
 
     // memory only
     mutable std::vector<uint256> vMerkleTree;
 
-    CBlock()
-    {
+    CBlock() {
         SetNull();
     }
 
-    CBlock(const CBlockHeader &header)
-    {
+    CBlock(const CBlockHeader &header) {
         SetNull();
         *((CBlockHeader*)this) = header;
     }
@@ -166,15 +153,13 @@ public:
         READWRITE(vtx);
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         CBlockHeader::SetNull();
         vtx.clear();
         vMerkleTree.clear();
     }
 
-    CBlockHeader GetBlockHeader() const
-    {
+    CBlockHeader GetBlockHeader() const {
         CBlockHeader block;
         block.nVersion       = nVersion;
         block.hashPrevBlock  = hashPrevBlock;
@@ -200,7 +185,7 @@ public:
 
 
 uint256 BuildMerkleTree(bool* fMutated, const std::vector<uint256> leaves,
-        std::vector<uint256> &vMerkleTree);
+                        std::vector<uint256> &vMerkleTree);
 
 std::vector<uint256> GetMerkleBranch(int nIndex, int nLeaves, const std::vector<uint256> &vMerkleTree);
 
@@ -209,11 +194,9 @@ std::vector<uint256> GetMerkleBranch(int nIndex, int nLeaves, const std::vector<
  * Custom serializer for CBlockHeader that omits the nonce and solution, for use
  * as input to Equihash.
  */
-class CEquihashInput : private CBlockHeader
-{
-public:
-    CEquihashInput(const CBlockHeader &header)
-    {
+class CEquihashInput : private CBlockHeader {
+  public:
+    CEquihashInput(const CBlockHeader &header) {
         CBlockHeader::SetNull();
         *((CBlockHeader*)this) = header;
     }
@@ -236,14 +219,12 @@ public:
  * other node doesn't have the same branch, it can find a recent common trunk.
  * The further back it is, the further before the fork it may be.
  */
-struct CBlockLocator
-{
+struct CBlockLocator {
     std::vector<uint256> vHave;
 
     CBlockLocator() {}
 
-    CBlockLocator(const std::vector<uint256>& vHaveIn)
-    {
+    CBlockLocator(const std::vector<uint256>& vHaveIn) {
         vHave = vHaveIn;
     }
 
@@ -257,13 +238,11 @@ struct CBlockLocator
         READWRITE(vHave);
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         vHave.clear();
     }
 
-    bool IsNull() const
-    {
+    bool IsNull() const {
         return vHave.empty();
     }
 

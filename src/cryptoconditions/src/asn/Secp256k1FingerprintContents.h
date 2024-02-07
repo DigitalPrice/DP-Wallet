@@ -20,10 +20,10 @@ extern "C" {
 
 /* Secp256k1FingerprintContents */
 typedef struct Secp256k1FingerprintContents {
-	OCTET_STRING_t	 publicKey;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 publicKey;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } Secp256k1FingerprintContents_t;
 
 /* Implementation */

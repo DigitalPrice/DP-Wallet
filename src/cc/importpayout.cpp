@@ -44,8 +44,7 @@
  *   out 0:      OP_RETURN hash of payouts
  *   out 1-:     anything
  */
-bool Eval::ImportPayout(const std::vector<uint8_t> params, const CTransaction &importTx, unsigned int nIn)
-{
+bool Eval::ImportPayout(const std::vector<uint8_t> params, const CTransaction &importTx, unsigned int nIn) {
     if (importTx.vout.size() == 0) return Invalid("no-vouts");
 
     // load data from vout[0]

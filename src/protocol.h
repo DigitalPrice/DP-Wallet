@@ -41,9 +41,8 @@
  * (4) size.
  * (4) checksum.
  */
-class CMessageHeader
-{
-public:
+class CMessageHeader {
+  public:
     typedef unsigned char MessageStartChars[MESSAGE_START_SIZE];
 
     CMessageHeader(const MessageStartChars& pchMessageStartIn);
@@ -55,8 +54,7 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action)
-    {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(FLATDATA(pchMessageStart));
         READWRITE(FLATDATA(pchCommand));
         READWRITE(nMessageSize);
@@ -64,7 +62,7 @@ public:
     }
 
     // TODO: make private (improves encapsulation)
-public:
+  public:
     enum {
         COMMAND_SIZE = 12,
         MESSAGE_SIZE_SIZE = sizeof(int),
@@ -105,9 +103,8 @@ enum {
 };
 
 /** A CService with information about it as peer */
-class CAddress : public CService
-{
-public:
+class CAddress : public CService {
+  public:
     CAddress();
     explicit CAddress(CService ipIn, uint64_t nServicesIn = NODE_NETWORK);
 
@@ -116,22 +113,21 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action)
-    {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         if (ser_action.ForRead())
             Init();
         int nVersion = s.GetVersion();
         if (s.GetType() & SER_DISK)
             READWRITE(nVersion);
         if ((s.GetType() & SER_DISK) ||
-            (nVersion >= CADDR_TIME_VERSION && !(s.GetType() & SER_GETHASH)))
+                (nVersion >= CADDR_TIME_VERSION && !(s.GetType() & SER_GETHASH)))
             READWRITE(nTime);
         READWRITE(nServices);
         READWRITE(*(CService*)this);
     }
 
     // TODO: make private (improves encapsulation)
-public:
+  public:
     uint64_t nServices;
 
     // disk and network only
@@ -139,9 +135,8 @@ public:
 };
 
 /** inv message data */
-class CInv
-{
-public:
+class CInv {
+  public:
     CInv();
     CInv(int typeIn, const uint256& hashIn);
     CInv(const std::string& strType, const uint256& hashIn);
@@ -149,8 +144,7 @@ public:
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
-    inline void SerializationOp(Stream& s, Operation ser_action)
-    {
+    inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(type);
         READWRITE(hash);
     }
@@ -162,7 +156,7 @@ public:
     std::string ToString() const;
 
     // TODO: make private (improves encapsulation)
-public:
+  public:
     int type;
     uint256 hash;
 };

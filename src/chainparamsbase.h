@@ -27,9 +27,8 @@
  * CBaseChainParams defines the base parameters (shared between bitcoin-cli and bitcoind)
  * of a given instance of the Bitcoin system.
  */
-class CBaseChainParams
-{
-public:
+class CBaseChainParams {
+  public:
     enum Network {
         MAIN,
         TESTNET,
@@ -42,13 +41,17 @@ public:
      * @brief returns the subdirectory for the network
      * @return the data subdirectory ( nothing, or "testnet3" or "regtest" )
      */
-    const std::string& DataDir() const { return strDataDir; }
+    const std::string& DataDir() const {
+        return strDataDir;
+    }
     /****
      * @returns the port used for RPC calls
      */
-    int RPCPort() const { return nRPCPort; }
+    int RPCPort() const {
+        return nRPCPort;
+    }
 
-protected:
+  protected:
     CBaseChainParams() {}
 
     int nRPCPort = 0;
@@ -61,8 +64,8 @@ protected:
  */
 const CBaseChainParams& BaseParams();
 
-/** 
- * Sets the params returned by Params() to those for the given network. 
+/**
+ * Sets the params returned by Params() to those for the given network.
  * @param network the network you wish to use
  */
 void SelectBaseParams(CBaseChainParams::Network network);

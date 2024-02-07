@@ -21,11 +21,10 @@ QT_END_NAMESPACE
    This can be changed to a tree once the settings become sufficiently
    complex.
  */
-class OptionsModel : public QAbstractListModel
-{
+class OptionsModel : public QAbstractListModel {
     Q_OBJECT
 
-public:
+  public:
     explicit OptionsModel(QObject *parent = 0, bool resetSettings = false);
 
     enum OptionID {
@@ -61,22 +60,36 @@ public:
     void setDisplayUnit(const QVariant &value);
 
     /* Explicit getters */
-    bool getHideTrayIcon() const { return fHideTrayIcon; }
-    bool getMinimizeToTray() const { return fMinimizeToTray; }
-    bool getMinimizeOnClose() const { return fMinimizeOnClose; }
-    int getDisplayUnit() const { return nDisplayUnit; }
-    QString getThirdPartyTxUrls() const { return strThirdPartyTxUrls; }
-    #ifdef ENABLE_BIP70
+    bool getHideTrayIcon() const {
+        return fHideTrayIcon;
+    }
+    bool getMinimizeToTray() const {
+        return fMinimizeToTray;
+    }
+    bool getMinimizeOnClose() const {
+        return fMinimizeOnClose;
+    }
+    int getDisplayUnit() const {
+        return nDisplayUnit;
+    }
+    QString getThirdPartyTxUrls() const {
+        return strThirdPartyTxUrls;
+    }
+#ifdef ENABLE_BIP70
     bool getProxySettings(QNetworkProxy& proxy) const;
-    #endif
-    bool getCoinControlFeatures() const { return fCoinControlFeatures; }
-    const QString& getOverriddenByCommandLine() { return strOverriddenByCommandLine; }
+#endif
+    bool getCoinControlFeatures() const {
+        return fCoinControlFeatures;
+    }
+    const QString& getOverriddenByCommandLine() {
+        return strOverriddenByCommandLine;
+    }
 
     /* Restart flag helper */
     void setRestartRequired(bool fRequired);
     bool isRestartRequired() const;
 
-private:
+  private:
     /* Qt-only settings */
     bool fHideTrayIcon;
     bool fMinimizeToTray;
@@ -93,7 +106,7 @@ private:
 
     // Check settings version and upgrade default values if required
     void checkAndMigrate();
-Q_SIGNALS:
+  Q_SIGNALS:
     void displayUnitChanged(int unit);
     void coinControlFeaturesChanged(bool);
     void hideTrayIconChanged(bool);

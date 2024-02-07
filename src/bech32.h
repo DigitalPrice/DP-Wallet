@@ -16,8 +16,7 @@
 #include <string>
 #include <vector>
 
-namespace bech32
-{
+namespace bech32 {
 
 /** Encode a Bech32 string. Returns the empty string in case of failure. */
 std::string Encode(const std::string& hrp, const std::vector<uint8_t>& values);

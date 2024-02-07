@@ -14,7 +14,7 @@
 
 
 class CCTest : public ::testing::Test {
-public:
+  public:
     void CCSign(CMutableTransaction &tx, CC *cond) {
         tx.vin.resize(1);
         PrecomputedTransactionData txdata(tx);
@@ -23,7 +23,7 @@ public:
         int out = cc_signTreeSecp256k1Msg32(cond, notaryKey.begin(), sighash.begin());
         tx.vin[0].scriptSig = CCSig(cond);
     }
-protected:
+  protected:
     virtual void SetUp() {
         // enable CC
         ASSETCHAINS_CC = 1;
@@ -31,11 +31,10 @@ protected:
 };
 
 
-TEST_F(CCTest, testIsPayToCryptoCondition)
-{
+TEST_F(CCTest, testIsPayToCryptoCondition) {
     CScript s = CScript() << VCH("a", 1);
     ASSERT_FALSE(s.IsPayToCryptoCondition());
-        
+
     s = CScript() << VCH("a", 1) << OP_CHECKCRYPTOCONDITION;
     ASSERT_TRUE(s.IsPayToCryptoCondition());
 
@@ -44,8 +43,7 @@ TEST_F(CCTest, testIsPayToCryptoCondition)
 }
 
 
-TEST_F(CCTest, testMayAcceptCryptoCondition)
-{
+TEST_F(CCTest, testMayAcceptCryptoCondition) {
     CC *cond;
 
     // ok
@@ -93,8 +91,7 @@ static bool CCVerify(const CMutableTransaction &mtxTo, const CC *cond) {
 };
 
 
-TEST_F(CCTest, testVerifyCryptoCondition)
-{
+TEST_F(CCTest, testVerifyCryptoCondition) {
     CC *cond;
     CMutableTransaction mtxTo;
 
@@ -107,7 +104,7 @@ TEST_F(CCTest, testVerifyCryptoCondition)
     CCSign(mtxTo, cond);
     ASSERT_TRUE(CCVerify(mtxTo, cond));
 
-    
+
     // has signature nodes
     CCFromJson(cond, R"!!({
       "type": "threshold-sha-256",
@@ -129,20 +126,19 @@ TEST_F(CCTest, testVerifyCryptoCondition)
     // here the signature is set wrong
     cond->threshold = 2;
     ASSERT_TRUE(CCVerify(mtxTo, cond));
-    memset(cond->subconditions[1]->signature, 0, 32); 
+    memset(cond->subconditions[1]->signature, 0, 32);
     ASSERT_FALSE(CCVerify(mtxTo, cond));
 }
 
 extern Eval* EVAL_TEST;
 
-TEST_F(CCTest, testVerifyEvalCondition)
-{
+TEST_F(CCTest, testVerifyEvalCondition) {
 
-    class EvalMock : public Eval
-    {
-    public:
-        bool Dispatch(const CC *cond, const CTransaction &txTo, unsigned int nIn)
-        { return cond->code[0] ? Valid() : Invalid(""); }
+    class EvalMock : public Eval {
+      public:
+        bool Dispatch(const CC *cond, const CTransaction &txTo, unsigned int nIn) {
+            return cond->code[0] ? Valid() : Invalid("");
+        }
     };
 
     EvalMock eval;
@@ -162,8 +158,7 @@ TEST_F(CCTest, testVerifyEvalCondition)
 }
 
 
-TEST_F(CCTest, testCryptoConditionsDisabled)
-{
+TEST_F(CCTest, testCryptoConditionsDisabled) {
     CC *cond;
     ScriptError error;
     CMutableTransaction mtxTo;
@@ -181,8 +176,7 @@ TEST_F(CCTest, testCryptoConditionsDisabled)
 }
 
 
-TEST_F(CCTest, testLargeCondition)
-{
+TEST_F(CCTest, testLargeCondition) {
     CC *cond;
     ScriptError error;
     CMutableTransaction mtxTo;
@@ -194,7 +188,7 @@ TEST_F(CCTest, testLargeCondition)
     cond = CCNewThreshold(16, ccs);
     CCSign(mtxTo, cond);
     EXPECT_EQ("(16 of 5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,A5,A5)",
-             CCShowStructure(CCPrune(cond)));
+              CCShowStructure(CCPrune(cond)));
     EXPECT_EQ(1744, CCSig(cond).size());
     ASSERT_TRUE(CCVerify(mtxTo, cond));
 }

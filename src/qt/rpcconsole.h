@@ -19,7 +19,7 @@ class PlatformStyle;
 class RPCTimerInterface;
 
 namespace Ui {
-    class RPCConsole;
+class RPCConsole;
 }
 
 QT_BEGIN_NAMESPACE
@@ -29,11 +29,10 @@ class QItemSelection;
 QT_END_NAMESPACE
 
 /** Local Komodo RPC console. */
-class RPCConsole: public QWidget
-{
+class RPCConsole: public QWidget {
     Q_OBJECT
 
-public:
+  public:
     explicit RPCConsole(const PlatformStyle *platformStyle, QWidget *parent);
     ~RPCConsole();
 
@@ -59,11 +58,11 @@ public:
         TAB_PEERS = 3
     };
 
-protected:
+  protected:
     virtual bool eventFilter(QObject* obj, QEvent *event);
     void keyPressEvent(QKeyEvent *);
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void on_lineEdit_returnPressed();
     void on_tabWidget_currentChanged(int index);
     /** open the debug.log from the current datadir */
@@ -84,7 +83,7 @@ private Q_SLOTS:
     /** clear the selected node */
     void clearSelectedNode();
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void clear(bool clearHistory = true);
     void fontBigger();
     void fontSmaller();
@@ -118,20 +117,19 @@ public Q_SLOTS:
     /** set which tab has the focus (is visible) */
     void setTabFocus(enum TabTypes tabType);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     // For RPC command executor
     void stopExecutor();
     void cmdRequest(const QString &command);
 
-private:
+  private:
     static QString FormatBytes(quint64 bytes);
     void startExecutor();
     void setTrafficGraphRange(int mins);
     /** show detailed information on ui about selected node */
     void updateNodeDetail(const CNodeCombinedStats *stats);
 
-    enum ColumnWidths
-    {
+    enum ColumnWidths {
         ADDRESS_COLUMN_WIDTH = 200,
         SUBVERSION_COLUMN_WIDTH = 150,
         PING_COLUMN_WIDTH = 80,

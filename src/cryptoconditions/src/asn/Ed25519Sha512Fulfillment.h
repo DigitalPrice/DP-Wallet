@@ -20,11 +20,11 @@ extern "C" {
 
 /* Ed25519Sha512Fulfillment */
 typedef struct Ed25519Sha512Fulfillment {
-	OCTET_STRING_t	 publicKey;
-	OCTET_STRING_t	 signature;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 publicKey;
+    OCTET_STRING_t	 signature;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } Ed25519Sha512Fulfillment_t;
 
 /* Implementation */

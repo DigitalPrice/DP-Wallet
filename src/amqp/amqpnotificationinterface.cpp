@@ -26,12 +26,10 @@
 // Like the ZMQ notification interface, if a notifier fails to send a message, the notifier is shut down.
 //
 
-AMQPNotificationInterface::AMQPNotificationInterface()
-{
+AMQPNotificationInterface::AMQPNotificationInterface() {
 }
 
-AMQPNotificationInterface::~AMQPNotificationInterface()
-{
+AMQPNotificationInterface::~AMQPNotificationInterface() {
     Shutdown();
 
     for (std::list<AMQPAbstractNotifier*>::iterator i = notifiers.begin(); i != notifiers.end(); ++i) {
@@ -39,8 +37,7 @@ AMQPNotificationInterface::~AMQPNotificationInterface()
     }
 }
 
-AMQPNotificationInterface* AMQPNotificationInterface::CreateWithArguments(const std::map<std::string, std::string> &args)
-{
+AMQPNotificationInterface* AMQPNotificationInterface::CreateWithArguments(const std::map<std::string, std::string> &args) {
     AMQPNotificationInterface* notificationInterface = nullptr;
     std::map<std::string, AMQPNotifierFactory> factories;
     std::list<AMQPAbstractNotifier*> notifiers;
@@ -76,8 +73,7 @@ AMQPNotificationInterface* AMQPNotificationInterface::CreateWithArguments(const 
 }
 
 // Called at startup to conditionally set up
-bool AMQPNotificationInterface::Initialize()
-{
+bool AMQPNotificationInterface::Initialize() {
     LogPrint("amqp", "amqp: Initialize notification interface\n");
 
     std::list<AMQPAbstractNotifier*>::iterator i = notifiers.begin();
@@ -99,8 +95,7 @@ bool AMQPNotificationInterface::Initialize()
 }
 
 // Called during shutdown sequence
-void AMQPNotificationInterface::Shutdown()
-{
+void AMQPNotificationInterface::Shutdown() {
     LogPrint("amqp", "amqp: Shutdown notification interface\n");
 
     for (std::list<AMQPAbstractNotifier*>::iterator i = notifiers.begin(); i != notifiers.end(); ++i) {
@@ -109,8 +104,7 @@ void AMQPNotificationInterface::Shutdown()
     }
 }
 
-void AMQPNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindex)
-{
+void AMQPNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindex) {
     for (std::list<AMQPAbstractNotifier*>::iterator i = notifiers.begin(); i != notifiers.end(); ) {
         AMQPAbstractNotifier *notifier = *i;
         if (notifier->NotifyBlock(pindex)) {
@@ -122,8 +116,7 @@ void AMQPNotificationInterface::UpdatedBlockTip(const CBlockIndex *pindex)
     }
 }
 
-void AMQPNotificationInterface::SyncTransaction(const CTransaction &tx, const CBlock *pblock)
-{
+void AMQPNotificationInterface::SyncTransaction(const CTransaction &tx, const CBlock *pblock) {
     for (std::list<AMQPAbstractNotifier*>::iterator i = notifiers.begin(); i != notifiers.end(); ) {
         AMQPAbstractNotifier *notifier = *i;
         if (notifier->NotifyTransaction(tx)) {

@@ -24,7 +24,7 @@
 extern bool IS_KOMODO_NOTARY;
 extern bool IS_KOMODO_DEALERNODE;
 extern char KMDUSERPASS[8192+512+1];
-extern char BTCUSERPASS[8192]; 
+extern char BTCUSERPASS[8192];
 extern char ASSETCHAINS_USERPASS[4096];
 extern uint8_t NOTARY_PUBKEY33[33];
 extern uint8_t ASSETCHAINS_OVERRIDE_PUBKEY33[33];
@@ -81,7 +81,7 @@ extern pthread_mutex_t KOMODO_CC_mutex;
 
 /**
  * @brief Given a currency name, return the index in the KOMODO_STATES array
- * 
+ *
  * @param origbase the currency name to look for
  * @return the index in the array, or -1
  */

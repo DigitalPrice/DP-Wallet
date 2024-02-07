@@ -68,14 +68,19 @@ class AppVM;
 class NotarisationData;
 
 
-class Eval
-{
-public:
+class Eval {
+  public:
     CValidationState state;
 
-    bool Invalid(std::string s) { return state.Invalid(false, 0, s); }
-    bool Error(std::string s) { return state.Error(s); }
-    bool Valid() { return true; }
+    bool Invalid(std::string s) {
+        return state.Invalid(false, 0, s);
+    }
+    bool Error(std::string s) {
+        return state.Error(s);
+    }
+    bool Valid() {
+        return true;
+    }
 
     /*
      * Test validity of a CC_Eval node
@@ -120,12 +125,13 @@ extern Eval* EVAL_TEST;
  * Get a pointer to an Eval to use
  */
 typedef std::unique_ptr<Eval,void(*)(Eval*)> EvalRef_;
-class EvalRef : public EvalRef_
-{
-public:
+class EvalRef : public EvalRef_ {
+  public:
     EvalRef() : EvalRef_(
             EVAL_TEST ? EVAL_TEST : new Eval(),
-            [](Eval* e){if (e!=EVAL_TEST) delete e;}) { }
+            [](Eval* e) {
+        if (e!=EVAL_TEST) delete e;
+    }) { }
 };
 
 
@@ -136,9 +142,8 @@ bool RunCCEval(const CC *cond, const CTransaction &tx, unsigned int nIn);
 /*
  * Virtual machine to use in the case of on-chain app evaluation
  */
-class AppVM
-{ 
-public:
+class AppVM {
+  public:
     /*
      * in:  header   - paramters agreed upon by all players
      * in:  body     - gamestate
@@ -146,7 +151,7 @@ public:
      * out: payments - vector of CTxOut, always deterministically sorted.
      */
     virtual std::pair<int,std::vector<CTxOut>>
-        evaluate(std::vector<unsigned char> header, std::vector<unsigned char> body) = 0;
+                                            evaluate(std::vector<unsigned char> header, std::vector<unsigned char> body) = 0;
 };
 
 
@@ -154,9 +159,8 @@ public:
 /*
  * Data from notarisation OP_RETURN from chain being notarised
  */
-class NotarisationData
-{
-public:
+class NotarisationData {
+  public:
     int IsBackNotarisation = 0;
     uint256 blockHash      = uint256();
     uint32_t height        = 0;
@@ -195,16 +199,14 @@ public:
             READWRITE(MoMoMDepth);
         }
     }
-    
+
     template <typename Stream>
-    void SerSymbol(Stream& s, CSerActionSerialize act)
-    {
+    void SerSymbol(Stream& s, CSerActionSerialize act) {
         s.write(symbol, strlen(symbol)+1);
     }
 
     template <typename Stream>
-    void SerSymbol(Stream& s, CSerActionUnserialize act)
-    {
+    void SerSymbol(Stream& s, CSerActionUnserialize act) {
         size_t readlen = std::min(sizeof(symbol), s.size());
         char *nullPos = (char*) memchr(&s[0], 0, readlen);
         if (!nullPos)
@@ -213,9 +215,8 @@ public:
     }
 
     template <typename Stream>
-    bool DetectBackNotarisation(Stream& s, CSerActionUnserialize act)
-    {
-        if (!chainName.isKMD()) 
+    bool DetectBackNotarisation(Stream& s, CSerActionUnserialize act) {
+        if (!chainName.isKMD())
             return 1;
         if (s.size() >= 72) {
             if (strcmp("BTC", &s[68]) == 0) return 1;
@@ -223,10 +224,9 @@ public:
         }
         return 0;
     }
-    
+
     template <typename Stream>
-    bool DetectBackNotarisation(Stream& s, CSerActionSerialize act)
-    {
+    bool DetectBackNotarisation(Stream& s, CSerActionSerialize act) {
         return !txHash.IsNull();
     }
 };
@@ -252,25 +252,25 @@ std::string EvalToStr(EvalCode c);
 uint256 SafeCheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex);
 
 
-class MerkleBranch
-{
-public:
+class MerkleBranch {
+  public:
     int nIndex;
     std::vector<uint256> branch;
 
     MerkleBranch() {}
     MerkleBranch(int i, std::vector<uint256> b) : nIndex(i), branch(b) {}
-    uint256 Exec(uint256 hash) const { return SafeCheckMerkleBranch(hash, branch, nIndex); }
+    uint256 Exec(uint256 hash) const {
+        return SafeCheckMerkleBranch(hash, branch, nIndex);
+    }
 
-    MerkleBranch& operator<<(MerkleBranch append)
-    {
+    MerkleBranch& operator<<(MerkleBranch append) {
         nIndex += append.nIndex << branch.size();
         branch.insert(branch.end(), append.branch.begin(), append.branch.end());
         return *this;
     }
 
     ADD_SERIALIZE_METHODS;
-    
+
     template <typename Stream, typename Operation>
     inline void SerializationOp(Stream& s, Operation ser_action) {
         READWRITE(VARINT(nIndex));

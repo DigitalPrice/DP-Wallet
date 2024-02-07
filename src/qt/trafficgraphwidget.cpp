@@ -26,14 +26,12 @@ TrafficGraphWidget::TrafficGraphWidget(QWidget *parent) :
     vSamplesOut(),
     nLastBytesIn(0),
     nLastBytesOut(0),
-    clientModel(0)
-{
+    clientModel(0) {
     timer = new QTimer(this);
     connect(timer, &QTimer::timeout, this, &TrafficGraphWidget::updateRates);
 }
 
-void TrafficGraphWidget::setClientModel(ClientModel *model)
-{
+void TrafficGraphWidget::setClientModel(ClientModel *model) {
     clientModel = model;
     if(model) {
         nLastBytesIn = model->getTotalBytesRecv();
@@ -41,13 +39,11 @@ void TrafficGraphWidget::setClientModel(ClientModel *model)
     }
 }
 
-int TrafficGraphWidget::getGraphRangeMins() const
-{
+int TrafficGraphWidget::getGraphRangeMins() const {
     return nMins;
 }
 
-void TrafficGraphWidget::paintPath(QPainterPath &path, QQueue<float> &samples)
-{
+void TrafficGraphWidget::paintPath(QPainterPath &path, QQueue<float> &samples) {
     int sampleCount = samples.size();
     if(sampleCount > 0) {
         int h = height() - YMARGIN * 2, w = width() - XMARGIN * 2;
@@ -62,8 +58,7 @@ void TrafficGraphWidget::paintPath(QPainterPath &path, QQueue<float> &samples)
     }
 }
 
-void TrafficGraphWidget::paintEvent(QPaintEvent *)
-{
+void TrafficGraphWidget::paintEvent(QPaintEvent *) {
     QPainter painter(this);
     painter.fillRect(rect(), Qt::black);
 
@@ -80,7 +75,7 @@ void TrafficGraphWidget::paintEvent(QPaintEvent *)
 
     const QString units     = tr("KB/s");
     const float yMarginText = 2.0;
-    
+
     // draw lines
     painter.setPen(axisCol);
     painter.drawText(XMARGIN, YMARGIN + h - h * val / fMax-yMarginText, QString("%1 %2").arg(val).arg(units));
@@ -120,8 +115,7 @@ void TrafficGraphWidget::paintEvent(QPaintEvent *)
     }
 }
 
-void TrafficGraphWidget::updateRates()
-{
+void TrafficGraphWidget::updateRates() {
     if(!clientModel) return;
 
     quint64 bytesIn = clientModel->getTotalBytesRecv(),
@@ -151,8 +145,7 @@ void TrafficGraphWidget::updateRates()
     update();
 }
 
-void TrafficGraphWidget::setGraphRangeMins(int mins)
-{
+void TrafficGraphWidget::setGraphRangeMins(int mins) {
     nMins = mins;
     int msecsPerSample = nMins * 60 * 1000 / DESIRED_SAMPLES;
     timer->stop();
@@ -161,8 +154,7 @@ void TrafficGraphWidget::setGraphRangeMins(int mins)
     clear();
 }
 
-void TrafficGraphWidget::clear()
-{
+void TrafficGraphWidget::clear() {
     timer->stop();
 
     vSamplesOut.clear();

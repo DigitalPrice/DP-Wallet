@@ -12,8 +12,7 @@
 
 BOOST_FIXTURE_TEST_SUITE(main_tests, TestingSetup)
 
-static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams)
-{
+static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams) {
     int maxHalvings = 64;
     CAmount nInitialSubsidy = 12.5 * COIN;
 
@@ -33,23 +32,20 @@ static void TestBlockSubsidyHalvings(const Consensus::Params& consensusParams)
     BOOST_CHECK_EQUAL(GetBlockSubsidy((maxHalvings * consensusParams.nSubsidyHalvingInterval) + consensusParams.SubsidySlowStartShift(), consensusParams), 0);
 }
 
-static void TestBlockSubsidyHalvings(int nSubsidySlowStartInterval, int nSubsidyHalvingInterval)
-{
+static void TestBlockSubsidyHalvings(int nSubsidySlowStartInterval, int nSubsidyHalvingInterval) {
     Consensus::Params consensusParams;
     consensusParams.nSubsidySlowStartInterval = nSubsidySlowStartInterval;
     consensusParams.nSubsidyHalvingInterval = nSubsidyHalvingInterval;
     TestBlockSubsidyHalvings(consensusParams);
 }
 
-BOOST_AUTO_TEST_CASE(block_subsidy_test)
-{
+BOOST_AUTO_TEST_CASE(block_subsidy_test) {
     TestBlockSubsidyHalvings(Params(CBaseChainParams::MAIN).GetConsensus()); // As in main
     TestBlockSubsidyHalvings(50, 150); // As in regtest
     TestBlockSubsidyHalvings(500, 1000); // Just another interval
 }
 
-BOOST_AUTO_TEST_CASE(subsidy_limit_test)
-{
+BOOST_AUTO_TEST_CASE(subsidy_limit_test) {
     const Consensus::Params& consensusParams = Params(CBaseChainParams::MAIN).GetConsensus();
     CAmount nSum = 0;
     // Mining slow start
@@ -84,11 +80,14 @@ BOOST_AUTO_TEST_CASE(subsidy_limit_test)
     BOOST_CHECK_EQUAL(nSum, 2099999990760000ULL);
 }
 
-bool ReturnFalse() { return false; }
-bool ReturnTrue() { return true; }
+bool ReturnFalse() {
+    return false;
+}
+bool ReturnTrue() {
+    return true;
+}
 
-BOOST_AUTO_TEST_CASE(test_combiner_all)
-{
+BOOST_AUTO_TEST_CASE(test_combiner_all) {
     boost::signals2::signal<bool (), CombinerAll> Test;
     BOOST_CHECK(Test());
     Test.connect(&ReturnFalse);

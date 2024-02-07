@@ -17,15 +17,14 @@ QT_END_NAMESPACE
 
 /** Widget for entering komodo amounts.
   */
-class KomodoAmountField: public QWidget
-{
+class KomodoAmountField: public QWidget {
     Q_OBJECT
 
     // ugly hack: for some unknown reason CAmount (instead of qint64) does not work here as expected
     // discussion: https://github.com/komodo/komodo/pull/5117
     Q_PROPERTY(qint64 value READ value WRITE setValue NOTIFY valueChanged USER true)
 
-public:
+  public:
     explicit KomodoAmountField(QWidget *parent = 0);
 
     CAmount value(bool *value=0) const;
@@ -56,18 +55,18 @@ public:
     */
     QWidget *setupTabChain(QWidget *prev);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void valueChanged();
 
-protected:
+  protected:
     /** Intercept focus-in event and ',' key presses */
     bool eventFilter(QObject *object, QEvent *event);
 
-private:
+  private:
     AmountSpinBox *amount;
     QValueComboBox *unit;
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void unitChanged(int idx);
 
 };

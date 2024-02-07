@@ -68,8 +68,7 @@ the bad alert.
 
 static const int64_t DAYS = 24 * 60 * 60;
 
-void ThreadSendAlert()
-{
+void ThreadSendAlert() {
     if (!mapArgs.count("-sendalert") && !mapArgs.count("-printalert"))
         return;
 
@@ -128,13 +127,11 @@ void ThreadSendAlert()
     sMsg << *(CUnsignedAlert*)&alert;
     alert.vchMsg = std::vector<unsigned char>(sMsg.begin(), sMsg.end());
     CKey key;
-    if (!key.SetPrivKey(vchPrivKey, false))
-    {
+    if (!key.SetPrivKey(vchPrivKey, false)) {
         LogPrintf("ThreadSendAlert() : key.SetPrivKey failed\n");
         return;
     }
-    if (!key.Sign(Hash(alert.vchMsg.begin(), alert.vchMsg.end()), alert.vchSig))
-    {
+    if (!key.Sign(Hash(alert.vchMsg.begin(), alert.vchMsg.end()), alert.vchSig)) {
         LogPrintf("ThreadSendAlert() : key.Sign failed\n");
         return;
     }
@@ -144,8 +141,7 @@ void ThreadSendAlert()
     sBuffer << alert;
     CAlert alert2;
     sBuffer >> alert2;
-    if (!alert2.CheckSignature(chainparams.AlertKey()))
-    {
+    if (!alert2.CheckSignature(chainparams.AlertKey())) {
         LogPrintf("ThreadSendAlert() : CheckSignature failed\n");
         return;
     }
@@ -171,10 +167,8 @@ void ThreadSendAlert()
     int nSent = 0;
     {
         LOCK(cs_vNodes);
-        BOOST_FOREACH(CNode* pnode, vNodes)
-        {
-            if (alert2.RelayTo(pnode))
-            {
+        BOOST_FOREACH(CNode* pnode, vNodes) {
+            if (alert2.RelayTo(pnode)) {
                 LogPrintf("ThreadSendAlert() : Sent alert to %s\n", pnode->addr.ToString().c_str());
                 nSent++;
             }

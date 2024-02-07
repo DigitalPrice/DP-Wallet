@@ -23,14 +23,12 @@ UniValue games_rawtxresult(UniValue &result,std::string rawtx,int32_t broadcastf
 
 #define bstr(x) ((double)((uint32_t)x) / 10000.)
 
-struct prices_bar
-{
+struct prices_bar {
     uint64_t open,high,low,close,sum;
     int32_t num;
 };
 
-int32_t prices_barupdate(struct prices_bar *bar,uint64_t pricebits)
-{
+int32_t prices_barupdate(struct prices_bar *bar,uint64_t pricebits) {
     uint32_t uprice,timestamp;
     timestamp = (uint32_t)(pricebits >> 32);
     uprice = (uint32_t)pricebits;
@@ -45,11 +43,9 @@ int32_t prices_barupdate(struct prices_bar *bar,uint64_t pricebits)
     return(0);
 }
 
-int64_t prices_bardist(struct prices_bar *bar,uint32_t aveprice,uint64_t pricebits)
-{
+int64_t prices_bardist(struct prices_bar *bar,uint32_t aveprice,uint64_t pricebits) {
     int64_t a,dist = 0;
-    if ( aveprice != 0 )
-    {
+    if ( aveprice != 0 ) {
         a = (pricebits & 0xffffffff);
         dist = (a - aveprice);
         dist *= dist;
@@ -58,54 +54,51 @@ int64_t prices_bardist(struct prices_bar *bar,uint32_t aveprice,uint64_t pricebi
     return(dist);
 }
 
-void prices_bardisp(struct prices_bar *bar)
-{
+void prices_bardisp(struct prices_bar *bar) {
     if ( bar->num == 0 )
         fprintf(stderr,"BAR null\n");
     else fprintf(stderr,"BAR ave %.4f (O %.4f, H %.4f, L %.4f, C %.4f)\n",bstr(bar->sum/bar->num),bstr(bar->open),bstr(bar->high),bstr(bar->low),bstr(bar->close));
 }
 
-int64_t prices_blockinfo(int32_t height,char *acaddr)
-{
-    std::vector<uint8_t> vopret; CBlockIndex *pindex; CBlock block; CTransaction tx,vintx; uint64_t pricebits; char destaddr[64]; uint32_t aveprice=0,timestamp,uprice; uint256 hashBlock; int64_t dist,mindist=(1LL<<60),prizefund = 0; int32_t mini=-1,i,n,vini,numvouts,iter; struct prices_bar refbar;
-    if ( (pindex= komodo_chainactive(height)) != 0 )
-    {
-        if ( komodo_blockload(block,pindex) == 0 )
-        {
+int64_t prices_blockinfo(int32_t height,char *acaddr) {
+    std::vector<uint8_t> vopret;
+    CBlockIndex *pindex;
+    CBlock block;
+    CTransaction tx,vintx;
+    uint64_t pricebits;
+    char destaddr[64];
+    uint32_t aveprice=0,timestamp,uprice;
+    uint256 hashBlock;
+    int64_t dist,mindist=(1LL<<60),prizefund = 0;
+    int32_t mini=-1,i,n,vini,numvouts,iter;
+    struct prices_bar refbar;
+    if ( (pindex= komodo_chainactive(height)) != 0 ) {
+        if ( komodo_blockload(block,pindex) == 0 ) {
             n = block.vtx.size();
             vini = 0;
             memset(&refbar,0,sizeof(refbar));
-            for (iter=0; iter<2; iter++)
-            {
-                for (i=0; i<n; i++)
-                {
+            for (iter=0; iter<2; iter++) {
+                for (i=0; i<n; i++) {
                     tx = block.vtx[i];
                     if ( myGetTransaction(tx.vin[vini].prevout.hash,vintx,hashBlock) == 0 )
                         continue;
                     else if ( tx.vin[vini].prevout.n >= vintx.vout.size() || Getscriptaddress(destaddr,vintx.vout[tx.vin[vini].prevout.n].scriptPubKey) == 0 )
                         continue;
-                    else if ( (numvouts= tx.vout.size()) > 1 && tx.vout[numvouts-1].scriptPubKey[0] == 0x6a )
-                    {
+                    else if ( (numvouts= tx.vout.size()) > 1 && tx.vout[numvouts-1].scriptPubKey[0] == 0x6a ) {
                         GetOpReturnData(tx.vout[numvouts-1].scriptPubKey,vopret);
-                        if ( vopret.size() == 8 )
-                        {
+                        if ( vopret.size() == 8 ) {
                             E_UNMARSHAL(vopret,ss >> pricebits);
                             timestamp = (uint32_t)(pricebits >> 32);
                             uprice = (uint32_t)pricebits;
-                            if ( iter == 0 )
-                            {
+                            if ( iter == 0 ) {
                                 prizefund += tx.vout[0].nValue;
-                                if ( strcmp(acaddr,destaddr) == 0 )
-                                {
+                                if ( strcmp(acaddr,destaddr) == 0 ) {
                                     //fprintf(stderr,"REF ");
                                     prices_barupdate(&refbar,pricebits);
                                 }
-                            }
-                            else if ( strcmp(acaddr,destaddr) != 0 )
-                            {
+                            } else if ( strcmp(acaddr,destaddr) != 0 ) {
                                 dist = prices_bardist(&refbar,aveprice,pricebits);
-                                if ( dist < mindist )
-                                {
+                                if ( dist < mindist ) {
                                     mindist = dist;
                                     mini = i;
                                 }
@@ -114,8 +107,7 @@ int64_t prices_blockinfo(int32_t height,char *acaddr)
                         } else return(-3);
                     }
                 }
-                if ( iter == 0 )
-                {
+                if ( iter == 0 ) {
                     prices_bardisp(&refbar);
                     if ( refbar.num != 0 )
                         aveprice = (uint32_t)refbar.sum / refbar.num;
@@ -126,11 +118,13 @@ int64_t prices_blockinfo(int32_t height,char *acaddr)
     } else return(-1);
 }
 
-UniValue games_settle(uint64_t txfee,struct CCcontract_info *cp,cJSON *params)
-{
-    UniValue result(UniValue::VOBJ);  char acaddr[64]; CPubKey acpk,mypk,gamespk; int64_t prizefund = 0; int32_t height,nextheight = komodo_nextheight();
-    if ( ASSETCHAINS_OVERRIDE_PUBKEY33[0] == 0 )
-    {
+UniValue games_settle(uint64_t txfee,struct CCcontract_info *cp,cJSON *params) {
+    UniValue result(UniValue::VOBJ);
+    char acaddr[64];
+    CPubKey acpk,mypk,gamespk;
+    int64_t prizefund = 0;
+    int32_t height,nextheight = komodo_nextheight();
+    if ( ASSETCHAINS_OVERRIDE_PUBKEY33[0] == 0 ) {
         result.push_back(Pair("result","error"));
         result.push_back(Pair("error"," no -ac_pubkey for price reference"));
         return(result);
@@ -139,41 +133,36 @@ UniValue games_settle(uint64_t txfee,struct CCcontract_info *cp,cJSON *params)
     gamespk = GetUnspendable(cp,0);
     acpk = buf2pk(ASSETCHAINS_OVERRIDE_PUBKEY33);
     Getscriptaddress(acaddr,CScript() << ParseHex(HexStr(acpk)) << OP_CHECKSIG);
-    if ( params != 0 && cJSON_GetArraySize(params) == 1 )
-    {
+    if ( params != 0 && cJSON_GetArraySize(params) == 1 ) {
         height = juint(jitem(params,0),0);
         result.push_back(Pair("height",(int64_t)height));
-        if ( (prizefund= prices_blockinfo(height,acaddr)) < 0 )
-        {
+        if ( (prizefund= prices_blockinfo(height,acaddr)) < 0 ) {
             result.push_back(Pair("result","error"));
             result.push_back(Pair("errorcode",prizefund));
             result.push_back(Pair("error","blockinfo error"));
-        }
-        else
-        {
+        } else {
             // display bets
-            if ( height <= nextheight-PRICES_BETPERIOD )
-            {
+            if ( height <= nextheight-PRICES_BETPERIOD ) {
                 // settle bets by first nonzero reference bar
             }
             result.push_back(Pair("prizefund",ValueFromAmount(prizefund)));
             result.push_back(Pair("result","success"));
         }
-    }
-    else
-    {
+    } else {
         result.push_back(Pair("result","error"));
         result.push_back(Pair("error","couldnt parse"));
     }
     return(result);
 }
 
-UniValue games_bet(uint64_t txfee,struct CCcontract_info *cp,cJSON *params)
-{
+UniValue games_bet(uint64_t txfee,struct CCcontract_info *cp,cJSON *params) {
     CMutableTransaction mtx = CreateNewContextualCMutableTransaction(Params().GetConsensus(), komodo_nextheight());
-    UniValue result(UniValue::VOBJ); std::string rawtx; int64_t amount,inputsum; uint64_t price; CPubKey gamespk,mypk,acpk;
-    if ( ASSETCHAINS_OVERRIDE_PUBKEY33[0] == 0 )
-    {
+    UniValue result(UniValue::VOBJ);
+    std::string rawtx;
+    int64_t amount,inputsum;
+    uint64_t price;
+    CPubKey gamespk,mypk,acpk;
+    if ( ASSETCHAINS_OVERRIDE_PUBKEY33[0] == 0 ) {
         result.push_back(Pair("result","error"));
         result.push_back(Pair("error"," no -ac_pubkey for price reference"));
         return(result);
@@ -181,61 +170,50 @@ UniValue games_bet(uint64_t txfee,struct CCcontract_info *cp,cJSON *params)
     mypk = pubkey2pk(Mypubkey());
     gamespk = GetUnspendable(cp,0);
     acpk = buf2pk(ASSETCHAINS_OVERRIDE_PUBKEY33);
-    if ( params != 0 && cJSON_GetArraySize(params) == 2 )
-    {
+    if ( params != 0 && cJSON_GetArraySize(params) == 2 ) {
         amount = jdouble(jitem(params,0),0) * COIN + 0.0000000049;
-        if ( cclib_parsehash((uint8_t *)&price,jitem(params,1),8) < 0 )
-        {
+        if ( cclib_parsehash((uint8_t *)&price,jitem(params,1),8) < 0 ) {
             result.push_back(Pair("result","error"));
             result.push_back(Pair("error","couldnt parsehash"));
             return(result);
         }
-        if ( mypk == acpk )
-        {
+        if ( mypk == acpk ) {
             amount = 0; // i am the reference price feed
             //fprintf(stderr,"i am the reference\n");
         }
         //fprintf(stderr,"amount %llu price %llx\n",(long long)amount,(long long)price);
-        if ( (inputsum= AddNormalinputs(mtx,mypk,amount+GAMES_TXFEE,64)) >= amount+GAMES_TXFEE )
-        {
+        if ( (inputsum= AddNormalinputs(mtx,mypk,amount+GAMES_TXFEE,64)) >= amount+GAMES_TXFEE ) {
             mtx.vout.push_back(MakeCC1vout(cp->evalcode,amount,gamespk));
             rawtx = FinalizeCCTx(0,cp,mtx,mypk,GAMES_TXFEE,CScript() << OP_RETURN << price);
             return(games_rawtxresult(result,rawtx,1));
-        }
-        else
-        {
+        } else {
             result.push_back(Pair("result","error"));
             result.push_back(Pair("error","not enough funds"));
         }
-    }
-    else
-    {
+    } else {
         result.push_back(Pair("result","error"));
         result.push_back(Pair("error","couldnt parse"));
     }
     return(result);
 }
 
-void prices_update(uint32_t timestamp,uint32_t uprice,int32_t ismine)
-{
+void prices_update(uint32_t timestamp,uint32_t uprice,int32_t ismine) {
     //fprintf(stderr,"%s t%u %.4f %16llx\n",ismine!=0?"mine":"ext ",timestamp,(double)uprice/10000,(long long)((uint64_t)timestamp<<32) | uprice);
 }
 
 // game specific code for daemon
-void games_packitemstr(char *packitemstr,struct games_packitem *item)
-{
+void games_packitemstr(char *packitemstr,struct games_packitem *item) {
     strcpy(packitemstr,"");
 }
 
-int64_t games_cashout(struct games_player *P)
-{
-    int32_t dungeonlevel = P->dungeonlevel; int64_t mult=1000,cashout = 0;
+int64_t games_cashout(struct games_player *P) {
+    int32_t dungeonlevel = P->dungeonlevel;
+    int64_t mult=1000,cashout = 0;
     cashout = (uint64_t)P->gold * mult * dungeonlevel * dungeonlevel;
     return(cashout);
 }
 
-void pricesplayerjson(UniValue &obj,struct games_player *P)
-{
+void pricesplayerjson(UniValue &obj,struct games_player *P) {
     obj.push_back(Pair("packsize",(int64_t)P->packsize));
     obj.push_back(Pair("hitpoints",(int64_t)P->hitpoints));
     obj.push_back(Pair("strength",(int64_t)(P->strength&0xffff)));
@@ -245,8 +223,7 @@ void pricesplayerjson(UniValue &obj,struct games_player *P)
     obj.push_back(Pair("dungeonlevel",(int64_t)P->dungeonlevel));
 }
 
-int32_t disp_gamesplayer(char *str,struct games_player *P)
-{
+int32_t disp_gamesplayer(char *str,struct games_player *P) {
     str[0] = 0;
     //if ( P->gold <= 0 )//|| P->hitpoints <= 0 || (P->strength&0xffff) <= 0 || P->level <= 0 || P->experience <= 0 || P->dungeonlevel <= 0 )
     //    return(-1);
@@ -254,11 +231,13 @@ int32_t disp_gamesplayer(char *str,struct games_player *P)
     return(0);
 }
 
-int32_t games_payloadrecv(CPubKey pk,uint32_t timestamp,std::vector<uint8_t> payload)
-{
-    uint256 gametxid; int32_t i,len; char str[67]; int64_t price; uint32_t eventid = 0;
-    if ( (len= payload.size()) > 36 )
-    {
+int32_t games_payloadrecv(CPubKey pk,uint32_t timestamp,std::vector<uint8_t> payload) {
+    uint256 gametxid;
+    int32_t i,len;
+    char str[67];
+    int64_t price;
+    uint32_t eventid = 0;
+    if ( (len= payload.size()) > 36 ) {
         len -= 36;
         for (i=0; i<32; i++)
             ((uint8_t *)&gametxid)[i] = payload[len+i];
@@ -275,8 +254,7 @@ int32_t games_payloadrecv(CPubKey pk,uint32_t timestamp,std::vector<uint8_t> pay
     } else return(-1);
 }
 
-bool games_validate(struct CCcontract_info *cp,int32_t height,Eval *eval,const CTransaction tx)
-{
+bool games_validate(struct CCcontract_info *cp,int32_t height,Eval *eval,const CTransaction tx) {
     return(true);
 }
 

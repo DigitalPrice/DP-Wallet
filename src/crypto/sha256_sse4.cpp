@@ -10,10 +10,8 @@
 
 #if defined(__x86_64__) || defined(__amd64__)
 
-namespace sha256_sse4
-{
-void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks)
-{
+namespace sha256_sse4 {
+void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks) {
     static const uint32_t K256 alignas(16) [] = {
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
         0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -952,33 +950,33 @@ void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks)
         : "+r"(s), "+r"(chunk), "+r"(blocks), "=r"(a), "=r"(b), "=r"(c), "=r"(d), /* e = chunk */ "=r"(f), "=r"(g), "=r"(h), "=r"(y0), "=r"(y1), "=r"(y2), "=r"(tbl), "+m"(inp_end), "+m"(inp), "+m"(xfer)
         : "m"(K256), "m"(FLIP_MASK), "m"(SHUF_00BA), "m"(SHUF_DC00)
         : "cc", "memory", "xmm0", "xmm1", "xmm2", "xmm3", "xmm4", "xmm5", "xmm6", "xmm7", "xmm8", "xmm9", "xmm10", "xmm11", "xmm12"
-   );
+    );
 }
 }
 
 /*
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Copyright (c) 2012, Intel Corporation 
-; 
-; All rights reserved. 
-; 
+; Copyright (c) 2012, Intel Corporation
+;
+; All rights reserved.
+;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions are
-; met: 
-; 
+; met:
+;
 ; * Redistributions of source code must retain the above copyright
-;   notice, this list of conditions and the following disclaimer.  
-; 
+;   notice, this list of conditions and the following disclaimer.
+;
 ; * Redistributions in binary form must reproduce the above copyright
 ;   notice, this list of conditions and the following disclaimer in the
 ;   documentation and/or other materials provided with the
-;   distribution. 
-; 
+;   distribution.
+;
 ; * Neither the name of the Intel Corporation nor the names of its
 ;   contributors may be used to endorse or promote products derived from
-;   this software without specific prior written permission. 
-; 
-; 
+;   this software without specific prior written permission.
+;
+;
 ; THIS SOFTWARE IS PROVIDED BY INTEL CORPORATION "AS IS" AND ANY
 ; EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
 ; IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
@@ -1001,7 +999,7 @@ void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks)
 ; This code is described in an Intel White-Paper:
 ; "Fast SHA-256 Implementations on Intel Architecture Processors"
 ;
-; To find it, surf to http://www.intel.com/p/en_US/embedded 
+; To find it, surf to http://www.intel.com/p/en_US/embedded
 ; and search for that title.
 ; The paper is expected to be released roughly at the end of April, 2012
 ;
@@ -1009,7 +1007,7 @@ void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks)
 ; This code schedules 1 blocks at a time, with 4 lanes per block
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-%define	MOVDQ movdqu ;; assume buffers not aligned 
+%define	MOVDQ movdqu ;; assume buffers not aligned
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Define Macros
 
@@ -1046,7 +1044,7 @@ void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks)
 %define SHUF_00BA	xmm10 ; shuffle xBxA -> 00BA
 %define SHUF_DC00	xmm11 ; shuffle xDxC -> DC00
 %define BYTE_FLIP_MASK	xmm12
-    
+
 %ifdef LINUX
 %define NUM_BLKS rdx	; 3rd arg
 %define CTX	rsi	; 2nd arg
@@ -1062,10 +1060,10 @@ void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks)
 %define INP	rcx 	; 1st arg
 
 %define SRND	rcx	; clobbers INP
-%define c 	edi 
-%define d	esi 
+%define c 	edi
+%define d	esi
 %define e 	r8d
-    
+
 %endif
 %define TBL	rbp
 %define a eax
@@ -1345,10 +1343,10 @@ sha256_sse4:
 
     sub	rsp,STACK_SIZE
 %ifndef LINUX
-    movdqa	[rsp + _XMM_SAVE + 0*16],xmm6	
+    movdqa	[rsp + _XMM_SAVE + 0*16],xmm6
     movdqa	[rsp + _XMM_SAVE + 1*16],xmm7
-    movdqa	[rsp + _XMM_SAVE + 2*16],xmm8	
-    movdqa	[rsp + _XMM_SAVE + 3*16],xmm9	
+    movdqa	[rsp + _XMM_SAVE + 2*16],xmm8
+    movdqa	[rsp + _XMM_SAVE + 3*16],xmm9
     movdqa	[rsp + _XMM_SAVE + 4*16],xmm10
     movdqa	[rsp + _XMM_SAVE + 5*16],xmm11
     movdqa	[rsp + _XMM_SAVE + 6*16],xmm12
@@ -1381,7 +1379,7 @@ loop0:
     COPY_XMM_AND_BSWAP	X1, [INP + 1*16], BYTE_FLIP_MASK
     COPY_XMM_AND_BSWAP	X2, [INP + 2*16], BYTE_FLIP_MASK
     COPY_XMM_AND_BSWAP	X3, [INP + 3*16], BYTE_FLIP_MASK
-    
+
     mov	[rsp + _INP], INP
 
     ;; schedule 48 input dwords, by doing 3 rounds of 16 each
@@ -1471,8 +1469,8 @@ done_hash:
 %endif
     pop	rbx
 
-    ret	
-    
+    ret
+
 
 section .data
 align 64

@@ -6,7 +6,7 @@
 #include <boost/optional.hpp>
 
 class UpgradesTest : public ::testing::Test {
-protected:
+  protected:
     virtual void SetUp() {
     }
 

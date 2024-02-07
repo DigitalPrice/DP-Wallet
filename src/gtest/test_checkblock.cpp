@@ -6,12 +6,12 @@
 #include "zcash/Proof.hpp"
 
 class MockCValidationState : public CValidationState {
-public:
+  public:
     MOCK_METHOD5(DoS, bool(int level, bool ret,
-             unsigned char chRejectCodeIn, std::string strRejectReasonIn,
-             bool corruptionIn));
+                           unsigned char chRejectCodeIn, std::string strRejectReasonIn,
+                           bool corruptionIn));
     MOCK_METHOD3(Invalid, bool(bool ret,
-                 unsigned char _chRejectCode, std::string _strRejectReason));
+                               unsigned char _chRejectCode, std::string _strRejectReason));
     MOCK_METHOD1(Error, bool(std::string strRejectReasonIn));
     MOCK_CONST_METHOD0(IsValid, bool());
     MOCK_CONST_METHOD0(IsInvalid, bool());
@@ -48,8 +48,8 @@ TEST(CheckBlock, BlockSproutRejectsBadVersion) {
     mtx.vout[0].scriptPubKey = CScript() << OP_TRUE;
     mtx.vout[0].nValue = 0;
     mtx.vout.push_back(CTxOut(
-        GetBlockSubsidy(1, Params().GetConsensus())/5,
-        Params().GetFoundersRewardScriptAtHeight(1)));
+                           GetBlockSubsidy(1, Params().GetConsensus())/5,
+                           Params().GetFoundersRewardScriptAtHeight(1)));
     mtx.fOverwintered = false;
     mtx.nVersion = -1;
     mtx.nVersionGroupId = 0;
@@ -69,7 +69,7 @@ TEST(CheckBlock, BlockSproutRejectsBadVersion) {
 
 
 class ContextualCheckBlockTest : public ::testing::Test {
-protected:
+  protected:
     virtual void SetUp() {
         SelectParams(CBaseChainParams::MAIN);
     }
@@ -98,8 +98,8 @@ protected:
 
         // Give it a Founder's Reward vout for height 1.
         mtx.vout.push_back(CTxOut(
-                    GetBlockSubsidy(1, Params().GetConsensus())/5,
-                    Params().GetFoundersRewardScriptAtHeight(1)));
+                               GetBlockSubsidy(1, Params().GetConsensus())/5,
+                               Params().GetFoundersRewardScriptAtHeight(1)));
 
         return mtx;
     }
@@ -157,8 +157,8 @@ TEST_F(ContextualCheckBlockTest, BadCoinbaseHeight) {
 
     // Give the transaction a Founder's Reward vout
     mtx.vout.push_back(CTxOut(
-                GetBlockSubsidy(1, Params().GetConsensus())/5,
-                Params().GetFoundersRewardScriptAtHeight(1)));
+                           GetBlockSubsidy(1, Params().GetConsensus())/5,
+                           Params().GetFoundersRewardScriptAtHeight(1)));
 
     // Treating block as non-genesis should fail
     CTransaction tx2 {mtx};

@@ -20,11 +20,11 @@ extern "C" {
 
 /* Secp256k1Fulfillment */
 typedef struct Secp256k1Fulfillment {
-	OCTET_STRING_t	 publicKey;
-	OCTET_STRING_t	 signature;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 publicKey;
+    OCTET_STRING_t	 signature;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } Secp256k1Fulfillment_t;
 
 /* Implementation */

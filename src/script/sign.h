@@ -33,22 +33,26 @@ struct CMutableTransaction;
 
 /** Virtual base class for signature creators. */
 class BaseSignatureCreator {
-protected:
+  protected:
     const CKeyStore* keystore;
 
-public:
+  public:
     BaseSignatureCreator(const CKeyStore* keystoreIn) : keystore(keystoreIn) {}
-    const bool IsKeystoreValid() const { return keystore != NULL; }
-    const CKeyStore& KeyStore() const { return *keystore; }
+    const bool IsKeystoreValid() const {
+        return keystore != NULL;
+    }
+    const CKeyStore& KeyStore() const {
+        return *keystore;
+    }
     virtual ~BaseSignatureCreator() {}
     virtual const BaseSignatureChecker& Checker() const =0;
 
     /** Create a singular (non-script) signature. */
-    virtual bool CreateSig(std::vector<unsigned char>& vchSig, 
-                           const CKeyID& keyid, 
-                           const CScript& scriptCode, 
-                           uint32_t consensusBranchId, 
-                           CKey *key = NULL, 
+    virtual bool CreateSig(std::vector<unsigned char>& vchSig,
+                           const CKeyID& keyid,
+                           const CScript& scriptCode,
+                           uint32_t consensusBranchId,
+                           CKey *key = NULL,
                            void *extraData = NULL) const = 0;
 };
 
@@ -60,22 +64,24 @@ class TransactionSignatureCreator : public BaseSignatureCreator {
     CAmount amount;
     const TransactionSignatureChecker checker;
 
-public:
+  public:
     TransactionSignatureCreator(const CKeyStore* keystoreIn, const CTransaction* txToIn, unsigned int nInIn, const CAmount& amountIn, int nHashTypeIn=SIGHASH_ALL);
-    const BaseSignatureChecker& Checker() const { return checker; }
+    const BaseSignatureChecker& Checker() const {
+        return checker;
+    }
     bool CreateSig(std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, uint32_t consensusBranchId, CKey *key = NULL, void *extraData = NULL) const;
 };
 
 class MutableTransactionSignatureCreator : public TransactionSignatureCreator {
     CTransaction tx;
 
-public:
+  public:
     MutableTransactionSignatureCreator(const CKeyStore* keystoreIn, const CMutableTransaction* txToIn, unsigned int nInIn, const CAmount& amount, int nHashTypeIn) : TransactionSignatureCreator(keystoreIn, &tx, nInIn, amount, nHashTypeIn), tx(*txToIn) {}
 };
 
 /** A signature creator that just produces 72-byte empty signatures. */
 class DummySignatureCreator : public BaseSignatureCreator {
-public:
+  public:
     DummySignatureCreator(const CKeyStore* keystoreIn) : BaseSignatureCreator(keystoreIn) {}
     const BaseSignatureChecker& Checker() const;
     bool CreateSig(std::vector<unsigned char>& vchSig, const CKeyID& keyid, const CScript& scriptCode, uint32_t consensusBranchId, CKey *key = NULL, void *extraData = NULL) const;

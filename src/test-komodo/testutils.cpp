@@ -36,8 +36,7 @@ int64_t nMockTime;
 extern uint32_t USE_EXTERNAL_PUBKEY;
 extern std::string NOTARY_PUBKEY;
 
-void setupChain()
-{
+void setupChain() {
     SelectParams(CBaseChainParams::REGTEST);
 
     // Settings to get block reward
@@ -47,7 +46,7 @@ void setupChain()
     ::Params().SetCoinbaseMaturity(1);
     // Global mock time
     nMockTime = GetTime();
-    
+
     // Unload
     UnloadBlockIndex();
 
@@ -66,8 +65,7 @@ void setupChain()
 }
 
 
-void generateBlock(CBlock *block)
-{
+void generateBlock(CBlock *block) {
     UniValue params;
     params.setArray();
     params.push_back(1);
@@ -85,22 +83,19 @@ void generateBlock(CBlock *block)
 }
 
 
-void acceptTxFail(const CTransaction tx)
-{
+void acceptTxFail(const CTransaction tx) {
     CValidationState state;
     if (!acceptTx(tx, state)) FAIL() << state.GetRejectReason();
 }
 
 
-bool acceptTx(const CTransaction tx, CValidationState &state)
-{
+bool acceptTx(const CTransaction tx, CValidationState &state) {
     LOCK(cs_main);
     return AcceptToMemoryPool(mempool, state, tx, false, NULL);
 }
 
 
-CMutableTransaction spendTx(const CTransaction &txIn, int nOut)
-{
+CMutableTransaction spendTx(const CTransaction &txIn, int nOut) {
     CMutableTransaction mtx;
     mtx.vin.resize(1);
     mtx.vin[0].prevout.hash = txIn.GetHash();
@@ -111,8 +106,7 @@ CMutableTransaction spendTx(const CTransaction &txIn, int nOut)
 }
 
 
-std::vector<uint8_t> getSig(const CMutableTransaction mtx, CScript inputPubKey, int nIn)
-{
+std::vector<uint8_t> getSig(const CMutableTransaction mtx, CScript inputPubKey, int nIn) {
     uint256 hash = SignatureHash(inputPubKey, mtx, nIn, SIGHASH_ALL, 0, 0);
     std::vector<uint8_t> vchSig;
     notaryKey.Sign(hash, vchSig);
@@ -125,8 +119,7 @@ std::vector<uint8_t> getSig(const CMutableTransaction mtx, CScript inputPubKey, 
  * In order to do tests there needs to be inputs to spend.
  * This method creates a block and returns a transaction that spends the coinbase.
  */
-void getInputTx(CScript scriptPubKey, CTransaction &txIn)
-{
+void getInputTx(CScript scriptPubKey, CTransaction &txIn) {
     // Get coinbase
     CBlock block;
     generateBlock(&block);

@@ -58,10 +58,8 @@ const uint32_t SPROUT_BRANCH_ID = NetworkUpgradeInfo[Consensus::BASE_SPROUT].nBr
 UpgradeState NetworkUpgradeState(
     int nHeight,
     const Consensus::Params& params,
-    Consensus::UpgradeIndex idx)
-{
-    if (nHeight < 0)
-    {
+    Consensus::UpgradeIndex idx) {
+    if (nHeight < 0) {
         LogPrintf("height: %d", nHeight);
     }
     assert(nHeight >= 0);
@@ -89,8 +87,7 @@ UpgradeState NetworkUpgradeState(
 bool NetworkUpgradeActive(
     int nHeight,
     const Consensus::Params& params,
-    Consensus::UpgradeIndex idx)
-{
+    Consensus::UpgradeIndex idx) {
     return NetworkUpgradeState(nHeight, params, idx) == UPGRADE_ACTIVE;
 }
 
@@ -104,8 +101,7 @@ int CurrentEpoch(int nHeight, const Consensus::Params& params) {
     return Consensus::BASE_SPROUT;
 }
 
-uint32_t CurrentEpochBranchId(int nHeight, const Consensus::Params& params)
-{
+uint32_t CurrentEpochBranchId(int nHeight, const Consensus::Params& params) {
     if ( KOMODO_NSPV_SUPERLITE )
         return(NSPV_BRANCHID);
     return NetworkUpgradeInfo[CurrentEpoch(nHeight, params)].nBranchId;
@@ -123,8 +119,7 @@ bool IsConsensusBranchId(int branchId) {
 bool IsActivationHeight(
     int nHeight,
     const Consensus::Params& params,
-    Consensus::UpgradeIndex idx)
-{
+    Consensus::UpgradeIndex idx) {
     assert(idx >= Consensus::BASE_SPROUT && idx < Consensus::MAX_NETWORK_UPGRADES);
 
     // Don't count Sprout as an activation height
@@ -137,8 +132,7 @@ bool IsActivationHeight(
 
 bool IsActivationHeightForAnyUpgrade(
     int nHeight,
-    const Consensus::Params& params)
-{
+    const Consensus::Params& params) {
     if (nHeight < 0) {
         return false;
     }
@@ -169,8 +163,7 @@ boost::optional<int> NextEpoch(int nHeight, const Consensus::Params& params) {
 
 boost::optional<int> NextActivationHeight(
     int nHeight,
-    const Consensus::Params& params)
-{
+    const Consensus::Params& params) {
     auto idx = NextEpoch(nHeight, params);
     if (idx) {
         return params.vUpgrades[idx.get()].nActivationHeight;

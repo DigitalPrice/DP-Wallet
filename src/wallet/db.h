@@ -34,22 +34,21 @@
 #include <boost/filesystem/path.hpp>
 
 #ifdef BUILD_ROGUE
-    #ifdef __APPLE__
-        #include "../depends/x86_64-apple-darwin18.6.0/include/db_cxx.h"
-    #elif defined(_WIN32)
-        #include "../depends/x86_64-w64-mingw32/include/db_cxx.h"
-    #else
-        #include "../depends/x86_64-unknown-linux-gnu/include/db_cxx.h"
-    #endif
+#ifdef __APPLE__
+#include "../depends/x86_64-apple-darwin18.6.0/include/db_cxx.h"
+#elif defined(_WIN32)
+#include "../depends/x86_64-w64-mingw32/include/db_cxx.h"
 #else
-    #include <db_cxx.h>
+#include "../depends/x86_64-unknown-linux-gnu/include/db_cxx.h"
+#endif
+#else
+#include <db_cxx.h>
 #endif
 
 extern unsigned int nWalletDBUpdated;
 
-class CDBEnv
-{
-private:
+class CDBEnv {
+  private:
     bool fDbEnvInit;
     bool fMockDb;
     // Don't change into boost::filesystem::path, as that can result in
@@ -58,7 +57,7 @@ private:
 
     void EnvShutdown();
 
-public:
+  public:
     mutable CCriticalSection cs_db;
     DbEnv *dbenv = nullptr;
     std::map<std::string, int> mapFileUseCount;
@@ -69,7 +68,9 @@ public:
     void Reset();
 
     void MakeMock();
-    bool IsMock() { return fMockDb; }
+    bool IsMock() {
+        return fMockDb;
+    }
 
     /**
      * Verify that database file strFile is OK. If it is not,
@@ -79,7 +80,8 @@ public:
      */
     enum VerifyResult { VERIFY_OK,
                         RECOVER_OK,
-                        RECOVER_FAIL };
+                        RECOVER_FAIL
+                      };
     VerifyResult Verify(const std::string& strFile, bool (*recoverFunc)(CDBEnv& dbenv, const std::string& strFile));
     /**
      * Salvage data from a file that Verify says is bad.
@@ -99,8 +101,7 @@ public:
     void CloseDb(const std::string& strFile);
     bool RemoveDb(const std::string& strFile);
 
-    DbTxn* TxnBegin(int flags = DB_TXN_WRITE_NOSYNC)
-    {
+    DbTxn* TxnBegin(int flags = DB_TXN_WRITE_NOSYNC) {
         DbTxn* ptxn = NULL;
         int ret = dbenv->txn_begin(NULL, &ptxn, flags);
         if (!ptxn || ret != 0)
@@ -113,9 +114,8 @@ extern std::shared_ptr<CDBEnv> bitdb;
 
 
 /** RAII class that provides access to a Berkeley database */
-class CDB
-{
-protected:
+class CDB {
+  protected:
     Db* pdb;
     std::string strFile;
     DbTxn* activeTxn;
@@ -123,20 +123,21 @@ protected:
     bool fFlushOnClose;
 
     explicit CDB(const std::string& strFilename, const char* pszMode = "r+", bool fFlushOnCloseIn=true);
-    ~CDB() { Close(); }
+    ~CDB() {
+        Close();
+    }
 
-public:
+  public:
     void Flush();
     void Close();
 
-private:
+  private:
     CDB(const CDB&);
     void operator=(const CDB&);
 
-protected:
+  protected:
     template <typename K, typename T>
-    bool Read(const K& key, T& value)
-    {
+    bool Read(const K& key, T& value) {
         if (!pdb)
             return false;
 
@@ -169,8 +170,7 @@ protected:
     }
 
     template <typename K, typename T>
-    bool Write(const K& key, const T& value, bool fOverwrite = true)
-    {
+    bool Write(const K& key, const T& value, bool fOverwrite = true) {
         if (!pdb)
             return false;
         if (fReadOnly)
@@ -198,8 +198,7 @@ protected:
     }
 
     template <typename K>
-    bool Erase(const K& key)
-    {
+    bool Erase(const K& key) {
         if (!pdb)
             return false;
         if (fReadOnly)
@@ -220,8 +219,7 @@ protected:
     }
 
     template <typename K>
-    bool Exists(const K& key)
-    {
+    bool Exists(const K& key) {
         if (!pdb)
             return false;
 
@@ -239,8 +237,7 @@ protected:
         return (ret == 0);
     }
 
-    Dbc* GetCursor()
-    {
+    Dbc* GetCursor() {
         if (!pdb)
             return NULL;
         Dbc* pcursor = NULL;
@@ -250,8 +247,7 @@ protected:
         return pcursor;
     }
 
-    int ReadAtCursor(Dbc* pcursor, CDataStream& ssKey, CDataStream& ssValue, unsigned int fFlags = DB_NEXT)
-    {
+    int ReadAtCursor(Dbc* pcursor, CDataStream& ssKey, CDataStream& ssValue, unsigned int fFlags = DB_NEXT) {
         // Read at cursor
         Dbt datKey;
         if (fFlags == DB_SET || fFlags == DB_SET_RANGE || fFlags == DB_GET_BOTH || fFlags == DB_GET_BOTH_RANGE) {
@@ -287,9 +283,8 @@ protected:
         return 0;
     }
 
-public:
-    bool TxnBegin()
-    {
+  public:
+    bool TxnBegin() {
         if (!pdb || activeTxn)
             return false;
         DbTxn* ptxn = bitdb->TxnBegin();
@@ -299,8 +294,7 @@ public:
         return true;
     }
 
-    bool TxnCommit()
-    {
+    bool TxnCommit() {
         if (!pdb || !activeTxn)
             return false;
         int ret = activeTxn->commit(0);
@@ -308,8 +302,7 @@ public:
         return (ret == 0);
     }
 
-    bool TxnAbort()
-    {
+    bool TxnAbort() {
         if (!pdb || !activeTxn)
             return false;
         int ret = activeTxn->abort();
@@ -317,14 +310,12 @@ public:
         return (ret == 0);
     }
 
-    bool ReadVersion(int& nVersion)
-    {
+    bool ReadVersion(int& nVersion) {
         nVersion = 0;
         return Read(std::string("version"), nVersion);
     }
 
-    bool WriteVersion(int nVersion)
-    {
+    bool WriteVersion(int nVersion) {
         return Write(std::string("version"), nVersion);
     }
 

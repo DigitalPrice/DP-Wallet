@@ -16,9 +16,8 @@ class SendCoinsRecipient;
 class CWallet;
 
 /** Data model for a walletmodel transaction. */
-class WalletModelZTransaction
-{
-public:
+class WalletModelZTransaction {
+  public:
     explicit WalletModelZTransaction(const QString &fromaddress, const QList<SendCoinsRecipient> &recipients, const CAmount& fee);
     ~WalletModelZTransaction();
 
@@ -32,7 +31,7 @@ public:
     boost::optional<TransactionBuilder> getBuilder() const;
 
     void setContextualTx(const CMutableTransaction& newContextualTx);
-    CMutableTransaction getContextualTx() const;        
+    CMutableTransaction getContextualTx() const;
 
     void setTaddrRecipients(const std::vector<SendManyRecipient>& newTaddrRecipients);
     std::vector<SendManyRecipient> getTaddrRecipients() const;
@@ -48,7 +47,7 @@ public:
     void setOperationId(const AsyncRPCOperationId& newOperationId);
     AsyncRPCOperationId getOperationId() const;
 
-private:
+  private:
     QString fromaddress;
     QList<SendCoinsRecipient> recipients;
     CAmount fee;

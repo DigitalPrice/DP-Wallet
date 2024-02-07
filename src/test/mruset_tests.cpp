@@ -19,8 +19,7 @@ using namespace std;
 
 BOOST_FIXTURE_TEST_SUITE(mruset_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(mruset_test)
-{
+BOOST_AUTO_TEST_CASE(mruset_test) {
     // The mruset being tested.
     mruset<int> mru(5000);
 
@@ -40,12 +39,12 @@ BOOST_AUTO_TEST_CASE(mruset_test)
 
             // Add the number to rep/all as well.
             if (all.count(add) == 0) {
-               all.insert(add);
-               rep.push_back(add);
-               if (all.size() == 5001) {
-                   all.erase(rep.front());
-                   rep.pop_front();
-               }
+                all.insert(add);
+                rep.push_back(add);
+                if (all.size() == 5001) {
+                    all.erase(rep.front());
+                    rep.pop_front();
+                }
             }
 
             // Do a full comparison between mru and the simulated mru every 1000 and every 5001 elements.

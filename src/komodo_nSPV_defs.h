@@ -69,8 +69,7 @@ UniValue NSPV_spend(char *srcaddr,char *destaddr,int64_t satoshis);
 extern uint256 SIG_TXHASH;
 uint32_t NSPV_blocktime(int32_t hdrheight);
 
-struct NSPV_equihdr
-{
+struct NSPV_equihdr {
     int32_t nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -81,15 +80,13 @@ struct NSPV_equihdr
     uint8_t nSolution[1344];
 };
 
-struct NSPV_utxoresp
-{
+struct NSPV_utxoresp {
     uint256 txid;
     int64_t satoshis,extradata;
     int32_t vout,height;
 };
 
-struct NSPV_utxosresp
-{
+struct NSPV_utxosresp {
     struct NSPV_utxoresp *utxos;
     char coinaddr[64];
     int64_t total,interest;
@@ -97,45 +94,40 @@ struct NSPV_utxosresp
     uint16_t numutxos,CCflag;
 };
 
-struct NSPV_txidresp
-{
+struct NSPV_txidresp {
     uint256 txid;
     int64_t satoshis;
     int32_t vout,height;
 };
 
-struct NSPV_txidsresp
-{
+struct NSPV_txidsresp {
     struct NSPV_txidresp *txids;
     char coinaddr[64];
     int32_t nodeheight,skipcount,filter;
     uint16_t numtxids,CCflag;
 };
 
-struct NSPV_mempoolresp
-{
+struct NSPV_mempoolresp {
     uint256 *txids;
     char coinaddr[64];
     uint256 txid;
     int32_t nodeheight,vout,vindex;
-    uint16_t numtxids; uint8_t CCflag,funcid;
+    uint16_t numtxids;
+    uint8_t CCflag,funcid;
 };
 
-struct NSPV_ntz
-{
+struct NSPV_ntz {
     uint256 blockhash,txid,othertxid;
     int32_t height,txidheight;
     uint32_t timestamp;
 };
 
-struct NSPV_ntzsresp
-{
+struct NSPV_ntzsresp {
     struct NSPV_ntz prevntz,nextntz;
     int32_t reqheight;
 };
 
-struct NSPV_inforesp
-{
+struct NSPV_inforesp {
     struct NSPV_ntz notarization;
     uint256 blockhash;
     int32_t height,hdrheight;
@@ -143,8 +135,7 @@ struct NSPV_inforesp
     uint32_t version;
 };
 
-struct NSPV_txproof
-{
+struct NSPV_txproof {
     uint256 txid;
     int64_t unspentvalue;
     int32_t height,vout,txlen,txprooflen;
@@ -152,49 +143,45 @@ struct NSPV_txproof
     uint256 hashblock;
 };
 
-struct NSPV_ntzproofshared
-{
+struct NSPV_ntzproofshared {
     struct NSPV_equihdr *hdrs;
     int32_t prevht,nextht,pad32;
     uint16_t numhdrs,pad16;
 };
 
-struct NSPV_ntzsproofresp
-{
+struct NSPV_ntzsproofresp {
     struct NSPV_ntzproofshared common;
     uint256 prevtxid,nexttxid;
     int32_t prevtxidht,nexttxidht,prevtxlen,nexttxlen;
     uint8_t *prevntz,*nextntz;
 };
 
-struct NSPV_MMRproof
-{
+struct NSPV_MMRproof {
     struct NSPV_ntzproofshared common;
     // tbd
 };
 
-struct NSPV_spentinfo
-{
+struct NSPV_spentinfo {
     struct NSPV_txproof spent;
     uint256 txid;
     int32_t vout,spentvini;
 };
 
-struct NSPV_broadcastresp
-{
+struct NSPV_broadcastresp {
     uint256 txid;
     int32_t retcode;
 };
 
-struct NSPV_CCmtxinfo
-{
+struct NSPV_CCmtxinfo {
     struct NSPV_utxosresp U;
     struct NSPV_utxoresp used[NSPV_MAXVINS];
 };
 
-struct NSPV_remoterpcresp
-{
-    NSPV_remoterpcresp() { method[0] = '\0'; json = nullptr; }
+struct NSPV_remoterpcresp {
+    NSPV_remoterpcresp() {
+        method[0] = '\0';
+        json = nullptr;
+    }
     char method[64];
     char *json;
 };

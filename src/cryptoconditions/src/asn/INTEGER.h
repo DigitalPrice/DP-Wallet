@@ -18,20 +18,20 @@ extern asn_TYPE_descriptor_t asn_DEF_INTEGER;
 
 /* Map with <tag> to integer value association */
 typedef struct asn_INTEGER_enum_map_s {
-	long		 nat_value;	/* associated native integer value */
-	size_t		 enum_len;	/* strlen("tag") */
-	const char	*enum_name;	/* "tag" */
+    long		 nat_value;	/* associated native integer value */
+    size_t		 enum_len;	/* strlen("tag") */
+    const char	*enum_name;	/* "tag" */
 } asn_INTEGER_enum_map_t;
 
 /* This type describes an enumeration for INTEGER and ENUMERATED types */
 typedef const struct asn_INTEGER_specifics_s {
-	const asn_INTEGER_enum_map_t *value2enum;	/* N -> "tag"; sorted by N */
-	const unsigned int *enum2value;		/* "tag" => N; sorted by tag */
-	int map_count;				/* Elements in either map */
-	int extension;				/* This map is extensible */
-	int strict_enumeration;			/* Enumeration set is fixed */
-	int field_width;			/* Size of native integer */
-	int field_unsigned;			/* Signed=0, unsigned=1 */
+    const asn_INTEGER_enum_map_t *value2enum;	/* N -> "tag"; sorted by N */
+    const unsigned int *enum2value;		/* "tag" => N; sorted by tag */
+    int map_count;				/* Elements in either map */
+    int extension;				/* This map is extensible */
+    int strict_enumeration;			/* Enumeration set is fixed */
+    int field_width;			/* Size of native integer */
+    int field_unsigned;			/* Signed=0, unsigned=1 */
 } asn_INTEGER_specifics_t;
 
 asn_struct_print_f INTEGER_print;

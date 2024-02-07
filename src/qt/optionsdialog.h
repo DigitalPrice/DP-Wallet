@@ -21,36 +21,34 @@ class OptionsDialog;
 
 /** Proxy address widget validator, checks for a valid proxy address.
  */
-class ProxyAddressValidator : public QValidator
-{
+class ProxyAddressValidator : public QValidator {
     Q_OBJECT
 
-public:
+  public:
     explicit ProxyAddressValidator(QObject *parent);
 
     State validate(QString &input, int &pos) const;
 };
 
 /** Preferences dialog. */
-class OptionsDialog : public QDialog
-{
+class OptionsDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     explicit OptionsDialog(QWidget *parent, bool enableWallet);
     ~OptionsDialog();
 
     void setModel(OptionsModel *model);
     void setMapper();
 
-private Q_SLOTS:
+  private Q_SLOTS:
     /* set OK button state (enabled / disabled) */
     void setOkButtonState(bool fState);
     void on_resetButton_clicked();
     void on_openKomodoConfButton_clicked();
     void on_okButton_clicked();
     void on_cancelButton_clicked();
-    
+
     void on_hideTrayIcon_stateChanged(int fState);
 
     void showRestartWarning(bool fPersistent = false);
@@ -59,10 +57,10 @@ private Q_SLOTS:
     /* query the networks, for which the default proxy is used */
     void updateDefaultProxyNets();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void proxyIpChecks(QValidatedLineEdit *pUiProxyIp, int nProxyPort);
 
-private:
+  private:
     Ui::OptionsDialog *ui;
     OptionsModel *model;
     QDataWidgetMapper *mapper;

@@ -17,11 +17,10 @@ class CWallet;
 /**
    Qt model of the address book in the core. This allows views to access and modify the address book.
  */
-class AddressTableModel : public QAbstractTableModel
-{
+class AddressTableModel : public QAbstractTableModel {
     Q_OBJECT
 
-public:
+  public:
     explicit AddressTableModel(const PlatformStyle *platformStyle, CWallet *wallet, WalletModel *parent = 0);
     ~AddressTableModel();
 
@@ -75,9 +74,11 @@ public:
      */
     int lookupAddress(const QString &address) const;
 
-    EditStatus getEditStatus() const { return editStatus; }
+    EditStatus getEditStatus() const {
+        return editStatus;
+    }
 
-private:
+  private:
     WalletModel *walletModel;
     CWallet *wallet;
     AddressTablePriv *priv;
@@ -88,7 +89,7 @@ private:
     /** Notify listeners that data changed. */
     void emitDataChanged(int index);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     /* Update address list from core.
      */
     void updateEntry(const QString &address, const QString &label, bool isMine, const QString &purpose, int status);

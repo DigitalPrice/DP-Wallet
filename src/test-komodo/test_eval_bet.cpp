@@ -37,8 +37,7 @@ int CCSign(CMutableTransaction &tx, unsigned int nIn, CC *cond, std::vector<int>
 }
 
 
-int TestCC(CMutableTransaction &mtxTo, unsigned int nIn, CC *cond)
-{
+int TestCC(CMutableTransaction &mtxTo, unsigned int nIn, CC *cond) {
     CAmount amount;
     ScriptError error;
     CTransaction txTo(mtxTo);
@@ -51,12 +50,10 @@ int TestCC(CMutableTransaction &mtxTo, unsigned int nIn, CC *cond)
 #define ASSERT_CC(tx, nIn, cond) if (!TestCC(tx, nIn, cond)) FAIL();
 
 
-class MockVM : public AppVM
-{
-public:
+class MockVM : public AppVM {
+  public:
     std::pair<int,std::vector<CTxOut>> evaluate(
-            std::vector<unsigned char> header, std::vector<unsigned char> body)
-    {
+    std::vector<unsigned char> header, std::vector<unsigned char> body) {
         std::vector<CTxOut> outs;
         if (memcmp(header.data(), "BetHeader", 9)) {
             printf("Wrong VM header\n");
@@ -69,17 +66,15 @@ public:
 
 const EvalCode EVAL_DISPUTEBET = 0xf2;
 
-class EvalMock : public Eval
-{
-public:
+class EvalMock : public Eval {
+  public:
     uint256 MoM;
     int currentHeight;
     std::map<uint256, CTransaction> txs;
     std::map<uint256, CBlockIndex> blocks;
     std::map<uint256, std::vector<CTransaction>> spends;
 
-    bool Dispatch(const CC *cond, const CTransaction &txTo, unsigned int nIn)
-    {
+    bool Dispatch(const CC *cond, const CTransaction &txTo, unsigned int nIn) {
         EvalCode ecode = cond->code[0];
         std::vector<uint8_t> vparams(cond->code+1, cond->code+cond->codeLength);
 
@@ -93,8 +88,7 @@ public:
         return Invalid("invalid-code");
     }
 
-    bool GetSpendsConfirmed(uint256 hash, std::vector<CTransaction> &spendsOut) const
-    {
+    bool GetSpendsConfirmed(uint256 hash, std::vector<CTransaction> &spendsOut) const {
         auto r = spends.find(hash);
         if (r != spends.end()) {
             spendsOut = r->second;
@@ -103,8 +97,7 @@ public:
         return false;
     }
 
-    bool GetTxUnconfirmed(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock) const
-    {
+    bool GetTxUnconfirmed(const uint256 &hash, CTransaction &txOut, uint256 &hashBlock) const {
         auto r = txs.find(hash);
         if (r != txs.end()) {
             txOut = r->second;
@@ -115,18 +108,18 @@ public:
         return false;
     }
 
-    unsigned int GetCurrentHeight() const { return currentHeight; }
+    unsigned int GetCurrentHeight() const {
+        return currentHeight;
+    }
 
-    bool GetBlock(uint256 hash, CBlockIndex& blockIdx) const
-    {
+    bool GetBlock(uint256 hash, CBlockIndex& blockIdx) const {
         auto r = blocks.find(hash);
         if (r == blocks.end()) return false;
         blockIdx = r->second;
         return true;
     }
 
-    bool GetNotarisationData(uint256 notarisationHash, NotarisationData &data) const
-    {
+    bool GetNotarisationData(uint256 notarisationHash, NotarisationData &data) const {
         if (notarisationHash == NotarisationHash()) {
             data.MoM = MoM;
             return true;
@@ -134,8 +127,7 @@ public:
         return false;
     }
 
-    static uint256 NotarisationHash()
-    {
+    static uint256 NotarisationHash() {
         uint256 h;
         h.begin()[0] = 123;
         return h;
@@ -146,79 +138,66 @@ public:
 /*
  * Generates example data that we will test with and shows how to call BetProtocol.
  */
-class ExampleBet
-{
-public:
+class ExampleBet {
+  public:
     BetProtocol bet;
     CAmount totalPayout;
 
     ExampleBet() : bet(BetProtocol(EVAL_DISPUTEBET, players, 2, VCH("BetHeader", 9))), totalPayout(100) {}
     ~ExampleBet() {};
 
-    CTransaction SessionTx()
-    {
+    CTransaction SessionTx() {
         return CTransaction(bet.MakeSessionTx(1));
     }
 
-    CC* DisputeCond()
-    {
+    CC* DisputeCond() {
         return bet.MakeDisputeCond();
     }
 
-    CC* PayoutCond()
-    {
+    CC* PayoutCond() {
         return bet.MakePayoutCond(SessionTx().GetHash());
     }
 
-    CTransaction StakeTx()
-    {
+    CTransaction StakeTx() {
         return CTransaction(bet.MakeStakeTx(totalPayout, SessionTx().GetHash()));
     }
 
-    std::vector<unsigned char> PlayerState(int playerIdx)
-    {
+    std::vector<unsigned char> PlayerState(int playerIdx) {
         std::vector<unsigned char> state;
         for (int i=0; i<playerIdx+1; i++) state.push_back(1);
         return state;
     }
 
-    std::vector<CTxOut> Payouts(int playerIdx)
-    {
+    std::vector<CTxOut> Payouts(int playerIdx) {
         return MockVM().evaluate(bet.vmParams, PlayerState(playerIdx)).second;
     }
 
-    CMutableTransaction DisputeTx(int playerIdx)
-    {
+    CMutableTransaction DisputeTx(int playerIdx) {
         return bet.MakeDisputeTx(SessionTx().GetHash(), SerializeHash(Payouts(playerIdx)));
     }
 
-    CMutableTransaction PostEvidenceTx(int playerIdx)
-    {
+    CMutableTransaction PostEvidenceTx(int playerIdx) {
         return bet.MakePostEvidenceTx(SessionTx().GetHash(), playerIdx, PlayerState(playerIdx));
     }
 
-    CMutableTransaction AgreePayoutTx()
-    {
+    CMutableTransaction AgreePayoutTx() {
         std::vector<CTxOut> v;
         return bet.MakeAgreePayoutTx(v, uint256());
     }
 
-    MoMProof GetMoMProof()
-    {
+    MoMProof GetMoMProof() {
         int nIndex = 5;
         std::vector<uint256> vBranch;
         vBranch.resize(3);
         return {MerkleBranch(nIndex, vBranch), EvalMock::NotarisationHash()};
     }
 
-    CMutableTransaction ImportPayoutTx()
-    {
+    CMutableTransaction ImportPayoutTx() {
         CMutableTransaction disputeTx = DisputeTx(Player2);
         return bet.MakeImportPayoutTx(Payouts(Player2), disputeTx, uint256(), GetMoMProof());
     }
 
-    EvalMock SetEvalMock(int currentHeight)
-    {
+    EvalMock SetEvalMock(int currentHeight) {
         EvalMock eval;
         CTransaction sessionTx = SessionTx();
 
@@ -249,11 +228,14 @@ ExampleBet ebet;
 
 
 class TestBet : public ::testing::Test {
-protected:
+  protected:
     static void SetUpTestCase() {
         // Make playerSecrets
         CBitcoinSecret vchSecret;
-        auto addKey = [&] (std::string k) { vchSecret.SetString(k); playerSecrets.push_back(vchSecret.GetKey()); };
+        auto addKey = [&] (std::string k) {
+            vchSecret.SetString(k);
+            playerSecrets.push_back(vchSecret.GetKey());
+        };
         addKey("UwFBKf4d6wC3yqdnk3LoGrFjy7gwxrWerBT8jTFamrBbem8wSw9L");
         addKey("Up6GpWwrmx2VpqF8rD3snJXToKT56Dzc8YSoL24osXnfNdCucaMR");
         addKey("UxEHwki3A95PSHHVRzE2N67eHTeoUcqLkovxp6yDPVViv54skF8c");
@@ -269,8 +251,7 @@ protected:
 };
 
 
-TEST_F(TestBet, testMakeSessionTx)
-{
+TEST_F(TestBet, testMakeSessionTx) {
     CTransaction sessionTx = ebet.SessionTx();
     EXPECT_EQ(0, sessionTx.vin.size());
     EXPECT_EQ(4, sessionTx.vout.size());
@@ -280,8 +261,7 @@ TEST_F(TestBet, testMakeSessionTx)
 }
 
 
-TEST_F(TestBet, testMakeDisputeCond)
-{
+TEST_F(TestBet, testMakeDisputeCond) {
     CC *disputeCond = ebet.DisputeCond();
     EXPECT_EQ("(2 of 15,(1 of 5,5,5))", CCShowStructure(disputeCond));
 
@@ -296,8 +276,7 @@ TEST_F(TestBet, testMakeDisputeCond)
 }
 
 
-TEST_F(TestBet, testSignDisputeCond)
-{
+TEST_F(TestBet, testSignDisputeCond) {
     // Only one key needed to dispute
     CMutableTransaction disputeTx = ebet.DisputeTx(Player1);
     CC *disputeCond = ebet.DisputeCond();
@@ -312,8 +291,7 @@ TEST_F(TestBet, testSignDisputeCond)
 }
 
 
-TEST_F(TestBet, testDispute)
-{
+TEST_F(TestBet, testDispute) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     // Only one key needed to dispute
@@ -333,8 +311,7 @@ TEST_F(TestBet, testDispute)
 }
 
 
-TEST_F(TestBet, testDisputeInvalidOutput)
-{
+TEST_F(TestBet, testDisputeInvalidOutput) {
     EvalMock eval = ebet.SetEvalMock(11);
 
     // Only one key needed to dispute
@@ -356,8 +333,7 @@ TEST_F(TestBet, testDisputeInvalidOutput)
 }
 
 
-TEST_F(TestBet, testDisputeEarly)
-{
+TEST_F(TestBet, testDisputeEarly) {
     EvalMock eval = ebet.SetEvalMock(11);
 
     // Only one key needed to dispute
@@ -370,8 +346,7 @@ TEST_F(TestBet, testDisputeEarly)
 }
 
 
-TEST_F(TestBet, testDisputeInvalidParams)
-{
+TEST_F(TestBet, testDisputeInvalidParams) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     CMutableTransaction disputeTx = ebet.DisputeTx(Player2);
@@ -399,8 +374,7 @@ TEST_F(TestBet, testDisputeInvalidParams)
 }
 
 
-TEST_F(TestBet, testDisputeInvalidEvidence)
-{
+TEST_F(TestBet, testDisputeInvalidEvidence) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     CMutableTransaction disputeTx = ebet.DisputeTx(Player2);
@@ -429,8 +403,7 @@ TEST_F(TestBet, testDisputeInvalidEvidence)
 }
 
 
-TEST_F(TestBet, testMakeStakeTx)
-{
+TEST_F(TestBet, testMakeStakeTx) {
     CTransaction stakeTx = ebet.StakeTx();
     EXPECT_EQ(0, stakeTx.vin.size());
     EXPECT_EQ(1, stakeTx.vout.size());
@@ -439,8 +412,7 @@ TEST_F(TestBet, testMakeStakeTx)
 }
 
 
-TEST_F(TestBet, testMakePayoutCond)
-{
+TEST_F(TestBet, testMakePayoutCond) {
     CC *payoutCond = ebet.PayoutCond();
     EXPECT_EQ("(1 of (3 of 5,5,5),(2 of (1 of 5,5,5),15))", CCShowStructure(payoutCond));
     EXPECT_EQ(0, memcmp(payoutCond->subconditions[1]->subconditions[1]->code+1,
@@ -448,8 +420,7 @@ TEST_F(TestBet, testMakePayoutCond)
 }
 
 
-TEST_F(TestBet, testSignPayout)
-{
+TEST_F(TestBet, testSignPayout) {
 
     CMutableTransaction payoutTx = ebet.AgreePayoutTx();
     CC *payoutCond = ebet.PayoutCond();
@@ -471,8 +442,7 @@ TEST_F(TestBet, testSignPayout)
 }
 
 
-TEST_F(TestBet, testAgreePayout)
-{
+TEST_F(TestBet, testAgreePayout) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     CMutableTransaction payoutTx = ebet.AgreePayoutTx();
@@ -481,22 +451,21 @@ TEST_F(TestBet, testAgreePayout)
     EXPECT_EQ(2, CCSign(payoutTx, 0, payoutCond, {Dealer}));
     EXPECT_FALSE(TestCC(payoutTx, 0, payoutCond));
     EXPECT_EQ("(1 of (2 of (1 of 5,A5,A5),15),A2)",
-             CCShowStructure(CCPrune(payoutCond)));
+              CCShowStructure(CCPrune(payoutCond)));
 
     EXPECT_EQ(2, CCSign(payoutTx, 0, payoutCond, {Player1}));
     EXPECT_FALSE(TestCC(payoutTx, 0, payoutCond));
     EXPECT_EQ("(1 of (2 of (1 of 5,A5,A5),15),A2)",
-             CCShowStructure(CCPrune(payoutCond)));
+              CCShowStructure(CCPrune(payoutCond)));
 
     EXPECT_EQ(2, CCSign(payoutTx, 0, payoutCond, {Player2}));
     EXPECT_TRUE( TestCC(payoutTx, 0, payoutCond));
     EXPECT_EQ("(1 of (3 of 5,5,5),A2)",
-             CCShowStructure(CCPrune(payoutCond)));
+              CCShowStructure(CCPrune(payoutCond)));
 }
 
 
-TEST_F(TestBet, testImportPayout)
-{
+TEST_F(TestBet, testImportPayout) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     CMutableTransaction importTx = ebet.ImportPayoutTx();
@@ -506,8 +475,7 @@ TEST_F(TestBet, testImportPayout)
 }
 
 
-TEST_F(TestBet, testImportPayoutFewVouts)
-{
+TEST_F(TestBet, testImportPayoutFewVouts) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     CMutableTransaction importTx = ebet.ImportPayoutTx();
@@ -519,8 +487,7 @@ TEST_F(TestBet, testImportPayoutFewVouts)
 }
 
 
-TEST_F(TestBet, testImportPayoutInvalidPayload)
-{
+TEST_F(TestBet, testImportPayoutInvalidPayload) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     CMutableTransaction importTx = ebet.ImportPayoutTx();
@@ -532,8 +499,7 @@ TEST_F(TestBet, testImportPayoutInvalidPayload)
 }
 
 
-TEST_F(TestBet, testImportPayoutWrongPayouts)
-{
+TEST_F(TestBet, testImportPayoutWrongPayouts) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     CMutableTransaction importTx = ebet.ImportPayoutTx();
@@ -545,8 +511,7 @@ TEST_F(TestBet, testImportPayoutWrongPayouts)
 }
 
 
-TEST_F(TestBet, testImportPayoutMangleSessionId)
-{
+TEST_F(TestBet, testImportPayoutMangleSessionId) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     CMutableTransaction importTx = ebet.ImportPayoutTx();
@@ -564,14 +529,13 @@ TEST_F(TestBet, testImportPayoutMangleSessionId)
 }
 
 
-TEST_F(TestBet, testImportPayoutInvalidNotarisationHash)
-{
+TEST_F(TestBet, testImportPayoutInvalidNotarisationHash) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     MoMProof proof = ebet.GetMoMProof();
     proof.notarisationHash = uint256();
     CMutableTransaction importTx = ebet.bet.MakeImportPayoutTx(
-            ebet.Payouts(Player2), ebet.DisputeTx(Player2), uint256(), proof);
+                                       ebet.Payouts(Player2), ebet.DisputeTx(Player2), uint256(), proof);
 
     CC *payoutCond = ebet.PayoutCond();
     EXPECT_EQ(2, CCSign(importTx, 0, payoutCond, {Player2}));
@@ -580,14 +544,13 @@ TEST_F(TestBet, testImportPayoutInvalidNotarisationHash)
 }
 
 
-TEST_F(TestBet, testImportPayoutMomFail)
-{
+TEST_F(TestBet, testImportPayoutMomFail) {
     EvalMock eval = ebet.SetEvalMock(12);
 
     MoMProof proof = ebet.GetMoMProof();
     proof.branch.nIndex ^= 1;
     CMutableTransaction importTx = ebet.bet.MakeImportPayoutTx(
-            ebet.Payouts(Player2), ebet.DisputeTx(Player2), uint256(), proof);
+                                       ebet.Payouts(Player2), ebet.DisputeTx(Player2), uint256(), proof);
 
     CC *payoutCond = ebet.PayoutCond();
     EXPECT_EQ(2, CCSign(importTx, 0, payoutCond, {Player2}));

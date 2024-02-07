@@ -30,25 +30,48 @@
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 
-namespace memusage
-{
+namespace memusage {
 
 /** Compute the total memory used by allocating alloc bytes. */
 static size_t MallocUsage(size_t alloc);
 
 /** Dynamic memory usage for built-in types is zero. */
-static inline size_t DynamicUsage(const int8_t& v) { return 0; }
-static inline size_t DynamicUsage(const uint8_t& v) { return 0; }
-static inline size_t DynamicUsage(const int16_t& v) { return 0; }
-static inline size_t DynamicUsage(const uint16_t& v) { return 0; }
-static inline size_t DynamicUsage(const int32_t& v) { return 0; }
-static inline size_t DynamicUsage(const uint32_t& v) { return 0; }
-static inline size_t DynamicUsage(const int64_t& v) { return 0; }
-static inline size_t DynamicUsage(const uint64_t& v) { return 0; }
-static inline size_t DynamicUsage(const float& v) { return 0; }
-static inline size_t DynamicUsage(const double& v) { return 0; }
-template<typename X> static inline size_t DynamicUsage(X * const &v) { return 0; }
-template<typename X> static inline size_t DynamicUsage(const X * const &v) { return 0; }
+static inline size_t DynamicUsage(const int8_t& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const uint8_t& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const int16_t& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const uint16_t& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const int32_t& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const uint32_t& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const int64_t& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const uint64_t& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const float& v) {
+    return 0;
+}
+static inline size_t DynamicUsage(const double& v) {
+    return 0;
+}
+template<typename X> static inline size_t DynamicUsage(X * const &v) {
+    return 0;
+}
+template<typename X> static inline size_t DynamicUsage(const X * const &v) {
+    return 0;
+}
 
 /** Compute the memory used for dynamically allocated but owned data structures.
  *  For generic data types, this is *not* recursive. DynamicUsage(vector<vector<int> >)
@@ -58,8 +81,7 @@ template<typename X> static inline size_t DynamicUsage(const X * const &v) { ret
  *  iterate themselves, or use more efficient caching + updating on modification.
  */
 
-static inline size_t MallocUsage(size_t alloc)
-{
+static inline size_t MallocUsage(size_t alloc) {
     // Measured on libc6 2.19 on Linux.
     if (alloc == 0) {
         return 0;
@@ -75,9 +97,8 @@ static inline size_t MallocUsage(size_t alloc)
 // STL data structures
 
 template<typename X>
-struct stl_tree_node
-{
-private:
+struct stl_tree_node {
+  private:
     int color;
     void* parent;
     void* left;
@@ -86,47 +107,40 @@ private:
 };
 
 template<typename X>
-static inline size_t DynamicUsage(const std::vector<X>& v)
-{
+static inline size_t DynamicUsage(const std::vector<X>& v) {
     return MallocUsage(v.capacity() * sizeof(X));
 }
 
 template<unsigned int N, typename X, typename S, typename D>
-static inline size_t DynamicUsage(const prevector<N, X, S, D>& v)
-{
+static inline size_t DynamicUsage(const prevector<N, X, S, D>& v) {
     return MallocUsage(v.allocated_memory());
 }
 
 template<typename X>
-static inline size_t DynamicUsage(const std::set<X>& s)
-{
+static inline size_t DynamicUsage(const std::set<X>& s) {
     return MallocUsage(sizeof(stl_tree_node<X>)) * s.size();
 }
 
 template<typename X, typename Y>
-static inline size_t DynamicUsage(const std::map<X, Y>& m)
-{
+static inline size_t DynamicUsage(const std::map<X, Y>& m) {
     return MallocUsage(sizeof(stl_tree_node<std::pair<const X, Y> >)) * m.size();
 }
 
 // Boost data structures
 
 template<typename X>
-struct boost_unordered_node : private X
-{
-private:
+struct boost_unordered_node : private X {
+  private:
     void* ptr;
 };
 
 template<typename X, typename Y>
-static inline size_t DynamicUsage(const boost::unordered_set<X, Y>& s)
-{
+static inline size_t DynamicUsage(const boost::unordered_set<X, Y>& s) {
     return MallocUsage(sizeof(boost_unordered_node<X>)) * s.size() + MallocUsage(sizeof(void*) * s.bucket_count());
 }
 
 template<typename X, typename Y, typename Z>
-static inline size_t DynamicUsage(const boost::unordered_map<X, Y, Z>& m)
-{
+static inline size_t DynamicUsage(const boost::unordered_map<X, Y, Z>& m) {
     return MallocUsage(sizeof(boost_unordered_node<std::pair<const X, Y> >)) * m.size() + MallocUsage(sizeof(void*) * m.bucket_count());
 }
 

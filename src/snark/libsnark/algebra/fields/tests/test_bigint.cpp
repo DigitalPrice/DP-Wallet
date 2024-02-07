@@ -9,8 +9,7 @@
 
 using namespace libsnark;
 
-void test_bigint()
-{
+void test_bigint() {
     static_assert(GMP_NUMB_BITS == 64, "GMP limb not 64-bit");
 
     const char *b1_decimal = "76749407";
@@ -98,8 +97,7 @@ void test_bigint()
     // TODO: test serialization
 }
 
-int main(void)
-{
+int main(void) {
     test_bigint();
     return 0;
 }

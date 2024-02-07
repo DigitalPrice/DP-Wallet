@@ -15,16 +15,14 @@ SpendDescriptionInfo::SpendDescriptionInfo(
     libzcash::SaplingExpandedSpendingKey expsk,
     libzcash::SaplingNote note,
     uint256 anchor,
-    SaplingWitness witness) : expsk(expsk), note(note), anchor(anchor), witness(witness)
-{
+    SaplingWitness witness) : expsk(expsk), note(note), anchor(anchor), witness(witness) {
     librustzcash_sapling_generate_r(alpha.begin());
 }
 
 TransactionBuilder::TransactionBuilder(
     const Consensus::Params& consensusParams,
     int nHeight,
-    CKeyStore* keystore) : consensusParams(consensusParams), nHeight(nHeight), keystore(keystore)
-{
+    CKeyStore* keystore) : consensusParams(consensusParams), nHeight(nHeight), keystore(keystore) {
     mtx = CreateNewContextualCMutableTransaction(consensusParams, nHeight);
 }
 
@@ -32,8 +30,7 @@ bool TransactionBuilder::AddSaplingSpend(
     libzcash::SaplingExpandedSpendingKey expsk,
     libzcash::SaplingNote note,
     uint256 anchor,
-    SaplingWitness witness)
-{
+    SaplingWitness witness) {
     // Consistency check: all anchors must equal the first one
     if (!spends.empty()) {
         if (spends[0].anchor != anchor) {
@@ -50,18 +47,15 @@ void TransactionBuilder::AddSaplingOutput(
     uint256 ovk,
     libzcash::SaplingPaymentAddress to,
     CAmount value,
-    std::array<unsigned char, ZC_MEMO_SIZE> memo)
-{
+    std::array<unsigned char, ZC_MEMO_SIZE> memo) {
     auto note = libzcash::SaplingNote(to, value);
     outputs.emplace_back(ovk, note, memo);
     mtx.valueBalance -= value;
 }
 
-void TransactionBuilder::AddTransparentInput(COutPoint utxo, CScript scriptPubKey, CAmount value, uint32_t _nSequence)
-{
+void TransactionBuilder::AddTransparentInput(COutPoint utxo, CScript scriptPubKey, CAmount value, uint32_t _nSequence) {
     if (keystore == nullptr) {
-        if (!scriptPubKey.IsPayToCryptoCondition())
-        {
+        if (!scriptPubKey.IsPayToCryptoCondition()) {
             throw std::runtime_error("Cannot add transparent inputs to a TransactionBuilder without a keystore, except with crypto conditions");
         }
     }
@@ -71,8 +65,7 @@ void TransactionBuilder::AddTransparentInput(COutPoint utxo, CScript scriptPubKe
     tIns.emplace_back(scriptPubKey, value);
 }
 
-bool TransactionBuilder::AddTransparentOutput(CTxDestination& to, CAmount value)
-{
+bool TransactionBuilder::AddTransparentOutput(CTxDestination& to, CAmount value) {
     if (!IsValidDestination(to)) {
         return false;
     }
@@ -83,11 +76,9 @@ bool TransactionBuilder::AddTransparentOutput(CTxDestination& to, CAmount value)
     return true;
 }
 
-bool TransactionBuilder::AddOpRetLast()
-{
+bool TransactionBuilder::AddOpRetLast() {
     CScript s;
-    if (opReturn)
-    {
+    if (opReturn) {
         s = opReturn.value();
         CTxOut out(0, s);
         mtx.vout.push_back(out);
@@ -95,24 +86,20 @@ bool TransactionBuilder::AddOpRetLast()
     return true;
 }
 
-void TransactionBuilder::AddOpRet(CScript &s)
-{
+void TransactionBuilder::AddOpRet(CScript &s) {
     opReturn.emplace(CScript(s));
 }
 
-void TransactionBuilder::SetFee(CAmount fee)
-{
+void TransactionBuilder::SetFee(CAmount fee) {
     this->fee = fee;
 }
 
-void TransactionBuilder::SendChangeTo(libzcash::SaplingPaymentAddress changeAddr, uint256 ovk)
-{
+void TransactionBuilder::SendChangeTo(libzcash::SaplingPaymentAddress changeAddr, uint256 ovk) {
     zChangeAddr = std::make_pair(ovk, changeAddr);
     tChangeAddr = boost::none;
 }
 
-bool TransactionBuilder::SendChangeTo(CTxDestination& changeAddr)
-{
+bool TransactionBuilder::SendChangeTo(CTxDestination& changeAddr) {
     if (!IsValidDestination(changeAddr)) {
         return false;
     }
@@ -123,8 +110,7 @@ bool TransactionBuilder::SendChangeTo(CTxDestination& changeAddr)
     return true;
 }
 
-boost::optional<CTransaction> TransactionBuilder::Build()
-{
+boost::optional<CTransaction> TransactionBuilder::Build() {
     //
     // Consistency checks
     //
@@ -173,7 +159,7 @@ boost::optional<CTransaction> TransactionBuilder::Build()
     for (auto spend : spends) {
         auto cm = spend.note.cm();
         auto nf = spend.note.nullifier(
-            spend.expsk.full_viewing_key(), spend.witness.position());
+                      spend.expsk.full_viewing_key(), spend.witness.position());
         if (!(cm && nf)) {
             librustzcash_sapling_proving_ctx_free(ctx);
             return boost::none;
@@ -185,18 +171,18 @@ boost::optional<CTransaction> TransactionBuilder::Build()
 
         SpendDescription sdesc;
         if (!librustzcash_sapling_spend_proof(
-                ctx,
-                spend.expsk.full_viewing_key().ak.begin(),
-                spend.expsk.nsk.begin(),
-                spend.note.d.data(),
-                spend.note.r.begin(),
-                spend.alpha.begin(),
-                spend.note.value(),
-                spend.anchor.begin(),
-                witness.data(),
-                sdesc.cv.begin(),
-                sdesc.rk.begin(),
-                sdesc.zkproof.data())) {
+                    ctx,
+                    spend.expsk.full_viewing_key().ak.begin(),
+                    spend.expsk.nsk.begin(),
+                    spend.note.d.data(),
+                    spend.note.r.begin(),
+                    spend.alpha.begin(),
+                    spend.note.value(),
+                    spend.anchor.begin(),
+                    witness.data(),
+                    sdesc.cv.begin(),
+                    sdesc.rk.begin(),
+                    sdesc.zkproof.data())) {
             librustzcash_sapling_proving_ctx_free(ctx);
             return boost::none;
         }
@@ -226,14 +212,14 @@ boost::optional<CTransaction> TransactionBuilder::Build()
 
         OutputDescription odesc;
         if (!librustzcash_sapling_output_proof(
-                ctx,
-                encryptor.get_esk().begin(),
-                output.note.d.data(),
-                output.note.pk_d.begin(),
-                output.note.r.begin(),
-                output.note.value(),
-                odesc.cv.begin(),
-                (unsigned char*)&(*odesc.zkproof.begin()))) {
+                    ctx,
+                    encryptor.get_esk().begin(),
+                    output.note.d.data(),
+                    output.note.pk_d.begin(),
+                    output.note.r.begin(),
+                    output.note.value(),
+                    odesc.cv.begin(),
+                    (unsigned char*)&(*odesc.zkproof.begin()))) {
             librustzcash_sapling_proving_ctx_free(ctx);
             return boost::none;
         }
@@ -244,10 +230,10 @@ boost::optional<CTransaction> TransactionBuilder::Build()
 
         libzcash::SaplingOutgoingPlaintext outPlaintext(output.note.pk_d, encryptor.get_esk());
         odesc.outCiphertext = outPlaintext.encrypt(
-            output.ovk,
-            odesc.cv,
-            odesc.cm,
-            encryptor);
+                                  output.ovk,
+                                  odesc.cv,
+                                  odesc.cm,
+                                  encryptor);
         mtx.vShieldedOutput.push_back(odesc);
     }
 
@@ -292,9 +278,9 @@ boost::optional<CTransaction> TransactionBuilder::Build()
         auto tIn = tIns[nIn];
         SignatureData sigdata;
         bool signSuccess = ProduceSignature(
-            TransactionSignatureCreator(
-                keystore, &txNewConst, nIn, tIn.value, SIGHASH_ALL),
-            tIn.scriptPubKey, sigdata, consensusBranchId);
+                               TransactionSignatureCreator(
+                                   keystore, &txNewConst, nIn, tIn.value, SIGHASH_ALL),
+                               tIn.scriptPubKey, sigdata, consensusBranchId);
 
         if (!signSuccess) {
             return boost::none;

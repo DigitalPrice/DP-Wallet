@@ -14,49 +14,53 @@
 #if defined(__x86_64__) || defined(__amd64__) || defined(__i386__)
 #if defined(USE_ASM)
 #include <cpuid.h>
-namespace sha256_sse4
-{
+namespace sha256_sse4 {
 void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks);
 }
 #endif
 #endif
 
-namespace sha256d64_sse41
-{
+namespace sha256d64_sse41 {
 void Transform_4way(unsigned char* out, const unsigned char* in);
 }
 
-namespace sha256d64_avx2
-{
+namespace sha256d64_avx2 {
 void Transform_8way(unsigned char* out, const unsigned char* in);
 }
 
-namespace sha256d64_shani
-{
+namespace sha256d64_shani {
 void Transform_2way(unsigned char* out, const unsigned char* in);
 }
 
-namespace sha256_shani
-{
+namespace sha256_shani {
 void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks);
 }
 
 // Internal implementation code.
-namespace
-{
+namespace {
 /// Internal SHA-256 implementation.
-namespace sha256
-{
-uint32_t inline Ch(uint32_t x, uint32_t y, uint32_t z) { return z ^ (x & (y ^ z)); }
-uint32_t inline Maj(uint32_t x, uint32_t y, uint32_t z) { return (x & y) | (z & (x | y)); }
-uint32_t inline Sigma0(uint32_t x) { return (x >> 2 | x << 30) ^ (x >> 13 | x << 19) ^ (x >> 22 | x << 10); }
-uint32_t inline Sigma1(uint32_t x) { return (x >> 6 | x << 26) ^ (x >> 11 | x << 21) ^ (x >> 25 | x << 7); }
-uint32_t inline sigma0(uint32_t x) { return (x >> 7 | x << 25) ^ (x >> 18 | x << 14) ^ (x >> 3); }
-uint32_t inline sigma1(uint32_t x) { return (x >> 17 | x << 15) ^ (x >> 19 | x << 13) ^ (x >> 10); }
+namespace sha256 {
+uint32_t inline Ch(uint32_t x, uint32_t y, uint32_t z) {
+    return z ^ (x & (y ^ z));
+}
+uint32_t inline Maj(uint32_t x, uint32_t y, uint32_t z) {
+    return (x & y) | (z & (x | y));
+}
+uint32_t inline Sigma0(uint32_t x) {
+    return (x >> 2 | x << 30) ^ (x >> 13 | x << 19) ^ (x >> 22 | x << 10);
+}
+uint32_t inline Sigma1(uint32_t x) {
+    return (x >> 6 | x << 26) ^ (x >> 11 | x << 21) ^ (x >> 25 | x << 7);
+}
+uint32_t inline sigma0(uint32_t x) {
+    return (x >> 7 | x << 25) ^ (x >> 18 | x << 14) ^ (x >> 3);
+}
+uint32_t inline sigma1(uint32_t x) {
+    return (x >> 17 | x << 15) ^ (x >> 19 | x << 13) ^ (x >> 10);
+}
 
 /** One round of SHA-256. */
-void inline Round(uint32_t a, uint32_t b, uint32_t c, uint32_t& d, uint32_t e, uint32_t f, uint32_t g, uint32_t& h, uint32_t k)
-{
+void inline Round(uint32_t a, uint32_t b, uint32_t c, uint32_t& d, uint32_t e, uint32_t f, uint32_t g, uint32_t& h, uint32_t k) {
     uint32_t t1 = h + Sigma1(e) + Ch(e, f, g) + k;
     uint32_t t2 = Sigma0(a) + Maj(a, b, c);
     d += t1;
@@ -64,8 +68,7 @@ void inline Round(uint32_t a, uint32_t b, uint32_t c, uint32_t& d, uint32_t e, u
 }
 
 /** Initialize SHA-256 state. */
-void inline Initialize(uint32_t* s)
-{
+void inline Initialize(uint32_t* s) {
     s[0] = 0x6a09e667ul;
     s[1] = 0xbb67ae85ul;
     s[2] = 0x3c6ef372ul;
@@ -77,11 +80,10 @@ void inline Initialize(uint32_t* s)
 }
 
 /** Perform a number of SHA-256 transformations, processing 64-byte chunks. */
-void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks)
-{
+void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks) {
     while (blocks--) {
-    uint32_t a = s[0], b = s[1], c = s[2], d = s[3], e = s[4], f = s[5], g = s[6], h = s[7];
-    uint32_t w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15;
+        uint32_t a = s[0], b = s[1], c = s[2], d = s[3], e = s[4], f = s[5], g = s[6], h = s[7];
+        uint32_t w0, w1, w2, w3, w4, w5, w6, w7, w8, w9, w10, w11, w12, w13, w14, w15;
 
         Round(a, b, c, d, e, f, g, h, 0x428a2f98 + (w0 = ReadBE32(chunk + 0)));
         Round(h, a, b, c, d, e, f, g, 0x71374491 + (w1 = ReadBE32(chunk + 4)));
@@ -151,21 +153,20 @@ void Transform(uint32_t* s, const unsigned char* chunk, size_t blocks)
         Round(c, d, e, f, g, h, a, b, 0xbef9a3f7 + (w14 + sigma1(w12) + w7 + sigma0(w15)));
         Round(b, c, d, e, f, g, h, a, 0xc67178f2 + (w15 + sigma1(w13) + w8 + sigma0(w0)));
 
-    s[0] += a;
-    s[1] += b;
-    s[2] += c;
-    s[3] += d;
-    s[4] += e;
-    s[5] += f;
-    s[6] += g;
-    s[7] += h;
+        s[0] += a;
+        s[1] += b;
+        s[2] += c;
+        s[3] += d;
+        s[4] += e;
+        s[5] += f;
+        s[6] += g;
+        s[7] += h;
         chunk += 64;
     }
 }
 
 /** Specialized double sha256 for 64 byte inputs */
-void TransformD64(unsigned char* out, const unsigned char* in)
-{
+void TransformD64(unsigned char* out, const unsigned char* in) {
     // Transform 1
     uint32_t a = 0x6a09e667ul;
     uint32_t b = 0xbb67ae85ul;
@@ -421,8 +422,7 @@ typedef void (*TransformType)(uint32_t*, const unsigned char*, size_t);
 typedef void (*TransformD64Type)(unsigned char*, const unsigned char*);
 
 template<TransformType tr>
-void TransformD64Wrapper(unsigned char* out, const unsigned char* in)
-{
+void TransformD64Wrapper(unsigned char* out, const unsigned char* in) {
     uint32_t s[8];
     static const unsigned char padding1[64] = {
         0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -472,14 +472,14 @@ bool SelfTest() {
     };
     // Some random input data to test with
     static const unsigned char data[641] = "-" // Intentionally not aligned
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
-        "eiusmod tempor incididunt ut labore et dolore magna aliqua. Et m"
-        "olestie ac feugiat sed lectus vestibulum mattis ullamcorper. Mor"
-        "bi blandit cursus risus at ultrices mi tempus imperdiet nulla. N"
-        "unc congue nisi vita suscipit tellus mauris. Imperdiet proin fer"
-        "mentum leo vel orci. Massa tempor nec feugiat nisl pretium fusce"
-        " id velit. Telus in metus vulputate eu scelerisque felis. Mi tem"
-        "pus imperdiet nulla malesuada pellentesque. Tristique magna sit.";
+                                           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do "
+                                           "eiusmod tempor incididunt ut labore et dolore magna aliqua. Et m"
+                                           "olestie ac feugiat sed lectus vestibulum mattis ullamcorper. Mor"
+                                           "bi blandit cursus risus at ultrices mi tempus imperdiet nulla. N"
+                                           "unc congue nisi vita suscipit tellus mauris. Imperdiet proin fer"
+                                           "mentum leo vel orci. Massa tempor nec feugiat nisl pretium fusce"
+                                           " id velit. Telus in metus vulputate eu scelerisque felis. Mi tem"
+                                           "pus imperdiet nulla malesuada pellentesque. Tristique magna sit.";
     // Expected output state for hashing the i*64 first input bytes above (excluding SHA256 padding).
     static const uint32_t result[9][8] = {
         {0x6a09e667ul, 0xbb67ae85ul, 0x3c6ef372ul, 0xa54ff53aul, 0x510e527ful, 0x9b05688cul, 0x1f83d9abul, 0x5be0cd19ul},
@@ -553,8 +553,7 @@ bool SelfTest() {
 /* TODO: move this to compat/cpuid.h */
 #if defined(USE_ASM) && (defined(__x86_64__) || defined(__amd64__) || defined(__i386__))
 /** Check whether the OS has enabled AVX registers. */
-bool AVXEnabled()
-{
+bool AVXEnabled() {
     uint32_t a, d;
     __asm__("xgetbv" : "=a"(a), "=d"(d) : "c"(0));
     return (a & 6) == 6;
@@ -567,12 +566,11 @@ bool AVXEnabled()
 #include <cpuid.h>
 
 // We can't use cpuid.h's __get_cpuid as it does not support subleafs.
-void static inline GetCPUID(uint32_t leaf, uint32_t subleaf, uint32_t& a, uint32_t& b, uint32_t& c, uint32_t& d)
-{
+void static inline GetCPUID(uint32_t leaf, uint32_t subleaf, uint32_t& a, uint32_t& b, uint32_t& c, uint32_t& d) {
 #ifdef __GNUC__
     __cpuid_count(leaf, subleaf, a, b, c, d);
-#else   
-  __asm__ ("cpuid" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "0"(leaf), "2"(subleaf));
+#else
+    __asm__ ("cpuid" : "=a"(a), "=b"(b), "=c"(c), "=d"(d) : "0"(leaf), "2"(subleaf));
 #endif
 }
 
@@ -581,8 +579,7 @@ void static inline GetCPUID(uint32_t leaf, uint32_t subleaf, uint32_t& a, uint32
 } // namespace
 
 
-std::string SHA256AutoDetect()
-{
+std::string SHA256AutoDetect() {
     std::string ret = "standard";
 #if defined(USE_ASM) && defined(HAVE_GETCPUID)
     bool have_sse4 = false;
@@ -651,13 +648,11 @@ std::string SHA256AutoDetect()
 
 ////// SHA-256
 
-CSHA256::CSHA256() : bytes(0)
-{
+CSHA256::CSHA256() : bytes(0) {
     sha256::Initialize(s);
 }
 
-CSHA256& CSHA256::Write(const unsigned char* data, size_t len)
-{
+CSHA256& CSHA256::Write(const unsigned char* data, size_t len) {
     const unsigned char* end = data + len;
     size_t bufsize = bytes % 64;
     if (bufsize && bufsize + len >= 64) {
@@ -682,8 +677,7 @@ CSHA256& CSHA256::Write(const unsigned char* data, size_t len)
     return *this;
 }
 
-void CSHA256::Finalize(unsigned char hash[OUTPUT_SIZE])
-{
+void CSHA256::Finalize(unsigned char hash[OUTPUT_SIZE]) {
     static const unsigned char pad[64] = {0x80};
     unsigned char sizedesc[8];
     WriteBE64(sizedesc, bytes << 3);
@@ -692,8 +686,7 @@ void CSHA256::Finalize(unsigned char hash[OUTPUT_SIZE])
     FinalizeNoPadding(hash, false);
 }
 
-void CSHA256::FinalizeNoPadding(unsigned char hash[OUTPUT_SIZE], bool enforce_compression)
-{
+void CSHA256::FinalizeNoPadding(unsigned char hash[OUTPUT_SIZE], bool enforce_compression) {
     if (enforce_compression && bytes != 64) {
         throw std::length_error("SHA256Compress should be invoked with a 512-bit block");
     }
@@ -708,15 +701,13 @@ void CSHA256::FinalizeNoPadding(unsigned char hash[OUTPUT_SIZE], bool enforce_co
     WriteBE32(hash + 28, s[7]);
 }
 
-CSHA256& CSHA256::Reset()
-{
+CSHA256& CSHA256::Reset() {
     bytes = 0;
     sha256::Initialize(s);
     return *this;
 }
 
-void SHA256D64(unsigned char* out, const unsigned char* in, size_t blocks)
-{
+void SHA256D64(unsigned char* out, const unsigned char* in, size_t blocks) {
     if (TransformD64_8way) {
         while (blocks >= 8) {
             TransformD64_8way(out, in);

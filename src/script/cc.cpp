@@ -17,14 +17,12 @@
 #include "script/cc.h"
 
 
-bool IsCryptoConditionsEnabled()
-{
+bool IsCryptoConditionsEnabled() {
     return 0 != ASSETCHAINS_CC;
 }
 
 
-bool IsSupportedCryptoCondition(const CC *cond)
-{
+bool IsSupportedCryptoCondition(const CC *cond) {
     int mask = cc_typeMask(cond);
 
     if (mask & ~CCEnabledTypes) return false;
@@ -36,8 +34,7 @@ bool IsSupportedCryptoCondition(const CC *cond)
 }
 
 
-bool IsSignedCryptoCondition(const CC *cond)
-{
+bool IsSignedCryptoCondition(const CC *cond) {
     if (!cc_isFulfilled(cond)) return false;
     if (1 << cc_typeId(cond) & CCSigningNodes) return true;
     if (cc_typeId(cond) == CC_Threshold)
@@ -47,16 +44,14 @@ bool IsSignedCryptoCondition(const CC *cond)
 }
 
 
-static unsigned char* CopyPubKey(CPubKey pkIn)
-{
+static unsigned char* CopyPubKey(CPubKey pkIn) {
     unsigned char* pk = (unsigned char*) malloc(33);
     memcpy(pk, pkIn.begin(), 33);  // TODO: compressed?
     return pk;
 }
 
 
-CC* CCNewThreshold(int t, std::vector<CC*> v)
-{
+CC* CCNewThreshold(int t, std::vector<CC*> v) {
     CC *cond = cc_new(CC_Threshold);
     cond->threshold = t;
     cond->size = v.size();
@@ -66,16 +61,14 @@ CC* CCNewThreshold(int t, std::vector<CC*> v)
 }
 
 
-CC* CCNewSecp256k1(CPubKey k)
-{
+CC* CCNewSecp256k1(CPubKey k) {
     CC *cond = cc_new(CC_Secp256k1);
     cond->publicKey = CopyPubKey(k);
     return cond;
 }
 
 
-CC* CCNewEval(std::vector<unsigned char> code)
-{
+CC* CCNewEval(std::vector<unsigned char> code) {
     CC *cond = cc_new(CC_Eval);
     cond->code = (unsigned char*) malloc(code.size());
     memcpy(cond->code, code.data(), code.size());
@@ -84,16 +77,14 @@ CC* CCNewEval(std::vector<unsigned char> code)
 }
 
 
-CScript CCPubKey(const CC *cond)
-{
+CScript CCPubKey(const CC *cond) {
     unsigned char buf[1000];
     size_t len = cc_conditionBinary(cond, buf);
     return CScript() << std::vector<unsigned char>(buf, buf+len) << OP_CHECKCRYPTOCONDITION;
 }
 
 
-CScript CCSig(const CC *cond)
-{
+CScript CCSig(const CC *cond) {
     unsigned char buf[10000];
     size_t len = cc_fulfillmentBinary(cond, buf, 10000);
     auto ffill = std::vector<unsigned char>(buf, buf+len);
@@ -101,8 +92,7 @@ CScript CCSig(const CC *cond)
     return CScript() << ffill;
 }
 
-std::vector<unsigned char> CCSigVec(const CC *cond)
-{
+std::vector<unsigned char> CCSigVec(const CC *cond) {
     unsigned char buf[10000];
     size_t len = cc_fulfillmentBinary(cond, buf, 10000);
     auto ffill = std::vector<unsigned char>(buf, buf+len);
@@ -110,37 +100,32 @@ std::vector<unsigned char> CCSigVec(const CC *cond)
     return ffill;
 }
 
-std::string CCShowStructure(CC *cond)
-{
+std::string CCShowStructure(CC *cond) {
     std::string out;
     if (cc_isAnon(cond)) {
         out = "A" + std::to_string(cc_typeId(cond));
-    }
-    else if (cc_typeId(cond) == CC_Threshold) {
+    } else if (cc_typeId(cond) == CC_Threshold) {
         out += "(" + std::to_string(cond->threshold) + " of ";
         for (int i=0; i<cond->size; i++) {
             out += CCShowStructure(cond->subconditions[i]);
             if (i < cond->size - 1) out += ",";
         }
         out += ")";
-    }
-    else {
+    } else {
         out = std::to_string(cc_typeId(cond));
     }
     return out;
 }
 
 
-CC* CCPrune(CC *cond)
-{
+CC* CCPrune(CC *cond) {
     std::vector<unsigned char> ffillBin;
     GetPushData(CCSig(cond), ffillBin);
     return cc_readFulfillmentBinary(ffillBin.data(), ffillBin.size()-1);
 }
 
 
-bool GetPushData(const CScript &sig, std::vector<unsigned char> &data)
-{
+bool GetPushData(const CScript &sig, std::vector<unsigned char> &data) {
     opcodetype opcode;
     auto pc = sig.begin();
     if (sig.GetOp(pc, opcode, data)) return opcode > OP_0 && opcode <= OP_PUSHDATA4;
@@ -148,8 +133,7 @@ bool GetPushData(const CScript &sig, std::vector<unsigned char> &data)
 }
 
 
-bool GetOpReturnData(const CScript &sig, std::vector<unsigned char> &data)
-{
+bool GetOpReturnData(const CScript &sig, std::vector<unsigned char> &data) {
     auto pc = sig.begin();
     opcodetype opcode;
     if (sig.GetOp2(pc, opcode, NULL))

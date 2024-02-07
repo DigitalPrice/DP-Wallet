@@ -60,7 +60,8 @@ static int ec_privkey_import_der(const secp256k1_context* ctx, unsigned char *ou
     if (end - privkey < 1 || !(*privkey & 0x80u)) {
         return 0;
     }
-    size_t lenb = *privkey & ~0x80u; privkey++;
+    size_t lenb = *privkey & ~0x80u;
+    privkey++;
     if (lenb < 1 || lenb > 2) {
         return 0;
     }
@@ -129,9 +130,12 @@ static int ec_privkey_export_der(const secp256k1_context *ctx, unsigned char *pr
             0x8C,0xD0,0x36,0x41,0x41,0x02,0x01,0x01,0xA1,0x24,0x03,0x22,0x00
         };
         unsigned char *ptr = privkey;
-        memcpy(ptr, begin, sizeof(begin)); ptr += sizeof(begin);
-        memcpy(ptr, key32, 32); ptr += 32;
-        memcpy(ptr, middle, sizeof(middle)); ptr += sizeof(middle);
+        memcpy(ptr, begin, sizeof(begin));
+        ptr += sizeof(begin);
+        memcpy(ptr, key32, 32);
+        ptr += 32;
+        memcpy(ptr, middle, sizeof(middle));
+        ptr += sizeof(middle);
         pubkeylen = CPubKey::COMPRESSED_PUBLIC_KEY_SIZE;
         secp256k1_ec_pubkey_serialize(ctx, ptr, &pubkeylen, &pubkey, SECP256K1_EC_COMPRESSED);
         ptr += pubkeylen;
@@ -155,9 +159,12 @@ static int ec_privkey_export_der(const secp256k1_context *ctx, unsigned char *pr
             0x8C,0xD0,0x36,0x41,0x41,0x02,0x01,0x01,0xA1,0x44,0x03,0x42,0x00
         };
         unsigned char *ptr = privkey;
-        memcpy(ptr, begin, sizeof(begin)); ptr += sizeof(begin);
-        memcpy(ptr, key32, 32); ptr += 32;
-        memcpy(ptr, middle, sizeof(middle)); ptr += sizeof(middle);
+        memcpy(ptr, begin, sizeof(begin));
+        ptr += sizeof(begin);
+        memcpy(ptr, key32, 32);
+        ptr += 32;
+        memcpy(ptr, middle, sizeof(middle));
+        ptr += sizeof(middle);
         pubkeylen = CPubKey::PUBLIC_KEY_SIZE;
         secp256k1_ec_pubkey_serialize(ctx, ptr, &pubkeylen, &pubkey, SECP256K1_EC_UNCOMPRESSED);
         ptr += pubkeylen;
@@ -179,17 +186,13 @@ void CKey::MakeNewKey(bool fCompressedIn) {
     fCompressed = fCompressedIn;
 }
 
-int32_t CKey::SetKey32(uint8_t Key32[32])
-{
+int32_t CKey::SetKey32(uint8_t Key32[32]) {
     memcpy(vch,Key32,32);
     fCompressed = true;
-    if ( Check(vch) == 0 )
-    {
+    if ( Check(vch) == 0 ) {
         fValid = false;
         return(-1);
-    }
-    else
-    {
+    } else {
         fValid = true;
         return(0);
     }
@@ -341,8 +344,10 @@ CExtPubKey CExtKey::Neuter() const {
 void CExtKey::Encode(unsigned char code[BIP32_EXTKEY_SIZE]) const {
     code[0] = nDepth;
     memcpy(code+1, vchFingerprint, 4);
-    code[5] = (nChild >> 24) & 0xFF; code[6] = (nChild >> 16) & 0xFF;
-    code[7] = (nChild >>  8) & 0xFF; code[8] = (nChild >>  0) & 0xFF;
+    code[5] = (nChild >> 24) & 0xFF;
+    code[6] = (nChild >> 16) & 0xFF;
+    code[7] = (nChild >>  8) & 0xFF;
+    code[8] = (nChild >>  0) & 0xFF;
     memcpy(code+9, chaincode.begin(), 32);
     code[41] = 0;
     assert(key.size() == 32);

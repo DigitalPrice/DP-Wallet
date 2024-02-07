@@ -9,8 +9,7 @@
 
 BOOST_FIXTURE_TEST_SUITE(bech32_tests, BasicTestingSetup)
 
-bool CaseInsensitiveEqual(const std::string &s1, const std::string &s2)
-{
+bool CaseInsensitiveEqual(const std::string &s1, const std::string &s2) {
     if (s1.size() != s2.size()) return false;
     for (size_t i = 0; i < s1.size(); ++i) {
         char c1 = s1[i];
@@ -22,8 +21,7 @@ bool CaseInsensitiveEqual(const std::string &s1, const std::string &s2)
     return true;
 }
 
-BOOST_AUTO_TEST_CASE(bip173_testvectors_valid)
-{
+BOOST_AUTO_TEST_CASE(bip173_testvectors_valid) {
     static const std::string CASES[] = {
         "A12UEL5L",
         "a12uel5l",
@@ -43,8 +41,7 @@ BOOST_AUTO_TEST_CASE(bip173_testvectors_valid)
     }
 }
 
-BOOST_AUTO_TEST_CASE(bip173_testvectors_invalid)
-{
+BOOST_AUTO_TEST_CASE(bip173_testvectors_invalid) {
     static const std::string CASES[] = {
         " 1nwldj5",
         "\x7f""1axkwrx",
@@ -64,8 +61,7 @@ BOOST_AUTO_TEST_CASE(bip173_testvectors_invalid)
     }
 }
 
-BOOST_AUTO_TEST_CASE(bech32_deterministic_valid)
-{
+BOOST_AUTO_TEST_CASE(bech32_deterministic_valid) {
     for (size_t i = 0; i < 255; i++) {
         std::vector<unsigned char> input(32, i);
         auto encoded = bech32::Encode("a", input);

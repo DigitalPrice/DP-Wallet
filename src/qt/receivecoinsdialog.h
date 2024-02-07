@@ -19,7 +19,7 @@ class PlatformStyle;
 class WalletModel;
 
 namespace Ui {
-    class ReceiveCoinsDialog;
+class ReceiveCoinsDialog;
 }
 
 QT_BEGIN_NAMESPACE
@@ -27,11 +27,10 @@ class QModelIndex;
 QT_END_NAMESPACE
 
 /** Dialog for requesting payment of coins */
-class ReceiveCoinsDialog : public QDialog
-{
+class ReceiveCoinsDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     enum ColumnWidths {
         DATE_COLUMN_WIDTH = 130,
         LABEL_COLUMN_WIDTH = 120,
@@ -44,15 +43,15 @@ public:
 
     void setModel(WalletModel *model);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void clear();
     void reject();
     void accept();
 
-protected:
+  protected:
     virtual void keyPressEvent(QKeyEvent *event);
 
-private:
+  private:
     Ui::ReceiveCoinsDialog *ui;
     GUIUtil::TableViewLastColumnResizingFixer *columnResizingFixer;
     WalletModel *model;
@@ -63,7 +62,7 @@ private:
     void copyColumnToClipboard(int column);
     virtual void resizeEvent(QResizeEvent *event);
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void on_receiveButton_clicked();
     void on_showRequestButton_clicked();
     void on_removeRequestButton_clicked();

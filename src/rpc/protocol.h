@@ -30,8 +30,7 @@
 #include <univalue.h>
 
 //! HTTP status codes
-enum HTTPStatusCode
-{
+enum HTTPStatusCode {
     HTTP_OK                    = 200,
     HTTP_BAD_REQUEST           = 400,
     HTTP_UNAUTHORIZED          = 401,
@@ -43,8 +42,7 @@ enum HTTPStatusCode
 };
 
 //! Bitcoin RPC error codes
-enum RPCErrorCode
-{
+enum RPCErrorCode {
     //! Standard JSON-RPC 2.0 errors
     RPC_INVALID_REQUEST  = -32600,
     RPC_METHOD_NOT_FOUND = -32601,

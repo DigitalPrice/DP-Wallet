@@ -16,12 +16,10 @@
 
 unsigned int nBytesPerSigOp = DEFAULT_BYTES_PER_SIGOP;
 
-int64_t GetVirtualTransactionSize(int64_t nWeight, int64_t nSigOpCost)
-{
+int64_t GetVirtualTransactionSize(int64_t nWeight, int64_t nSigOpCost) {
     return (std::max(nWeight, nSigOpCost * nBytesPerSigOp) + WITNESS_SCALE_FACTOR - 1) / WITNESS_SCALE_FACTOR;
 }
 
-int64_t GetVirtualTransactionSize(const CTransaction& tx, int64_t nSigOpCost)
-{
+int64_t GetVirtualTransactionSize(const CTransaction& tx, int64_t nSigOpCost) {
     return GetVirtualTransactionSize(GetTransactionWeight(tx), nSigOpCost);
 }

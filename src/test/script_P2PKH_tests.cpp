@@ -11,8 +11,7 @@ using namespace std;
 
 BOOST_FIXTURE_TEST_SUITE(script_P2PKH_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(IsPayToPublicKeyHash)
-{
+BOOST_AUTO_TEST_CASE(IsPayToPublicKeyHash) {
     // Test CScript::IsPayToPublicKeyHash()
     uint160 dummy;
     CScript p2pkh;

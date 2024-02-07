@@ -51,11 +51,10 @@ AsyncRPCOperation::AsyncRPCOperation() : error_code_(0), error_message_() {
 }
 
 AsyncRPCOperation::AsyncRPCOperation(const AsyncRPCOperation& o) :
-        id_(o.id_), creation_time_(o.creation_time_), state_(o.state_.load()),
-        start_time_(o.start_time_), end_time_(o.end_time_),
-        error_code_(o.error_code_), error_message_(o.error_message_),
-        result_(o.result_)
-{
+    id_(o.id_), creation_time_(o.creation_time_), state_(o.state_.load()),
+    start_time_(o.start_time_), end_time_(o.end_time_),
+    error_code_(o.error_code_), error_message_(o.error_message_),
+    result_(o.result_) {
 }
 
 AsyncRPCOperation& AsyncRPCOperation::operator=( const AsyncRPCOperation& other ) {
@@ -106,7 +105,7 @@ void AsyncRPCOperation::main() {
     if (isCancelled()) {
         return;
     }
-    
+
     set_state(OperationStatus::EXECUTING);
 
     start_execution_clock();

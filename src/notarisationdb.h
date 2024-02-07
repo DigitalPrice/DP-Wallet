@@ -6,9 +6,8 @@
 #include "cc/eval.h"
 
 
-class NotarisationDB : public CDBWrapper
-{
-public:
+class NotarisationDB : public CDBWrapper {
+  public:
     NotarisationDB(size_t nCacheSize, bool fMemory = false, bool fWipe = false);
 };
 

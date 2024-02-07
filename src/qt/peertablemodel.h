@@ -24,14 +24,13 @@ struct CNodeCombinedStats {
     bool fNodeStateStatsAvailable;
 };
 
-class NodeLessThan
-{
-public:
+class NodeLessThan {
+  public:
     NodeLessThan(int nColumn, Qt::SortOrder fOrder) :
         column(nColumn), order(fOrder) {}
     bool operator()(const CNodeCombinedStats &left, const CNodeCombinedStats &right) const;
 
-private:
+  private:
     int column;
     Qt::SortOrder order;
 };
@@ -40,11 +39,10 @@ private:
    Qt model providing information about connected peers, similar to the
    "getpeerinfo" RPC call. Used by the rpc console UI.
  */
-class PeerTableModel : public QAbstractTableModel
-{
+class PeerTableModel : public QAbstractTableModel {
     Q_OBJECT
 
-public:
+  public:
     explicit PeerTableModel(ClientModel *parent = 0);
     ~PeerTableModel();
     const CNodeCombinedStats *getNodeStats(int idx);
@@ -70,10 +68,10 @@ public:
     void sort(int column, Qt::SortOrder order);
     /*@}*/
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void refresh();
 
-private:
+  private:
     ClientModel *clientModel;
     QStringList columns;
     std::unique_ptr<PeerTablePriv> priv;

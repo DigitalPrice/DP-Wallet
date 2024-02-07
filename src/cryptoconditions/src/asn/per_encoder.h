@@ -21,10 +21,10 @@ struct asn_TYPE_descriptor_s;	/* Forward declaration */
  * 	bytes = ((.encoded + 7) / 8)
  */
 asn_enc_rval_t uper_encode(struct asn_TYPE_descriptor_s *type_descriptor,
-	void *struct_ptr,	/* Structure to be encoded */
-	asn_app_consume_bytes_f *consume_bytes_cb,	/* Data collector */
-	void *app_key		/* Arbitrary callback argument */
-);
+                           void *struct_ptr,	/* Structure to be encoded */
+                           asn_app_consume_bytes_f *consume_bytes_cb,	/* Data collector */
+                           void *app_key		/* Arbitrary callback argument */
+                          );
 
 /*
  * A variant of uper_encode() which encodes data into the existing buffer
@@ -32,10 +32,10 @@ asn_enc_rval_t uper_encode(struct asn_TYPE_descriptor_s *type_descriptor,
  * field of the return value.
  */
 asn_enc_rval_t uper_encode_to_buffer(
-	struct asn_TYPE_descriptor_s *type_descriptor,
-	void *struct_ptr,	/* Structure to be encoded */
-	void *buffer,		/* Pre-allocated buffer */
-	size_t buffer_size	/* Initial buffer size (max) */
+    struct asn_TYPE_descriptor_s *type_descriptor,
+    void *struct_ptr,	/* Structure to be encoded */
+    void *buffer,		/* Pre-allocated buffer */
+    size_t buffer_size	/* Initial buffer size (max) */
 );
 
 /*
@@ -46,20 +46,20 @@ asn_enc_rval_t uper_encode_to_buffer(
  * encoding of uper_encode() and uper_encode_to_buffer().
  */
 ssize_t uper_encode_to_new_buffer(
-	struct asn_TYPE_descriptor_s *type_descriptor,
-	asn_per_constraints_t *constraints,
-	void *struct_ptr,	/* Structure to be encoded */
-	void **buffer_r		/* Buffer allocated and returned */
+    struct asn_TYPE_descriptor_s *type_descriptor,
+    asn_per_constraints_t *constraints,
+    void *struct_ptr,	/* Structure to be encoded */
+    void **buffer_r		/* Buffer allocated and returned */
 );
 
 /*
  * Type of the generic PER encoder function.
  */
 typedef asn_enc_rval_t (per_type_encoder_f)(
-	struct asn_TYPE_descriptor_s *type_descriptor,
-	asn_per_constraints_t *constraints,
-	void *struct_ptr,
-	asn_per_outp_t *per_output
+    struct asn_TYPE_descriptor_s *type_descriptor,
+    asn_per_constraints_t *constraints,
+    void *struct_ptr,
+    asn_per_outp_t *per_output
 );
 
 #ifdef __cplusplus

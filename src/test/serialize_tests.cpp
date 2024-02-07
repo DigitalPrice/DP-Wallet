@@ -18,8 +18,7 @@ using namespace std;
 
 
 template<typename T>
-void check_ser_rep(T thing, std::vector<unsigned char> expected)
-{
+void check_ser_rep(T thing, std::vector<unsigned char> expected) {
     CDataStream ss(SER_DISK, 0);
     ss << thing;
 
@@ -37,17 +36,16 @@ void check_ser_rep(T thing, std::vector<unsigned char> expected)
 
 BOOST_FIXTURE_TEST_SUITE(serialize_tests, BasicTestingSetup)
 
-class CSerializeMethodsTestSingle
-{
-protected:
+class CSerializeMethodsTestSingle {
+  protected:
     int intval;
     bool boolval;
     std::string stringval;
     const char* charstrval;
     CTransaction txval;
-public:
+  public:
     CSerializeMethodsTestSingle() = default;
-    CSerializeMethodsTestSingle(int intvalin, bool boolvalin, std::string stringvalin, const char* charstrvalin, CTransaction txvalin) : intval(intvalin), boolval(boolvalin), stringval(std::move(stringvalin)), charstrval(charstrvalin), txval(txvalin){}
+    CSerializeMethodsTestSingle(int intvalin, bool boolvalin, std::string stringvalin, const char* charstrvalin, CTransaction txvalin) : intval(intvalin), boolval(boolvalin), stringval(std::move(stringvalin)), charstrval(charstrvalin), txval(txvalin) {}
     ADD_SERIALIZE_METHODS;
 
     template <typename Stream, typename Operation>
@@ -59,8 +57,7 @@ public:
         READWRITE(txval);
     }
 
-    bool operator==(const CSerializeMethodsTestSingle& rhs)
-    {
+    bool operator==(const CSerializeMethodsTestSingle& rhs) {
         return  intval == rhs.intval && \
                 boolval == rhs.boolval && \
                 stringval == rhs.stringval && \
@@ -69,9 +66,8 @@ public:
     }
 };
 
-class CSerializeMethodsTestMany : public CSerializeMethodsTestSingle
-{
-public:
+class CSerializeMethodsTestMany : public CSerializeMethodsTestSingle {
+  public:
     using CSerializeMethodsTestSingle::CSerializeMethodsTestSingle;
     ADD_SERIALIZE_METHODS;
 
@@ -81,8 +77,7 @@ public:
     }
 };
 
-BOOST_AUTO_TEST_CASE(boost_optional)
-{
+BOOST_AUTO_TEST_CASE(boost_optional) {
     check_ser_rep<boost::optional<unsigned char>>(0xff, {0x01, 0xff});
     check_ser_rep<boost::optional<unsigned char>>(boost::none, {0x00});
     check_ser_rep<boost::optional<std::string>>(std::string("Test"), {0x01, 0x04, 'T', 'e', 's', 't'});
@@ -97,8 +92,7 @@ BOOST_AUTO_TEST_CASE(boost_optional)
     }
 }
 
-BOOST_AUTO_TEST_CASE(arrays)
-{
+BOOST_AUTO_TEST_CASE(arrays) {
     std::array<std::string, 2> test_case = {string("zub"), string("baz")};
     CDataStream ss(SER_DISK, 0);
     ss << test_case;
@@ -130,8 +124,7 @@ BOOST_AUTO_TEST_CASE(arrays)
     BOOST_CHECK_EQUAL(GetSerializeSize(test, 0, 0), 8);
 }
 
-BOOST_AUTO_TEST_CASE(sizes)
-{
+BOOST_AUTO_TEST_CASE(sizes) {
     BOOST_CHECK_EQUAL(sizeof(char), GetSerializeSize(char(0), 0));
     BOOST_CHECK_EQUAL(sizeof(int8_t), GetSerializeSize(int8_t(0), 0));
     BOOST_CHECK_EQUAL(sizeof(uint8_t), GetSerializeSize(uint8_t(0), 0));
@@ -161,8 +154,7 @@ BOOST_AUTO_TEST_CASE(sizes)
     BOOST_CHECK_EQUAL(GetSerializeSize(bool(0), 0), 1);
 }
 
-BOOST_AUTO_TEST_CASE(floats_conversion)
-{
+BOOST_AUTO_TEST_CASE(floats_conversion) {
     // Choose values that map unambigiously to binary floating point to avoid
     // rounding issues at the compiler side.
     BOOST_CHECK_EQUAL(ser_uint32_to_float(0x00000000), 0.0F);
@@ -180,8 +172,7 @@ BOOST_AUTO_TEST_CASE(floats_conversion)
     BOOST_CHECK_EQUAL(ser_float_to_uint32(785.066650390625F), 0x44444444);
 }
 
-BOOST_AUTO_TEST_CASE(doubles_conversion)
-{
+BOOST_AUTO_TEST_CASE(doubles_conversion) {
     // Choose values that map unambigiously to binary floating point to avoid
     // rounding issues at the compiler side.
     BOOST_CHECK_EQUAL(ser_uint64_to_double(0x0000000000000000ULL), 0.0);
@@ -209,8 +200,7 @@ Python code to generate the below hashes:
     reversed_hex(dsha256(''.join(struct.pack('<f', x) for x in range(0,1000)))) == '8e8b4cf3e4df8b332057e3e23af42ebc663b61e0495d5e7e32d85099d7f3fe0c'
     reversed_hex(dsha256(''.join(struct.pack('<d', x) for x in range(0,1000)))) == '43d0c82591953c4eafe114590d392676a01585d25b25d433557f0d7878b23f96'
 */
-BOOST_AUTO_TEST_CASE(floats)
-{
+BOOST_AUTO_TEST_CASE(floats) {
     CDataStream ss(SER_DISK, 0);
     // encode
     for (int i = 0; i < 1000; i++) {
@@ -226,8 +216,7 @@ BOOST_AUTO_TEST_CASE(floats)
     }
 }
 
-BOOST_AUTO_TEST_CASE(doubles)
-{
+BOOST_AUTO_TEST_CASE(doubles) {
     CDataStream ss(SER_DISK, 0);
     // encode
     for (int i = 0; i < 1000; i++) {
@@ -243,8 +232,7 @@ BOOST_AUTO_TEST_CASE(doubles)
     }
 }
 
-BOOST_AUTO_TEST_CASE(varints)
-{
+BOOST_AUTO_TEST_CASE(varints) {
     // encode
 
     CDataStream ss(SER_DISK, 0);
@@ -275,18 +263,15 @@ BOOST_AUTO_TEST_CASE(varints)
     }
 }
 
-BOOST_AUTO_TEST_CASE(compactsize)
-{
+BOOST_AUTO_TEST_CASE(compactsize) {
     CDataStream ss(SER_DISK, 0);
     vector<char>::size_type i, j;
 
-    for (i = 1; i <= MAX_SIZE; i *= 2)
-    {
+    for (i = 1; i <= MAX_SIZE; i *= 2) {
         WriteCompactSize(ss, i-1);
         WriteCompactSize(ss, i);
     }
-    for (i = 1; i <= MAX_SIZE; i *= 2)
-    {
+    for (i = 1; i <= MAX_SIZE; i *= 2) {
         j = ReadCompactSize(ss);
         BOOST_CHECK_MESSAGE((i-1) == j, "decoded:" << j << " expected:" << (i-1));
         j = ReadCompactSize(ss);
@@ -294,20 +279,18 @@ BOOST_AUTO_TEST_CASE(compactsize)
     }
 }
 
-static bool isCanonicalException(const std::ios_base::failure& ex)
-{
+static bool isCanonicalException(const std::ios_base::failure& ex) {
     std::ios_base::failure expectedException("non-canonical ReadCompactSize()");
 
     // The string returned by what() can be different for different platforms.
     // Instead of directly comparing the ex.what() with an expected string,
-    // create an instance of exception to see if ex.what() matches 
-    // the expected explanatory string returned by the exception instance. 
+    // create an instance of exception to see if ex.what() matches
+    // the expected explanatory string returned by the exception instance.
     return strcmp(expectedException.what(), ex.what()) == 0;
 }
 
 
-BOOST_AUTO_TEST_CASE(noncanonical)
-{
+BOOST_AUTO_TEST_CASE(noncanonical) {
     // Write some non-canonical CompactSize encodings, and
     // make sure an exception is thrown when read back.
     CDataStream ss(SER_DISK, 0);
@@ -343,8 +326,7 @@ BOOST_AUTO_TEST_CASE(noncanonical)
     BOOST_CHECK_EXCEPTION(ReadCompactSize(ss), std::ios_base::failure, isCanonicalException);
 }
 
-BOOST_AUTO_TEST_CASE(insert_delete)
-{
+BOOST_AUTO_TEST_CASE(insert_delete) {
     // Test inserting/deleting bytes.
     CDataStream ss(SER_DISK, 0);
     BOOST_CHECK_EQUAL(ss.size(), 0);
@@ -391,8 +373,7 @@ BOOST_AUTO_TEST_CASE(insert_delete)
     BOOST_CHECK_EQUAL(ss.size(), 0);
 }
 
-BOOST_AUTO_TEST_CASE(class_methods)
-{
+BOOST_AUTO_TEST_CASE(class_methods) {
     int intval(100);
     bool boolval(true);
     std::string stringval("testing");

@@ -97,14 +97,14 @@ struct PaymentDisclosurePayload {
 
     friend bool operator==(const PaymentDisclosurePayload& a, const PaymentDisclosurePayload& b) {
         return (
-            a.version == b.version &&
-            a.esk == b.esk &&
-            a.txid == b.txid &&
-            a.js == b.js &&
-            a.n == b.n &&
-            a.zaddr == b.zaddr &&
-            a.message == b.message
-            );
+                   a.version == b.version &&
+                   a.esk == b.esk &&
+                   a.txid == b.txid &&
+                   a.js == b.js &&
+                   a.n == b.n &&
+                   a.zaddr == b.zaddr &&
+                   a.message == b.message
+               );
     }
 
     friend bool operator!=(const PaymentDisclosurePayload& a, const PaymentDisclosurePayload& b) {

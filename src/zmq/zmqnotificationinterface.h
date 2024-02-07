@@ -13,14 +13,13 @@
 class CBlockIndex;
 class CZMQAbstractNotifier;
 
-class CZMQNotificationInterface : public CValidationInterface
-{
-public:
+class CZMQNotificationInterface : public CValidationInterface {
+  public:
     virtual ~CZMQNotificationInterface();
 
     static CZMQNotificationInterface* CreateWithArguments(const std::map<std::string, std::string> &args);
 
-protected:
+  protected:
     bool Initialize();
     void Shutdown();
 
@@ -29,7 +28,7 @@ protected:
     void UpdatedBlockTip(const CBlockIndex *pindex);
     void BlockChecked(const CBlock& block, const CValidationState& state);
 
-private:
+  private:
     CZMQNotificationInterface();
 
     void *pcontext;

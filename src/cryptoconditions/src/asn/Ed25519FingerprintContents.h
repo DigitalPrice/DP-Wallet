@@ -20,10 +20,10 @@ extern "C" {
 
 /* Ed25519FingerprintContents */
 typedef struct Ed25519FingerprintContents {
-	OCTET_STRING_t	 publicKey;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 publicKey;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } Ed25519FingerprintContents_t;
 
 /* Implementation */

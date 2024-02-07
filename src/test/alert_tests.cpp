@@ -72,18 +72,16 @@
 
 // Code to output a C-style array of values
 template<typename T>
-std::string HexStrArray(const T itbegin, const T itend, int lineLength)
-{
+std::string HexStrArray(const T itbegin, const T itend, int lineLength) {
     std::string rv;
     static const char hexmap[16] = { '0', '1', '2', '3', '4', '5', '6', '7',
-                                     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
+                                     '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
+                                   };
     rv.reserve((itend-itbegin)*3);
     int i = 0;
-    for(T it = itbegin; it < itend; ++it)
-    {
+    for(T it = itbegin; it < itend; ++it) {
         unsigned char val = (unsigned char)(*it);
-        if(it != itbegin)
-        {
+        if(it != itbegin) {
             if (i % lineLength == 0)
                 rv.push_back('\n');
             else
@@ -101,15 +99,13 @@ std::string HexStrArray(const T itbegin, const T itend, int lineLength)
 }
 
 template<typename T>
-inline std::string HexStrArray(const T& vch, int lineLength)
-{
+inline std::string HexStrArray(const T& vch, int lineLength) {
     return HexStrArray(vch.begin(), vch.end(), lineLength);
 }
 
 
 // Sign CAlert with alert private key
-bool SignAlert(CAlert &alert)
-{
+bool SignAlert(CAlert &alert) {
     // serialize alert data
     CDataStream sMsg(SER_NETWORK, PROTOCOL_VERSION);
     sMsg << *(CUnsignedAlert*)&alert;
@@ -119,13 +115,11 @@ bool SignAlert(CAlert &alert)
     std::vector<unsigned char> vchTmp(ParseHex(pszPrivKey));
     CPrivKey vchPrivKey(vchTmp.begin(), vchTmp.end());
     CKey key;
-    if (!key.SetPrivKey(vchPrivKey, false))
-    {
+    if (!key.SetPrivKey(vchPrivKey, false)) {
         printf("key.SetPrivKey failed\n");
         return false;
     }
-    if (!key.Sign(Hash(alert.vchMsg.begin(), alert.vchMsg.end()), alert.vchSig))
-    {
+    if (!key.Sign(Hash(alert.vchMsg.begin(), alert.vchMsg.end()), alert.vchSig)) {
         printf("SignAlert() : key.Sign failed\n");
         return false;
     }
@@ -133,11 +127,9 @@ bool SignAlert(CAlert &alert)
 }
 
 // Sign a CAlert and serialize it
-bool SignAndSerialize(CAlert &alert, CDataStream &buffer)
-{
+bool SignAndSerialize(CAlert &alert, CDataStream &buffer) {
     // Sign
-    if(!SignAlert(alert))
-    {
+    if(!SignAlert(alert)) {
         printf("SignAndSerialize() : could not sign alert\n");
         return false;
     }
@@ -146,8 +138,7 @@ bool SignAndSerialize(CAlert &alert, CDataStream &buffer)
     return true;
 }
 
-void GenerateAlertTests()
-{
+void GenerateAlertTests() {
     CDataStream sBuffer(SER_DISK, CLIENT_VERSION);
 
     CAlert alert;
@@ -229,13 +220,12 @@ void GenerateAlertTests()
 
 
 struct GenerateAlertTestsFixture : public TestingSetup {
-  GenerateAlertTestsFixture() {}
-  ~GenerateAlertTestsFixture() {}
+    GenerateAlertTestsFixture() {}
+    ~GenerateAlertTestsFixture() {}
 };
 
 BOOST_FIXTURE_TEST_SUITE(Generate_Alert_Test_Data, GenerateAlertTestsFixture);
-BOOST_AUTO_TEST_CASE(GenerateTheAlertTests)
-{
+BOOST_AUTO_TEST_CASE(GenerateTheAlertTests) {
     GenerateAlertTests();
 }
 BOOST_AUTO_TEST_SUITE_END()
@@ -244,26 +234,21 @@ BOOST_AUTO_TEST_SUITE_END()
 #else
 
 
-struct ReadAlerts : public TestingSetup
-{
-    ReadAlerts()
-    {
+struct ReadAlerts : public TestingSetup {
+    ReadAlerts() {
         std::vector<unsigned char> vch(alert_tests::alertTests, alert_tests::alertTests + sizeof(alert_tests::alertTests));
         CDataStream stream(vch, SER_DISK, CLIENT_VERSION);
         try {
-            while (!stream.eof())
-            {
+            while (!stream.eof()) {
                 CAlert alert;
                 stream >> alert;
                 alerts.push_back(alert);
             }
-        }
-        catch (const std::exception&) { }
+        } catch (const std::exception&) { }
     }
     ~ReadAlerts() { }
 
-    static std::vector<std::string> read_lines(boost::filesystem::path filepath)
-    {
+    static std::vector<std::string> read_lines(boost::filesystem::path filepath) {
         std::vector<std::string> result;
 
         std::ifstream f(filepath.string().c_str());
@@ -280,13 +265,11 @@ struct ReadAlerts : public TestingSetup
 BOOST_FIXTURE_TEST_SUITE(Alert_tests, ReadAlerts)
 
 
-BOOST_AUTO_TEST_CASE(AlertApplies)
-{
+BOOST_AUTO_TEST_CASE(AlertApplies) {
     SetMockTime(11);
     const std::vector<unsigned char>& alertKey = Params(CBaseChainParams::MAIN).AlertKey();
 
-    BOOST_FOREACH(const CAlert& alert, alerts)
-    {
+    BOOST_FOREACH(const CAlert& alert, alerts) {
         BOOST_CHECK(alert.CheckSignature(alertKey));
     }
 
@@ -321,18 +304,17 @@ BOOST_AUTO_TEST_CASE(AlertApplies)
 }
 
 
-BOOST_AUTO_TEST_CASE(AlertNotify)
-{
+BOOST_AUTO_TEST_CASE(AlertNotify) {
     SetMockTime(11);
     const std::vector<unsigned char>& alertKey = Params(CBaseChainParams::MAIN).AlertKey();
 
     boost::filesystem::path temp = GetTempPath() /
-        boost::filesystem::unique_path("alertnotify-%%%%.txt");
+                                   boost::filesystem::unique_path("alertnotify-%%%%.txt");
 
     mapArgs["-alertnotify"] = std::string("echo %s >> ") + temp.string();
 
     BOOST_FOREACH(CAlert alert, alerts)
-        alert.ProcessAlert(alertKey, false);
+    alert.ProcessAlert(alertKey, false);
 
     std::vector<std::string> r = read_lines(temp);
     BOOST_CHECK_EQUAL(r.size(), 6u);
@@ -361,8 +343,7 @@ BOOST_AUTO_TEST_CASE(AlertNotify)
     mapAlerts.clear();
 }
 
-BOOST_AUTO_TEST_CASE(AlertDisablesRPC)
-{
+BOOST_AUTO_TEST_CASE(AlertDisablesRPC) {
     SetMockTime(11);
     const std::vector<unsigned char>& alertKey = Params(CBaseChainParams::MAIN).AlertKey();
 
@@ -383,10 +364,11 @@ BOOST_AUTO_TEST_CASE(AlertDisablesRPC)
     mapAlerts.clear();
 }
 
-static bool falseFunc() { return false; }
+static bool falseFunc() {
+    return false;
+}
 
-BOOST_AUTO_TEST_CASE(PartitionAlert)
-{
+BOOST_AUTO_TEST_CASE(PartitionAlert) {
     // Test PartitionCheck
     CCriticalSection csDummy;
     CBlockIndex indexDummy[400];
@@ -397,8 +379,7 @@ BOOST_AUTO_TEST_CASE(PartitionAlert)
     // an arbitrary time:
     int64_t now = 1427379054;
     SetMockTime(now);
-    for (int i = 0; i < 400; i++)
-    {
+    for (int i = 0; i < 400; i++) {
         indexDummy[i].phashBlock = NULL;
         if (i == 0) indexDummy[i].pprev = NULL;
         else indexDummy[i].pprev = &indexDummy[i-1];

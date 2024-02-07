@@ -58,47 +58,39 @@ static std::vector<RPCTimerInterface*> timerInterfaces;
  * @note Can be changed to std::unique_ptr when C++11 */
 static std::map<std::string, boost::shared_ptr<RPCTimerBase> > deadlineTimers;
 
-static struct CRPCSignals
-{
+static struct CRPCSignals {
     boost::signals2::signal<void ()> Started;
     boost::signals2::signal<void ()> Stopped;
     boost::signals2::signal<void (const CRPCCommand&)> PreCommand;
     boost::signals2::signal<void (const CRPCCommand&)> PostCommand;
 } g_rpcSignals;
 
-void RPCServer::OnStarted(boost::function<void ()> slot)
-{
+void RPCServer::OnStarted(boost::function<void ()> slot) {
     g_rpcSignals.Started.connect(slot);
 }
 
-void RPCServer::OnStopped(boost::function<void ()> slot)
-{
+void RPCServer::OnStopped(boost::function<void ()> slot) {
     g_rpcSignals.Stopped.connect(slot);
 }
 
-void RPCServer::OnPreCommand(boost::function<void (const CRPCCommand&)> slot)
-{
+void RPCServer::OnPreCommand(boost::function<void (const CRPCCommand&)> slot) {
     g_rpcSignals.PreCommand.connect(boost::bind(slot, _1));
 }
 
-void RPCServer::OnPostCommand(boost::function<void (const CRPCCommand&)> slot)
-{
+void RPCServer::OnPostCommand(boost::function<void (const CRPCCommand&)> slot) {
     g_rpcSignals.PostCommand.connect(boost::bind(slot, _1));
 }
 
 void RPCTypeCheck(const UniValue& params,
                   const list<UniValue::VType>& typesExpected,
-                  bool fAllowNull)
-{
+                  bool fAllowNull) {
     size_t i = 0;
-    BOOST_FOREACH(UniValue::VType t, typesExpected)
-    {
+    BOOST_FOREACH(UniValue::VType t, typesExpected) {
         if (params.size() <= i)
             break;
 
         const UniValue& v = params[i];
-        if (!((v.type() == t) || (fAllowNull && (v.isNull()))))
-        {
+        if (!((v.type() == t) || (fAllowNull && (v.isNull())))) {
             string err = strprintf("Expected type %s, got %s",
                                    uvTypeName(t), uvTypeName(v.type()));
             throw JSONRPCError(RPC_TYPE_ERROR, err);
@@ -108,17 +100,14 @@ void RPCTypeCheck(const UniValue& params,
 }
 
 void RPCTypeCheckObj(const UniValue& o,
-                  const map<string, UniValue::VType>& typesExpected,
-                  bool fAllowNull)
-{
-    BOOST_FOREACH(const PAIRTYPE(string, UniValue::VType)& t, typesExpected)
-    {
+                     const map<string, UniValue::VType>& typesExpected,
+                     bool fAllowNull) {
+    BOOST_FOREACH(const PAIRTYPE(string, UniValue::VType)& t, typesExpected) {
         const UniValue& v = find_value(o, t.first);
         if (!fAllowNull && v.isNull())
             throw JSONRPCError(RPC_TYPE_ERROR, strprintf("Missing %s", t.first));
 
-        if (!((v.type() == t.second) || (fAllowNull && (v.isNull()))))
-        {
+        if (!((v.type() == t.second) || (fAllowNull && (v.isNull())))) {
             string err = strprintf("Expected type %s for %s, got %s",
                                    uvTypeName(t.second), t.first, uvTypeName(v.type()));
             throw JSONRPCError(RPC_TYPE_ERROR, err);
@@ -126,8 +115,7 @@ void RPCTypeCheckObj(const UniValue& o,
     }
 }
 
-CAmount AmountFromValue(const UniValue& value)
-{
+CAmount AmountFromValue(const UniValue& value) {
     if (!value.isNum() && !value.isStr())
         throw JSONRPCError(RPC_TYPE_ERROR, "Amount is not a number or string");
     CAmount amount;
@@ -138,18 +126,16 @@ CAmount AmountFromValue(const UniValue& value)
     return amount;
 }
 
-UniValue ValueFromAmount(const CAmount& amount)
-{
+UniValue ValueFromAmount(const CAmount& amount) {
     bool sign = amount < 0;
     int64_t n_abs = (sign ? -amount : amount);
     int64_t quotient = n_abs / COIN;
     int64_t remainder = n_abs % COIN;
     return UniValue(UniValue::VNUM,
-            strprintf("%s%d.%08d", sign ? "-" : "", quotient, remainder));
+                    strprintf("%s%d.%08d", sign ? "-" : "", quotient, remainder));
 }
 
-uint256 ParseHashV(const UniValue& v, string strName)
-{
+uint256 ParseHashV(const UniValue& v, string strName) {
     string strHex;
     if (v.isStr())
         strHex = v.get_str();
@@ -159,12 +145,10 @@ uint256 ParseHashV(const UniValue& v, string strName)
     result.SetHex(strHex);
     return result;
 }
-uint256 ParseHashO(const UniValue& o, string strKey)
-{
+uint256 ParseHashO(const UniValue& o, string strKey) {
     return ParseHashV(find_value(o, strKey), strKey);
 }
-vector<unsigned char> ParseHexV(const UniValue& v, string strName)
-{
+vector<unsigned char> ParseHexV(const UniValue& v, string strName) {
     string strHex;
     if (v.isStr())
         strHex = v.get_str();
@@ -172,8 +156,7 @@ vector<unsigned char> ParseHexV(const UniValue& v, string strName)
         throw JSONRPCError(RPC_INVALID_PARAMETER, strName+" must be hexadecimal string (not '"+strHex+"')");
     return ParseHex(strHex);
 }
-vector<unsigned char> ParseHexO(const UniValue& o, string strKey)
-{
+vector<unsigned char> ParseHexO(const UniValue& o, string strKey) {
     return ParseHexV(find_value(o, strKey), strKey);
 }
 
@@ -181,8 +164,7 @@ vector<unsigned char> ParseHexO(const UniValue& o, string strKey)
  * Note: This interface may still be subject to change.
  */
 
-std::string CRPCTable::help(const std::string& strCommand) const
-{
+std::string CRPCTable::help(const std::string& strCommand) const {
     string strRet;
     string category;
     set<rpcfn_type> setDone;
@@ -192,8 +174,7 @@ std::string CRPCTable::help(const std::string& strCommand) const
         vCommands.push_back(make_pair(mi->second->category + mi->first, mi->second));
     sort(vCommands.begin(), vCommands.end());
 
-    BOOST_FOREACH(const PAIRTYPE(string, const CRPCCommand*)& command, vCommands)
-    {
+    BOOST_FOREACH(const PAIRTYPE(string, const CRPCCommand*)& command, vCommands) {
         const CRPCCommand *pcmd = command.second;
         string strMethod = pcmd->name;
         // We already filter duplicates, but these deprecated screw up the sort order
@@ -201,24 +182,19 @@ std::string CRPCTable::help(const std::string& strCommand) const
             continue;
         if ((strCommand != "" || pcmd->category == "hidden") && strMethod != strCommand)
             continue;
-        try
-        {
+        try {
             UniValue params;
             rpcfn_type pfn = pcmd->actor;
             if (setDone.insert(pfn).second)
                 (*pfn)(params, true, CPubKey());
-        }
-        catch (const std::exception& e)
-        {
+        } catch (const std::exception& e) {
             // Help text is returned in an exception
             string strHelp = string(e.what());
-            if (strCommand == "")
-            {
+            if (strCommand == "") {
                 if (strHelp.find('\n') != string::npos)
                     strHelp = strHelp.substr(0, strHelp.find('\n'));
 
-                if (category != pcmd->category)
-                {
+                if (category != pcmd->category) {
                     if (!category.empty())
                         strRet += "\n";
                     category = pcmd->category;
@@ -236,8 +212,7 @@ std::string CRPCTable::help(const std::string& strCommand) const
     return strRet;
 }
 
-UniValue help(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue help(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "help ( \"command\" )\n"
@@ -262,10 +237,9 @@ void GenerateBitcoins(bool b, CWallet *pw);
 #endif
 
 
-UniValue stop(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue stop(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     char buf[66+128];
-   // Accept the deprecated and ignored 'detach' boolean argument
+    // Accept the deprecated and ignored 'detach' boolean argument
     if (fHelp || params.size() > 1)
         throw runtime_error(
             "stop\n"
@@ -286,9 +260,9 @@ UniValue stop(const UniValue& params, bool fHelp, const CPubKey& mypk)
 /**
  * Call Table
  */
-static const CRPCCommand vRPCCommands[] =
-{ //  category              name                      actor (function)         okSafeMode
-  //  --------------------- ------------------------  -----------------------  ----------
+static const CRPCCommand vRPCCommands[] = {
+    //  category              name                      actor (function)         okSafeMode
+    //  --------------------- ------------------------  -----------------------  ----------
     /* Overall control/query calls */
     { "control",            "help",                   &help,                   true  },
     { "control",            "getiguanajson",          &getiguanajson,          true  },
@@ -442,16 +416,16 @@ static const CRPCCommand vRPCCommands[] =
     { "faucet",       "faucetget",       &faucetget,          true },
     { "faucet",       "faucetaddress",   &faucetaddress,      true },
 
-		// Heir
-	{ "heir",       "heiraddress",   &heiraddress,      true },
-	{ "heir",       "heirfund",   &heirfund,      true },
-	{ "heir",       "heiradd",    &heiradd,        true },
-	{ "heir",       "heirclaim",  &heirclaim,     true },
-/*	{ "heir",       "heirfundtokens",   &heirfundtokens,      true },
-	{ "heir",       "heiraddtokens",    &heiraddtokens,        true },
-	{ "heir",       "heirclaimtokens",  &heirclaimtokens,     true },*/
-	{ "heir",       "heirinfo",   &heirinfo,      true },
-	{ "heir",       "heirlist",   &heirlist,      true },
+    // Heir
+    { "heir",       "heiraddress",   &heiraddress,      true },
+    { "heir",       "heirfund",   &heirfund,      true },
+    { "heir",       "heiradd",    &heiradd,        true },
+    { "heir",       "heirclaim",  &heirclaim,     true },
+    /*	{ "heir",       "heirfundtokens",   &heirfundtokens,      true },
+    	{ "heir",       "heiraddtokens",    &heiraddtokens,        true },
+    	{ "heir",       "heirclaimtokens",  &heirclaimtokens,     true },*/
+    { "heir",       "heirinfo",   &heirinfo,      true },
+    { "heir",       "heirlist",   &heirlist,      true },
 
     // Channels
     { "channels",       "channelsaddress",   &channelsaddress,   true },
@@ -518,7 +492,7 @@ static const CRPCCommand vRPCCommands[] =
     { "dice",       "diceaddress",   &diceaddress,      true },
 
     // tokens & assets
-	{ "tokens",       "assetsaddress",     &assetsaddress,      true },
+    { "tokens",       "assetsaddress",     &assetsaddress,      true },
     { "tokens",       "tokeninfo",        &tokeninfo,         true },
     { "tokens",       "tokenlist",        &tokenlist,         true },
     { "tokens",       "tokenorders",      &tokenorders,       true },
@@ -639,11 +613,9 @@ static const CRPCCommand vRPCCommands[] =
 #endif // ENABLE_WALLET
 };
 
-CRPCTable::CRPCTable()
-{
+CRPCTable::CRPCTable() {
     unsigned int vcidx;
-    for (vcidx = 0; vcidx < (sizeof(vRPCCommands) / sizeof(vRPCCommands[0])); vcidx++)
-    {
+    for (vcidx = 0; vcidx < (sizeof(vRPCCommands) / sizeof(vRPCCommands[0])); vcidx++) {
         const CRPCCommand *pcmd;
 
         pcmd = &vRPCCommands[vcidx];
@@ -651,16 +623,14 @@ CRPCTable::CRPCTable()
     }
 }
 
-const CRPCCommand *CRPCTable::operator[](const std::string &name) const
-{
+const CRPCCommand *CRPCTable::operator[](const std::string &name) const {
     map<string, const CRPCCommand*>::const_iterator it = mapCommands.find(name);
     if (it == mapCommands.end())
         return NULL;
     return (*it).second;
 }
 
-bool CRPCTable::appendCommand(const std::string& name, const CRPCCommand* pcmd)
-{
+bool CRPCTable::appendCommand(const std::string& name, const CRPCCommand* pcmd) {
     if (IsRPCRunning())
         return false;
 
@@ -673,38 +643,35 @@ bool CRPCTable::appendCommand(const std::string& name, const CRPCCommand* pcmd)
     return true;
 }
 
-bool StartRPC()
-{
+bool StartRPC() {
     LogPrint("rpc", "Starting RPC\n");
     fRPCRunning = true;
     g_rpcSignals.Started();
 
     // Launch one async rpc worker.  The ability to launch multiple workers is not recommended at present and thus the option is disabled.
     getAsyncRPCQueue()->addWorker();
-/*
-    int n = GetArg("-rpcasyncthreads", 1);
-    if (n<1) {
-        LogPrintf("ERROR: Invalid value %d for -rpcasyncthreads.  Must be at least 1.\n", n);
-        strerr = strprintf(_("An error occurred while setting up the Async RPC threads, invalid parameter value of %d (must be at least 1)."), n);
-        uiInterface.ThreadSafeMessageBox(strerr, "", CClientUIInterface::MSG_ERROR);
-        StartShutdown();
-        return;
-    }
-    for (int i = 0; i < n; i++)
-        getAsyncRPCQueue()->addWorker();
-*/
+    /*
+        int n = GetArg("-rpcasyncthreads", 1);
+        if (n<1) {
+            LogPrintf("ERROR: Invalid value %d for -rpcasyncthreads.  Must be at least 1.\n", n);
+            strerr = strprintf(_("An error occurred while setting up the Async RPC threads, invalid parameter value of %d (must be at least 1)."), n);
+            uiInterface.ThreadSafeMessageBox(strerr, "", CClientUIInterface::MSG_ERROR);
+            StartShutdown();
+            return;
+        }
+        for (int i = 0; i < n; i++)
+            getAsyncRPCQueue()->addWorker();
+    */
     return true;
 }
 
-void InterruptRPC()
-{
+void InterruptRPC() {
     LogPrint("rpc", "Interrupting RPC\n");
     // Interrupt e.g. running longpolls
     fRPCRunning = false;
 }
 
-void StopRPC()
-{
+void StopRPC() {
     LogPrint("rpc", "Stopping RPC\n");
     deadlineTimers.clear();
     g_rpcSignals.Stopped();
@@ -714,34 +681,29 @@ void StopRPC()
     getAsyncRPCQueue()->closeAndWait();
 }
 
-bool IsRPCRunning()
-{
+bool IsRPCRunning() {
     return fRPCRunning;
 }
 
-void SetRPCWarmupStatus(const std::string& newStatus)
-{
+void SetRPCWarmupStatus(const std::string& newStatus) {
     LOCK(cs_rpcWarmup);
     rpcWarmupStatus = newStatus;
 }
 
-void SetRPCWarmupFinished()
-{
+void SetRPCWarmupFinished() {
     LOCK(cs_rpcWarmup);
     assert(fRPCInWarmup);
     fRPCInWarmup = false;
 }
 
-bool RPCIsInWarmup(std::string *outStatus)
-{
+bool RPCIsInWarmup(std::string *outStatus) {
     LOCK(cs_rpcWarmup);
     if (outStatus)
         *outStatus = rpcWarmupStatus;
     return fRPCInWarmup;
 }
 
-void JSONRequest::parse(const UniValue& valRequest)
-{
+void JSONRequest::parse(const UniValue& valRequest) {
     // Parse request
     if (!valRequest.isObject())
         throw JSONRPCError(RPC_INVALID_REQUEST, "Invalid Request object");
@@ -770,8 +732,7 @@ void JSONRequest::parse(const UniValue& valRequest)
         throw JSONRPCError(RPC_INVALID_REQUEST, "Params must be an array");
 }
 
-static UniValue JSONRPCExecOne(const UniValue& req)
-{
+static UniValue JSONRPCExecOne(const UniValue& req) {
     UniValue rpc_result(UniValue::VOBJ);
 
     JSONRequest jreq;
@@ -780,13 +741,9 @@ static UniValue JSONRPCExecOne(const UniValue& req)
 
         UniValue result = tableRPC.execute(jreq.strMethod, jreq.params);
         rpc_result = JSONRPCReplyObj(result, NullUniValue, jreq.id);
-    }
-    catch (const UniValue& objError)
-    {
+    } catch (const UniValue& objError) {
         rpc_result = JSONRPCReplyObj(NullUniValue, objError, jreq.id);
-    }
-    catch (const std::exception& e)
-    {
+    } catch (const std::exception& e) {
         rpc_result = JSONRPCReplyObj(NullUniValue,
                                      JSONRPCError(RPC_PARSE_ERROR, e.what()), jreq.id);
     }
@@ -794,8 +751,7 @@ static UniValue JSONRPCExecOne(const UniValue& req)
     return rpc_result;
 }
 
-std::string JSONRPCExecBatch(const UniValue& vReq)
-{
+std::string JSONRPCExecBatch(const UniValue& vReq) {
     UniValue ret(UniValue::VARR);
     for (size_t reqIdx = 0; reqIdx < vReq.size(); reqIdx++)
         ret.push_back(JSONRPCExecOne(vReq[reqIdx]));
@@ -803,8 +759,7 @@ std::string JSONRPCExecBatch(const UniValue& vReq)
     return ret.write() + "\n";
 }
 
-UniValue CRPCTable::execute(const std::string &strMethod, const UniValue &params) const
-{
+UniValue CRPCTable::execute(const std::string &strMethod, const UniValue &params) const {
     // Return immediately if in warmup
     {
         LOCK(cs_rpcWarmup);
@@ -821,32 +776,27 @@ UniValue CRPCTable::execute(const std::string &strMethod, const UniValue &params
 
     g_rpcSignals.PreCommand(*pcmd);
 
-    try
-    {
+    try {
         // Execute
         return pcmd->actor(params, false, CPubKey());
-    }
-    catch (const std::exception& e)
-    {
+    } catch (const std::exception& e) {
         throw JSONRPCError(RPC_MISC_ERROR, e.what());
     }
 
     g_rpcSignals.PostCommand(*pcmd);
 }
 
-std::vector<std::string> CRPCTable::listCommands() const
-{
+std::vector<std::string> CRPCTable::listCommands() const {
     std::vector<std::string> commandList;
     typedef std::map<std::string, const CRPCCommand*> commandMap;
 
     std::transform( mapCommands.begin(), mapCommands.end(),
-                   std::back_inserter(commandList),
-                   boost::bind(&commandMap::value_type::first,_1) );
+                    std::back_inserter(commandList),
+                    boost::bind(&commandMap::value_type::first,_1) );
     return commandList;
 }
 
-std::string HelpExampleCli(const std::string& methodname, const std::string& args)
-{
+std::string HelpExampleCli(const std::string& methodname, const std::string& args) {
     if ( chainName.isKMD() ) {
         return "> komodo-cli " + methodname + " " + args + "\n";
     } else {
@@ -854,39 +804,34 @@ std::string HelpExampleCli(const std::string& methodname, const std::string& arg
     }
 }
 
-std::string HelpExampleRpc(const std::string& methodname, const std::string& args)
-{
+std::string HelpExampleRpc(const std::string& methodname, const std::string& args) {
     return  "> curl --user myusername --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", "
-        "\"method\": \"" + methodname + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:" + to_string(ASSETCHAINS_RPCPORT) + "/\n";
+            "\"method\": \"" + methodname + "\", \"params\": [" + args + "] }' -H 'content-type: text/plain;' http://127.0.0.1:" + to_string(ASSETCHAINS_RPCPORT) + "/\n";
 }
 
-string experimentalDisabledHelpMsg(const string& rpc, const string& enableArg)
-{
+string experimentalDisabledHelpMsg(const string& rpc, const string& enableArg) {
     string daemon = "komodod";
     string ticker = chainName.isKMD() ? "komodo" : chainName.symbol();
 
     return "\nWARNING: " + rpc + " is disabled.\n"
-        "To enable it, restart " + daemon + " with the -experimentalfeatures and\n"
-        "-" + enableArg + " commandline options, or add these two lines\n"
-        "to the " + ticker + ".conf file:\n\n"
-        "experimentalfeatures=1\n"
-        + enableArg + "=1\n";
+           "To enable it, restart " + daemon + " with the -experimentalfeatures and\n"
+           "-" + enableArg + " commandline options, or add these two lines\n"
+           "to the " + ticker + ".conf file:\n\n"
+           "experimentalfeatures=1\n"
+           + enableArg + "=1\n";
 }
 
-void RPCRegisterTimerInterface(RPCTimerInterface *iface)
-{
+void RPCRegisterTimerInterface(RPCTimerInterface *iface) {
     timerInterfaces.push_back(iface);
 }
 
-void RPCUnregisterTimerInterface(RPCTimerInterface *iface)
-{
+void RPCUnregisterTimerInterface(RPCTimerInterface *iface) {
     std::vector<RPCTimerInterface*>::iterator i = std::find(timerInterfaces.begin(), timerInterfaces.end(), iface);
     assert(i != timerInterfaces.end());
     timerInterfaces.erase(i);
 }
 
-void RPCRunLater(const std::string& name, boost::function<void(void)> func, int64_t nSeconds)
-{
+void RPCRunLater(const std::string& name, boost::function<void(void)> func, int64_t nSeconds) {
     if (timerInterfaces.empty())
         throw JSONRPCError(RPC_INTERNAL_ERROR, "No timer handler registered for RPC");
     deadlineTimers.erase(name);
@@ -898,7 +843,6 @@ void RPCRunLater(const std::string& name, boost::function<void(void)> func, int6
 CRPCTable tableRPC;
 
 // Return async rpc queue
-std::shared_ptr<AsyncRPCQueue> getAsyncRPCQueue()
-{
+std::shared_ptr<AsyncRPCQueue> getAsyncRPCQueue() {
     return AsyncRPCQueue::sharedInstance();
 }

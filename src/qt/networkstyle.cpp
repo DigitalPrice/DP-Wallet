@@ -24,26 +24,22 @@ static const unsigned network_styles_count = sizeof(network_styles)/sizeof(*netw
 // titleAddText needs to be const char* for tr()
 NetworkStyle::NetworkStyle(const QString &_appName, const int iconColorHueShift, const int iconColorSaturationReduction, const char *_titleAddText):
     appName(_appName),
-    titleAddText(qApp->translate("SplashScreen", _titleAddText))
-{
+    titleAddText(qApp->translate("SplashScreen", _titleAddText)) {
     // load pixmap
     QPixmap pixmap(":/icons/komodo");
 
-    if(iconColorHueShift != 0 && iconColorSaturationReduction != 0)
-    {
+    if(iconColorHueShift != 0 && iconColorSaturationReduction != 0) {
         // generate QImage from QPixmap
         QImage img = pixmap.toImage();
 
         int h,s,l,a;
 
         // traverse though lines
-        for(int y=0;y<img.height();y++)
-        {
+        for(int y=0; y<img.height(); y++) {
             QRgb *scL = reinterpret_cast< QRgb *>( img.scanLine( y ) );
 
             // loop through pixels
-            for(int x=0;x<img.width();x++)
-            {
+            for(int x=0; x<img.width(); x++) {
                 // preserve alpha because QColor::getHsl doesn't return the alpha value
                 a = qAlpha(scL[x]);
                 QColor col(scL[x]);
@@ -56,8 +52,7 @@ NetworkStyle::NetworkStyle(const QString &_appName, const int iconColorHueShift,
                 h+=iconColorHueShift;
 
                 // change saturation value
-                if(s>iconColorSaturationReduction)
-                {
+                if(s>iconColorSaturationReduction) {
                     s -= iconColorSaturationReduction;
                 }
                 col.setHsl(h,s,l,a);
@@ -75,17 +70,14 @@ NetworkStyle::NetworkStyle(const QString &_appName, const int iconColorHueShift,
     trayAndWindowIcon   = QIcon(pixmap.scaled(QSize(256,256)));
 }
 
-const NetworkStyle *NetworkStyle::instantiate(const QString &networkId)
-{
-    for (unsigned x=0; x<network_styles_count; ++x)
-    {
-        if (networkId == network_styles[x].networkId)
-        {
+const NetworkStyle *NetworkStyle::instantiate(const QString &networkId) {
+    for (unsigned x=0; x<network_styles_count; ++x) {
+        if (networkId == network_styles[x].networkId) {
             return new NetworkStyle(
-                    network_styles[x].appName,
-                    network_styles[x].iconColorHueShift,
-                    network_styles[x].iconColorSaturationReduction,
-                    network_styles[x].titleAddText);
+                       network_styles[x].appName,
+                       network_styles[x].iconColorHueShift,
+                       network_styles[x].iconColorSaturationReduction,
+                       network_styles[x].titleAddText);
         }
     }
     return nullptr;

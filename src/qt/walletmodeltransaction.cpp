@@ -15,55 +15,44 @@ WalletModelTransaction::WalletModelTransaction(const QList<SendCoinsRecipient> &
     recipients(_recipients),
     walletTransaction(0),
     keyChange(0),
-    fee(0)
-{
+    fee(0) {
     walletTransaction = new CWalletTx();
 }
 
-WalletModelTransaction::~WalletModelTransaction()
-{
+WalletModelTransaction::~WalletModelTransaction() {
     delete keyChange;
     delete walletTransaction;
 }
 
-QList<SendCoinsRecipient> WalletModelTransaction::getRecipients() const
-{
+QList<SendCoinsRecipient> WalletModelTransaction::getRecipients() const {
     return recipients;
 }
 
-CWalletTx *WalletModelTransaction::getTransaction() const
-{
+CWalletTx *WalletModelTransaction::getTransaction() const {
     return walletTransaction;
 }
 
-unsigned int WalletModelTransaction::getTransactionSize()
-{
+unsigned int WalletModelTransaction::getTransactionSize() {
     return (!walletTransaction ? 0 : ::GetVirtualTransactionSize(*walletTransaction));
 }
 
-CAmount WalletModelTransaction::getTransactionFee() const
-{
+CAmount WalletModelTransaction::getTransactionFee() const {
     return fee;
 }
 
-void WalletModelTransaction::setTransactionFee(const CAmount& newFee)
-{
+void WalletModelTransaction::setTransactionFee(const CAmount& newFee) {
     fee = newFee;
 }
 
-void WalletModelTransaction::reassignAmounts(int nChangePosRet)
-{
+void WalletModelTransaction::reassignAmounts(int nChangePosRet) {
     int i = 0;
-    for (QList<SendCoinsRecipient>::iterator it = recipients.begin(); it != recipients.end(); ++it)
-    {
+    for (QList<SendCoinsRecipient>::iterator it = recipients.begin(); it != recipients.end(); ++it) {
         SendCoinsRecipient& rcp = (*it);
-        #ifdef ENABLE_BIP70
-        if (rcp.paymentRequest.IsInitialized())
-        {
+#ifdef ENABLE_BIP70
+        if (rcp.paymentRequest.IsInitialized()) {
             CAmount subtotal = 0;
             const payments::PaymentDetails& details = rcp.paymentRequest.getDetails();
-            for (int j = 0; j < details.outputs_size(); j++)
-            {
+            for (int j = 0; j < details.outputs_size(); j++) {
                 const payments::Output& out = details.outputs(j);
                 if (out.amount() <= 0) continue;
                 if (i == nChangePosRet)
@@ -72,9 +61,8 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet)
                 i++;
             }
             rcp.amount = subtotal;
-        }
-        else // normal recipient (no payment request)
-        #endif
+        } else // normal recipient (no payment request)
+#endif
         {
             if (i == nChangePosRet)
                 i++;
@@ -84,22 +72,18 @@ void WalletModelTransaction::reassignAmounts(int nChangePosRet)
     }
 }
 
-CAmount WalletModelTransaction::getTotalTransactionAmount() const
-{
+CAmount WalletModelTransaction::getTotalTransactionAmount() const {
     CAmount totalTransactionAmount = 0;
-    for (const SendCoinsRecipient &rcp : recipients)
-    {
+    for (const SendCoinsRecipient &rcp : recipients) {
         totalTransactionAmount += rcp.amount;
     }
     return totalTransactionAmount;
 }
 
-void WalletModelTransaction::newPossibleKeyChange(CWallet *wallet)
-{
+void WalletModelTransaction::newPossibleKeyChange(CWallet *wallet) {
     keyChange = new CReserveKey(wallet);
 }
 
-CReserveKey *WalletModelTransaction::getPossibleKeyChange()
-{
+CReserveKey *WalletModelTransaction::getPossibleKeyChange() {
     return keyChange;
 }

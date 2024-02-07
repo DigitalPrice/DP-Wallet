@@ -43,8 +43,7 @@ ZSendCoinsDialog::ZSendCoinsDialog(const PlatformStyle *_platformStyle, QWidget 
     clientModel(0),
     model(0),
     fNewRecipientAllowed(true),
-    platformStyle(_platformStyle)
-{
+    platformStyle(_platformStyle) {
     ui->setupUi(this);
 
     ui->payFromAddress->setMaxVisibleItems(10);
@@ -74,22 +73,17 @@ ZSendCoinsDialog::ZSendCoinsDialog(const PlatformStyle *_platformStyle, QWidget 
     setOperationId("");
 }
 
-void ZSendCoinsDialog::setClientModel(ClientModel *_clientModel)
-{
+void ZSendCoinsDialog::setClientModel(ClientModel *_clientModel) {
     this->clientModel = _clientModel;
 }
 
-void ZSendCoinsDialog::setModel(WalletModel *_model)
-{
+void ZSendCoinsDialog::setModel(WalletModel *_model) {
     this->model = _model;
 
-    if(_model && _model->getOptionsModel())
-    {
-        for(int i = 0; i < ui->entries->count(); ++i)
-        {
+    if(_model && _model->getOptionsModel()) {
+        for(int i = 0; i < ui->entries->count(); ++i) {
             SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-            if(entry)
-            {
+            if(entry) {
                 entry->setModel(_model);
             }
         }
@@ -111,49 +105,40 @@ void ZSendCoinsDialog::setModel(WalletModel *_model)
     }
 }
 
-ZSendCoinsDialog::~ZSendCoinsDialog()
-{
+ZSendCoinsDialog::~ZSendCoinsDialog() {
     delete ui;
 }
 
-void ZSendCoinsDialog::on_sendButton_clicked()
-{
+void ZSendCoinsDialog::on_sendButton_clicked() {
     if(!model || !model->getOptionsModel())
         return;
 
     QList<SendCoinsRecipient> recipients;
     bool valid = true;
 
-    for(int i = 0; i < ui->entries->count(); ++i)
-    {
+    for(int i = 0; i < ui->entries->count(); ++i) {
         SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-        if(entry)
-        {
-            if(entry->validate(true))
-            {
+        if(entry) {
+            if(entry->validate(true)) {
                 recipients.append(entry->getValue());
-            }
-            else
-            {
+            } else {
                 valid = false;
             }
         }
     }
 
-    if(!valid || recipients.isEmpty())
-    {
+    if(!valid || recipients.isEmpty()) {
         return;
     }
 
-    QString fromaddress;   
+    QString fromaddress;
     if (!ui->payFromAddress->currentText().split(' ').isEmpty()) fromaddress = ui->payFromAddress->currentText().split(' ').at(1);
 
     if (fromaddress.isEmpty()) return;
 
     fNewRecipientAllowed = false;
     WalletModel::UnlockContext ctx(model->requestUnlock());
-    if(!ctx.isValid())
-    {
+    if(!ctx.isValid()) {
         // Unlock wallet was cancelled
         fNewRecipientAllowed = true;
         return;
@@ -174,7 +159,7 @@ void ZSendCoinsDialog::on_sendButton_clicked()
 
     // process prepareStatus and on error generate message shown to user
     processSendCoinsReturn(prepareStatus,
-        KomodoUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
+                           KomodoUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), currentTransaction.getTransactionFee()));
 
     if(prepareStatus.status != WalletModel::OK) {
         fNewRecipientAllowed = true;
@@ -185,8 +170,7 @@ void ZSendCoinsDialog::on_sendButton_clicked()
 
     // Format confirmation message
     QStringList formatted;
-    for (const SendCoinsRecipient &rcp : currentTransaction.getRecipients())
-    {
+    for (const SendCoinsRecipient &rcp : currentTransaction.getRecipients()) {
         // generate bold amount string
         QString amount = "<b>" + KomodoUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), rcp.amount);
         amount.append("</b>");
@@ -196,13 +180,10 @@ void ZSendCoinsDialog::on_sendButton_clicked()
 
         QString recipientElement;
 
-        if(rcp.label.length() > 0) // label with address
-        {
+        if(rcp.label.length() > 0) { // label with address
             recipientElement = tr("%1 to %2").arg(amount, GUIUtil::HtmlEscape(rcp.label));
             recipientElement.append(QString(" (%1)").arg(address));
-        }
-        else // just address
-        {
+        } else { // just address
             recipientElement = tr("%1 to %2").arg(amount, address);
         }
 
@@ -212,8 +193,7 @@ void ZSendCoinsDialog::on_sendButton_clicked()
     QString questionString = tr("Are you sure you want to send?");
     questionString.append("<br /><br />%1");
 
-    if(txFee > 0)
-    {
+    if(txFee > 0) {
         // append fee string if a fee is required
         questionString.append("<hr /><span style='color:#aa0000;'>");
         questionString.append(KomodoUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), txFee));
@@ -228,23 +208,21 @@ void ZSendCoinsDialog::on_sendButton_clicked()
     questionString.append("<hr />");
     CAmount totalAmount = currentTransaction.getTotalTransactionAmount() + txFee;
     QStringList alternativeUnits;
-    for (KomodoUnits::Unit u : KomodoUnits::availableUnits())
-    {
+    for (KomodoUnits::Unit u : KomodoUnits::availableUnits()) {
         if(u != model->getOptionsModel()->getDisplayUnit())
             alternativeUnits.append(KomodoUnits::formatHtmlWithUnit(u, totalAmount));
     }
     questionString.append(tr("Total Amount %1")
-        .arg(KomodoUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
+                          .arg(KomodoUnits::formatHtmlWithUnit(model->getOptionsModel()->getDisplayUnit(), totalAmount)));
     questionString.append(QString("<span style='font-size:10pt;font-weight:normal;'><br />(=%2)</span>")
-        .arg(alternativeUnits.join(" " + tr("or") + "<br />")));
+                          .arg(alternativeUnits.join(" " + tr("or") + "<br />")));
 
     SendConfirmationDialog confirmationDialog(tr("Confirm send coins"),
-        questionString.arg(formatted.join("<br />")), SEND_CONFIRM_DELAY, this);
+            questionString.arg(formatted.join("<br />")), SEND_CONFIRM_DELAY, this);
     confirmationDialog.exec();
     QMessageBox::StandardButton retval = (QMessageBox::StandardButton)confirmationDialog.result();
 
-    if(retval != QMessageBox::Yes)
-    {
+    if(retval != QMessageBox::Yes) {
         fNewRecipientAllowed = true;
         return;
     }
@@ -254,8 +232,7 @@ void ZSendCoinsDialog::on_sendButton_clicked()
     // process sendStatus and on error generate message shown to user
     processSendCoinsReturn(sendStatus);
 
-    if (sendStatus.status == WalletModel::OK)
-    {
+    if (sendStatus.status == WalletModel::OK) {
         accept();
         CoinControlDialog::coinControl->UnSelectAll();
         coinControlUpdateLabels();
@@ -265,11 +242,9 @@ void ZSendCoinsDialog::on_sendButton_clicked()
     setOperationId(currentTransaction.getOperationId());
 }
 
-void ZSendCoinsDialog::clear()
-{
+void ZSendCoinsDialog::clear() {
     // Remove entries until only one left
-    while(ui->entries->count())
-    {
+    while(ui->entries->count()) {
         ui->entries->takeAt(0)->widget()->deleteLater();
     }
     addEntry();
@@ -277,18 +252,15 @@ void ZSendCoinsDialog::clear()
     updateTabsAndLabels();
 }
 
-void ZSendCoinsDialog::reject()
-{
+void ZSendCoinsDialog::reject() {
     clear();
 }
 
-void ZSendCoinsDialog::accept()
-{
+void ZSendCoinsDialog::accept() {
     clear();
 }
 
-SendCoinsEntry *ZSendCoinsDialog::addEntry()
-{
+SendCoinsEntry *ZSendCoinsDialog::addEntry() {
     SendCoinsEntry *entry = new SendCoinsEntry(platformStyle, this, true);
     entry->setModel(model);
     ui->entries->addWidget(entry);
@@ -311,14 +283,12 @@ SendCoinsEntry *ZSendCoinsDialog::addEntry()
     return entry;
 }
 
-void ZSendCoinsDialog::updateTabsAndLabels()
-{
+void ZSendCoinsDialog::updateTabsAndLabels() {
     setupTabChain(0);
     coinControlUpdateLabels();
 }
 
-void ZSendCoinsDialog::removeEntry(SendCoinsEntry* entry)
-{
+void ZSendCoinsDialog::removeEntry(SendCoinsEntry* entry) {
     entry->hide();
 
     // If the last entry is about to be removed add an empty one
@@ -330,13 +300,10 @@ void ZSendCoinsDialog::removeEntry(SendCoinsEntry* entry)
     updateTabsAndLabels();
 }
 
-QWidget *ZSendCoinsDialog::setupTabChain(QWidget *prev)
-{
-    for(int i = 0; i < ui->entries->count(); ++i)
-    {
+QWidget *ZSendCoinsDialog::setupTabChain(QWidget *prev) {
+    for(int i = 0; i < ui->entries->count(); ++i) {
         SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-        if(entry)
-        {
+        if(entry) {
             prev = entry->setupTabChain(prev);
         }
     }
@@ -347,43 +314,35 @@ QWidget *ZSendCoinsDialog::setupTabChain(QWidget *prev)
     return ui->refreshPayFrom;
 }
 
-void ZSendCoinsDialog::setAddress(const QString &address)
-{
+void ZSendCoinsDialog::setAddress(const QString &address) {
     SendCoinsEntry *entry = 0;
     // Replace the first entry if it is still unused
-    if(ui->entries->count() == 1)
-    {
+    if(ui->entries->count() == 1) {
         SendCoinsEntry *first = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
-        if(first->isClear())
-        {
+        if(first->isClear()) {
             entry = first;
         }
     }
-    if(!entry)
-    {
+    if(!entry) {
         entry = addEntry();
     }
 
     entry->setAddress(address);
 }
 
-void ZSendCoinsDialog::pasteEntry(const SendCoinsRecipient &rv)
-{
+void ZSendCoinsDialog::pasteEntry(const SendCoinsRecipient &rv) {
     if(!fNewRecipientAllowed)
         return;
 
     SendCoinsEntry *entry = 0;
     // Replace the first entry if it is still unused
-    if(ui->entries->count() == 1)
-    {
+    if(ui->entries->count() == 1) {
         SendCoinsEntry *first = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(0)->widget());
-        if(first->isClear())
-        {
+        if(first->isClear()) {
             entry = first;
         }
     }
-    if(!entry)
-    {
+    if(!entry) {
         entry = addEntry();
     }
 
@@ -391,8 +350,7 @@ void ZSendCoinsDialog::pasteEntry(const SendCoinsRecipient &rv)
     updateTabsAndLabels();
 }
 
-bool ZSendCoinsDialog::handlePaymentRequest(const SendCoinsRecipient &rv)
-{
+bool ZSendCoinsDialog::handlePaymentRequest(const SendCoinsRecipient &rv) {
     // Just paste the entry, all pre-checks
     // are done in paymentserver.cpp.
     pasteEntry(rv);
@@ -400,33 +358,28 @@ bool ZSendCoinsDialog::handlePaymentRequest(const SendCoinsRecipient &rv)
 }
 
 void ZSendCoinsDialog::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance,
-                                 const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance)
-{
+                                  const CAmount& watchBalance, const CAmount& watchUnconfirmedBalance, const CAmount& watchImmatureBalance) {
     Q_UNUSED(unconfirmedBalance);
     Q_UNUSED(immatureBalance);
     Q_UNUSED(watchBalance);
     Q_UNUSED(watchUnconfirmedBalance);
     Q_UNUSED(watchImmatureBalance);
 
-    if(model && model->getOptionsModel())
-    {
+    if(model && model->getOptionsModel()) {
         ui->labelBalance->setText(KomodoUnits::formatWithUnit(model->getOptionsModel()->getDisplayUnit(), balance));
     }
 }
 
-void ZSendCoinsDialog::updateDisplayUnit()
-{
+void ZSendCoinsDialog::updateDisplayUnit() {
     setBalance(model->getBalance(), 0, 0, 0, 0, 0);
     ui->customFee->setDisplayUnit(model->getOptionsModel()->getDisplayUnit());
 }
 
-void ZSendCoinsDialog::setOperationId(const AsyncRPCOperationId& operationId)
-{
+void ZSendCoinsDialog::setOperationId(const AsyncRPCOperationId& operationId) {
     ui->operationId->setText(QString::fromStdString(operationId));
 }
 
-void ZSendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg)
-{
+void ZSendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn &sendCoinsReturn, const QString &msgArg) {
     QPair<QString, CClientUIInterface::MessageBoxFlags> msgParams;
     // Default to a warning message, override if error message is needed
     msgParams.second = CClientUIInterface::MSG_WARNING;
@@ -434,8 +387,7 @@ void ZSendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn
     // This comment is specific to ZSendCoinsDialog usage of WalletModel::SendCoinsReturn.
     // WalletModel::TransactionCommitFailed is used only in WalletModel::sendCoins()
     // all others are used only in WalletModel::prepareTransaction()
-    switch(sendCoinsReturn.status)
-    {
+    switch(sendCoinsReturn.status) {
     case WalletModel::InvalidFromAddress:
         msgParams.first = tr("Invalid from address, should be a taddr or zaddr.");
         break;
@@ -508,28 +460,25 @@ void ZSendCoinsDialog::processSendCoinsReturn(const WalletModel::SendCoinsReturn
     Q_EMIT message(tr("Z-Send Coins"), msgParams.first, msgParams.second);
 }
 
-void ZSendCoinsDialog::useAvailableBalance(SendCoinsEntry* entry)
-{
+void ZSendCoinsDialog::useAvailableBalance(SendCoinsEntry* entry) {
     // Get CCoinControl instance if CoinControl is enabled or create a new one.
     CCoinControl coin_control;
     if (model->getOptionsModel()->getCoinControlFeatures()) {
         coin_control = *CoinControlDialog::coinControl;
     }
 
-    if (ui->payFromAddress->currentText().isEmpty())
-    {
+    if (ui->payFromAddress->currentText().isEmpty()) {
         entry->setAmount(0);
         return;
     }
 
-    QString address;   
+    QString address;
     if (!ui->payFromAddress->currentText().split(' ').isEmpty()) address = ui->payFromAddress->currentText().split(' ').at(1);
 
     // Calculate available amount to send.
     CAmount amount = 0;
 
-    if (!address.isEmpty())
-    {
+    if (!address.isEmpty()) {
         amount = model->getAddressBalance(address.toStdString());
         for (int i = 0; i < ui->entries->count(); ++i) {
             SendCoinsEntry* e = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
@@ -540,21 +489,19 @@ void ZSendCoinsDialog::useAvailableBalance(SendCoinsEntry* entry)
     }
 
     if (amount > 0) {
-      entry->checkSubtractFeeFromAmount();
-      entry->setAmount(amount);
+        entry->checkSubtractFeeFromAmount();
+        entry->setAmount(amount);
     } else {
-      entry->setAmount(0);
+        entry->setAmount(0);
     }
 }
 
-void ZSendCoinsDialog::updateCoinControlState(CCoinControl& ctrl)
-{
+void ZSendCoinsDialog::updateCoinControlState(CCoinControl& ctrl) {
     ctrl.m_feerate = CFeeRate(ui->customFee->value());
 }
 
 // Coin Control: update labels
-void ZSendCoinsDialog::coinControlUpdateLabels()
-{
+void ZSendCoinsDialog::coinControlUpdateLabels() {
     if (!model || !model->getOptionsModel())
         return;
 
@@ -564,11 +511,9 @@ void ZSendCoinsDialog::coinControlUpdateLabels()
     CoinControlDialog::payAmounts.clear();
     CoinControlDialog::fSubtractFeeFromAmount = false;
 
-    for(int i = 0; i < ui->entries->count(); ++i)
-    {
+    for(int i = 0; i < ui->entries->count(); ++i) {
         SendCoinsEntry *entry = qobject_cast<SendCoinsEntry*>(ui->entries->itemAt(i)->widget());
-        if(entry && !entry->isHidden())
-        {
+        if(entry && !entry->isHidden()) {
             SendCoinsRecipient rcp = entry->getValue();
             CoinControlDialog::payAmounts.append(rcp.amount);
             if (rcp.fSubtractFeeFromAmount)
@@ -576,21 +521,18 @@ void ZSendCoinsDialog::coinControlUpdateLabels()
         }
     }
 
-    if (CoinControlDialog::coinControl->HasSelected())
-    {
+    if (CoinControlDialog::coinControl->HasSelected()) {
         // actual coin control calculation
         CoinControlDialog::updateLabels(model, this);
     }
 }
 
-void ZSendCoinsDialog::updatePayFromList()
-{
+void ZSendCoinsDialog::updatePayFromList() {
     ui->payFromAddress->clear();
 
     typedef std::function<bool(std::pair<CTxDestination, CAmount>, std::pair<CTxDestination, CAmount>)> ComparatorT;
 
-    ComparatorT compFunctorT = [](std::pair<CTxDestination, CAmount> elem1 ,std::pair<CTxDestination, CAmount> elem2)
-    {
+    ComparatorT compFunctorT = [](std::pair<CTxDestination, CAmount> elem1,std::pair<CTxDestination, CAmount> elem2) {
         double v1 = ValueFromAmount(elem1.second).get_real();
         double v2 = ValueFromAmount(elem2.second).get_real();
         std::string a1 = EncodeDestination(elem1.first);
@@ -603,18 +545,16 @@ void ZSendCoinsDialog::updatePayFromList()
 
     std::set<std::pair<CTxDestination, CAmount>, ComparatorT> balances_sorted(balances.begin(), balances.end(), compFunctorT);
 
-    for (const std::pair<CTxDestination, CAmount>& item : balances_sorted)
-    {
+    for (const std::pair<CTxDestination, CAmount>& item : balances_sorted) {
         if (ValueFromAmount(item.second).get_real() != 0.0)
             ui->payFromAddress->addItem(tr("(%1) %2").arg(QString::number(ValueFromAmount(item.second).get_real(),'f',8))
-                                                     .arg(QString::fromStdString(EncodeDestination(item.first))));
+                                        .arg(QString::fromStdString(EncodeDestination(item.first))));
     }
 
 
     typedef std::function<bool(std::pair<libzcash::PaymentAddress, CAmount>, std::pair<libzcash::PaymentAddress, CAmount>)> ComparatorZ;
 
-    ComparatorZ compFunctorZ = [](std::pair<libzcash::PaymentAddress, CAmount> elem1 ,std::pair<libzcash::PaymentAddress, CAmount> elem2)
-    {
+    ComparatorZ compFunctorZ = [](std::pair<libzcash::PaymentAddress, CAmount> elem1,std::pair<libzcash::PaymentAddress, CAmount> elem2) {
         double v1 = ValueFromAmount(elem1.second).get_real();
         double v2 = ValueFromAmount(elem2.second).get_real();
         std::string a1 = EncodePaymentAddress(elem1.first);
@@ -627,10 +567,9 @@ void ZSendCoinsDialog::updatePayFromList()
 
     std::set<std::pair<libzcash::PaymentAddress, CAmount>, ComparatorZ> zbalances_sorted(zbalances.begin(), zbalances.end(), compFunctorZ);
 
-    for (const std::pair<libzcash::PaymentAddress, CAmount>& item : zbalances_sorted)
-    {
+    for (const std::pair<libzcash::PaymentAddress, CAmount>& item : zbalances_sorted) {
         if (ValueFromAmount(item.second).get_real() != 0.0)
             ui->payFromAddress->addItem(tr("(%1) %2").arg(QString::number(ValueFromAmount(item.second).get_real(),'f',8))
-                                                     .arg(QString::fromStdString(EncodePaymentAddress(item.first))));
+                                        .arg(QString::fromStdString(EncodePaymentAddress(item.first))));
     }
 }

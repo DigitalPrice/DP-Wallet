@@ -12,19 +12,18 @@
 static constexpr int HEADER_HEIGHT_DELTA_SYNC = 24;
 
 namespace Ui {
-    class ModalOverlay;
+class ModalOverlay;
 }
 
 /** Modal overlay to display information about the chain-sync state */
-class ModalOverlay : public QWidget
-{
+class ModalOverlay : public QWidget {
     Q_OBJECT
 
-public:
+  public:
     explicit ModalOverlay(QWidget *parent);
     ~ModalOverlay();
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void tipUpdate(int count, const QDateTime& blockDate, double nVerificationProgress);
     void setKnownBestHeight(int count, const QDateTime& blockDate);
 
@@ -32,13 +31,15 @@ public Q_SLOTS:
     // will show or hide the modal layer
     void showHide(bool hide = false, bool userRequested = false);
     void closeClicked();
-    bool isLayerVisible() const { return layerIsVisible; }
+    bool isLayerVisible() const {
+        return layerIsVisible;
+    }
 
-protected:
+  protected:
     bool eventFilter(QObject * obj, QEvent * ev);
     bool event(QEvent* ev);
 
-private:
+  private:
     Ui::ModalOverlay *ui;
     int bestHeaderHeight; //best known height (based on the headers)
     QDateTime bestHeaderDate;

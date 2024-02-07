@@ -22,8 +22,7 @@ BOOST_STATIC_ASSERT(sizeof(mp_limb_t) == 8);
 namespace libzcash {
 
 // FE2IP as defined in the protocol spec and IEEE Std 1363a-2004.
-bigint<8> fq2_to_bigint(const curve_Fq2 &e)
-{
+bigint<8> fq2_to_bigint(const curve_Fq2 &e) {
     auto modq = curve_Fq::field_char();
     auto c0 = e.c0.as_bigint();
     auto c1 = e.c1.as_bigint();
@@ -35,8 +34,7 @@ bigint<8> fq2_to_bigint(const curve_Fq2 &e)
 
 // Writes a bigint in big endian
 template<mp_size_t LIMBS>
-void write_bigint(base_blob<8 * LIMBS * sizeof(mp_limb_t)> &blob, const bigint<LIMBS> &val)
-{
+void write_bigint(base_blob<8 * LIMBS * sizeof(mp_limb_t)> &blob, const bigint<LIMBS> &val) {
     auto ptr = blob.begin();
     for (ssize_t i = LIMBS-1; i >= 0; i--, ptr += 8) {
         WriteBE64(ptr, val.data[i]);
@@ -45,8 +43,7 @@ void write_bigint(base_blob<8 * LIMBS * sizeof(mp_limb_t)> &blob, const bigint<L
 
 // Reads a bigint from big endian
 template<mp_size_t LIMBS>
-bigint<LIMBS> read_bigint(const base_blob<8 * LIMBS * sizeof(mp_limb_t)> &blob)
-{
+bigint<LIMBS> read_bigint(const base_blob<8 * LIMBS * sizeof(mp_limb_t)> &blob) {
     bigint<LIMBS> ret;
 
     auto ptr = blob.begin();
@@ -59,14 +56,12 @@ bigint<LIMBS> read_bigint(const base_blob<8 * LIMBS * sizeof(mp_limb_t)> &blob)
 }
 
 template<>
-Fq::Fq(curve_Fq element) : data()
-{
+Fq::Fq(curve_Fq element) : data() {
     write_bigint<4>(data, element.as_bigint());
 }
 
 template<>
-curve_Fq Fq::to_libsnark_fq() const
-{
+curve_Fq Fq::to_libsnark_fq() const {
     auto element_bigint = read_bigint<4>(data);
 
     // Check that the integer is smaller than the modulus
@@ -77,14 +72,12 @@ curve_Fq Fq::to_libsnark_fq() const
 }
 
 template<>
-Fq2::Fq2(curve_Fq2 element) : data()
-{
+Fq2::Fq2(curve_Fq2 element) : data() {
     write_bigint<8>(data, fq2_to_bigint(element));
 }
 
 template<>
-curve_Fq2 Fq2::to_libsnark_fq2() const
-{
+curve_Fq2 Fq2::to_libsnark_fq2() const {
     bigint<4> modq = curve_Fq::field_char();
     bigint<8> combined = read_bigint<8>(data);
     bigint<5> res;
@@ -96,8 +89,7 @@ curve_Fq2 Fq2::to_libsnark_fq2() const
 }
 
 template<>
-CompressedG1::CompressedG1(curve_G1 point)
-{
+CompressedG1::CompressedG1(curve_G1 point) {
     if (point.is_zero()) {
         throw std::domain_error("curve point is zero");
     }
@@ -109,8 +101,7 @@ CompressedG1::CompressedG1(curve_G1 point)
 }
 
 template<>
-curve_G1 CompressedG1::to_libsnark_g1() const
-{
+curve_G1 CompressedG1::to_libsnark_g1() const {
     curve_Fq x_coordinate = x.to_libsnark_fq<curve_Fq>();
 
     // y = +/- sqrt(x^3 + b)
@@ -131,8 +122,7 @@ curve_G1 CompressedG1::to_libsnark_g1() const
 }
 
 template<>
-CompressedG2::CompressedG2(curve_G2 point)
-{
+CompressedG2::CompressedG2(curve_G2 point) {
     if (point.is_zero()) {
         throw std::domain_error("curve point is zero");
     }
@@ -144,8 +134,7 @@ CompressedG2::CompressedG2(curve_G2 point)
 }
 
 template<>
-curve_G2 CompressedG2::to_libsnark_g2() const
-{
+curve_G2 CompressedG2::to_libsnark_g2() const {
     auto x_coordinate = x.to_libsnark_fq2<curve_Fq2>();
 
     // y = +/- sqrt(x^3 + b)
@@ -171,8 +160,7 @@ curve_G2 CompressedG2::to_libsnark_g2() const
 }
 
 template<>
-PHGRProof::PHGRProof(const r1cs_ppzksnark_proof<curve_pp> &proof)
-{
+PHGRProof::PHGRProof(const r1cs_ppzksnark_proof<curve_pp> &proof) {
     g_A = CompressedG1(proof.g_A.g);
     g_A_prime = CompressedG1(proof.g_A.h);
     g_B = CompressedG2(proof.g_B.g);
@@ -184,8 +172,7 @@ PHGRProof::PHGRProof(const r1cs_ppzksnark_proof<curve_pp> &proof)
 }
 
 template<>
-r1cs_ppzksnark_proof<curve_pp> PHGRProof::to_libsnark_proof() const
-{
+r1cs_ppzksnark_proof<curve_pp> PHGRProof::to_libsnark_proof() const {
     r1cs_ppzksnark_proof<curve_pp> proof;
 
     proof.g_A.g = g_A.to_libsnark_g1<curve_G1>();
@@ -200,8 +187,7 @@ r1cs_ppzksnark_proof<curve_pp> PHGRProof::to_libsnark_proof() const
     return proof;
 }
 
-PHGRProof PHGRProof::random_invalid()
-{
+PHGRProof PHGRProof::random_invalid() {
     PHGRProof p;
     p.g_A = curve_G1::random_element();
     p.g_A_prime = curve_G1::random_element();
@@ -218,8 +204,7 @@ PHGRProof PHGRProof::random_invalid()
 
 static std::once_flag init_public_params_once_flag;
 
-void initialize_curve_params()
-{
+void initialize_curve_params() {
     std::call_once (init_public_params_once_flag, curve_pp::init_public_params);
 }
 
@@ -239,8 +224,7 @@ bool ProofVerifier::check(
     const r1cs_ppzksnark_processed_verification_key<curve_pp>& pvk,
     const r1cs_primary_input<curve_Fr>& primary_input,
     const r1cs_ppzksnark_proof<curve_pp>& proof
-)
-{
+) {
     if (perform_verification) {
         return r1cs_ppzksnark_online_verifier_strong_IC<curve_pp>(pvk, primary_input, proof);
     } else {

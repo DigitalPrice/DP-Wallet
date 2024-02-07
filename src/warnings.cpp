@@ -13,26 +13,22 @@ std::string strMiscWarning;
 bool fLargeWorkForkFound = false;
 bool fLargeWorkInvalidChainFound = false;
 
-void SetMiscWarning(const std::string& strWarning)
-{
+void SetMiscWarning(const std::string& strWarning) {
     LOCK(cs_warnings);
     strMiscWarning = strWarning;
 }
 
-void SetfLargeWorkForkFound(bool flag)
-{
+void SetfLargeWorkForkFound(bool flag) {
     LOCK(cs_warnings);
     fLargeWorkForkFound = flag;
 }
 
-bool GetfLargeWorkForkFound()
-{
+bool GetfLargeWorkForkFound() {
     LOCK(cs_warnings);
     return fLargeWorkForkFound;
 }
 
-void SetfLargeWorkInvalidChainFound(bool flag)
-{
+void SetfLargeWorkInvalidChainFound(bool flag) {
     LOCK(cs_warnings);
     fLargeWorkInvalidChainFound = flag;
 }

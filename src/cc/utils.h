@@ -25,19 +25,17 @@
  */
 
 template <class T>
-std::vector<uint8_t> SerializeF(const T f)
-{
+std::vector<uint8_t> SerializeF(const T f) {
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     f(ss);
     return std::vector<unsigned char>(ss.begin(), ss.end());
 }
 
 template <class T>
-bool DeserializeF(const std::vector<unsigned char> vIn, T f)
-{
+bool DeserializeF(const std::vector<unsigned char> vIn, T f) {
     CDataStream ss(vIn, SER_NETWORK, PROTOCOL_VERSION);
     try {
-         f(ss);
+        f(ss);
         if (ss.eof()) return true;
     } catch(...) {}
     return false;

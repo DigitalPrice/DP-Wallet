@@ -11,49 +11,41 @@
 
 using namespace std;
 
-class CAddrManTest : public CAddrMan
-{
+class CAddrManTest : public CAddrMan {
     uint64_t state;
 
-public:
-    CAddrManTest()
-    {
+  public:
+    CAddrManTest() {
         state = 1;
     }
 
     //! Ensure that bucket placement is always the same for testing purposes.
-    void MakeDeterministic()
-    {
+    void MakeDeterministic() {
         nKey.SetNull();
         seed_insecure_rand(true);
     }
 
-    int RandomInt(int nMax)
-    {
+    int RandomInt(int nMax) {
         state = (CHashWriter(SER_GETHASH, 0) << state).GetHash().GetCheapHash();
         return (unsigned int)(state % nMax);
     }
 
-    CAddrInfo* Find(const CNetAddr& addr, int* pnId = NULL)
-    {
+    CAddrInfo* Find(const CNetAddr& addr, int* pnId = NULL) {
         return CAddrMan::Find(addr, pnId);
     }
 
-    CAddrInfo* Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId = NULL)
-    {
+    CAddrInfo* Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId = NULL) {
         return CAddrMan::Create(addr, addrSource, pnId);
     }
 
-    void Delete(int nId)
-    {
+    void Delete(int nId) {
         CAddrMan::Delete(nId);
     }
 };
 
 BOOST_FIXTURE_TEST_SUITE(addrman_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(addrman_simple)
-{
+BOOST_AUTO_TEST_CASE(addrman_simple) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -93,8 +85,7 @@ BOOST_AUTO_TEST_CASE(addrman_simple)
     BOOST_CHECK(addr_null2.ToString() == "[::]:0");
 }
 
-BOOST_AUTO_TEST_CASE(addrman_ports)
-{
+BOOST_AUTO_TEST_CASE(addrman_ports) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -125,8 +116,7 @@ BOOST_AUTO_TEST_CASE(addrman_ports)
 }
 
 
-BOOST_AUTO_TEST_CASE(addrman_select)
-{
+BOOST_AUTO_TEST_CASE(addrman_select) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -186,8 +176,7 @@ BOOST_AUTO_TEST_CASE(addrman_select)
     BOOST_CHECK(addrman.Select().ToString() == "250.4.4.4:8333");
 }
 
-BOOST_AUTO_TEST_CASE(addrman_new_collisions)
-{
+BOOST_AUTO_TEST_CASE(addrman_new_collisions) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -215,8 +204,7 @@ BOOST_AUTO_TEST_CASE(addrman_new_collisions)
     BOOST_CHECK(addrman.size() == 18);
 }
 
-BOOST_AUTO_TEST_CASE(addrman_tried_collisions)
-{
+BOOST_AUTO_TEST_CASE(addrman_tried_collisions) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -246,8 +234,7 @@ BOOST_AUTO_TEST_CASE(addrman_tried_collisions)
     BOOST_CHECK(addrman.size() == 80);
 }
 
-BOOST_AUTO_TEST_CASE(addrman_find)
-{
+BOOST_AUTO_TEST_CASE(addrman_find) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -285,8 +272,7 @@ BOOST_AUTO_TEST_CASE(addrman_find)
         BOOST_CHECK(info3->ToString() == "251.255.2.1:8333");
 }
 
-BOOST_AUTO_TEST_CASE(addrman_create)
-{
+BOOST_AUTO_TEST_CASE(addrman_create) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -308,8 +294,7 @@ BOOST_AUTO_TEST_CASE(addrman_create)
 }
 
 
-BOOST_AUTO_TEST_CASE(addrman_delete)
-{
+BOOST_AUTO_TEST_CASE(addrman_delete) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -331,8 +316,7 @@ BOOST_AUTO_TEST_CASE(addrman_delete)
     BOOST_CHECK(info2 == NULL);
 }
 
-BOOST_AUTO_TEST_CASE(addrman_getaddr)
-{
+BOOST_AUTO_TEST_CASE(addrman_getaddr) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -365,7 +349,7 @@ BOOST_AUTO_TEST_CASE(addrman_getaddr)
     addrman.Add(addr5, source1);
 
     // GetAddr returns 23% of addresses, 23% of 5 is 1 rounded down.
-    BOOST_CHECK(addrman.GetAddr().size() == 1); 
+    BOOST_CHECK(addrman.GetAddr().size() == 1);
 
     // Test 24: Ensure GetAddr works with new and tried addresses.
     addrman.Good(CAddress(addr1));
@@ -379,7 +363,7 @@ BOOST_AUTO_TEST_CASE(addrman_getaddr)
         int octet3 = (i / (256 * 2)) % 256;
         string strAddr = boost::to_string(octet1) + "." + boost::to_string(octet2) + "." + boost::to_string(octet3) + ".23";
         CAddress addr = CAddress(CService(strAddr));
-        
+
         // Ensure that for all addrs in addrman, isTerrible == false.
         addr.nTime = GetTime();
         addrman.Add(addr, CNetAddr(strAddr));
@@ -396,8 +380,7 @@ BOOST_AUTO_TEST_CASE(addrman_getaddr)
 }
 
 
-BOOST_AUTO_TEST_CASE(caddrinfo_get_tried_bucket)
-{
+BOOST_AUTO_TEST_CASE(caddrinfo_get_tried_bucket) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -431,8 +414,8 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_tried_bucket)
     set<int> buckets;
     for (int i = 0; i < 255; i++) {
         CAddrInfo infoi = CAddrInfo(
-            CAddress(CService("250.1.1." + boost::to_string(i))),
-            CNetAddr("250.1.1." + boost::to_string(i)));
+                              CAddress(CService("250.1.1." + boost::to_string(i))),
+                              CNetAddr("250.1.1." + boost::to_string(i)));
         int bucket = infoi.GetTriedBucket(nKey1);
         buckets.insert(bucket);
     }
@@ -443,8 +426,8 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_tried_bucket)
     buckets.clear();
     for (int j = 0; j < 255; j++) {
         CAddrInfo infoj = CAddrInfo(
-            CAddress(CService("250." + boost::to_string(j) + ".1.1")),
-            CNetAddr("250." + boost::to_string(j) + ".1.1"));
+                              CAddress(CService("250." + boost::to_string(j) + ".1.1")),
+                              CNetAddr("250." + boost::to_string(j) + ".1.1"));
         int bucket = infoj.GetTriedBucket(nKey1);
         buckets.insert(bucket);
     }
@@ -453,8 +436,7 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_tried_bucket)
     BOOST_CHECK(buckets.size() == 160);
 }
 
-BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket)
-{
+BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket) {
     CAddrManTest addrman;
 
     // Set addrman addr placement to be deterministic.
@@ -484,8 +466,8 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket)
     set<int> buckets;
     for (int i = 0; i < 255; i++) {
         CAddrInfo infoi = CAddrInfo(
-            CAddress(CService("250.1.1." + boost::to_string(i))),
-            CNetAddr("250.1.1." + boost::to_string(i)));
+                              CAddress(CService("250.1.1." + boost::to_string(i))),
+                              CNetAddr("250.1.1." + boost::to_string(i)));
         int bucket = infoi.GetNewBucket(nKey1);
         buckets.insert(bucket);
     }
@@ -498,7 +480,7 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket)
         CAddrInfo infoj = CAddrInfo(CAddress(
                                         CService(
                                             boost::to_string(250 + (j / 255)) + "." + boost::to_string(j % 256) + ".1.1")),
-            CNetAddr("251.4.1.1"));
+                                    CNetAddr("251.4.1.1"));
         int bucket = infoj.GetNewBucket(nKey1);
         buckets.insert(bucket);
     }
@@ -509,8 +491,8 @@ BOOST_AUTO_TEST_CASE(caddrinfo_get_new_bucket)
     buckets.clear();
     for (int p = 0; p < 255; p++) {
         CAddrInfo infoj = CAddrInfo(
-            CAddress(CService("250.1.1.1")),
-            CNetAddr("250." + boost::to_string(p) + ".1.1"));
+                              CAddress(CService("250.1.1.1")),
+                              CNetAddr("250." + boost::to_string(p) + ".1.1"));
         int bucket = infoj.GetNewBucket(nKey1);
         buckets.insert(bucket);
     }

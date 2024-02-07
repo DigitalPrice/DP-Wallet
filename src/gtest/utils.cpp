@@ -1,9 +1,7 @@
-int GenZero(int n)
-{
+int GenZero(int n) {
     return 0;
 }
 
-int GenMax(int n)
-{
+int GenMax(int n) {
     return n-1;
 }

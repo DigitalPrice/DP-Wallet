@@ -30,19 +30,16 @@
 // default hash algorithm for block
 uint256 (CBlockHeader::*CBlockHeader::hashFunction)() const = &CBlockHeader::GetSHA256DHash;
 
-uint256 CBlockHeader::GetSHA256DHash() const
-{
+uint256 CBlockHeader::GetSHA256DHash() const {
     return SerializeHash(*this);
 }
 
-void CBlockHeader::SetSHA256DHash()
-{
+void CBlockHeader::SetSHA256DHash() {
     CBlockHeader::hashFunction = &CBlockHeader::GetSHA256DHash;
 }
 
 uint256 BuildMerkleTree(bool* fMutated, const std::vector<uint256> leaves,
-        std::vector<uint256> &vMerkleTree)
-{
+                        std::vector<uint256> &vMerkleTree) {
     /* WARNING! If you're reading this because you're learning about crypto
        and/or designing a new system that will use merkle trees, keep in mind
        that the following merkle tree algorithm has a serious flaw related to
@@ -85,10 +82,8 @@ uint256 BuildMerkleTree(bool* fMutated, const std::vector<uint256> leaves,
         vMerkleTree.push_back(*it);
     int j = 0;
     bool mutated = false;
-    for (int nSize = leaves.size(); nSize > 1; nSize = (nSize + 1) / 2)
-    {
-        for (int i = 0; i < nSize; i += 2)
-        {
+    for (int nSize = leaves.size(); nSize > 1; nSize = (nSize + 1) / 2) {
+        for (int i = 0; i < nSize; i += 2) {
             int i2 = std::min(i+1, nSize-1);
             if (i2 == i + 1 && i2 + 1 == nSize && vMerkleTree[j+i] == vMerkleTree[j+i2]) {
                 // Two identical hashes at the end of the list at a particular level.
@@ -106,20 +101,17 @@ uint256 BuildMerkleTree(bool* fMutated, const std::vector<uint256> leaves,
 }
 
 
-uint256 CBlock::BuildMerkleTree(bool* fMutated) const
-{
+uint256 CBlock::BuildMerkleTree(bool* fMutated) const {
     std::vector<uint256> leaves;
     for (int i=0; i<vtx.size(); i++) leaves.push_back(vtx[i].GetHash());
     return ::BuildMerkleTree(fMutated, leaves, vMerkleTree);
 }
 
 
-std::vector<uint256> GetMerkleBranch(int nIndex, int nLeaves, const std::vector<uint256> &vMerkleTree)
-{
+std::vector<uint256> GetMerkleBranch(int nIndex, int nLeaves, const std::vector<uint256> &vMerkleTree) {
     std::vector<uint256> vMerkleBranch;
     int j = 0;
-    for (int nSize = nLeaves; nSize > 1; nSize = (nSize + 1) / 2)
-    {
+    for (int nSize = nLeaves; nSize > 1; nSize = (nSize + 1) / 2) {
         int i = std::min(nIndex^1, nSize-1);
         vMerkleBranch.push_back(vMerkleTree[j+i]);
         nIndex >>= 1;
@@ -129,20 +121,17 @@ std::vector<uint256> GetMerkleBranch(int nIndex, int nLeaves, const std::vector<
 }
 
 
-std::vector<uint256> CBlock::GetMerkleBranch(int nIndex) const
-{
+std::vector<uint256> CBlock::GetMerkleBranch(int nIndex) const {
     if (vMerkleTree.empty())
         BuildMerkleTree();
     return ::GetMerkleBranch(nIndex, vtx.size(), vMerkleTree);
 }
 
 
-uint256 CBlock::CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex)
-{
+uint256 CBlock::CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMerkleBranch, int nIndex) {
     if (nIndex == -1)
         return uint256();
-    for (std::vector<uint256>::const_iterator it(vMerkleBranch.begin()); it != vMerkleBranch.end(); ++it)
-    {
+    for (std::vector<uint256>::const_iterator it(vMerkleBranch.begin()); it != vMerkleBranch.end(); ++it) {
         if (nIndex & 1)
             hash = Hash(BEGIN(*it), END(*it), BEGIN(hash), END(hash));
         else
@@ -152,19 +141,17 @@ uint256 CBlock::CheckMerkleBranch(uint256 hash, const std::vector<uint256>& vMer
     return hash;
 }
 
-std::string CBlock::ToString() const
-{
+std::string CBlock::ToString() const {
     std::stringstream s;
     s << strprintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, hashFinalSaplingRoot=%s, nTime=%u, nBits=%08x, nNonce=%s, vtx=%u)\n",
-        GetHash().ToString(),
-        nVersion,
-        hashPrevBlock.ToString(),
-        hashMerkleRoot.ToString(),
-        hashFinalSaplingRoot.ToString(),
-        nTime, nBits, nNonce.ToString(),
-        vtx.size());
-    for (unsigned int i = 0; i < vtx.size(); i++)
-    {
+                   GetHash().ToString(),
+                   nVersion,
+                   hashPrevBlock.ToString(),
+                   hashMerkleRoot.ToString(),
+                   hashFinalSaplingRoot.ToString(),
+                   nTime, nBits, nNonce.ToString(),
+                   vtx.size());
+    for (unsigned int i = 0; i < vtx.size(); i++) {
         s << "  " << vtx[i].ToString() << "\n";
     }
     s << "  vMerkleTree: ";

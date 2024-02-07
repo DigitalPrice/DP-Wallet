@@ -13,8 +13,7 @@
 
 BOOST_FIXTURE_TEST_SUITE(policyestimator_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
-{
+BOOST_AUTO_TEST_CASE(BlockPolicyEstimates) {
     CTxMemPool mpool(CFeeRate(1000));
     TestMemPoolEntryHelper entry;
     CAmount basefee(2000);
@@ -100,7 +99,7 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
     // so estimateFee(1) should return 9*baseRate.
     // Third highest feerate has 90% chance of being included by 2 blocks,
     // so estimateFee(2) should return 8*baseRate etc...
-    for (int i = 1; i < 10;i++) {
+    for (int i = 1; i < 10; i++) {
         origFeeEst.push_back(mpool.estimateFee(i).GetFeePerK());
         origPriEst.push_back(mpool.estimatePriority(i));
         if (i > 1) { // Fee estimates should be monotonically decreasing
@@ -118,7 +117,7 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
     while (blocknum < 250)
         mpool.removeForBlock(block, ++blocknum, dummyConflicted);
 
-    for (int i = 1; i < 10;i++) {
+    for (int i = 1; i < 10; i++) {
         BOOST_CHECK(mpool.estimateFee(i).GetFeePerK() < origFeeEst[i-1] + deltaFee);
         BOOST_CHECK(mpool.estimateFee(i).GetFeePerK() > origFeeEst[i-1] - deltaFee);
         BOOST_CHECK(mpool.estimatePriority(i) < origPriEst[i-1] + deltaPri);
@@ -140,7 +139,7 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
         mpool.removeForBlock(block, ++blocknum, dummyConflicted);
     }
 
-    for (int i = 1; i < 10;i++) {
+    for (int i = 1; i < 10; i++) {
         BOOST_CHECK(mpool.estimateFee(i).GetFeePerK() > origFeeEst[i-1] - deltaFee);
         BOOST_CHECK(mpool.estimatePriority(i) > origPriEst[i-1] - deltaPri);
     }
@@ -157,7 +156,7 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
     }
     mpool.removeForBlock(block, 265, dummyConflicted);
     block.clear();
-    for (int i = 1; i < 10;i++) {
+    for (int i = 1; i < 10; i++) {
         BOOST_CHECK(mpool.estimateFee(i).GetFeePerK() > origFeeEst[i-1] - deltaFee);
         BOOST_CHECK(mpool.estimatePriority(i) > origPriEst[i-1] - deltaPri);
     }
@@ -184,8 +183,7 @@ BOOST_AUTO_TEST_CASE(BlockPolicyEstimates)
     }
 }
 
-BOOST_AUTO_TEST_CASE(TxConfirmStats_FindBucketIndex)
-{
+BOOST_AUTO_TEST_CASE(TxConfirmStats_FindBucketIndex) {
     std::vector<double> buckets {0.0, 3.5, 42.0};
     TxConfirmStats txcs;
     txcs.Initialize(buckets, MAX_BLOCK_CONFIRMS, DEFAULT_DECAY, "Test");

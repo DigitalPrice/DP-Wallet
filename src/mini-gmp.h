@@ -69,12 +69,12 @@ char *bitcoin_base58encode(char *coinaddr,uint8_t *data,int32_t datalen);
 int32_t bitcoin_base58decode(uint8_t *data,const char *coinaddr);
 
 void mp_set_memory_functions (void *(*) (size_t),
-			      void *(*) (void *, size_t, size_t),
-			      void (*) (void *, size_t));
+                              void *(*) (void *, size_t, size_t),
+                              void (*) (void *, size_t));
 
 void mp_get_memory_functions (void *(**) (size_t),
-			      void *(**) (void *, size_t, size_t),
-			      void (**) (void *, size_t));
+                              void *(**) (void *, size_t, size_t),
+                              void (**) (void *, size_t));
 
 typedef uint64_t mp_limb_t;
 typedef int64_t mp_size_t;
@@ -83,14 +83,13 @@ typedef uint64_t mp_bitcnt_t;
 typedef mp_limb_t *mp_ptr;
 typedef const mp_limb_t *mp_srcptr;
 
-typedef struct
-{
-  int32_t _mp_alloc;		/* Number of *limbs* allocated and pointed
+typedef struct {
+    int32_t _mp_alloc;		/* Number of *limbs* allocated and pointed
 				   to by the _mp_d field.  */
-  int32_t _mp_size;			/* abs(_mp_size) is the number of limbs the
+    int32_t _mp_size;			/* abs(_mp_size) is the number of limbs the
 				   last field points to.  If _mp_size is
 				   negative this is a negative number.  */
-  mp_limb_t *_mp_d;		/* Pointer to the limbs.  */
+    mp_limb_t *_mp_d;		/* Pointer to the limbs.  */
 } __mpz_struct;
 
 typedef __mpz_struct mpz_t[1];

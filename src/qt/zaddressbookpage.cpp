@@ -26,8 +26,7 @@ ZAddressBookPage::ZAddressBookPage(const PlatformStyle *platformStyle, Mode _mod
     ui(new Ui::ZAddressBookPage),
     model(0),
     mode(_mode),
-    tab(_tab)
-{
+    tab(_tab) {
     ui->setupUi(this);
 
     if (!platformStyle->getImagesOnButtons()) {
@@ -42,13 +41,15 @@ ZAddressBookPage::ZAddressBookPage(const PlatformStyle *platformStyle, Mode _mod
         ui->exportButton->setIcon(platformStyle->SingleColorIcon(":/icons/export"));
     }
 
-    switch(mode)
-    {
+    switch(mode) {
     case ForSelection:
-        switch(tab)
-        {
-        case SendingTab: setWindowTitle(tr("Choose the z-address to send coins to")); break;
-        case ReceivingTab: setWindowTitle(tr("Choose the z-address to receive coins with")); break;
+        switch(tab) {
+        case SendingTab:
+            setWindowTitle(tr("Choose the z-address to send coins to"));
+            break;
+        case ReceivingTab:
+            setWindowTitle(tr("Choose the z-address to receive coins with"));
+            break;
         }
         connect(ui->tableView, &QTableView::doubleClicked, this, &QDialog::accept);
         ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -57,15 +58,17 @@ ZAddressBookPage::ZAddressBookPage(const PlatformStyle *platformStyle, Mode _mod
         ui->exportButton->hide();
         break;
     case ForEditing:
-        switch(tab)
-        {
-        case SendingTab: setWindowTitle(tr("Sending z-addresses")); break;
-        case ReceivingTab: setWindowTitle(tr("Receiving z-addresses")); break;
+        switch(tab) {
+        case SendingTab:
+            setWindowTitle(tr("Sending z-addresses"));
+            break;
+        case ReceivingTab:
+            setWindowTitle(tr("Receiving z-addresses"));
+            break;
         }
         break;
     }
-    switch(tab)
-    {
+    switch(tab) {
     case SendingTab:
         ui->labelExplanation->setText(tr("These are your Komodo z-addresses for sending payments. Always check the amount and the receiving z-address before sending coins."));
         ui->deleteAddress->setVisible(true);
@@ -113,13 +116,11 @@ ZAddressBookPage::ZAddressBookPage(const PlatformStyle *platformStyle, Mode _mod
     connect(ui->closeButton, &QPushButton::clicked, this, &QDialog::accept);
 }
 
-ZAddressBookPage::~ZAddressBookPage()
-{
+ZAddressBookPage::~ZAddressBookPage() {
     delete ui;
 }
 
-void ZAddressBookPage::setModel(ZAddressTableModel *_model)
-{
+void ZAddressBookPage::setModel(ZAddressTableModel *_model) {
     this->model = _model;
     if(!_model)
         return;
@@ -131,8 +132,7 @@ void ZAddressBookPage::setModel(ZAddressTableModel *_model)
     proxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
     proxyModel->setSortRole(Qt::EditRole);
 
-    switch(tab)
-    {
+    switch(tab) {
     case ReceivingTab:
         // Receive filter
         proxyModel->setFilterRole(ZAddressTableModel::TypeRole);
@@ -161,40 +161,33 @@ void ZAddressBookPage::setModel(ZAddressTableModel *_model)
     selectionChanged();
 }
 
-void ZAddressBookPage::onCopyZSendManyFromAction()
-{
+void ZAddressBookPage::onCopyZSendManyFromAction() {
     QModelIndexList selection = GUIUtil::getEntryData(ui->tableView, ZAddressTableModel::Address);
-    if(!selection.isEmpty())
-    {
+    if(!selection.isEmpty()) {
         QString commandTemplate;
         commandTemplate = QString("z_sendmany %1 '[{\"address\":\"%2\",\"amount\":\"%3\"}]'").arg(selection.at(0).data(Qt::DisplayRole).toString(),QString("YOUR_Z_OR_T_ADDRESS_TO"),QString::number(0,'f',8));
         GUIUtil::setClipboard(commandTemplate);
     }
 }
 
-void ZAddressBookPage::onCopyZSendManyToAction()
-{
+void ZAddressBookPage::onCopyZSendManyToAction() {
     QModelIndexList selection = GUIUtil::getEntryData(ui->tableView, ZAddressTableModel::Address);
-    if(!selection.isEmpty())
-    {
+    if(!selection.isEmpty()) {
         QString commandTemplate;
         commandTemplate = QString("z_sendmany %1 '[{\"address\":\"%2\",\"amount\":\"%3\"}]'").arg(QString("YOUR_Z_OR_T_ADDRESS_FROM"),selection.at(0).data(Qt::DisplayRole).toString(),QString::number(0,'f',8));
         GUIUtil::setClipboard(commandTemplate);
     }
 }
 
-void ZAddressBookPage::on_copyAddress_clicked()
-{
+void ZAddressBookPage::on_copyAddress_clicked() {
     GUIUtil::copyEntryData(ui->tableView, ZAddressTableModel::Address);
 }
 
-void ZAddressBookPage::onCopyLabelAction()
-{
+void ZAddressBookPage::onCopyLabelAction() {
     GUIUtil::copyEntryData(ui->tableView, ZAddressTableModel::Label);
 }
 
-void ZAddressBookPage::onEditAction()
-{
+void ZAddressBookPage::onEditAction() {
     if(!model)
         return;
 
@@ -214,8 +207,7 @@ void ZAddressBookPage::onEditAction()
     dlg.exec();
 }
 
-void ZAddressBookPage::on_newAddress_clicked()
-{
+void ZAddressBookPage::on_newAddress_clicked() {
     if(!model)
         return;
 
@@ -224,36 +216,30 @@ void ZAddressBookPage::on_newAddress_clicked()
         EditZAddressDialog::NewSendingAddress :
         EditZAddressDialog::NewReceivingAddress, this);
     dlg.setModel(model);
-    if(dlg.exec())
-    {
+    if(dlg.exec()) {
         newAddressToSelect = dlg.getAddress();
     }
 }
 
-void ZAddressBookPage::on_deleteAddress_clicked()
-{
+void ZAddressBookPage::on_deleteAddress_clicked() {
     QTableView *table = ui->tableView;
     if(!table->selectionModel())
         return;
 
     QModelIndexList indexes = table->selectionModel()->selectedRows();
-    if(!indexes.isEmpty())
-    {
+    if(!indexes.isEmpty()) {
         table->model()->removeRow(indexes.at(0).row());
     }
 }
 
-void ZAddressBookPage::selectionChanged()
-{
+void ZAddressBookPage::selectionChanged() {
     // Set button states based on selected tab and selection
     QTableView *table = ui->tableView;
     if(!table->selectionModel())
         return;
 
-    if(table->selectionModel()->hasSelection())
-    {
-        switch(tab)
-        {
+    if(table->selectionModel()->hasSelection()) {
+        switch(tab) {
         case SendingTab:
             // In sending tab, allow deletion of selection
             ui->deleteAddress->setEnabled(true);
@@ -268,16 +254,13 @@ void ZAddressBookPage::selectionChanged()
             break;
         }
         ui->copyAddress->setEnabled(true);
-    }
-    else
-    {
+    } else {
         ui->deleteAddress->setEnabled(false);
         ui->copyAddress->setEnabled(false);
     }
 }
 
-void ZAddressBookPage::done(int retval)
-{
+void ZAddressBookPage::done(int retval) {
     QTableView *table = ui->tableView;
     if(!table->selectionModel() || !table->model())
         return;
@@ -290,8 +273,7 @@ void ZAddressBookPage::done(int retval)
         returnValue = address.toString();
     }
 
-    if(returnValue.isEmpty())
-    {
+    if(returnValue.isEmpty()) {
         // If no address entry selected, return rejected
         retval = Rejected;
     }
@@ -299,12 +281,11 @@ void ZAddressBookPage::done(int retval)
     QDialog::done(retval);
 }
 
-void ZAddressBookPage::on_exportButton_clicked()
-{
+void ZAddressBookPage::on_exportButton_clicked() {
     // CSV is currently the only supported format
     QString filename = GUIUtil::getSaveFileName(this,
-        tr("Export z-address List"), QString(),
-        tr("Comma separated file (*.csv)"), nullptr);
+                       tr("Export z-address List"), QString(),
+                       tr("Comma separated file (*.csv)"), nullptr);
 
     if (filename.isNull())
         return;
@@ -318,24 +299,20 @@ void ZAddressBookPage::on_exportButton_clicked()
 
     if(!writer.write()) {
         QMessageBox::critical(this, tr("Exporting Failed"),
-            tr("There was an error trying to save the z-address list to %1. Please try again.").arg(filename));
+                              tr("There was an error trying to save the z-address list to %1. Please try again.").arg(filename));
     }
 }
 
-void ZAddressBookPage::contextualMenu(const QPoint &point)
-{
+void ZAddressBookPage::contextualMenu(const QPoint &point) {
     QModelIndex index = ui->tableView->indexAt(point);
-    if(index.isValid())
-    {
+    if(index.isValid()) {
         contextMenu->exec(QCursor::pos());
     }
 }
 
-void ZAddressBookPage::selectNewAddress(const QModelIndex &parent, int begin, int /*end*/)
-{
+void ZAddressBookPage::selectNewAddress(const QModelIndex &parent, int begin, int /*end*/) {
     QModelIndex idx = proxyModel->mapFromSource(model->index(begin, ZAddressTableModel::Address, parent));
-    if(idx.isValid() && (idx.data(Qt::EditRole).toString() == newAddressToSelect))
-    {
+    if(idx.isValid() && (idx.data(Qt::EditRole).toString() == newAddressToSelect)) {
         // Select row of newly created address, once
         ui->tableView->setFocus();
         ui->tableView->selectRow(idx.row());

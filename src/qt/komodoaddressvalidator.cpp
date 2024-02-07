@@ -18,12 +18,10 @@
 
 KomodoAddressEntryValidator::KomodoAddressEntryValidator(QObject *parent, bool allowZAddresses) :
     QValidator(parent),
-    _allowZAddresses(allowZAddresses)
-{
+    _allowZAddresses(allowZAddresses) {
 }
 
-QValidator::State KomodoAddressEntryValidator::validate(QString &input, int &pos) const
-{
+QValidator::State KomodoAddressEntryValidator::validate(QString &input, int &pos) const {
     Q_UNUSED(pos);
 
     // Empty address is "intermediate" input
@@ -31,15 +29,13 @@ QValidator::State KomodoAddressEntryValidator::validate(QString &input, int &pos
         return QValidator::Intermediate;
 
     // Correction
-    for (int idx = 0; idx < input.size();)
-    {
+    for (int idx = 0; idx < input.size();) {
         bool removeChar = false;
         QChar ch = input.at(idx);
         // Corrections made are very conservative on purpose, to avoid
         // users unexpectedly getting away with typos that would normally
         // be detected, and thus sending to the wrong address.
-        switch(ch.unicode())
-        {
+        switch(ch.unicode()) {
         // Qt categorizes these as "Other_Format" not "Separator_Space"
         case 0x200B: // ZERO WIDTH SPACE
         case 0xFEFF: // ZERO WIDTH NO-BREAK SPACE
@@ -62,19 +58,15 @@ QValidator::State KomodoAddressEntryValidator::validate(QString &input, int &pos
 
     // Validation
     QValidator::State state = QValidator::Acceptable;
-    for (int idx = 0; idx < input.size(); ++idx)
-    {
+    for (int idx = 0; idx < input.size(); ++idx) {
         int ch = input.at(idx).unicode();
 
         if (((ch >= '0' && ch<='9') ||
-            (ch >= 'a' && ch<='z') ||
-            (ch >= 'A' && ch<='Z')) &&
-            ch != 'I' && ch != 'O') // Characters invalid in both Base58 and Bech32
-        {
+                (ch >= 'a' && ch<='z') ||
+                (ch >= 'A' && ch<='Z')) &&
+                ch != 'I' && ch != 'O') { // Characters invalid in both Base58 and Bech32
             // Alphanumeric and not a 'forbidden' character
-        }
-        else
-        {
+        } else {
             state = QValidator::Invalid;
         }
     }
@@ -84,12 +76,10 @@ QValidator::State KomodoAddressEntryValidator::validate(QString &input, int &pos
 
 KomodoAddressCheckValidator::KomodoAddressCheckValidator(QObject *parent, bool allowZAddresses) :
     QValidator(parent),
-    _allowZAddresses(allowZAddresses)
-{
+    _allowZAddresses(allowZAddresses) {
 }
 
-QValidator::State KomodoAddressCheckValidator::validate(QString &input, int &pos) const
-{
+QValidator::State KomodoAddressCheckValidator::validate(QString &input, int &pos) const {
     Q_UNUSED(pos);
     // Validate the passed Komodo address
     if (_allowZAddresses) {

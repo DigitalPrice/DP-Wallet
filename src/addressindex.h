@@ -9,8 +9,7 @@
 #include "uint256.h"
 #include "amount.h"
 
-struct CMempoolAddressDelta
-{
+struct CMempoolAddressDelta {
     int64_t time;
     CAmount amount;
     uint256 prevhash;
@@ -31,8 +30,7 @@ struct CMempoolAddressDelta
     }
 };
 
-struct CMempoolAddressDeltaKey
-{
+struct CMempoolAddressDeltaKey {
     int type;
     uint160 addressBytes;
     uint256 txhash;
@@ -56,8 +54,7 @@ struct CMempoolAddressDeltaKey
     }
 };
 
-struct CMempoolAddressDeltaKeyCompare
-{
+struct CMempoolAddressDeltaKeyCompare {
     bool operator()(const CMempoolAddressDeltaKey& a, const CMempoolAddressDeltaKey& b) const {
         if (a.type == b.type) {
             if (a.addressBytes == b.addressBytes) {

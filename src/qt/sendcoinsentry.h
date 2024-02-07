@@ -13,7 +13,7 @@ class WalletModel;
 class PlatformStyle;
 
 namespace Ui {
-    class SendCoinsEntry;
+class SendCoinsEntry;
 }
 
 /**
@@ -21,11 +21,10 @@ namespace Ui {
  * Stacked widget, with different UIs for payment requests
  * with a strong payee identity.
  */
-class SendCoinsEntry : public QStackedWidget
-{
+class SendCoinsEntry : public QStackedWidget {
     Q_OBJECT
 
-public:
+  public:
     explicit SendCoinsEntry(const PlatformStyle *platformStyle, QWidget *parent = 0, bool allowZAddresses = false);
     ~SendCoinsEntry();
 
@@ -47,18 +46,18 @@ public:
 
     void setFocus();
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void clear();
     void checkSubtractFeeFromAmount();
     void hideCheckboxSubtractFeeFromAmount();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void removeEntry(SendCoinsEntry *entry);
     void useAvailableBalance(SendCoinsEntry* entry);
     void payAmountChanged();
     void subtractFeeFromAmountChanged();
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void deleteClicked();
     void useAvailableBalanceClicked();
     void on_payTo_textChanged(const QString &address);
@@ -66,7 +65,7 @@ private Q_SLOTS:
     void on_pasteButton_clicked();
     void updateDisplayUnit();
 
-private:
+  private:
     SendCoinsRecipient recipient;
     Ui::SendCoinsEntry *ui;
     WalletModel *model;

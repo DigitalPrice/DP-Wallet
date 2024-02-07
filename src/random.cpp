@@ -36,8 +36,7 @@
 
 #include "sodium.h"
 
-static inline int64_t GetPerformanceCounter()
-{
+static inline int64_t GetPerformanceCounter() {
     int64_t nCounter = 0;
 #ifdef _WIN32
     QueryPerformanceCounter((LARGE_INTEGER*)&nCounter);
@@ -49,13 +48,11 @@ static inline int64_t GetPerformanceCounter()
     return nCounter;
 }
 
-void GetRandBytes(unsigned char* buf, size_t num)
-{
+void GetRandBytes(unsigned char* buf, size_t num) {
     randombytes_buf(buf, num);
 }
 
-uint64_t GetRand(uint64_t nMax)
-{
+uint64_t GetRand(uint64_t nMax) {
     if (nMax == 0)
         return 0;
 
@@ -69,13 +66,11 @@ uint64_t GetRand(uint64_t nMax)
     return (nRand % nMax);
 }
 
-int GetRandInt(int nMax)
-{
+int GetRandInt(int nMax) {
     return GetRand(nMax);
 }
 
-uint256 GetRandHash()
-{
+uint256 GetRandHash() {
     uint256 hash;
     GetRandBytes((unsigned char*)&hash, sizeof(hash));
     return hash;
@@ -83,8 +78,7 @@ uint256 GetRandHash()
 
 uint32_t insecure_rand_Rz = 11;
 uint32_t insecure_rand_Rw = 11;
-void seed_insecure_rand(bool fDeterministic)
-{
+void seed_insecure_rand(bool fDeterministic) {
     // The seed values have some unlikely fixed points which we avoid.
     if (fDeterministic) {
         insecure_rand_Rz = insecure_rand_Rw = 11;
@@ -101,7 +95,6 @@ void seed_insecure_rand(bool fDeterministic)
     }
 }
 
-int GenIdentity(int n)
-{
+int GenIdentity(int n) {
     return n-1;
 }

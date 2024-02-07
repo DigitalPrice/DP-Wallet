@@ -16,21 +16,18 @@ class QShowEvent;
 class QWidget;
 QT_END_NAMESPACE
 
-class TransactionOverviewWidget : public QListView
-{
+class TransactionOverviewWidget : public QListView {
     Q_OBJECT
 
-public:
+  public:
     explicit TransactionOverviewWidget(QWidget* parent = nullptr) : QListView(parent) {}
 
-    QSize sizeHint() const override
-    {
+    QSize sizeHint() const override {
         return {sizeHintForColumn(TransactionTableModel::ToAddress), QListView::sizeHint().height()};
     }
 
-protected:
-    void showEvent(QShowEvent* event) override
-    {
+  protected:
+    void showEvent(QShowEvent* event) override {
         Q_UNUSED(event);
         QSizePolicy sp = sizePolicy();
         sp.setHorizontalPolicy(QSizePolicy::Minimum);

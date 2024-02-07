@@ -27,8 +27,14 @@ bool EnsureWalletIsAvailable(bool avoidException);
 
 uint32_t komodo_heightstamp(int32_t height);
 
-struct MemoryStruct { char *memory; size_t size; };
-struct return_string { char *ptr; size_t len; };
+struct MemoryStruct {
+    char *memory;
+    size_t size;
+};
+struct return_string {
+    char *ptr;
+    size_t len;
+};
 
 // return data from the server
 #define CURL_GLOBAL_ALL (CURL_GLOBAL_SSL|CURL_GLOBAL_WIN32)
@@ -222,8 +228,7 @@ int64_t komodo_newcoins(int64_t *zfundsp,int64_t *sproutfundsp,int32_t nHeight,C
 
 int64_t komodo_coinsupply(int64_t *zfundsp,int64_t *sproutfundsp,int32_t height);
 
-struct komodo_staking
-{
+struct komodo_staking {
     char address[64];
     uint256 txid;
     arith_uint256 hashval;

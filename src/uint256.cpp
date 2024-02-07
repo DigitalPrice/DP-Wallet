@@ -26,15 +26,13 @@
 #include <string.h>
 
 template <unsigned int BITS>
-base_blob<BITS>::base_blob(const std::vector<unsigned char>& vch)
-{
+base_blob<BITS>::base_blob(const std::vector<unsigned char>& vch) {
     assert(vch.size() == sizeof(data));
     memcpy(data, &vch[0], sizeof(data));
 }
 
 template <unsigned int BITS>
-std::string base_blob<BITS>::GetHex() const
-{
+std::string base_blob<BITS>::GetHex() const {
     char psz[sizeof(data) * 2 + 1];
     for (unsigned int i = 0; i < sizeof(data); i++)
         sprintf(psz + i * 2, "%02x", data[sizeof(data) - i - 1]);
@@ -42,8 +40,7 @@ std::string base_blob<BITS>::GetHex() const
 }
 
 template <unsigned int BITS>
-void base_blob<BITS>::SetHex(const char* psz)
-{
+void base_blob<BITS>::SetHex(const char* psz) {
     memset(data, 0, sizeof(data));
 
     // skip leading spaces
@@ -71,14 +68,12 @@ void base_blob<BITS>::SetHex(const char* psz)
 }
 
 template <unsigned int BITS>
-void base_blob<BITS>::SetHex(const std::string& str)
-{
+void base_blob<BITS>::SetHex(const std::string& str) {
     SetHex(str.c_str());
 }
 
 template <unsigned int BITS>
-std::string base_blob<BITS>::ToString() const
-{
+std::string base_blob<BITS>::ToString() const {
     return (GetHex());
 }
 
@@ -96,8 +91,7 @@ template std::string base_blob<256>::ToString() const;
 template void base_blob<256>::SetHex(const char*);
 template void base_blob<256>::SetHex(const std::string&);
 
-static void inline HashMix(uint32_t& a, uint32_t& b, uint32_t& c)
-{
+static void inline HashMix(uint32_t& a, uint32_t& b, uint32_t& c) {
     // Taken from lookup3, by Bob Jenkins.
     a -= c;
     a ^= ((c << 4) | (c >> 28));
@@ -119,8 +113,7 @@ static void inline HashMix(uint32_t& a, uint32_t& b, uint32_t& c)
     b += a;
 }
 
-static void inline HashFinal(uint32_t& a, uint32_t& b, uint32_t& c)
-{
+static void inline HashFinal(uint32_t& a, uint32_t& b, uint32_t& c) {
     // Taken from lookup3, by Bob Jenkins.
     c ^= b;
     c -= ((b << 14) | (b >> 18));
@@ -138,8 +131,7 @@ static void inline HashFinal(uint32_t& a, uint32_t& b, uint32_t& c)
     c -= ((b << 24) | (b >> 8));
 }
 
-uint64_t uint256::GetHash(const uint256& salt) const
-{
+uint64_t uint256::GetHash(const uint256& salt) const {
     uint32_t a, b, c;
     const uint32_t *pn = (const uint32_t*)data;
     const uint32_t *salt_pn = (const uint32_t*)salt.data;

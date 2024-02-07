@@ -12,8 +12,7 @@
 
 static const std::string tSecretRegtest = "cND2ZvtabDbJ1gucx9GWH6XT9kgTAqfb6cotPt5Q5CyxVDhid2EN";
 
-TEST(TransactionBuilder, Invoke)
-{
+TEST(TransactionBuilder, Invoke) {
     SelectParams(CBaseChainParams::REGTEST);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_SAPLING, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
@@ -56,7 +55,7 @@ TEST(TransactionBuilder, Invoke)
 
     // Prepare to spend the note that was just created
     auto maybe_pt = libzcash::SaplingNotePlaintext::decrypt(
-        tx1.vShieldedOutput[0].encCiphertext, ivk, tx1.vShieldedOutput[0].ephemeralKey, tx1.vShieldedOutput[0].cm);
+                        tx1.vShieldedOutput[0].encCiphertext, ivk, tx1.vShieldedOutput[0].ephemeralKey, tx1.vShieldedOutput[0].cm);
     ASSERT_EQ(static_cast<bool>(maybe_pt), true);
     auto maybe_note = maybe_pt.get().note(ivk);
     ASSERT_EQ(static_cast<bool>(maybe_note), true);
@@ -93,16 +92,14 @@ TEST(TransactionBuilder, Invoke)
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT);
 }
 
-TEST(TransactionBuilder, ThrowsOnTransparentInputWithoutKeyStore)
-{
+TEST(TransactionBuilder, ThrowsOnTransparentInputWithoutKeyStore) {
     auto consensusParams = Params().GetConsensus();
 
     auto builder = TransactionBuilder(consensusParams, 1);
     ASSERT_THROW(builder.AddTransparentInput(COutPoint(), CScript(), 1), std::runtime_error);
 }
 
-TEST(TransactionBuilder, RejectsInvalidTransparentOutput)
-{
+TEST(TransactionBuilder, RejectsInvalidTransparentOutput) {
     auto consensusParams = Params().GetConsensus();
 
     // Default CTxDestination type is an invalid address
@@ -111,8 +108,7 @@ TEST(TransactionBuilder, RejectsInvalidTransparentOutput)
     EXPECT_FALSE(builder.AddTransparentOutput(taddr, 50));
 }
 
-TEST(TransactionBuilder, RejectsInvalidTransparentChangeAddress)
-{
+TEST(TransactionBuilder, RejectsInvalidTransparentChangeAddress) {
     auto consensusParams = Params().GetConsensus();
 
     // Default CTxDestination type is an invalid address
@@ -121,8 +117,7 @@ TEST(TransactionBuilder, RejectsInvalidTransparentChangeAddress)
     EXPECT_FALSE(builder.SendChangeTo(taddr));
 }
 
-TEST(TransactionBuilder, FailsWithNegativeChange)
-{
+TEST(TransactionBuilder, FailsWithNegativeChange) {
     SelectParams(CBaseChainParams::REGTEST);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_SAPLING, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
@@ -176,8 +171,7 @@ TEST(TransactionBuilder, FailsWithNegativeChange)
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT);
 }
 
-TEST(TransactionBuilder, ChangeOutput)
-{
+TEST(TransactionBuilder, ChangeOutput) {
     SelectParams(CBaseChainParams::REGTEST);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_SAPLING, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
@@ -273,8 +267,7 @@ TEST(TransactionBuilder, ChangeOutput)
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::NO_ACTIVATION_HEIGHT);
 }
 
-TEST(TransactionBuilder, SetFee)
-{
+TEST(TransactionBuilder, SetFee) {
     SelectParams(CBaseChainParams::REGTEST);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_OVERWINTER, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);
     UpdateNetworkUpgradeParameters(Consensus::UPGRADE_SAPLING, Consensus::NetworkUpgrade::ALWAYS_ACTIVE);

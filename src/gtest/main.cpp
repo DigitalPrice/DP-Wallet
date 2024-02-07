@@ -10,8 +10,7 @@
 
 #include "librustzcash.h"
 
-struct ECCryptoClosure
-{
+struct ECCryptoClosure {
     ECCVerifyHandle handle;
 };
 
@@ -20,19 +19,19 @@ ECCryptoClosure instance_of_eccryptoclosure;
 ZCJoinSplit* params;
 
 int main(int argc, char **argv) {
-  assert(init_and_check_sodium() != -1);
-  ECC_Start();
+    assert(init_and_check_sodium() != -1);
+    ECC_Start();
 
-  libsnark::default_r1cs_ppzksnark_pp::init_public_params();
-  libsnark::inhibit_profiling_info = true;
-  libsnark::inhibit_profiling_counters = true;
-  boost::filesystem::path pk_path = ZC_GetParamsDir() / "sprout-proving.key";
-  boost::filesystem::path vk_path = ZC_GetParamsDir() / "sprout-verifying.key";
-  params = ZCJoinSplit::Prepared(vk_path.string(), pk_path.string());
+    libsnark::default_r1cs_ppzksnark_pp::init_public_params();
+    libsnark::inhibit_profiling_info = true;
+    libsnark::inhibit_profiling_counters = true;
+    boost::filesystem::path pk_path = ZC_GetParamsDir() / "sprout-proving.key";
+    boost::filesystem::path vk_path = ZC_GetParamsDir() / "sprout-verifying.key";
+    params = ZCJoinSplit::Prepared(vk_path.string(), pk_path.string());
 
-  boost::filesystem::path sapling_spend = ZC_GetParamsDir() / "sapling-spend.params";
-  boost::filesystem::path sapling_output = ZC_GetParamsDir() / "sapling-output.params";
-  boost::filesystem::path sprout_groth16 = ZC_GetParamsDir() / "sprout-groth16.params";
+    boost::filesystem::path sapling_spend = ZC_GetParamsDir() / "sapling-spend.params";
+    boost::filesystem::path sapling_output = ZC_GetParamsDir() / "sapling-output.params";
+    boost::filesystem::path sprout_groth16 = ZC_GetParamsDir() / "sprout-groth16.params";
 
     static_assert(
         sizeof(boost::filesystem::path::value_type) == sizeof(codeunit),
@@ -53,10 +52,10 @@ int main(int argc, char **argv) {
         "e9b238411bd6c0ec4791e9d04245ec350c9c5744f5610dfcce4365d5ca49dfefd5054e371842b3f88fa1b9d7e8e075249b3ebabd167fa8b0f3161292d36c180a"
     );
 
-  testing::InitGoogleMock(&argc, argv);
-  
-  auto ret = RUN_ALL_TESTS();
+    testing::InitGoogleMock(&argc, argv);
 
-  ECC_Stop();
-  return ret;
+    auto ret = RUN_ALL_TESTS();
+
+    ECC_Stop();
+    return ret;
 }

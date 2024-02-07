@@ -59,7 +59,9 @@ void ASN_DEBUG_f(const char *fmt, ...);
 #define	ASN_DEBUG	ASN_DEBUG_f
 #endif	/* __GNUC__ */
 #else	/* EMIT_ASN_DEBUG != 1 */
-static void ASN_DEBUG(const char *fmt, ...) { (void)fmt; }
+static void ASN_DEBUG(const char *fmt, ...) {
+    (void)fmt;
+}
 #endif	/* EMIT_ASN_DEBUG */
 #endif	/* ASN_DEBUG */
 
@@ -105,20 +107,20 @@ static void ASN_DEBUG(const char *fmt, ...) { (void)fmt; }
 #define	ASN__DEFAULT_STACK_MAX	(30000)
 static int __attribute__((unused))
 ASN__STACK_OVERFLOW_CHECK(asn_codec_ctx_t *ctx) {
-	if(ctx && ctx->max_stack_size) {
+    if(ctx && ctx->max_stack_size) {
 
-		/* ctx MUST be allocated on the stack */
-		ptrdiff_t usedstack = ((char *)ctx - (char *)&ctx);
-		if(usedstack > 0) usedstack = -usedstack; /* grows up! */
+        /* ctx MUST be allocated on the stack */
+        ptrdiff_t usedstack = ((char *)ctx - (char *)&ctx);
+        if(usedstack > 0) usedstack = -usedstack; /* grows up! */
 
-		/* double negative required to avoid int wrap-around */
-		if(usedstack < -(ptrdiff_t)ctx->max_stack_size) {
-			ASN_DEBUG("Stack limit %ld reached",
-				(long)ctx->max_stack_size);
-			return -1;
-		}
-	}
-	return 0;
+        /* double negative required to avoid int wrap-around */
+        if(usedstack < -(ptrdiff_t)ctx->max_stack_size) {
+            ASN_DEBUG("Stack limit %ld reached",
+                      (long)ctx->max_stack_size);
+            return -1;
+        }
+    }
+    return 0;
 }
 
 #ifdef	__cplusplus

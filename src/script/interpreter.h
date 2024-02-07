@@ -39,8 +39,7 @@ class uint256;
 const unsigned int NOT_AN_INPUT = UINT_MAX;
 
 /** Signature hash types/flags */
-enum
-{
+enum {
     SIGHASH_ALL = 1,
     SIGHASH_NONE = 2,
     SIGHASH_SINGLE = 3,
@@ -48,8 +47,7 @@ enum
 };
 
 /** Script verification flags */
-enum
-{
+enum {
     SCRIPT_VERIFY_NONE      = 0,
 
     // Evaluate P2SH subscripts (softfork safe, BIP16).
@@ -106,15 +104,13 @@ enum
 
 bool CheckSignatureEncoding(const std::vector<unsigned char> &vchSig, unsigned int flags, ScriptError* serror);
 
-struct PrecomputedTransactionData
-{
+struct PrecomputedTransactionData {
     uint256 hashPrevouts, hashSequence, hashOutputs, hashJoinSplits, hashShieldedSpends, hashShieldedOutputs;
 
     PrecomputedTransactionData(const CTransaction& tx);
 };
 
-enum SigVersion
-{
+enum SigVersion {
     SIGVERSION_SPROUT = 0,
     SIGVERSION_OVERWINTER = 1,
     SIGVERSION_SAPLING = 2,
@@ -129,38 +125,33 @@ uint256 SignatureHash(
     uint32_t consensusBranchId,
     const PrecomputedTransactionData* cache = NULL);
 
-class BaseSignatureChecker
-{
-public:
+class BaseSignatureChecker {
+  public:
     virtual bool CheckSig(
         const std::vector<unsigned char>& scriptSig,
         const std::vector<unsigned char>& vchPubKey,
         const CScript& scriptCode,
-        uint32_t consensusBranchId) const
-    {
+        uint32_t consensusBranchId) const {
         return false;
     }
 
-    virtual bool CheckLockTime(const CScriptNum& nLockTime) const
-    {
-         return false;
+    virtual bool CheckLockTime(const CScriptNum& nLockTime) const {
+        return false;
     }
 
     virtual int CheckCryptoCondition(
-            const std::vector<unsigned char>& condBin,
-            const std::vector<unsigned char>& ffillBin,
-            const CScript& scriptCode,
-            uint32_t consensusBranchId) const
-    {
+        const std::vector<unsigned char>& condBin,
+        const std::vector<unsigned char>& ffillBin,
+        const CScript& scriptCode,
+        uint32_t consensusBranchId) const {
         return false;
     }
 
     virtual ~BaseSignatureChecker() {}
 };
 
-class TransactionSignatureChecker : public BaseSignatureChecker
-{
-protected:
+class TransactionSignatureChecker : public BaseSignatureChecker {
+  protected:
     const CTransaction* txTo;
     unsigned int nIn;
     const CAmount amount;
@@ -168,7 +159,7 @@ protected:
 
     virtual bool VerifySignature(const std::vector<unsigned char>& vchSig, const CPubKey& vchPubKey, const uint256& sighash) const;
 
-public:
+  public:
     TransactionSignatureChecker(const CTransaction* txToIn, unsigned int nInIn, const CAmount& amountIn) : txTo(txToIn), nIn(nInIn), amount(amountIn), txdata(NULL) {}
     TransactionSignatureChecker(const CTransaction* txToIn, unsigned int nInIn, const CAmount& amountIn, const PrecomputedTransactionData& txdataIn) : txTo(txToIn), nIn(nInIn), amount(amountIn), txdata(&txdataIn) {}
     bool CheckSig(const std::vector<unsigned char>& scriptSig, const std::vector<unsigned char>& vchPubKey, const CScript& scriptCode, uint32_t consensusBranchId) const;
@@ -181,12 +172,11 @@ public:
     virtual int CheckEvalCondition(const CC *cond) const;
 };
 
-class MutableTransactionSignatureChecker : public TransactionSignatureChecker
-{
-private:
+class MutableTransactionSignatureChecker : public TransactionSignatureChecker {
+  private:
     const CTransaction txTo;
 
-public:
+  public:
     MutableTransactionSignatureChecker(const CMutableTransaction* txToIn, unsigned int nInIn, const CAmount& amount) : TransactionSignatureChecker(&txTo, nInIn, amount), txTo(*txToIn) {}
 };
 

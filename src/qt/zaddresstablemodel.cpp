@@ -23,14 +23,13 @@ const QString ZAddressTableModel::Send = "S";
 const QString ZAddressTableModel::Receive = "R";
 
 static int column_alignments[] = {
-        Qt::AlignCenter|Qt::AlignVCenter, /* mine */
-        Qt::AlignRight|Qt::AlignVCenter,   /* balance */
-        Qt::AlignLeft|Qt::AlignVCenter,   /* label */
-        Qt::AlignLeft|Qt::AlignVCenter    /* address */
-    };
+    Qt::AlignCenter|Qt::AlignVCenter, /* mine */
+    Qt::AlignRight|Qt::AlignVCenter,   /* balance */
+    Qt::AlignLeft|Qt::AlignVCenter,   /* label */
+    Qt::AlignLeft|Qt::AlignVCenter    /* address */
+};
 
-struct AddressTableEntry
-{
+struct AddressTableEntry {
     enum Type {
         Sending,
         Receiving,
@@ -46,18 +45,14 @@ struct AddressTableEntry
         type(_type), label(_label), address(_address) {}
 };
 
-struct AddressTableEntryLessThan
-{
-    bool operator()(const AddressTableEntry &a, const AddressTableEntry &b) const
-    {
+struct AddressTableEntryLessThan {
+    bool operator()(const AddressTableEntry &a, const AddressTableEntry &b) const {
         return a.address < b.address;
     }
-    bool operator()(const AddressTableEntry &a, const QString &b) const
-    {
+    bool operator()(const AddressTableEntry &a, const QString &b) const {
         return a.address < b;
     }
-    bool operator()(const QString &a, const AddressTableEntry &b) const
-    {
+    bool operator()(const QString &a, const AddressTableEntry &b) const {
         return a < b.address;
     }
 };
@@ -65,8 +60,7 @@ struct AddressTableEntryLessThan
 extern CAmount getBalanceZaddr(std::string address, int minDepth = 1, bool ignoreUnspendable=true);
 
 /* Determine address type from address purpose */
-static AddressTableEntry::Type translateTransactionType(const QString &strPurpose, bool isMine)
-{
+static AddressTableEntry::Type translateTransactionType(const QString &strPurpose, bool isMine) {
     AddressTableEntry::Type addressType = AddressTableEntry::Hidden;
     // "refund" addresses aren't shown, and change addresses aren't in mapAddressBook at all.
     if (strPurpose == "send")
@@ -79,9 +73,8 @@ static AddressTableEntry::Type translateTransactionType(const QString &strPurpos
 }
 
 // Private implementation
-class ZAddressTablePriv
-{
-public:
+class ZAddressTablePriv {
+  public:
     CWallet *wallet;
     QList<AddressTableEntry> cachedAddressTable;
     ZAddressTableModel *parent;
@@ -89,13 +82,11 @@ public:
     ZAddressTablePriv(CWallet *_wallet, ZAddressTableModel *_parent):
         wallet(_wallet), parent(_parent) {}
 
-    void refreshAddressTable()
-    {
+    void refreshAddressTable() {
         cachedAddressTable.clear();
         {
             LOCK(wallet->cs_wallet);
-            for (const std::pair<libzcash::PaymentAddress, CAddressBookData>& item : wallet->mapZAddressBook)
-            {
+            for (const std::pair<libzcash::PaymentAddress, CAddressBookData>& item : wallet->mapZAddressBook) {
                 const libzcash::PaymentAddress& address = item.first;
 //                bool fMine = wallet->HaveSpendingKey(address) | wallet->HaveViewingKey(address);
                 bool fMine = boost::apply_visitor(PaymentAddressBelongsToWallet(wallet), address);
@@ -103,8 +94,8 @@ public:
                         QString::fromStdString(item.second.purpose), fMine);
                 const std::string& strName = item.second.name;
                 cachedAddressTable.append(AddressTableEntry(addressType,
-                                  QString::fromStdString(strName),
-                                  QString::fromStdString(EncodePaymentAddress(address))));
+                                          QString::fromStdString(strName),
+                                          QString::fromStdString(EncodePaymentAddress(address))));
             }
         }
         // std::lower_bound() and std::upper_bound() require our cachedAddressTable list to be sorted in asc order
@@ -113,23 +104,20 @@ public:
         std::sort(cachedAddressTable.begin(), cachedAddressTable.end(), AddressTableEntryLessThan());
     }
 
-    void updateEntry(const QString &address, const QString &label, bool isMine, const QString &purpose, int status)
-    {
+    void updateEntry(const QString &address, const QString &label, bool isMine, const QString &purpose, int status) {
         // Find address / label in model
         QList<AddressTableEntry>::iterator lower = std::lower_bound(
-            cachedAddressTable.begin(), cachedAddressTable.end(), address, AddressTableEntryLessThan());
+                    cachedAddressTable.begin(), cachedAddressTable.end(), address, AddressTableEntryLessThan());
         QList<AddressTableEntry>::iterator upper = std::upper_bound(
-            cachedAddressTable.begin(), cachedAddressTable.end(), address, AddressTableEntryLessThan());
+                    cachedAddressTable.begin(), cachedAddressTable.end(), address, AddressTableEntryLessThan());
         int lowerIndex = (lower - cachedAddressTable.begin());
         int upperIndex = (upper - cachedAddressTable.begin());
         bool inModel = (lower != upper);
         AddressTableEntry::Type newEntryType = translateTransactionType(purpose, isMine);
 
-        switch(status)
-        {
+        switch(status) {
         case CT_NEW:
-            if(inModel)
-            {
+            if(inModel) {
                 qWarning() << "ZAddressTablePriv::updateEntry: Warning: Got CT_NEW, but entry is already in model";
                 break;
             }
@@ -138,8 +126,7 @@ public:
             parent->endInsertRows();
             break;
         case CT_UPDATED:
-            if(!inModel)
-            {
+            if(!inModel) {
                 qWarning() << "ZAddressTablePriv::updateEntry: Warning: Got CT_UPDATED, but entry is not in model";
                 break;
             }
@@ -148,8 +135,7 @@ public:
             parent->emitDataChanged(lowerIndex);
             break;
         case CT_DELETED:
-            if(!inModel)
-            {
+            if(!inModel) {
                 qWarning() << "ZAddressTablePriv::updateEntry: Warning: Got CT_DELETED, but entry is not in model";
                 break;
             }
@@ -160,69 +146,56 @@ public:
         }
     }
 
-    int size()
-    {
+    int size() {
         return cachedAddressTable.size();
     }
 
-    AddressTableEntry *index(int idx)
-    {
-        if(idx >= 0 && idx < cachedAddressTable.size())
-        {
+    AddressTableEntry *index(int idx) {
+        if(idx >= 0 && idx < cachedAddressTable.size()) {
             return &cachedAddressTable[idx];
-        }
-        else
-        {
+        } else {
             return 0;
         }
     }
 };
 
 ZAddressTableModel::ZAddressTableModel(const PlatformStyle *_platformStyle, CWallet *_wallet, WalletModel *parent) :
-    QAbstractTableModel(parent),walletModel(parent),wallet(_wallet),priv(0),platformStyle(_platformStyle)
-{
+    QAbstractTableModel(parent),walletModel(parent),wallet(_wallet),priv(0),platformStyle(_platformStyle) {
     columns << tr("Mine") << tr("Balance") << tr("Label") << tr("Address");
     priv = new ZAddressTablePriv(wallet, this);
     priv->refreshAddressTable();
 }
 
-ZAddressTableModel::~ZAddressTableModel()
-{
+ZAddressTableModel::~ZAddressTableModel() {
     delete priv;
 }
 
-int ZAddressTableModel::rowCount(const QModelIndex &parent) const
-{
+int ZAddressTableModel::rowCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return priv->size();
 }
 
-int ZAddressTableModel::columnCount(const QModelIndex &parent) const
-{
+int ZAddressTableModel::columnCount(const QModelIndex &parent) const {
     Q_UNUSED(parent);
     return columns.length();
 }
 
-QVariant ZAddressTableModel::data(const QModelIndex &index, int role) const
-{
+QVariant ZAddressTableModel::data(const QModelIndex &index, int role) const {
     if(!index.isValid())
         return QVariant();
 
     AddressTableEntry *rec = static_cast<AddressTableEntry*>(index.internalPointer());
     isminetype mine = ISMINE_NO;
 
-    if (role == Qt::DecorationRole || role == Qt::DisplayRole || role == Qt::EditRole)
-    {
-        if (index.column() == isMine)
-        {
+    if (role == Qt::DecorationRole || role == Qt::DisplayRole || role == Qt::EditRole) {
+        if (index.column() == isMine) {
             {
                 LOCK(wallet->cs_wallet);
 //                bool isValid = address.IsValid();
 //!!!!! check validity
                 bool isValid = true;
 
-                if (isValid)
-                {
+                if (isValid) {
                     libzcash::PaymentAddress dest = DecodePaymentAddress(rec->address.toStdString());
 //                    if (wallet->HaveSpendingKey(dest) || wallet->HaveViewingKey(dest)) mine = ISMINE_SPENDABLE;
                     if (boost::apply_visitor(PaymentAddressBelongsToWallet(wallet), dest)) mine = ISMINE_SPENDABLE;
@@ -232,89 +205,66 @@ QVariant ZAddressTableModel::data(const QModelIndex &index, int role) const
         }
     }
 
-    if (role == Qt::DecorationRole)
-    {
-        switch(index.column())
-        {
+    if (role == Qt::DecorationRole) {
+        switch(index.column()) {
         case isMine:
             if (mine & ISMINE_SPENDABLE) return platformStyle->TextColorIcon(QIcon(":/icons/synced"));
             else return platformStyle->TextColorIcon(qvariant_cast<QIcon>(QVariant()));
         }
-    }
-    else if ((role == Qt::EditRole) && (index.column() == isMine))
-    {
-        switch(index.column())
-        {
+    } else if ((role == Qt::EditRole) && (index.column() == isMine)) {
+        switch(index.column()) {
         case isMine:
             return (mine & ISMINE_SPENDABLE ? 1 : 0);
         }
-    }
-    else if(role == Qt::DisplayRole || role == Qt::EditRole)
-    {
-        switch(index.column())
-        {
+    } else if(role == Qt::DisplayRole || role == Qt::EditRole) {
+        switch(index.column()) {
         case Label:
-            if(rec->label.isEmpty() && role == Qt::DisplayRole)
-            {
+            if(rec->label.isEmpty() && role == Qt::DisplayRole) {
                 return tr("(no label)");
-            }
-            else
-            {
+            } else {
                 return rec->label;
             }
         case Address:
             return rec->address;
-        case Balance:
-            {
-                CAmount nBalance = getBalanceZaddr(rec->address.toStdString(), 1, false);
-                return QString::number(ValueFromAmount(nBalance).get_real(),'f',8);
-            }
+        case Balance: {
+            CAmount nBalance = getBalanceZaddr(rec->address.toStdString(), 1, false);
+            return QString::number(ValueFromAmount(nBalance).get_real(),'f',8);
         }
-    }
-    else if (role == Qt::FontRole)
-    {
+        }
+    } else if (role == Qt::FontRole) {
         QFont font;
-        if(index.column() == Address)
-        {
+        if(index.column() == Address) {
             font = GUIUtil::fixedPitchFont();
         }
         return font;
-    }
-    else if (role == Qt::TextAlignmentRole)
-    {
+    } else if (role == Qt::TextAlignmentRole) {
         return column_alignments[index.column()];
-    }
-    else if (role == TypeRole)
-    {
-        switch(rec->type)
-        {
+    } else if (role == TypeRole) {
+        switch(rec->type) {
         case AddressTableEntry::Sending:
             return Send;
         case AddressTableEntry::Receiving:
             return Receive;
-        default: break;
+        default:
+            break;
         }
     }
     return QVariant();
 }
 
-bool ZAddressTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
+bool ZAddressTableModel::setData(const QModelIndex &index, const QVariant &value, int role) {
     if(!index.isValid())
         return false;
     AddressTableEntry *rec = static_cast<AddressTableEntry*>(index.internalPointer());
     std::string strPurpose = (rec->type == AddressTableEntry::Sending ? "send" : "receive");
     editStatus = OK;
 
-    if(role == Qt::EditRole)
-    {
+    if(role == Qt::EditRole) {
         LOCK(wallet->cs_wallet); /* For SetZAddressBook / DelZAddressBook */
         libzcash::PaymentAddress curAddress = DecodePaymentAddress(rec->address.toStdString());
-        if(index.column() == Label)
-        {
+        if(index.column() == Label) {
             // Do nothing, if old label == new label
-            if(rec->label == value.toString())
-            {
+            if(rec->label == value.toString()) {
                 editStatus = NO_CHANGES;
                 return false;
             }
@@ -330,21 +280,18 @@ bool ZAddressTableModel::setData(const QModelIndex &index, const QVariant &value
 //            }
             // Do nothing, if old address == new address
 //            else
-            if(newAddress == curAddress)
-            {
+            if(newAddress == curAddress) {
                 editStatus = NO_CHANGES;
                 return false;
             }
             // Check for duplicate addresses to prevent accidental deletion of addresses, if you try
             // to paste an existing address over another address (with a different label)
-            else if(wallet->mapZAddressBook.count(newAddress))
-            {
+            else if(wallet->mapZAddressBook.count(newAddress)) {
                 editStatus = DUPLICATE_ADDRESS;
                 return false;
             }
             // Double-check that we're not overwriting a receiving address
-            else if(rec->type == AddressTableEntry::Sending)
-            {
+            else if(rec->type == AddressTableEntry::Sending) {
                 // Remove old entry
                 wallet->DelZAddressBook(curAddress);
                 // Add new entry with new address
@@ -356,24 +303,18 @@ bool ZAddressTableModel::setData(const QModelIndex &index, const QVariant &value
     return false;
 }
 
-QVariant ZAddressTableModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if(orientation == Qt::Horizontal)
-    {
-        if(role == Qt::DisplayRole && section < columns.size())
-        {
+QVariant ZAddressTableModel::headerData(int section, Qt::Orientation orientation, int role) const {
+    if(orientation == Qt::Horizontal) {
+        if(role == Qt::DisplayRole && section < columns.size()) {
             return columns[section];
-        } 
-        else if (role == Qt::TextAlignmentRole)
-        {
+        } else if (role == Qt::TextAlignmentRole) {
             return column_alignments[section];
-        } 
+        }
     }
     return QVariant();
 }
 
-Qt::ItemFlags ZAddressTableModel::flags(const QModelIndex &index) const
-{
+Qt::ItemFlags ZAddressTableModel::flags(const QModelIndex &index) const {
     if (!index.isValid()) return Qt::NoItemFlags;
     AddressTableEntry *rec = static_cast<AddressTableEntry*>(index.internalPointer());
 
@@ -388,36 +329,29 @@ Qt::ItemFlags ZAddressTableModel::flags(const QModelIndex &index) const
     return retval;
 }
 
-QModelIndex ZAddressTableModel::index(int row, int column, const QModelIndex &parent) const
-{
+QModelIndex ZAddressTableModel::index(int row, int column, const QModelIndex &parent) const {
     Q_UNUSED(parent);
     AddressTableEntry *data = priv->index(row);
-    if(data)
-    {
+    if(data) {
         return createIndex(row, column, priv->index(row));
-    }
-    else
-    {
+    } else {
         return QModelIndex();
     }
 }
 
 void ZAddressTableModel::updateEntry(const QString &address,
-        const QString &label, bool isMine, const QString &purpose, int status)
-{
+                                     const QString &label, bool isMine, const QString &purpose, int status) {
     // Update address book model from Komodo core
     priv->updateEntry(address, label, isMine, purpose, status);
 }
 
-QString ZAddressTableModel::addRow(const QString &type, const QString &label, const QString &address)
-{
+QString ZAddressTableModel::addRow(const QString &type, const QString &label, const QString &address) {
     std::string strLabel; // = label.toStdString();
     std::string strAddress = address.toStdString();
 
     editStatus = OK;
 
-    if(type == Send)
-    {
+    if(type == Send) {
 //!!!!! validate
 //        if(!walletModel->validateAddress(address))
 //        {
@@ -427,29 +361,21 @@ QString ZAddressTableModel::addRow(const QString &type, const QString &label, co
         // Check for duplicate addresses
         {
             LOCK(wallet->cs_wallet);
-            if(wallet->mapZAddressBook.count(DecodePaymentAddress(strAddress)))
-            {
+            if(wallet->mapZAddressBook.count(DecodePaymentAddress(strAddress))) {
                 editStatus = DUPLICATE_ADDRESS;
                 return QString();
             }
         }
-    }
-    else if(type == Receive)
-    {
+    } else if(type == Receive) {
         // Generate a new address to associate with given label
-        if ( GetTime() < KOMODO_SAPLING_ACTIVATION )
-        {
+        if ( GetTime() < KOMODO_SAPLING_ACTIVATION ) {
             strAddress = EncodePaymentAddress(wallet->GenerateNewSproutZKey());
             strLabel = "z-sprout";
-        }
-        else 
-        {
+        } else {
             strAddress = EncodePaymentAddress(wallet->GenerateNewSaplingZKey());
             strLabel = "z-sapling";
         }
-    }
-    else
-    {
+    } else {
         return QString();
     }
 
@@ -457,17 +383,15 @@ QString ZAddressTableModel::addRow(const QString &type, const QString &label, co
     {
         LOCK(wallet->cs_wallet);
         wallet->SetZAddressBook(DecodePaymentAddress(strAddress), strLabel,
-                               (type == Send ? "send" : "receive"));
+                                (type == Send ? "send" : "receive"));
     }
     return QString::fromStdString(strAddress);
 }
 
-bool ZAddressTableModel::removeRows(int row, int count, const QModelIndex &parent)
-{
+bool ZAddressTableModel::removeRows(int row, int count, const QModelIndex &parent) {
     Q_UNUSED(parent);
     AddressTableEntry *rec = priv->index(row);
-    if(count != 1 || !rec || rec->type == AddressTableEntry::Receiving)
-    {
+    if(count != 1 || !rec || rec->type == AddressTableEntry::Receiving) {
         // Can only remove one row at a time, and cannot remove rows not in model.
         // Also refuse to remove receiving addresses.
         return false;
@@ -481,35 +405,28 @@ bool ZAddressTableModel::removeRows(int row, int count, const QModelIndex &paren
 
 /* Look up label for address in address book, if not found return empty string.
  */
-QString ZAddressTableModel::labelForAddress(const QString &address) const
-{
+QString ZAddressTableModel::labelForAddress(const QString &address) const {
     {
         LOCK(wallet->cs_wallet);
         libzcash::PaymentAddress destination = DecodePaymentAddress(address.toStdString());
         std::map<libzcash::PaymentAddress, CAddressBookData>::iterator mi = wallet->mapZAddressBook.find(destination);
-        if (mi != wallet->mapZAddressBook.end())
-        {
+        if (mi != wallet->mapZAddressBook.end()) {
             return QString::fromStdString(mi->second.name);
         }
     }
     return QString();
 }
 
-int ZAddressTableModel::lookupAddress(const QString &address) const
-{
+int ZAddressTableModel::lookupAddress(const QString &address) const {
     QModelIndexList lst = match(index(0, Address, QModelIndex()),
                                 Qt::EditRole, address, 1, Qt::MatchExactly);
-    if(lst.isEmpty())
-    {
+    if(lst.isEmpty()) {
         return -1;
-    }
-    else
-    {
+    } else {
         return lst.at(0).row();
     }
 }
 
-void ZAddressTableModel::emitDataChanged(int idx)
-{
+void ZAddressTableModel::emitDataChanged(int idx) {
     Q_EMIT dataChanged(index(idx, 0, QModelIndex()), index(idx, columns.length()-1, QModelIndex()));
 }

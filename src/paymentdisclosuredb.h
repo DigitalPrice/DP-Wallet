@@ -18,16 +18,15 @@
 #include <leveldb/db.h>
 
 
-class PaymentDisclosureDB
-{
-protected:
+class PaymentDisclosureDB {
+  protected:
     leveldb::DB* db = nullptr;
     leveldb::Options options;
     leveldb::ReadOptions readOptions;
     leveldb::WriteOptions writeOptions;
     mutable std::mutex lock_;
 
-public:
+  public:
     static std::shared_ptr<PaymentDisclosureDB> sharedInstance();
 
     PaymentDisclosureDB();

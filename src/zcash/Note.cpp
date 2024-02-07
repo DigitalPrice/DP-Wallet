@@ -51,13 +51,12 @@ SaplingNote::SaplingNote(const SaplingPaymentAddress& address, const uint64_t va
 boost::optional<uint256> SaplingNote::cm() const {
     uint256 result;
     if (!librustzcash_sapling_compute_cm(
-            d.data(),
-            pk_d.begin(),
-            value(),
-            r.begin(),
-            result.begin()
-        ))
-    {
+                d.data(),
+                pk_d.begin(),
+                value(),
+                r.begin(),
+                result.begin()
+            )) {
         return boost::none;
     }
 
@@ -65,23 +64,21 @@ boost::optional<uint256> SaplingNote::cm() const {
 }
 
 // Call librustzcash to compute the nullifier
-boost::optional<uint256> SaplingNote::nullifier(const SaplingFullViewingKey& vk, const uint64_t position) const
-{
+boost::optional<uint256> SaplingNote::nullifier(const SaplingFullViewingKey& vk, const uint64_t position) const {
     auto ak = vk.ak;
     auto nk = vk.nk;
 
     uint256 result;
     if (!librustzcash_sapling_compute_nf(
-            d.data(),
-            pk_d.begin(),
-            value(),
-            r.begin(),
-            ak.begin(),
-            nk.begin(),
-            position,
-            result.begin()
-    ))
-    {
+                d.data(),
+                pk_d.begin(),
+                value(),
+                r.begin(),
+                ak.begin(),
+                nk.begin(),
+                position,
+                result.begin()
+            )) {
         return boost::none;
     }
 
@@ -90,24 +87,21 @@ boost::optional<uint256> SaplingNote::nullifier(const SaplingFullViewingKey& vk,
 
 SproutNotePlaintext::SproutNotePlaintext(
     const SproutNote& note,
-    std::array<unsigned char, ZC_MEMO_SIZE> memo) : BaseNotePlaintext(note, memo)
-{
+    std::array<unsigned char, ZC_MEMO_SIZE> memo) : BaseNotePlaintext(note, memo) {
     rho = note.rho;
     r = note.r;
 }
 
-SproutNote SproutNotePlaintext::note(const SproutPaymentAddress& addr) const
-{
+SproutNote SproutNotePlaintext::note(const SproutPaymentAddress& addr) const {
     return SproutNote(addr.a_pk, value_, rho, r);
 }
 
 SproutNotePlaintext SproutNotePlaintext::decrypt(const ZCNoteDecryption& decryptor,
-                                     const ZCNoteDecryption::Ciphertext& ciphertext,
-                                     const uint256& ephemeralKey,
-                                     const uint256& h_sig,
-                                     unsigned char nonce
-                                    )
-{
+        const ZCNoteDecryption::Ciphertext& ciphertext,
+        const uint256& ephemeralKey,
+        const uint256& h_sig,
+        unsigned char nonce
+                                                ) {
     auto plaintext = decryptor.decrypt(ciphertext, ephemeralKey, h_sig, nonce);
 
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
@@ -122,9 +116,8 @@ SproutNotePlaintext SproutNotePlaintext::decrypt(const ZCNoteDecryption& decrypt
 }
 
 ZCNoteEncryption::Ciphertext SproutNotePlaintext::encrypt(ZCNoteEncryption& encryptor,
-                                                    const uint256& pk_enc
-                                                   ) const
-{
+        const uint256& pk_enc
+                                                         ) const {
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << (*this);
 
@@ -142,15 +135,13 @@ ZCNoteEncryption::Ciphertext SproutNotePlaintext::encrypt(ZCNoteEncryption& encr
 // Construct and populate SaplingNotePlaintext for a given note and memo.
 SaplingNotePlaintext::SaplingNotePlaintext(
     const SaplingNote& note,
-    std::array<unsigned char, ZC_MEMO_SIZE> memo) : BaseNotePlaintext(note, memo)
-{
+    std::array<unsigned char, ZC_MEMO_SIZE> memo) : BaseNotePlaintext(note, memo) {
     d = note.d;
     rcm = note.r;
 }
 
 
-boost::optional<SaplingNote> SaplingNotePlaintext::note(const SaplingIncomingViewingKey& ivk) const
-{
+boost::optional<SaplingNote> SaplingNotePlaintext::note(const SaplingIncomingViewingKey& ivk) const {
     auto addr = ivk.address(d);
     if (addr) {
         return SaplingNote(d, addr.get().pk_d, value_, rcm);
@@ -165,8 +156,7 @@ boost::optional<SaplingOutgoingPlaintext> SaplingOutgoingPlaintext::decrypt(
     const uint256& cv,
     const uint256& cm,
     const uint256& epk
-)
-{
+) {
     auto pt = AttemptSaplingOutDecryption(ciphertext, ovk, cv, cm, epk);
     if (!pt) {
         return boost::none;
@@ -195,8 +185,7 @@ boost::optional<SaplingNotePlaintext> SaplingNotePlaintext::decrypt(
     const uint256 &ivk,
     const uint256 &epk,
     const uint256 &cmu
-)
-{
+) {
     auto pt = AttemptSaplingEncDecryption(ciphertext, ivk, epk);
     if (!pt) {
         return boost::none;
@@ -222,13 +211,12 @@ boost::optional<SaplingNotePlaintext> SaplingNotePlaintext::decrypt(
 
     uint256 cmu_expected;
     if (!librustzcash_sapling_compute_cm(
-        ret.d.data(),
-        pk_d.begin(),
-        ret.value(),
-        ret.rcm.begin(),
-        cmu_expected.begin()
-    ))
-    {
+                ret.d.data(),
+                pk_d.begin(),
+                ret.value(),
+                ret.rcm.begin(),
+                cmu_expected.begin()
+            )) {
         return boost::none;
     }
 
@@ -245,8 +233,7 @@ boost::optional<SaplingNotePlaintext> SaplingNotePlaintext::decrypt(
     const uint256 &esk,
     const uint256 &pk_d,
     const uint256 &cmu
-)
-{
+) {
     auto pt = AttemptSaplingEncDecryption(ciphertext, epk, esk, pk_d);
     if (!pt) {
         return boost::none;
@@ -267,13 +254,12 @@ boost::optional<SaplingNotePlaintext> SaplingNotePlaintext::decrypt(
 
     uint256 cmu_expected;
     if (!librustzcash_sapling_compute_cm(
-        ret.d.data(),
-        pk_d.begin(),
-        ret.value(),
-        ret.rcm.begin(),
-        cmu_expected.begin()
-    ))
-    {
+                ret.d.data(),
+                pk_d.begin(),
+                ret.value(),
+                ret.rcm.begin(),
+                cmu_expected.begin()
+            )) {
         return boost::none;
     }
 
@@ -284,8 +270,7 @@ boost::optional<SaplingNotePlaintext> SaplingNotePlaintext::decrypt(
     return ret;
 }
 
-boost::optional<SaplingNotePlaintextEncryptionResult> SaplingNotePlaintext::encrypt(const uint256& pk_d) const
-{
+boost::optional<SaplingNotePlaintextEncryptionResult> SaplingNotePlaintext::encrypt(const uint256& pk_d) const {
     // Get the encryptor
     auto sne = SaplingNoteEncryption::FromDiversifier(d);
     if (!sne) {
@@ -310,12 +295,11 @@ boost::optional<SaplingNotePlaintextEncryptionResult> SaplingNotePlaintext::encr
 
 
 SaplingOutCiphertext SaplingOutgoingPlaintext::encrypt(
-        const uint256& ovk,
-        const uint256& cv,
-        const uint256& cm,
-        SaplingNoteEncryption& enc
-    ) const
-{
+    const uint256& ovk,
+    const uint256& cv,
+    const uint256& cm,
+    SaplingNoteEncryption& enc
+) const {
     // Create the plaintext
     CDataStream ss(SER_NETWORK, PROTOCOL_VERSION);
     ss << (*this);

@@ -85,11 +85,14 @@
 //FILE *myfopen(char *fname,char *mode);
 //int32_t myfclose(FILE *fp);
 
-struct huffstream { uint8_t *ptr,*buf; uint32_t bitoffset,maski,endpos; uint32_t allocsize:31,allocated:1; };
+struct huffstream {
+    uint8_t *ptr,*buf;
+    uint32_t bitoffset,maski,endpos;
+    uint32_t allocsize:31,allocated:1;
+};
 typedef struct huffstream HUFF;
 
-struct ramcoder
-{
+struct ramcoder {
     uint32_t cumulativeProb;
     uint16_t lower,upper,code,underflowBits,lastsymbol,upper_lastsymbol,counter;
     uint64_t *histo;
@@ -132,8 +135,7 @@ int32_t hseek(HUFF *hp,int32_t offset,int32_t mode);
 
 #define issue_curlt(cmdstr,timeout) bitcoind_RPC(0,"curl",cmdstr,0,0,0,timeout)
 
-struct rpcrequest_info
-{
+struct rpcrequest_info {
     struct rpcrequest_info *next,*prev;
     pthread_t T;
     int32_t sock;
@@ -141,28 +143,41 @@ struct rpcrequest_info
     uint16_t port,pad;
 };
 
-struct OS_mappedptr
-{
-	char fname[512];
-	void *fileptr,*pending;
-	long allocsize,changedsize;
-	int32_t rwflag,dirty,actually_allocated;
+struct OS_mappedptr {
+    char fname[512];
+    void *fileptr,*pending;
+    long allocsize,changedsize;
+    int32_t rwflag,dirty,actually_allocated;
     uint32_t closetime,opentime;
 };
 
-struct OS_memspace
-{
-    portable_mutex_t mutex; long used,totalsize; struct OS_mappedptr M; char name[64]; void *ptr;
+struct OS_memspace {
+    portable_mutex_t mutex;
+    long used,totalsize;
+    struct OS_mappedptr M;
+    char name[64];
+    void *ptr;
     int32_t alignflag,counter,maxheight,openfiles,lastcounter,threadsafe,allocated:1,mapped:1,external:1;
 #ifdef IGUANA_PEERALLOC
     int32_t outofptrs,numptrs,availptrs;
-    void *ptrs[4096]; int32_t allocsizes[4096],maxsizes[4096];
+    void *ptrs[4096];
+    int32_t allocsizes[4096],maxsizes[4096];
 #endif
 };
 
-struct tai { uint64_t x; double millis; };
-struct taidate { int32_t year,month,day; };
-struct taitime { struct taidate date; int32_t hour,minute,second; uint32_t offset; double millis; };
+struct tai {
+    uint64_t x;
+    double millis;
+};
+struct taidate {
+    int32_t year,month,day;
+};
+struct taitime {
+    struct taidate date;
+    int32_t hour,minute,second;
+    uint32_t offset;
+    double millis;
+};
 int32_t leapsecs_sub(struct tai *);
 
 struct tai tai_now(void);
@@ -366,7 +381,11 @@ void SaM_PrepareIndices(void);
 #ifndef IGUANA_MAXPACKETSIZE
 #define IGUANA_MAXPACKETSIZE (1 << IGUANA_LOG2PACKETSIZE)
 #endif
-struct iguana_msghdr { uint8_t netmagic[4]; char command[12]; uint8_t serdatalen[4],hash[4]; } PACKED;
+struct iguana_msghdr {
+    uint8_t netmagic[4];
+    char command[12];
+    uint8_t serdatalen[4],hash[4];
+} PACKED;
 
 int32_t iguana_rwnum(int32_t rwflag,uint8_t *serialized,int32_t len,void *endianedp);
 int32_t iguana_validatehdr(char *symbol,struct iguana_msghdr *H);

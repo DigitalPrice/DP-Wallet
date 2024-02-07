@@ -18,7 +18,7 @@ class SendCoinsEntry;
 class SendCoinsRecipient;
 
 namespace Ui {
-    class SendCoinsDialog;
+class SendCoinsDialog;
 }
 
 QT_BEGIN_NAMESPACE
@@ -26,11 +26,10 @@ class QUrl;
 QT_END_NAMESPACE
 
 /** Dialog for sending coins */
-class SendCoinsDialog : public QDialog
-{
+class SendCoinsDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     explicit SendCoinsDialog(const PlatformStyle *platformStyle, QWidget *parent = 0);
     ~SendCoinsDialog();
 
@@ -45,7 +44,7 @@ public:
     void pasteEntry(const SendCoinsRecipient &rv);
     bool handlePaymentRequest(const SendCoinsRecipient &recipient);
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void clear();
     void reject();
     void accept();
@@ -54,10 +53,10 @@ public Q_SLOTS:
     void setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance,
                     const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void coinsSent(const uint256& txid);
 
-private:
+  private:
     Ui::SendCoinsDialog *ui;
     ClientModel *clientModel;
     WalletModel *model;
@@ -74,7 +73,7 @@ private:
     // Update the passed in CCoinControl with state from the GUI
     void updateCoinControlState(CCoinControl& ctrl);
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void on_sendButton_clicked();
     void on_buttonChooseFee_clicked();
     void on_buttonMinimizeFee_clicked();
@@ -98,7 +97,7 @@ private Q_SLOTS:
     void updateMinFeeLabel();
     void updateSmartFeeLabel();
 
-Q_SIGNALS:
+  Q_SIGNALS:
     // Fired when a message should be reported to the user
     void message(const QString &title, const QString &message, unsigned int style);
 };
@@ -106,19 +105,18 @@ Q_SIGNALS:
 //change to 1 because fee bumping (the actual reason it was added) doesn't actually work correctly and all it does is slow user down
 #define SEND_CONFIRM_DELAY   3
 
-class SendConfirmationDialog : public QMessageBox
-{
+class SendConfirmationDialog : public QMessageBox {
     Q_OBJECT
 
-public:
+  public:
     SendConfirmationDialog(const QString &title, const QString &text, int secDelay = SEND_CONFIRM_DELAY, QWidget *parent = 0);
     int exec();
 
-private Q_SLOTS:
+  private Q_SLOTS:
     void countDown();
     void updateYesButton();
 
-private:
+  private:
     QAbstractButton *yesButton;
     QTimer countDownTimer;
     int secDelay;

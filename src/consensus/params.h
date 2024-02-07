@@ -14,8 +14,7 @@ int32_t MAX_BLOCK_SIZE(int32_t height);
 
 namespace Consensus {
 
-enum DeploymentPos
-{
+enum DeploymentPos {
     DEPLOYMENT_TESTDUMMY,
     DEPLOYMENT_CSV, // Deployment of BIP68, BIP112, and BIP113.
     DEPLOYMENT_SEGWIT, // Deployment of BIP141, BIP143, and BIP147.
@@ -103,7 +102,9 @@ struct Params {
      * t_h = nSubsidyHalvingInterval
      * t_c = SubsidySlowStartShift()
      */
-    int SubsidySlowStartShift() const { return nSubsidySlowStartInterval / 2; }
+    int SubsidySlowStartShift() const {
+        return nSubsidySlowStartInterval / 2;
+    }
     int nSubsidyHalvingInterval;
     int GetLastFoundersRewardBlockHeight() const {
         return nSubsidyHalvingInterval + SubsidySlowStartShift() - 1;
@@ -140,17 +141,27 @@ struct Params {
     /*****
      * @returns How long the entire lookback window should take given target values
      */
-    int64_t AveragingWindowTimespan() const { return nPowAveragingWindow * nPowTargetSpacing; }
+    int64_t AveragingWindowTimespan() const {
+        return nPowAveragingWindow * nPowTargetSpacing;
+    }
     /****
      * @returns the minimum time the lookback window should take before difficulty should be raised
      */
-    int64_t MinActualTimespan() const { return (AveragingWindowTimespan() * (100 - nPowMaxAdjustUp  )) / 100; }
+    int64_t MinActualTimespan() const {
+        return (AveragingWindowTimespan() * (100 - nPowMaxAdjustUp  )) / 100;
+    }
     /*****
      * @returns the maximum time the lookback window should take before the difficulty should be lowered
      */
-    int64_t MaxActualTimespan() const { return (AveragingWindowTimespan() * (100 + nPowMaxAdjustDown)) / 100; }
-    void SetSaplingHeight(int32_t height) { vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = height; }
-    void SetOverwinterHeight(int32_t height) { vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = height; }
+    int64_t MaxActualTimespan() const {
+        return (AveragingWindowTimespan() * (100 + nPowMaxAdjustDown)) / 100;
+    }
+    void SetSaplingHeight(int32_t height) {
+        vUpgrades[Consensus::UPGRADE_SAPLING].nActivationHeight = height;
+    }
+    void SetOverwinterHeight(int32_t height) {
+        vUpgrades[Consensus::UPGRADE_OVERWINTER].nActivationHeight = height;
+    }
     uint256 nMinimumChainWork;
 };
 } // namespace Consensus

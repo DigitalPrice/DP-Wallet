@@ -12,8 +12,8 @@ CWalletTx GetValidReceive(ZCJoinSplit& params,
                           bool randomInputs,
                           int32_t version = 2);
 libzcash::SproutNote GetNote(ZCJoinSplit& params,
-                       const libzcash::SproutSpendingKey& sk,
-                       const CTransaction& tx, size_t js, size_t n);
+                             const libzcash::SproutSpendingKey& sk,
+                             const CTransaction& tx, size_t js, size_t n);
 CWalletTx GetValidSpend(ZCJoinSplit& params,
                         const libzcash::SproutSpendingKey& sk,
                         const libzcash::SproutNote& note, CAmount value);

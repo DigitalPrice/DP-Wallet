@@ -19,25 +19,27 @@ const size_t ZIP32_XSK_SIZE = 169;
 typedef std::vector<unsigned char, secure_allocator<unsigned char>> RawHDSeed;
 
 class HDSeed {
-private:
+  private:
     RawHDSeed seed;
 
-public:
+  public:
     HDSeed() {}
     HDSeed(RawHDSeed& seedIn) : seed(seedIn) {}
 
     static HDSeed Random(size_t len = 32);
-    bool IsNull() const { return seed.empty(); };
+    bool IsNull() const {
+        return seed.empty();
+    };
     uint256 Fingerprint() const;
-    RawHDSeed RawSeed() const { return seed; }
+    RawHDSeed RawSeed() const {
+        return seed;
+    }
 
-    friend bool operator==(const HDSeed& a, const HDSeed& b)
-    {
+    friend bool operator==(const HDSeed& a, const HDSeed& b) {
         return a.seed == b.seed;
     }
 
-    friend bool operator!=(const HDSeed& a, const HDSeed& b)
-    {
+    friend bool operator!=(const HDSeed& a, const HDSeed& b) {
         return !(a == b);
     }
 };
@@ -75,23 +77,23 @@ struct SaplingExtendedFullViewingKey {
     // payment address, along with the corresponding address. Returns
     // an error if the diversifier space is exhausted.
     boost::optional<std::pair<diversifier_index_t, libzcash::SaplingPaymentAddress>>
-        Address(diversifier_index_t j) const;
+            Address(diversifier_index_t j) const;
 
     libzcash::SaplingPaymentAddress DefaultAddress() const;
 
     friend inline bool operator==(const SaplingExtendedFullViewingKey& a, const SaplingExtendedFullViewingKey& b) {
         return (
-            a.depth == b.depth &&
-            a.parentFVKTag == b.parentFVKTag &&
-            a.childIndex == b.childIndex &&
-            a.chaincode == b.chaincode &&
-            a.fvk == b.fvk &&
-            a.dk == b.dk);
+                   a.depth == b.depth &&
+                   a.parentFVKTag == b.parentFVKTag &&
+                   a.childIndex == b.childIndex &&
+                   a.chaincode == b.chaincode &&
+                   a.fvk == b.fvk &&
+                   a.dk == b.dk);
     }
     friend inline bool operator<(const SaplingExtendedFullViewingKey& a, const SaplingExtendedFullViewingKey& b) {
         return (a.depth < b.depth ||
-            (a.depth == b.depth && a.childIndex < b.childIndex) ||
-            (a.depth == b.depth && a.childIndex == b.childIndex && a.fvk < b.fvk));
+                (a.depth == b.depth && a.childIndex < b.childIndex) ||
+                (a.depth == b.depth && a.childIndex == b.childIndex && a.fvk < b.fvk));
     }
 };
 
@@ -123,14 +125,13 @@ struct SaplingExtendedSpendingKey {
 
     libzcash::SaplingPaymentAddress DefaultAddress() const;
 
-    friend bool operator==(const SaplingExtendedSpendingKey& a, const SaplingExtendedSpendingKey& b)
-    {
+    friend bool operator==(const SaplingExtendedSpendingKey& a, const SaplingExtendedSpendingKey& b) {
         return a.depth == b.depth &&
-            a.parentFVKTag == b.parentFVKTag &&
-            a.childIndex == b.childIndex &&
-            a.chaincode == b.chaincode &&
-            a.expsk == b.expsk &&
-            a.dk == b.dk;
+               a.parentFVKTag == b.parentFVKTag &&
+               a.childIndex == b.childIndex &&
+               a.chaincode == b.chaincode &&
+               a.expsk == b.expsk &&
+               a.dk == b.dk;
     }
 };
 

@@ -97,16 +97,15 @@ bnTarget = RT_CST_RST (bnTarget, ts, cw, numerator, denominator, W, T, past);
 #define K ((int64_t)1000000)
 
 #ifdef original_algo
-arith_uint256 oldRT_CST_RST(int32_t height,uint32_t nTime,arith_uint256 bnTarget,uint32_t *ts,arith_uint256 *ct,int32_t numerator,int32_t denominator,int32_t W,int32_t past)
-{
+arith_uint256 oldRT_CST_RST(int32_t height,uint32_t nTime,arith_uint256 bnTarget,uint32_t *ts,arith_uint256 *ct,int32_t numerator,int32_t denominator,int32_t W,int32_t past) {
     //if (ts.size() < 2*W || ct.size() < 2*W ) { exit; } // error. a vector was too small
     //if (ts.size() < past+W || ct.size() < past+W ) { past = min(ct.size(), ts.size()) - W; } // past was too small, adjust
-    int64_t altK; int32_t i,j,k,ii=0; // K is a scaling factor for integer divisions
+    int64_t altK;
+    int32_t i,j,k,ii=0; // K is a scaling factor for integer divisions
     if ( height < 64 )
         return(bnTarget);
     //if ( ((ts[0]-ts[W]) * W * 100)/(W-1) < (T * numerator * 100)/denominator )
-    if ( (ts[0] - ts[W]) < (T * numerator)/denominator )
-    {
+    if ( (ts[0] - ts[W]) < (T * numerator)/denominator ) {
         //bnTarget = ((ct[0]-ct[1])/K) * max(K,(K*(nTime-ts[0])*(ts[0]-ts[W])*denominator/numerator)/T/T);
         bnTarget = ct[0] / arith_uint256(K);
         //altK = (K * (nTime-ts[0]) * (ts[0]-ts[W]) * denominator * W) / (numerator * (W-1) * (T * T));
@@ -125,30 +124,26 @@ arith_uint256 oldRT_CST_RST(int32_t height,uint32_t nTime,arith_uint256 bnTarget
      Nested loops do this: if block emission has not slowed to be back on track at
      any time since most recent trigger and we are at current block, aggressively
      adust prevTarget. */
-    
-    for (j=past-1; j>=2; j--)
-    {
-        if ( ts[j]-ts[j+W] < T*numerator/denominator )
-        {
+
+    for (j=past-1; j>=2; j--) {
+        if ( ts[j]-ts[j+W] < T*numerator/denominator ) {
             ii = 0;
-            for (i=j-2; i>=0; i--)
-            {
+            for (i=j-2; i>=0; i--) {
                 ii++;
                 // Check if emission caught up. If yes, "trigger stopped at i".
                 // Break loop to try more recent j's to see if trigger activates again.
                 if ( (ts[i] - ts[j+W]) > (ii+W)*T )
                     break;
-                
+
                 // We're here, so there was a TS[j]-TS[j-3] < T/2 trigger in the past and emission rate has not yet slowed up to be back on track so the "trigger is still active", aggressively adjusting target here at block "i"
-                if ( i == 0 )
-                {
+                if ( i == 0 ) {
                     /* We made it all the way to current block. Emission rate since
                      last trigger never slowed enough to get back on track, so adjust again.
                      If avg last 3 STs = T, this increases target to prevTarget as ST increases to T.
                      This biases it towards ST=~1.75*T to get emission back on track.
                      If avg last 3 STs = T/2, target increases to prevTarget at 2*T.
                      Rarely, last 3 STs can be 1/2 speed => target = prevTarget at T/2, & 1/2 at T.*/
-                    
+
                     //bnTarget = ((ct[0]-ct[W])/W/K) * (K*(nTime-ts[0])*(ts[0]-ts[W]))/W/T/T;
                     bnTarget = ct[0];
                     for (k=1; k<W; k++)
@@ -166,17 +161,16 @@ arith_uint256 oldRT_CST_RST(int32_t height,uint32_t nTime,arith_uint256 bnTarget
 }
 #endif
 
-arith_uint256 RT_CST_RST_outer(int32_t height,uint32_t nTime,arith_uint256 bnTarget,uint32_t *ts,arith_uint256 *ct,int32_t numerator,int32_t denominator,int32_t W,int32_t past)
-{
-    int64_t outerK; int32_t cmpval; arith_uint256 mintarget = bnTarget / arith_uint256(2);
+arith_uint256 RT_CST_RST_outer(int32_t height,uint32_t nTime,arith_uint256 bnTarget,uint32_t *ts,arith_uint256 *ct,int32_t numerator,int32_t denominator,int32_t W,int32_t past) {
+    int64_t outerK;
+    int32_t cmpval;
+    arith_uint256 mintarget = bnTarget / arith_uint256(2);
     cmpval = (T * numerator)/denominator;
     if ( cmpval < 2 )
         cmpval = 2;
-    if ( (ts[0] - ts[W]) < cmpval )
-    {
+    if ( (ts[0] - ts[W]) < cmpval ) {
         outerK = (K * (nTime-ts[0]) * (ts[0]-ts[W]) * denominator) / (numerator * (T * T));
-        if ( outerK < K )
-        {
+        if ( outerK < K ) {
             bnTarget = ct[0] / arith_uint256(K);
             bnTarget *= arith_uint256(outerK);
         }
@@ -192,17 +186,16 @@ arith_uint256 RT_CST_RST_outer(int32_t height,uint32_t nTime,arith_uint256 bnTar
     return(bnTarget);
 }
 
-arith_uint256 RT_CST_RST_target(int32_t height,uint32_t nTime,arith_uint256 bnTarget,uint32_t *ts,arith_uint256 *ct,int32_t width)
-{
-    int32_t i; int64_t innerK;
+arith_uint256 RT_CST_RST_target(int32_t height,uint32_t nTime,arith_uint256 bnTarget,uint32_t *ts,arith_uint256 *ct,int32_t width) {
+    int32_t i;
+    int64_t innerK;
     bnTarget = ct[0];
     for (i=1; i<width; i++)
         bnTarget += ct[i];
     bnTarget /= arith_uint256(width * K);
     innerK = (K * (nTime-ts[0]) * (ts[0]-ts[width])) / (width * T * T);
     bnTarget *= arith_uint256(innerK);
-    if ( 0 )
-    {
+    if ( 0 ) {
         int32_t z;
         for (z=31; z>=0; z--)
             LogPrint("pow", "%02x",((uint8_t *)&bnTarget)[z]);
@@ -211,13 +204,12 @@ arith_uint256 RT_CST_RST_target(int32_t height,uint32_t nTime,arith_uint256 bnTa
     return(bnTarget);
 }
 
-arith_uint256 RT_CST_RST_inner(int32_t height,uint32_t nTime,arith_uint256 bnTarget,uint32_t *ts,arith_uint256 *ct,int32_t W,int32_t outeri)
-{
-    int32_t expected,elapsed,width = outeri+W; arith_uint256 mintarget,origtarget;
+arith_uint256 RT_CST_RST_inner(int32_t height,uint32_t nTime,arith_uint256 bnTarget,uint32_t *ts,arith_uint256 *ct,int32_t W,int32_t outeri) {
+    int32_t expected,elapsed,width = outeri+W;
+    arith_uint256 mintarget,origtarget;
     expected = (width+1) * T;
     origtarget = bnTarget;
-    if ( (elapsed= (ts[0] - ts[width])) < expected )
-    {
+    if ( (elapsed= (ts[0] - ts[width])) < expected ) {
         mintarget = (bnTarget / arith_uint256(101)) * arith_uint256(100);
         bnTarget = RT_CST_RST_target(height,nTime,bnTarget,ts,ct,W);
         if ( bnTarget == origtarget ) // force zawyflag to 1
@@ -232,8 +224,7 @@ arith_uint256 RT_CST_RST_inner(int32_t height,uint32_t nTime,arith_uint256 bnTar
     return(bnTarget);
 }
 
-arith_uint256 zawy_targetMA(arith_uint256 easy,arith_uint256 bnSum,int32_t num,int32_t numerator,int32_t divisor)
-{
+arith_uint256 zawy_targetMA(arith_uint256 easy,arith_uint256 bnSum,int32_t num,int32_t numerator,int32_t divisor) {
     bnSum /= arith_uint256(ASSETCHAINS_BLOCKTIME * num * num * divisor);
     bnSum *= arith_uint256(numerator);
     if ( bnSum > easy )
@@ -241,43 +232,37 @@ arith_uint256 zawy_targetMA(arith_uint256 easy,arith_uint256 bnSum,int32_t num,i
     return(bnSum);
 }
 
-int64_t zawy_exponential_val360000(int32_t num)
-{
-    int32_t i,n,modval; int64_t A = 1, B = 3600 * 100;
-    if ( (n= (num/ASSETCHAINS_BLOCKTIME)) > 0 )
-    {
+int64_t zawy_exponential_val360000(int32_t num) {
+    int32_t i,n,modval;
+    int64_t A = 1, B = 3600 * 100;
+    if ( (n= (num/ASSETCHAINS_BLOCKTIME)) > 0 ) {
         for (i=1; i<=n; i++)
             A *= 3;
     }
-    if ( (modval= (num % ASSETCHAINS_BLOCKTIME)) != 0 )
-    {
+    if ( (modval= (num % ASSETCHAINS_BLOCKTIME)) != 0 ) {
         B += (3600 * 110 * modval) / ASSETCHAINS_BLOCKTIME;
         B += (3600 * 60 * modval * modval) / (ASSETCHAINS_BLOCKTIME * ASSETCHAINS_BLOCKTIME);
     }
     return(A * B);
 }
 
-arith_uint256 zawy_exponential(arith_uint256 bnTarget,int32_t mult)
-{
+arith_uint256 zawy_exponential(arith_uint256 bnTarget,int32_t mult) {
     bnTarget /= arith_uint256(100 * 3600);
     bnTarget *= arith_uint256(zawy_exponential_val360000(mult));
     return(bnTarget);
 }
 
-arith_uint256 zawy_ctB(arith_uint256 bnTarget,uint32_t solvetime)
-{
+arith_uint256 zawy_ctB(arith_uint256 bnTarget,uint32_t solvetime) {
     int64_t num;
     num = ((int64_t)1000 * solvetime * solvetime * 1000) / (T * T * 784);
-    if ( num > 1 )
-    {
+    if ( num > 1 ) {
         bnTarget /= arith_uint256(1000);
         bnTarget *= arith_uint256(num);
     }
     return(bnTarget);
 }
 
-arith_uint256 zawy_TSA_EMA(int32_t height,int32_t tipdiff,arith_uint256 prevTarget,int32_t solvetime)
-{
+arith_uint256 zawy_TSA_EMA(int32_t height,int32_t tipdiff,arith_uint256 prevTarget,int32_t solvetime) {
     arith_uint256 A,B,C,bnTarget;
     if ( tipdiff < 4 )
         tipdiff = 4;
@@ -296,8 +281,7 @@ arith_uint256 zawy_TSA_EMA(int32_t height,int32_t tipdiff,arith_uint256 prevTarg
     return(bnTarget);
 }
 
-unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params)
-{
+unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHeader *pblock, const Consensus::Params& params) {
     arith_uint256 bnLimit;
     if (ASSETCHAINS_ALGO == ASSETCHAINS_EQUIHASH)
         bnLimit = UintToArith256(params.powLimit);
@@ -309,48 +293,45 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return nProofOfWorkLimit;
 
     //{
-        // Comparing to pindexLast->nHeight with >= because this function
-        // returns the work required for the block after pindexLast.
-        //if (params.nPowAllowMinDifficultyBlocksAfterHeight != boost::none &&
-        //    pindexLast->nHeight >= params.nPowAllowMinDifficultyBlocksAfterHeight.get())
-        //{
-            // Special difficulty rule for testnet:
-            // If the new block's timestamp is more than 6 * 2.5 minutes
-            // then allow mining of a min-difficulty block.
-        //    if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing * 6)
-        //        return nProofOfWorkLimit;
-        //}
+    // Comparing to pindexLast->nHeight with >= because this function
+    // returns the work required for the block after pindexLast.
+    //if (params.nPowAllowMinDifficultyBlocksAfterHeight != boost::none &&
+    //    pindexLast->nHeight >= params.nPowAllowMinDifficultyBlocksAfterHeight.get())
+    //{
+    // Special difficulty rule for testnet:
+    // If the new block's timestamp is more than 6 * 2.5 minutes
+    // then allow mining of a min-difficulty block.
+    //    if (pblock && pblock->GetBlockTime() > pindexLast->GetBlockTime() + params.nPowTargetSpacing * 6)
+    //        return nProofOfWorkLimit;
+    //}
     //}
 
     // Find the first block in the averaging interval
     const CBlockIndex* pindexFirst = pindexLast;
     arith_uint256 ct[64],ctinv[64],bnTmp,bnPrev,bnTarget,bnTarget2,bnTarget3,bnTarget6,bnTarget12,bnTot {0};
-    uint32_t nbits,blocktime,ts[sizeof(ct)/sizeof(*ct)]; int32_t zflags[sizeof(ct)/sizeof(*ct)],i,diff,height=0,mult = 0,tipdiff = 0;
+    uint32_t nbits,blocktime,ts[sizeof(ct)/sizeof(*ct)];
+    int32_t zflags[sizeof(ct)/sizeof(*ct)],i,diff,height=0,mult = 0,tipdiff = 0;
     memset(ts,0,sizeof(ts));
     memset(ct,0,sizeof(ct));
     memset(ctinv,0,sizeof(ctinv));
     memset(zflags,0,sizeof(zflags));
     if ( pindexLast != 0 )
         height = (int32_t)pindexLast->nHeight + 1;
-    if ( ASSETCHAINS_ADAPTIVEPOW > 0 && pindexFirst != 0 && pblock != 0 && height >= (int32_t)(sizeof(ct)/sizeof(*ct)) )
-    {
+    if ( ASSETCHAINS_ADAPTIVEPOW > 0 && pindexFirst != 0 && pblock != 0 && height >= (int32_t)(sizeof(ct)/sizeof(*ct)) ) {
         tipdiff = (pblock->nTime - pindexFirst->nTime);
         mult = tipdiff - 7 * ASSETCHAINS_BLOCKTIME;
         bnPrev.SetCompact(pindexFirst->nBits);
-        for (i=0; pindexFirst != 0 && i<(int32_t)(sizeof(ct)/sizeof(*ct)); i++)
-        {
+        for (i=0; pindexFirst != 0 && i<(int32_t)(sizeof(ct)/sizeof(*ct)); i++) {
             zflags[i] = (pindexFirst->nBits & 3);
             ct[i].SetCompact(pindexFirst->nBits);
             ts[i] = pindexFirst->nTime;
             pindexFirst = pindexFirst->pprev;
         }
-        for (i=0; pindexFirst != 0 && i<(int32_t)(sizeof(ct)/sizeof(*ct))-1; i++)
-        {
+        for (i=0; pindexFirst != 0 && i<(int32_t)(sizeof(ct)/sizeof(*ct))-1; i++) {
             if ( zflags[i] == 1 || zflags[i] == 2 ) // I, O and if TSA made it harder
                 ct[i] = zawy_ctB(ct[i],ts[i] - ts[i+1]);
         }
-        if ( ASSETCHAINS_ADAPTIVEPOW == 2 ) // TSA
-        {
+        if ( ASSETCHAINS_ADAPTIVEPOW == 2 ) { // TSA
             bnTarget = zawy_TSA_EMA(height,tipdiff,ct[0],ts[0] - ts[1]);
             nbits = bnTarget.GetCompact();
             nbits = (nbits & 0xfffffffc) | 0;
@@ -358,19 +339,15 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         }
     }
     pindexFirst = pindexLast;
-    for (i = 0; pindexFirst && i < params.nPowAveragingWindow; i++)
-    {
+    for (i = 0; pindexFirst && i < params.nPowAveragingWindow; i++) {
         bnTmp.SetCompact(pindexFirst->nBits);
-        if ( ASSETCHAINS_ADAPTIVEPOW > 0 && pblock != 0 )
-        {
+        if ( ASSETCHAINS_ADAPTIVEPOW > 0 && pblock != 0 ) {
             blocktime = pindexFirst->nTime;
             diff = (pblock->nTime - blocktime);
             //LogPrintf("%d ",diff);
-            if ( i < 6 )
-            {
+            if ( i < 6 ) {
                 diff -= (8+i)*ASSETCHAINS_BLOCKTIME;
-                if ( diff > mult )
-                {
+                if ( diff > mult ) {
                     //LogPrintf("i.%d diff.%d (%u - %u - %dx)\n",i,(int32_t)diff,pblock->nTime,pindexFirst->nTime,(8+i));
                     mult = diff;
                 }
@@ -387,20 +364,17 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
         return nProofOfWorkLimit;
 
     bool fNegative,fOverflow;
-    int32_t zawyflag = 0; arith_uint256 easy,origtarget;
+    int32_t zawyflag = 0;
+    arith_uint256 easy,origtarget;
     arith_uint256 bnAvg {bnTot / params.nPowAveragingWindow}; // average number of bits in the lookback window
     nbits = CalculateNextWorkRequired(bnAvg, pindexLast->GetMedianTimePast(), pindexFirst->GetMedianTimePast(), params);
-    if ( ASSETCHAINS_ADAPTIVEPOW > 0 )
-    {
+    if ( ASSETCHAINS_ADAPTIVEPOW > 0 ) {
         bnTarget = arith_uint256().SetCompact(nbits);
-        if ( height > (int32_t)(sizeof(ct)/sizeof(*ct)) && pblock != 0 && tipdiff > 0 )
-        {
+        if ( height > (int32_t)(sizeof(ct)/sizeof(*ct)) && pblock != 0 && tipdiff > 0 ) {
             easy.SetCompact(KOMODO_MINDIFF_NBITS & (~3),&fNegative,&fOverflow);
-            if ( pblock != 0 )
-            {
+            if ( pblock != 0 ) {
                 origtarget = bnTarget;
-                if ( zflags[0] == 0 || zflags[0] == 3 )
-                {
+                if ( zflags[0] == 0 || zflags[0] == 3 ) {
                     // 15 51 102 162 230 303 380 460 543 627 714 803 892 983 1075 These are the 0.5% per blk numerator constants for W=2 to 16 if denominator is 100. - zawy
                     if ( ASSETCHAINS_BLOCKTIME >= 60 && ASSETCHAINS_BLOCKTIME < 100 )
                         bnTarget = RT_CST_RST_outer(height,pblock->nTime,bnTarget,ts,ct,1,60,1,10);
@@ -408,23 +382,19 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
                         bnTarget = RT_CST_RST_outer(height,pblock->nTime,bnTarget,ts,ct,1,100,1,10);
                     if ( bnTarget < origtarget )
                         zawyflag = 2;
-                    else
-                    {
+                    else {
                         bnTarget = RT_CST_RST_outer(height,pblock->nTime,origtarget,ts,ct,15,100,2,20);
                         if ( bnTarget < origtarget )
                             zawyflag = 2;
-                        else
-                        {
+                        else {
                             bnTarget = RT_CST_RST_outer(height,pblock->nTime,origtarget,ts,ct,1,2,3,30);
                             if ( bnTarget < origtarget )
                                 zawyflag = 2;
-                            else
-                            {
+                            else {
                                 bnTarget = RT_CST_RST_outer(height,pblock->nTime,origtarget,ts,ct,7,3,6,40);
                                 if ( bnTarget < origtarget )
                                     zawyflag = 2;
-                                else
-                                {
+                                else {
                                     bnTarget = RT_CST_RST_outer(height,pblock->nTime,origtarget,ts,ct,12,7,12,50);
                                     if ( bnTarget < origtarget )
                                         zawyflag = 2;
@@ -432,38 +402,31 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
                             }
                         }
                     }
-                }
-                else
-                {
+                } else {
                     for (i=0; i<50; i++)
                         if ( zflags[i] == 2 )
                             break;
-                    if ( i < 10 )
-                    {
+                    if ( i < 10 ) {
                         bnTarget = RT_CST_RST_inner(height,pblock->nTime,bnTarget,ts,ct,1,i);
                         if ( bnTarget > origtarget )
                             bnTarget = origtarget;
                     }
-                    if ( i < 20 )
-                    {
+                    if ( i < 20 ) {
                         bnTarget2 = RT_CST_RST_inner(height,pblock->nTime,bnTarget,ts,ct,2,i);
                         if ( bnTarget2 < bnTarget )
                             bnTarget = bnTarget2;
                     }
-                    if ( i < 30 )
-                    {
+                    if ( i < 30 ) {
                         bnTarget3 = RT_CST_RST_inner(height,pblock->nTime,bnTarget,ts,ct,3,i);
                         if ( bnTarget3 < bnTarget )
                             bnTarget = bnTarget3;
                     }
-                    if ( i < 40 )
-                    {
+                    if ( i < 40 ) {
                         bnTarget6 = RT_CST_RST_inner(height,pblock->nTime,bnTarget,ts,ct,6,i);
                         if ( bnTarget6 < bnTarget )
                             bnTarget = bnTarget6;
                     }
-                    if ( i < 50 )
-                    {
+                    if ( i < 50 ) {
                         bnTarget12 = RT_CST_RST_inner(height,pblock->nTime,bnTarget,ts,ct,12,i);
                         if ( bnTarget12 < bnTarget)
                             bnTarget = bnTarget12;
@@ -472,12 +435,10 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
                         zawyflag = 1;
                 }
             }
-            if ( mult > 1 ) // e^mult case, jl777:  test of mult > 1 failed when it was int64_t???
-            {
+            if ( mult > 1 ) { // e^mult case, jl777:  test of mult > 1 failed when it was int64_t???
                 origtarget = bnTarget;
                 bnTarget = zawy_exponential(bnTarget,mult);
-                if ( bnTarget < origtarget || bnTarget > easy )
-                {
+                if ( bnTarget < origtarget || bnTarget > easy ) {
                     bnTarget = easy;
                     LogPrint("pow", "cmp.%d mult.%d ht.%d -> easy target\n",mult>1,(int32_t)mult,height);
                     return(KOMODO_MINDIFF_NBITS & (~3));
@@ -489,8 +450,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
                 }
                 LogPrint("pow", " exp() to the rescue cmp.%d mult.%d for ht.%d\n",mult>1,(int32_t)mult,height);
             }
-            if ( 0 && zflags[0] == 0 && zawyflag == 0 && mult <= 1 )
-            {
+            if ( 0 && zflags[0] == 0 && zawyflag == 0 && mult <= 1 ) {
                 bnTarget = zawy_TSA_EMA(height,tipdiff,(bnTarget+ct[0]+ct[1])/arith_uint256(3),ts[0] - ts[1]);
                 if ( bnTarget < origtarget )
                     zawyflag = 3;
@@ -512,8 +472,7 @@ unsigned int GetNextWorkRequired(const CBlockIndex* pindexLast, const CBlockHead
  */
 unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
                                        int64_t nLastBlockTime, int64_t nFirstBlockTime,
-                                       const Consensus::Params& params)
-{
+                                       const Consensus::Params& params) {
     // Limit adjustment step
     // Use medians to prevent time-warp attacks
     int64_t nActualTimespan = nLastBlockTime - nFirstBlockTime;
@@ -521,8 +480,7 @@ unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
     nActualTimespan = params.AveragingWindowTimespan() + (nActualTimespan - params.AveragingWindowTimespan())/4;
     LogPrint("pow", "  nActualTimespan = %d  before bounds\n", nActualTimespan);
 
-    if ( ASSETCHAINS_ADAPTIVEPOW <= 0 )
-    {
+    if ( ASSETCHAINS_ADAPTIVEPOW <= 0 ) {
         if (nActualTimespan < params.MinActualTimespan())
             nActualTimespan = params.MinActualTimespan();
         if (nActualTimespan > params.MaxActualTimespan())
@@ -552,11 +510,10 @@ unsigned int CalculateNextWorkRequired(arith_uint256 bnAvg,
     return bnNew.GetCompact();
 }
 
-bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& params)
-{
+bool CheckEquihashSolution(const CBlockHeader *pblock, const CChainParams& params) {
     if (ASSETCHAINS_ALGO != ASSETCHAINS_EQUIHASH)
         return true;
-    
+
     if ( ASSETCHAINS_NK[0] != 0 && ASSETCHAINS_NK[1] != 0 && pblock->GetHash().ToString() == "027e3758c3a65b12aa1046462b486d0a63bfa1beae327897f56c5cfb7daaae71" )
         return true;
 
@@ -601,31 +558,30 @@ int32_t komodo_eligiblenotary(uint8_t pubkeys[66][33],int32_t *mids,uint32_t blo
 
 extern std::string NOTARY_PUBKEY;
 
-bool isSecondBlockAllowed(int32_t notaryid, uint32_t blocktime, uint32_t threshold, uint32_t delta, const std::vector<int32_t> &vPriorityList)
-{
+bool isSecondBlockAllowed(int32_t notaryid, uint32_t blocktime, uint32_t threshold, uint32_t delta, const std::vector<int32_t> &vPriorityList) {
 
     if (blocktime >= threshold && delta > 0 &&
-        vPriorityList.size() == 64 && notaryid >= 0)
-    {
+            vPriorityList.size() == 64 && notaryid >= 0) {
         size_t nPos = ((blocktime - threshold) / delta);
 
-        if (nPos < vPriorityList.size())
-        {
+        if (nPos < vPriorityList.size()) {
             // if nodeid found in current range of priority -> allow it
             if (std::count(vPriorityList.begin(), vPriorityList.begin() + nPos + 1, notaryid) > 0)
                 return true;
-        }
-        else
+        } else
             return true; // if time is bigger than the biggest range -> all nodes allowed
     }
     return false;
 }
 
-bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t height, const Consensus::Params& params)
-{
+bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t height, const Consensus::Params& params) {
     uint256 hash;
-    bool fNegative,fOverflow; uint8_t origpubkey33[33]; int32_t i,nonzpkeys=0,nonz=0,special=0,special2=0,notaryid=-1,flag = 0, mids[66]; uint32_t tiptime,blocktimes[66];
-    arith_uint256 bnTarget; uint8_t pubkeys[66][33];
+    bool fNegative,fOverflow;
+    uint8_t origpubkey33[33];
+    int32_t i,nonzpkeys=0,nonz=0,special=0,special2=0,notaryid=-1,flag = 0, mids[66];
+    uint32_t tiptime,blocktimes[66];
+    arith_uint256 bnTarget;
+    uint8_t pubkeys[66][33];
     //for (i=31; i>=0; i--)
     //    LogPrintf("%02x",((uint8_t *)&hash)[i]);
     //LogPrintf(" checkpow\n");
@@ -633,28 +589,23 @@ bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t 
     memset(blocktimes,0,sizeof(blocktimes));
     tiptime = komodo_chainactive_timestamp();
     bnTarget.SetCompact(blkHeader.nBits, &fNegative, &fOverflow);
-    if ( height == 0 )
-    {
+    if ( height == 0 ) {
         height = komodo_currentheight() + 1;
         //LogPrintf("set height to %d\n",height);
     }
-    if ( height > 34000 && chainName.isKMD() ) // 0 -> non-special notary
-    {
+    if ( height > 34000 && chainName.isKMD() ) { // 0 -> non-special notary
         special = komodo_chosennotary(&notaryid,height,pubkey33,tiptime);
-        for (i=0; i<33; i++)
-        {
+        for (i=0; i<33; i++) {
             if ( pubkey33[i] != 0 )
                 nonz++;
         }
-        if ( nonz == 0 )
-        {
+        if ( nonz == 0 ) {
             //LogPrintf("ht.%d null pubkey checkproof return\n",height);
             return(true); // will come back via different path with pubkey set
         }
         flag = komodo_eligiblenotary(pubkeys,mids,blocktimes,&nonzpkeys,height);
         special2 = komodo_is_special(pubkeys,mids,blocktimes,height,pubkey33,blkHeader.nTime);
-        if ( notaryid >= 0 )
-        {
+        if ( notaryid >= 0 ) {
             if ( height > 10000 && height < 80000 && (special != 0 || special2 > 0) )
                 flag = 1;
             else if ( height >= 80000 && height < 108000 && special2 > 0 )
@@ -663,8 +614,7 @@ bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t 
                 flag = (height > 1000000 || (height % KOMODO_ELECTION_GAP) > 64 || (height % KOMODO_ELECTION_GAP) == 0);
             else if ( height == 790833 )
                 flag = 1;
-            else if ( special2 < 0 )
-            {
+            else if ( special2 < 0 ) {
                 if ( height > 792000 )
                     flag = 0;
                 else LogPrintf("ht.%d notaryid.%d special.%d flag.%d special2.%d\n",height,notaryid,special,flag,special2);
@@ -679,12 +629,10 @@ bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t 
                 /*  in KMD chain after nHeightAfterGAPSecondBlockAllowed height we should allow
                     notary nodes to mine a second block if nMaxGAPAllowed since last block passed
                 */
-                if (chainName.isKMD() && height > nHeightAfterGAPSecondBlockAllowed)
-                {
+                if (chainName.isKMD() && height > nHeightAfterGAPSecondBlockAllowed) {
                     const uint32_t &blocktime = blkHeader.nTime;
                     if (blocktime /* upcoming block time */ >= tiptime /* last block in chain time */ + nMaxGAPAllowed &&
-                        tiptime == blocktimes[1] /* just for ensure that all is correct */ )
-                    {
+                            tiptime == blocktimes[1] /* just for ensure that all is correct */ ) {
                         assert(notaryid >= 0); /* assume to be notary */
 
                         /* here special2 is:
@@ -721,8 +669,7 @@ bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t 
 
                         /* reconsider special2 if allowed */
                         if ((-1 == special2 || 1 == special2) &&
-                            isSecondBlockAllowed(notaryid, blocktime, tiptime + nMaxGAPAllowed, params.nHF22NotariesPriorityRotateDelta, vPriorityList))
-                        {
+                                isSecondBlockAllowed(notaryid, blocktime, tiptime + nMaxGAPAllowed, params.nHF22NotariesPriorityRotateDelta, vPriorityList)) {
                             special2 = 2;
                             LogPrint("hfnet", "%s[%d]: special2.%ld, notaryid.%ld, ht.%ld, hash.%s\n", __func__, __LINE__, special2, notaryid, height, blkHeader.GetHash().ToString());
                         }
@@ -738,8 +685,7 @@ bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t 
                 }
             }
 
-            if ( (flag != 0 || special2 > 0) && special2 != -2 )
-            {
+            if ( (flag != 0 || special2 > 0) && special2 != -2 ) {
                 //LogPrintf("EASY MINING ht.%d\n",height);
                 bnTarget.SetCompact(KOMODO_MINDIFF_NBITS,&fNegative,&fOverflow);
             }
@@ -748,22 +694,18 @@ bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t 
     arith_uint256 bnLimit = (height <= 1 || ASSETCHAINS_ALGO == ASSETCHAINS_EQUIHASH) ? UintToArith256(params.powLimit) : UintToArith256(params.powAlternate);
     if (fNegative || bnTarget == 0 || fOverflow || bnTarget > bnLimit)
         return error("CheckProofOfWork(): nBits below minimum work");
-    if ( ASSETCHAINS_STAKED != 0 )
-    {
+    if ( ASSETCHAINS_STAKED != 0 ) {
         arith_uint256 bnMaxPoSdiff;
         bnTarget.SetCompact(KOMODO_MINDIFF_NBITS,&fNegative,&fOverflow);
     }
     // Check proof of work matches claimed amount
-    if ( UintToArith256(hash = blkHeader.GetHash()) > bnTarget )
-    {
+    if ( UintToArith256(hash = blkHeader.GetHash()) > bnTarget ) {
         if ( KOMODO_LOADINGBLOCKS )
             return true;
 
-        if ( !chainName.isKMD() || height > 792000 )
-        {
+        if ( !chainName.isKMD() || height > 792000 ) {
             //if ( 0 && height > 792000 )
-            if ( Params().NetworkIDString() != "regtest" )
-            {
+            if ( Params().NetworkIDString() != "regtest" ) {
                 for (i=31; i>=0; i--)
                     LogPrintf("%02x",((uint8_t *)&hash)[i]);
                 LogPrintf(" hash vs ");
@@ -783,8 +725,7 @@ bool CheckProofOfWork(const CBlockHeader &blkHeader, uint8_t *pubkey33, int32_t 
     return true;
 }
 
-arith_uint256 GetBlockProof(const CBlockIndex& block)
-{
+arith_uint256 GetBlockProof(const CBlockIndex& block) {
     arith_uint256 bnTarget;
     bool fNegative;
     bool fOverflow;
@@ -798,8 +739,7 @@ arith_uint256 GetBlockProof(const CBlockIndex& block)
     return (~bnTarget / (bnTarget + 1)) + 1;
 }
 
-int64_t GetBlockProofEquivalentTime(const CBlockIndex& to, const CBlockIndex& from, const CBlockIndex& tip, const Consensus::Params& params)
-{
+int64_t GetBlockProofEquivalentTime(const CBlockIndex& to, const CBlockIndex& from, const CBlockIndex& tip, const Consensus::Params& params) {
     arith_uint256 r;
     int sign = 1;
     if (to.nChainWork > from.nChainWork) {

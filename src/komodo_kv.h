@@ -38,14 +38,14 @@ uint64_t komodo_kvfee(uint32_t flags,int32_t opretlen,int32_t keylen);
  * @param[out] pubkeyp the found pubkey
  * @param current_height current chain height
  * @param[out] flagsp flags found within the value
- * @param[out] heightp height 
+ * @param[out] heightp height
  * @param[out] value the value
  * @param key the key
  * @param keylen the length of the key
  * @return -1 on error, otherwise size of value
  */
 int32_t komodo_kvsearch(uint256 *pubkeyp,int32_t current_height,uint32_t *flagsp,
-        int32_t *heightp,uint8_t value[IGUANA_MAXSCRIPTSIZE],uint8_t *key,int32_t keylen);
+                        int32_t *heightp,uint8_t value[IGUANA_MAXSCRIPTSIZE],uint8_t *key,int32_t keylen);
 
 /****
  * @brief update value

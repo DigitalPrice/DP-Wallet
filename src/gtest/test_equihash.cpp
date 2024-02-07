@@ -10,8 +10,7 @@
 
 void TestExpandAndCompress(const std::string &scope, size_t bit_len, size_t byte_pad,
                            std::vector<unsigned char> compact,
-                           std::vector<unsigned char> expanded)
-{
+                           std::vector<unsigned char> expanded) {
     SCOPED_TRACE(scope);
 
     std::vector<unsigned char> out(expanded.size());
@@ -46,8 +45,7 @@ TEST(equihash_tests, expand_and_contract_arrays) {
 
 void TestMinimalSolnRepr(const std::string &scope, size_t cBitLen,
                          std::vector<eh_index> indices,
-                         std::vector<unsigned char> minimal)
-{
+                         std::vector<unsigned char> minimal) {
     SCOPED_TRACE(scope);
 
     EXPECT_EQ(indices, GetIndicesFromMinimal(minimal, cBitLen));
@@ -56,18 +54,19 @@ void TestMinimalSolnRepr(const std::string &scope, size_t cBitLen,
 
 TEST(equihash_tests, minimal_solution_representation) {
     TestMinimalSolnRepr("Test 1", 20,
-                        {1, 1, 1, 1, 1, 1, 1, 1},
-                        ParseHex("000008000040000200001000008000040000200001"));
-    TestMinimalSolnRepr("Test 2", 20,
-                        {2097151, 2097151, 2097151, 2097151,
-                         2097151, 2097151, 2097151, 2097151},
-                        ParseHex("ffffffffffffffffffffffffffffffffffffffffff"));
+    {1, 1, 1, 1, 1, 1, 1, 1},
+    ParseHex("000008000040000200001000008000040000200001"));
+    TestMinimalSolnRepr("Test 2", 20, {
+        2097151, 2097151, 2097151, 2097151,
+        2097151, 2097151, 2097151, 2097151
+    },
+    ParseHex("ffffffffffffffffffffffffffffffffffffffffff"));
     TestMinimalSolnRepr("Test 3", 20,
-                        {131071, 128, 131071, 128, 131071, 128, 131071, 128},
-                        ParseHex("0ffff8002003fffe000800ffff8002003fffe00080"));
+    {131071, 128, 131071, 128, 131071, 128, 131071, 128},
+    ParseHex("0ffff8002003fffe000800ffff8002003fffe00080"));
     TestMinimalSolnRepr("Test 4", 20,
-                        {68, 41, 2097151, 1233, 665, 1023, 1, 1048575},
-                        ParseHex("000220000a7ffffe004d10014c800ffc00002fffff"));
+    {68, 41, 2097151, 1233, 665, 1023, 1, 1048575},
+    ParseHex("000220000a7ffffe004d10014c800ffc00002fffff"));
 }
 
 TEST(equihash_tests, is_probably_duplicate) {

@@ -53,7 +53,7 @@ std::string static EncodeDumpTime(int64_t nTime) {
 int64_t static DecodeDumpTime(const std::string &str) {
     static const boost::posix_time::ptime epoch = boost::posix_time::from_time_t(0);
     static const std::locale loc(std::locale::classic(),
-        new boost::posix_time::time_input_facet("%Y-%m-%dT%H:%M:%SZ"));
+                                 new boost::posix_time::time_input_facet("%Y-%m-%dT%H:%M:%SZ"));
     std::istringstream iss(str);
     iss.imbue(loc);
     boost::posix_time::ptime ptime(boost::date_time::not_a_date_time);
@@ -89,8 +89,7 @@ std::string DecodeDumpString(const std::string &str) {
     return ret.str();
 }
 
-UniValue convertpassphrase(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue convertpassphrase(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (fHelp || params.size() < 1 || params.size() > 1)
         throw runtime_error(
             "convertpassphrase \"agamapassphrase\"\n"
@@ -148,8 +147,7 @@ UniValue convertpassphrase(const UniValue& params, bool fHelp, const CPubKey& my
     return ret;
 }
 
-UniValue importprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue importprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -162,7 +160,7 @@ UniValue importprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
             "2. \"label\"            (string, optional, default=\"\") An optional label\n"
             "3. rescan               (boolean, optional, default=true) Rescan the wallet for transactions\n"
             "4. height               (integer, optional, default=0) start at block height?\n"
-            "5. secret_key           (integer, optional, default=188) used to import WIFs of other coins\n" 
+            "5. secret_key           (integer, optional, default=188) used to import WIFs of other coins\n"
             "\nNote: This call can take minutes to complete if rescan is true.\n"
             "\nExamples:\n"
             "\nDump a private key\n"
@@ -203,8 +201,7 @@ UniValue importprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
         height = params[3].get_int();
 
 
-    if (params.size() > 4)
-    {
+    if (params.size() > 4) {
         auto secret_key = AmountFromValue(params[4])/100000000;
         key = DecodeCustomSecret(strSecret, secret_key);
     } else {
@@ -213,7 +210,7 @@ UniValue importprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
 
     if ( height < 0 || height > chainActive.Height() )
         throw JSONRPCError(RPC_WALLET_ERROR, "Rescan height is out of range.");
-    
+
     if (!key.IsValid()) throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key encoding");
 
     CPubKey pubkey = key.GetPubKey();
@@ -244,8 +241,7 @@ UniValue importprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return EncodeDestination(vchAddress);
 }
 
-UniValue importaddress(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue importaddress(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -307,8 +303,7 @@ UniValue importaddress(const UniValue& params, bool fHelp, const CPubKey& mypk)
         if (!pwalletMain->AddWatchOnly(script))
             throw JSONRPCError(RPC_WALLET_ERROR, "Error adding address to wallet");
 
-        if (fRescan)
-        {
+        if (fRescan) {
             pwalletMain->ScanForWalletTransactions(chainActive.Genesis(), true);
             pwalletMain->ReacceptWalletTransactions();
         }
@@ -317,8 +312,7 @@ UniValue importaddress(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return NullUniValue;
 }
 
-UniValue z_importwallet(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue z_importwallet(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -337,11 +331,10 @@ UniValue z_importwallet(const UniValue& params, bool fHelp, const CPubKey& mypk)
             + HelpExampleRpc("z_importwallet", "\"path/to/exportdir/nameofbackup\"")
         );
 
-	return importwallet_impl(params, fHelp, true);
+    return importwallet_impl(params, fHelp, true);
 }
 
-UniValue importwallet(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue importwallet(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -360,11 +353,10 @@ UniValue importwallet(const UniValue& params, bool fHelp, const CPubKey& mypk)
             + HelpExampleRpc("importwallet", "\"path/to/exportdir/nameofbackup\"")
         );
 
-	return importwallet_impl(params, fHelp, false);
+    return importwallet_impl(params, fHelp, false);
 }
 
-UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys)
-{
+UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys) {
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     EnsureWalletIsUnlocked();
@@ -403,8 +395,8 @@ UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys
             boost::optional<std::string> seedFpStr = (vstr.size() > 3) ? boost::optional<std::string>(vstr[3]) : boost::none;
             if (IsValidSpendingKey(spendingkey)) {
                 auto addResult = boost::apply_visitor(
-                    AddSpendingKeyToWallet(pwalletMain, Params().GetConsensus(), nTime, hdKeypath, seedFpStr, true), spendingkey);
-                if (addResult == KeyAlreadyExists){
+                                     AddSpendingKeyToWallet(pwalletMain, Params().GetConsensus(), nTime, hdKeypath, seedFpStr, true), spendingkey);
+                if (addResult == KeyAlreadyExists) {
                     LogPrint("zrpc", "Skipping import of zaddr (key already present)\n");
                 } else if (addResult == KeyNotAdded) {
                     // Something went wrong
@@ -472,8 +464,7 @@ UniValue importwallet_impl(const UniValue& params, bool fHelp, bool fImportZKeys
     return NullUniValue;
 }
 
-UniValue dumpprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue dumpprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -514,8 +505,7 @@ UniValue dumpprivkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
 
 
 
-UniValue z_exportwallet(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue z_exportwallet(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -532,11 +522,10 @@ UniValue z_exportwallet(const UniValue& params, bool fHelp, const CPubKey& mypk)
             + HelpExampleRpc("z_exportwallet", "\"test\"")
         );
 
-	return dumpwallet_impl(params, fHelp, true);
+    return dumpwallet_impl(params, fHelp, true);
 }
 
-UniValue dumpwallet(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue dumpwallet(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -553,11 +542,10 @@ UniValue dumpwallet(const UniValue& params, bool fHelp, const CPubKey& mypk)
             + HelpExampleRpc("dumpwallet", "\"test\"")
         );
 
-	return dumpwallet_impl(params, fHelp, false);
+    return dumpwallet_impl(params, fHelp, false);
 }
 
-UniValue dumpwallet_impl(const UniValue& params, bool fHelp, bool fDumpZKeys)
-{
+UniValue dumpwallet_impl(const UniValue& params, bool fHelp, bool fDumpZKeys) {
     LOCK2(cs_main, pwalletMain->cs_wallet);
 
     EnsureWalletIsUnlocked();
@@ -672,8 +660,7 @@ UniValue dumpwallet_impl(const UniValue& params, bool fHelp, bool fDumpZKeys)
 }
 
 
-UniValue z_importkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue z_importkey(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -718,7 +705,7 @@ UniValue z_importkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
                 // Handle older API
                 UniValue jVal;
                 if (!jVal.read(std::string("[")+rescan+std::string("]")) ||
-                    !jVal.isArray() || jVal.size()!=1 || !jVal[0].isBool()) {
+                        !jVal.isArray() || jVal.size()!=1 || !jVal[0].isBool()) {
                     throw JSONRPCError(
                         RPC_INVALID_PARAMETER,
                         "rescan must be \"yes\", \"no\" or \"whenkeyisnew\"");
@@ -751,10 +738,10 @@ UniValue z_importkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
     if (addResult == KeyNotAdded) {
         throw JSONRPCError(RPC_WALLET_ERROR, "Error adding spending key to wallet");
     }
-    
+
     // whenever a key is imported, we need to scan the whole chain
     pwalletMain->nTimeFirstKey = 1; // 0 would be considered 'no value'
-    
+
     // We want to scan for transactions and notes
     if (fRescan) {
         pwalletMain->ScanForWalletTransactions(chainActive[nRescanHeight], true);
@@ -763,8 +750,7 @@ UniValue z_importkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return NullUniValue;
 }
 
-UniValue z_importviewingkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue z_importviewingkey(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -881,8 +867,7 @@ UniValue z_importviewingkey(const UniValue& params, bool fHelp, const CPubKey& m
     return NullUniValue;
 }
 
-UniValue z_exportkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue z_exportkey(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -920,8 +905,7 @@ UniValue z_exportkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return EncodeSpendingKey(sk.get());
 }
 
-UniValue z_exportviewingkey(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue z_exportviewingkey(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if (!EnsureWalletIsAvailable(fHelp))
         return NullUniValue;
 
@@ -990,8 +974,7 @@ UniValue NSPV_ccmoduleutxos(char *coinaddr, int64_t amount, uint8_t evalcode, st
 uint256 Parseuint256(const char *hexstr);
 extern std::string NSPV_address;
 
-UniValue nspv_getinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_getinfo(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     int32_t reqht = 0;
     if ( fHelp || params.size() > 1 )
         throw runtime_error("nspv_getinfo [hdrheight]\n");
@@ -1002,8 +985,7 @@ UniValue nspv_getinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_getinfo_req(reqht));
 }
 
-UniValue nspv_logout(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_logout(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if ( fHelp || params.size() != 0 )
         throw runtime_error("nspv_logout\n");
     if ( KOMODO_NSPV_FULLNODE )
@@ -1011,8 +993,7 @@ UniValue nspv_logout(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_logout());
 }
 
-UniValue nspv_login(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_login(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if ( fHelp || params.size() != 1 )
         throw runtime_error("nspv_login wif\n");
     if ( KOMODO_NSPV_FULLNODE )
@@ -1020,33 +1001,31 @@ UniValue nspv_login(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_login((char *)params[0].get_str().c_str()));
 }
 
-UniValue nspv_listunspent(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_listunspent(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     int32_t skipcount = 0,CCflag = 0;
     if ( fHelp || params.size() > 3 )
         throw runtime_error("nspv_listunspent [address [isCC [skipcount]]]\n");
     if ( KOMODO_NSPV_FULLNODE )
         throw runtime_error("-nSPV=1 must be set to use nspv\n");
-    if ( params.size() == 0 )
-    {
+    if ( params.size() == 0 ) {
         if ( NSPV_address.size() != 0 )
             return(NSPV_addressutxos((char *)NSPV_address.c_str(),0,0,0));
         else throw runtime_error("nspv_listunspent [address [isCC [skipcount]]]\n");
     }
-    if ( params.size() >= 1 )
-    {
+    if ( params.size() >= 1 ) {
         if ( params.size() >= 2 )
             CCflag = atoi((char *)params[1].get_str().c_str());
         if ( params.size() == 3 )
             skipcount = atoi((char *)params[2].get_str().c_str());
         return(NSPV_addressutxos((char *)params[0].get_str().c_str(),CCflag,skipcount,0));
-    }
-    else throw runtime_error("nspv_listunspent [address [isCC [skipcount]]]\n");
+    } else throw runtime_error("nspv_listunspent [address [isCC [skipcount]]]\n");
 }
 
-UniValue nspv_mempool(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
-    int32_t vout = 0,CCflag = 0; uint256 txid; uint8_t funcid; char *coinaddr;
+UniValue nspv_mempool(const UniValue& params, bool fHelp, const CPubKey& mypk) {
+    int32_t vout = 0,CCflag = 0;
+    uint256 txid;
+    uint8_t funcid;
+    char *coinaddr;
     memset(&txid,0,sizeof(txid));
     if ( fHelp || params.size() > 5 )
         throw runtime_error("nspv_mempool func(0 all, 1 address recv, 2 txid/vout spent, 3 txid inmempool) address isCC [txid vout]]]\n");
@@ -1055,8 +1034,7 @@ UniValue nspv_mempool(const UniValue& params, bool fHelp, const CPubKey& mypk)
     funcid = atoi((char *)params[0].get_str().c_str());
     coinaddr = (char *)params[1].get_str().c_str();
     CCflag = atoi((char *)params[2].get_str().c_str());
-    if ( params.size() > 3 )
-    {
+    if ( params.size() > 3 ) {
         if ( params.size() != 5 )
             throw runtime_error("nspv_mempool func(0 all, 1 address recv, 2 txid/vout spent, 3 txid inmempool) address isCC [txid vout]]]\n");
         txid = Parseuint256((char *)params[3].get_str().c_str());
@@ -1065,34 +1043,30 @@ UniValue nspv_mempool(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_mempooltxids(coinaddr,CCflag,funcid,txid,vout));
 }
 
-UniValue nspv_listtransactions(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_listtransactions(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     int32_t skipcount = 0,CCflag = 0;
     if ( fHelp || params.size() > 3 )
         throw runtime_error("nspv_listtransactions [address [isCC [skipcount]]]\n");
     if ( KOMODO_NSPV_FULLNODE )
         throw runtime_error("-nSPV=1 must be set to use nspv\n");
-    if ( params.size() == 0 )
-    {
+    if ( params.size() == 0 ) {
         if ( NSPV_address.size() != 0 )
             return(NSPV_addresstxids((char *)NSPV_address.c_str(),0,0,0));
         else throw runtime_error("nspv_listtransactions [address [isCC [skipcount]]]\n");
     }
-    if ( params.size() >= 1 )
-    {
+    if ( params.size() >= 1 ) {
         if ( params.size() >= 2 )
             CCflag = atoi((char *)params[1].get_str().c_str());
         if ( params.size() == 3 )
             skipcount = atoi((char *)params[2].get_str().c_str());
         //fprintf(stderr,"call txids cc.%d skip.%d\n",CCflag,skipcount);
         return(NSPV_addresstxids((char *)params[0].get_str().c_str(),CCflag,skipcount,0));
-    }
-    else throw runtime_error("nspv_listtransactions [address [isCC [skipcount]]]\n");
+    } else throw runtime_error("nspv_listtransactions [address [isCC [skipcount]]]\n");
 }
 
-UniValue nspv_spentinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
-    uint256 txid; int32_t vout;
+UniValue nspv_spentinfo(const UniValue& params, bool fHelp, const CPubKey& mypk) {
+    uint256 txid;
+    int32_t vout;
     if ( fHelp || params.size() != 2 )
         throw runtime_error("nspv_spentinfo txid vout\n");
     if ( KOMODO_NSPV_FULLNODE )
@@ -1102,8 +1076,7 @@ UniValue nspv_spentinfo(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_spentinfo(txid,vout));
 }
 
-UniValue nspv_notarizations(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_notarizations(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     int32_t height;
     if ( fHelp || params.size() != 1 )
         throw runtime_error("nspv_notarizations height\n");
@@ -1113,8 +1086,7 @@ UniValue nspv_notarizations(const UniValue& params, bool fHelp, const CPubKey& m
     return(NSPV_notarizations(height));
 }
 
-UniValue nspv_hdrsproof(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_hdrsproof(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     int32_t prevheight,nextheight;
     if ( fHelp || params.size() != 2 )
         throw runtime_error("nspv_hdrsproof prevheight nextheight\n");
@@ -1125,9 +1097,9 @@ UniValue nspv_hdrsproof(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_hdrsproof(prevheight,nextheight));
 }
 
-UniValue nspv_txproof(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
-    uint256 txid; int32_t height;
+UniValue nspv_txproof(const UniValue& params, bool fHelp, const CPubKey& mypk) {
+    uint256 txid;
+    int32_t height;
     if ( fHelp || params.size() != 2 )
         throw runtime_error("nspv_txproof txid height\n");
     if ( KOMODO_NSPV_FULLNODE )
@@ -1137,8 +1109,7 @@ UniValue nspv_txproof(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_txproof(0,txid,height));
 }
 
-UniValue nspv_spend(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_spend(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     uint64_t satoshis;
     if ( fHelp || params.size() != 2 )
         throw runtime_error("nspv_spend address amount\n");
@@ -1153,8 +1124,7 @@ UniValue nspv_spend(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_spend((char *)NSPV_address.c_str(),(char *)params[0].get_str().c_str(),satoshis));
 }
 
-UniValue nspv_broadcast(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_broadcast(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     if ( fHelp || params.size() != 1 )
         throw runtime_error("nspv_broadcast hex\n");
     if ( KOMODO_NSPV_FULLNODE )
@@ -1162,15 +1132,14 @@ UniValue nspv_broadcast(const UniValue& params, bool fHelp, const CPubKey& mypk)
     return(NSPV_broadcast((char *)params[0].get_str().c_str()));
 }
 
-UniValue nspv_listccmoduleunspent(const UniValue& params, bool fHelp, const CPubKey& mypk)
-{
+UniValue nspv_listccmoduleunspent(const UniValue& params, bool fHelp, const CPubKey& mypk) {
     int32_t skipcount = 0, CCflag = 0;
     if (fHelp || params.size() != 5)
-        throw runtime_error("nspv_listccmoduleunspent address amount evalcode funcids txid\n\n" 
-        "returns utxos from the address, filtered by evalcode funcids and txid in opret.\n"
-        "if amount is 0 just returns no utxos and available total.\n"
-        "funcids is a string of funcid symbols. The first symbol is considered as the creation funcid, so the txid param will be compared to the creation tx id.\n"
-        "For the second+ funcids the txid param will be compared to txid in opreturn\n\n" );
+        throw runtime_error("nspv_listccmoduleunspent address amount evalcode funcids txid\n\n"
+                            "returns utxos from the address, filtered by evalcode funcids and txid in opret.\n"
+                            "if amount is 0 just returns no utxos and available total.\n"
+                            "funcids is a string of funcid symbols. The first symbol is considered as the creation funcid, so the txid param will be compared to the creation tx id.\n"
+                            "For the second+ funcids the txid param will be compared to txid in opreturn\n\n" );
     if (KOMODO_NSPV_FULLNODE)
         throw runtime_error("-nSPV=1 must be set to use nspv\n");
 

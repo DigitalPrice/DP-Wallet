@@ -37,8 +37,7 @@
  *   in  0:      Spends Session TX first output, reveals DisputeHeader
  *   out 0:      OP_RETURN hash of payouts
  */
-bool Eval::DisputePayout(AppVM &vm, std::vector<uint8_t> params, const CTransaction &disputeTx, unsigned int nIn)
-{
+bool Eval::DisputePayout(AppVM &vm, std::vector<uint8_t> params, const CTransaction &disputeTx, unsigned int nIn) {
     if (disputeTx.vout.size() == 0) return Invalid("no-vouts");
 
     // get payouts hash
@@ -56,7 +55,7 @@ bool Eval::DisputePayout(AppVM &vm, std::vector<uint8_t> params, const CTransact
     {
         CTransaction sessionTx;
         CBlockIndex sessionBlock;
-        
+
         // if unconformed its too soon
         if (!GetTxConfirmed(disputeTx.vin[0].prevout.hash, sessionTx, sessionBlock))
             return Error("couldnt-get-parent");
@@ -73,8 +72,7 @@ bool Eval::DisputePayout(AppVM &vm, std::vector<uint8_t> params, const CTransact
     // verify result from VM
     int maxLength = -1;
     uint256 bestPayout;
-    for (int i=1; i<spends.size(); i++)
-    {
+    for (int i=1; i<spends.size(); i++) {
         std::vector<unsigned char> vmState;
         if (spends[i].vout.size() == 0) continue;
         if (!GetOpReturnData(spends[i].vout[0].scriptPubKey, vmState)) continue;

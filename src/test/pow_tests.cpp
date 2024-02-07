@@ -14,8 +14,7 @@ using namespace std;
 BOOST_FIXTURE_TEST_SUITE(pow_tests, BasicTestingSetup)
 
 /* Test calculation of next difficulty target with no constraints applying */
-BOOST_AUTO_TEST_CASE(get_next_work)
-{
+BOOST_AUTO_TEST_CASE(get_next_work) {
     SelectParams(CBaseChainParams::MAIN);
     const Consensus::Params& params = Params().GetConsensus();
 
@@ -28,8 +27,7 @@ BOOST_AUTO_TEST_CASE(get_next_work)
 }
 
 /* Test the constraint on the upper bound for next work */
-BOOST_AUTO_TEST_CASE(get_next_work_pow_limit)
-{
+BOOST_AUTO_TEST_CASE(get_next_work_pow_limit) {
     SelectParams(CBaseChainParams::MAIN);
     const Consensus::Params& params = Params().GetConsensus();
 
@@ -39,12 +37,11 @@ BOOST_AUTO_TEST_CASE(get_next_work_pow_limit)
     // TODO change once the harder genesis block is generated
     bnAvg.SetCompact(KOMODO_MINDIFF_NBITS);
     BOOST_CHECK_EQUAL(KOMODO_MINDIFF_NBITS,
-    CalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params));
+                      CalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params));
 }
 
 /* Test the constraint on the lower bound for actual time taken */
-BOOST_AUTO_TEST_CASE(get_next_work_lower_limit_actual)
-{
+BOOST_AUTO_TEST_CASE(get_next_work_lower_limit_actual) {
     SelectParams(CBaseChainParams::MAIN);
     const Consensus::Params& params = Params().GetConsensus();
 
@@ -57,8 +54,7 @@ BOOST_AUTO_TEST_CASE(get_next_work_lower_limit_actual)
 }
 
 /* Test the constraint on the upper bound for actual time taken */
-BOOST_AUTO_TEST_CASE(get_next_work_upper_limit_actual)
-{
+BOOST_AUTO_TEST_CASE(get_next_work_upper_limit_actual) {
     SelectParams(CBaseChainParams::MAIN);
     const Consensus::Params& params = Params().GetConsensus();
 
@@ -70,8 +66,7 @@ BOOST_AUTO_TEST_CASE(get_next_work_upper_limit_actual)
                       CalculateNextWorkRequired(bnAvg, nThisTime, nLastRetargetTime, params));
 }
 
-BOOST_AUTO_TEST_CASE(GetBlockProofEquivalentTime_test)
-{
+BOOST_AUTO_TEST_CASE(GetBlockProofEquivalentTime_test) {
     SelectParams(CBaseChainParams::MAIN);
     const Consensus::Params& params = Params().GetConsensus();
 

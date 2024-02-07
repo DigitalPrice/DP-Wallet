@@ -29,20 +29,17 @@
 #define DECORATION_SIZE 54
 #define NUM_ITEMS 8
 
-class TxViewDelegate : public QAbstractItemDelegate
-{
+class TxViewDelegate : public QAbstractItemDelegate {
     Q_OBJECT
-public:
+  public:
     explicit TxViewDelegate(const PlatformStyle *_platformStyle, QObject *parent=nullptr):
         QAbstractItemDelegate(parent), unit(KomodoUnits::KMD),
-        platformStyle(_platformStyle)
-    {
+        platformStyle(_platformStyle) {
         connect(this, &TxViewDelegate::width_changed, this, &TxViewDelegate::sizeHintChanged);
     }
 
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                      const QModelIndex &index ) const
-    {
+                      const QModelIndex &index ) const {
         painter->save();
 
         QIcon icon = qvariant_cast<QIcon>(index.data(TransactionTableModel::RawDecorationRole));
@@ -62,8 +59,7 @@ public:
         bool confirmed = index.data(TransactionTableModel::ConfirmedRole).toBool();
         QVariant value = index.data(Qt::ForegroundRole);
         QColor foreground = option.palette.color(QPalette::Text);
-        if(value.canConvert<QBrush>())
-        {
+        if(value.canConvert<QBrush>()) {
             QBrush brush = qvariant_cast<QBrush>(value);
             foreground = brush.color();
         }
@@ -73,30 +69,23 @@ public:
         painter->drawText(addressRect, Qt::AlignLeft | Qt::AlignVCenter, address, &boundingRect);
         int address_rect_min_width = boundingRect.width();
 
-        if (index.data(TransactionTableModel::WatchonlyRole).toBool())
-        {
+        if (index.data(TransactionTableModel::WatchonlyRole).toBool()) {
             QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
             QRect watchonlyRect(boundingRect.right() + 5, mainRect.top()+ypad+halfheight, 16, halfheight);
             iconWatchonly.paint(painter, watchonlyRect);
             address_rect_min_width += 5 + watchonlyRect.width();
         }
 
-        if(amount < 0)
-        {
+        if(amount < 0) {
             foreground = COLOR_NEGATIVE;
-        }
-        else if(!confirmed)
-        {
+        } else if(!confirmed) {
             foreground = COLOR_UNCONFIRMED;
-        }
-        else
-        {
+        } else {
             foreground = option.palette.color(QPalette::Text);
         }
         painter->setPen(foreground);
         QString amountText = KomodoUnits::formatWithUnit(unit, amount, true, KomodoUnits::separatorAlways);
-        if(!confirmed)
-        {
+        if(!confirmed) {
             amountText = QString("[") + amountText + QString("]");
         }
 
@@ -117,8 +106,7 @@ public:
         painter->restore();
     }
 
-    inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
-    {
+    inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const {
         const auto search = m_minimum_width.find(index.row());
         const int minimum_text_width = search == m_minimum_width.end() ? 0 : search->second;
         return {DECORATION_SIZE + 8 + minimum_text_width, DECORATION_SIZE};
@@ -126,11 +114,11 @@ public:
 
     int unit;
 
-Q_SIGNALS:
+  Q_SIGNALS:
     //! An intermediate signal for emitting from the `paint() const` member function.
     void width_changed(const QModelIndex& index) const;
 
-private:
+  private:
     const PlatformStyle* platformStyle;
     mutable std::map<int, int> m_minimum_width;
 };
@@ -150,8 +138,7 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     currentWatchImmatureBalance(-1),
     currentPrivateBalance(-1),
     currentInterestBalance(-1),
-    txdelegate(new TxViewDelegate(platformStyle, this))
-{
+    txdelegate(new TxViewDelegate(platformStyle, this)) {
     ui->setupUi(this);
 
     // use a SingleColorIcon for the "out of sync warning" icon
@@ -174,25 +161,22 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     connect(ui->labelTransactionsStatus, &QPushButton::clicked, this, &OverviewPage::handleOutOfSyncWarningClicks);
 }
 
-void OverviewPage::handleTransactionClicked(const QModelIndex &index)
-{
+void OverviewPage::handleTransactionClicked(const QModelIndex &index) {
     if(filter)
         Q_EMIT transactionClicked(filter->mapToSource(index));
 }
 
-void OverviewPage::handleOutOfSyncWarningClicks()
-{
+void OverviewPage::handleOutOfSyncWarningClicks() {
     Q_EMIT outOfSyncWarningClicked();
 }
 
-void OverviewPage::setPrivacy(bool privacy)
-{
+void OverviewPage::setPrivacy(bool privacy) {
     m_privacy = privacy;
 
     if (currentBalance != -1) {
         setBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance,
-                       currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance,
-                       currentPrivateBalance, currentInterestBalance);
+                   currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance,
+                   currentPrivateBalance, currentInterestBalance);
     }
 
     ui->listTransactions->setVisible(!m_privacy);
@@ -203,13 +187,11 @@ void OverviewPage::setPrivacy(bool privacy)
     QApplication::sendEvent(this, &event);
 }
 
-OverviewPage::~OverviewPage()
-{
+OverviewPage::~OverviewPage() {
     delete ui;
 }
 
-void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& privateBalance, const CAmount& interestBalance)
-{
+void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmedBalance, const CAmount& immatureBalance, const CAmount& watchOnlyBalance, const CAmount& watchUnconfBalance, const CAmount& watchImmatureBalance, const CAmount& privateBalance, const CAmount& interestBalance) {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     currentBalance = balance;
     currentUnconfirmedBalance = unconfirmedBalance;
@@ -248,8 +230,7 @@ void OverviewPage::setBalance(const CAmount& balance, const CAmount& unconfirmed
 }
 
 // show/hide watch-only labels
-void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
-{
+void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly) {
 
     ui->labelSpendable->setVisible(showWatchOnly);      // show spendable label (only when watch-only is active)
     ui->labelWatchonly->setVisible(showWatchOnly);      // show watch-only label
@@ -264,22 +245,18 @@ void OverviewPage::updateWatchOnlyLabels(bool showWatchOnly)
         ui->labelWatchImmature->hide();
 }
 
-void OverviewPage::setClientModel(ClientModel *model)
-{
+void OverviewPage::setClientModel(ClientModel *model) {
     this->clientModel = model;
-    if(model)
-    {
+    if(model) {
         // Show warning if this is a prerelease version
         connect(model, &ClientModel::alertsChanged, this, &OverviewPage::updateAlerts);
         updateAlerts(model->getStatusBarWarnings());
     }
 }
 
-void OverviewPage::setWalletModel(WalletModel *model)
-{
+void OverviewPage::setWalletModel(WalletModel *model) {
     this->walletModel = model;
-    if(model && model->getOptionsModel())
-    {
+    if(model && model->getOptionsModel()) {
         // Set up transaction list
         filter.reset(new TransactionFilterProxy());
         filter->setSourceModel(model->getTransactionTableModel());
@@ -297,8 +274,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
                    model->getWatchBalance(), model->getWatchUnconfirmedBalance(), model->getWatchImmatureBalance(),
                    model->getPrivateBalance(),model->getInterestBalance());
 
-		connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
-        
+        connect(model, &WalletModel::balanceChanged, this, &OverviewPage::setBalance);
+
         connect(model->getOptionsModel(), &OptionsModel::displayUnitChanged, this, &OverviewPage::updateDisplayUnit);
 
         updateWatchOnlyLabels(model->haveWatchOnly());
@@ -309,10 +286,8 @@ void OverviewPage::setWalletModel(WalletModel *model)
     updateDisplayUnit();
 }
 
-void OverviewPage::updateDisplayUnit()
-{
-    if(walletModel && walletModel->getOptionsModel())
-    {
+void OverviewPage::updateDisplayUnit() {
+    if(walletModel && walletModel->getOptionsModel()) {
         if(currentBalance != -1)
             setBalance(currentBalance, currentUnconfirmedBalance, currentImmatureBalance,
                        currentWatchOnlyBalance, currentWatchUnconfBalance, currentWatchImmatureBalance,
@@ -325,14 +300,12 @@ void OverviewPage::updateDisplayUnit()
     }
 }
 
-void OverviewPage::updateAlerts(const QString &warnings)
-{
+void OverviewPage::updateAlerts(const QString &warnings) {
     this->ui->labelAlerts->setVisible(!warnings.isEmpty());
     this->ui->labelAlerts->setText(warnings);
 }
 
-void OverviewPage::showOutOfSyncWarning(bool fShow)
-{
+void OverviewPage::showOutOfSyncWarning(bool fShow) {
     ui->labelWalletStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
 }

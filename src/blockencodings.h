@@ -13,9 +13,9 @@ class CTxMemPool;
 
 // Dumb helper to handle CTransaction compression at serialize-time
 struct TransactionCompressor {
-private:
+  private:
     CTransactionRef& tx;
-public:
+  public:
     explicit TransactionCompressor(CTransactionRef& txIn) : tx(txIn) {}
 
     ADD_SERIALIZE_METHODS;
@@ -27,7 +27,7 @@ public:
 };
 
 class BlockTransactionsRequest {
-public:
+  public:
     // A BlockTransactionsRequest message
     uint256 blockhash;
     std::vector<uint16_t> indexes;
@@ -69,7 +69,7 @@ public:
 };
 
 class BlockTransactions {
-public:
+  public:
     // A BlockTransactions message
     uint256 blockhash;
     std::vector<CTransactionRef> txn;
@@ -119,17 +119,16 @@ struct PrefilledTransaction {
     }
 };
 
-typedef enum ReadStatus_t
-{
+typedef enum ReadStatus_t {
     READ_STATUS_OK,
     READ_STATUS_INVALID, // Invalid object, peer is sending bogus crap
     READ_STATUS_FAILED, // Failed to process object
     READ_STATUS_CHECKBLOCK_FAILED, // Used only by FillBlock to indicate a
-                                   // failure in CheckBlock.
+    // failure in CheckBlock.
 } ReadStatus;
 
 class CBlockHeaderAndShortTxIDs {
-private:
+  private:
     mutable uint64_t shorttxidk0, shorttxidk1;
     uint64_t nonce;
 
@@ -138,11 +137,11 @@ private:
     friend class PartiallyDownloadedBlock;
 
     static const int SHORTTXIDS_LENGTH = 6;
-protected:
+  protected:
     std::vector<uint64_t> shorttxids;
     std::vector<PrefilledTransaction> prefilledtxn;
 
-public:
+  public:
     CBlockHeader header;
 
     // Dummy for deserialization
@@ -152,7 +151,9 @@ public:
 
     uint64_t GetShortID(const uint256& txhash) const;
 
-    size_t BlockTxCount() const { return shorttxids.size() + prefilledtxn.size(); }
+    size_t BlockTxCount() const {
+        return shorttxids.size() + prefilledtxn.size();
+    }
 
     ADD_SERIALIZE_METHODS;
 
@@ -168,7 +169,8 @@ public:
             while (shorttxids.size() < shorttxids_size) {
                 shorttxids.resize(std::min((uint64_t)(1000 + shorttxids.size()), shorttxids_size));
                 for (; i < shorttxids.size(); i++) {
-                    uint32_t lsb = 0; uint16_t msb = 0;
+                    uint32_t lsb = 0;
+                    uint16_t msb = 0;
                     READWRITE(lsb);
                     READWRITE(msb);
                     shorttxids[i] = (uint64_t(msb) << 32) | uint64_t(lsb);
@@ -192,11 +194,11 @@ public:
 };
 
 class PartiallyDownloadedBlock {
-protected:
+  protected:
     std::vector<CTransactionRef> txn_available;
     size_t prefilled_count = 0, mempool_count = 0, extra_count = 0;
     CTxMemPool* pool;
-public:
+  public:
     CBlockHeader header;
     explicit PartiallyDownloadedBlock(CTxMemPool* poolIn) : pool(poolIn) {}
 

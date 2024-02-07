@@ -10,32 +10,31 @@
 /** Line edit that can be marked as "invalid" to show input validation feedback. When marked as invalid,
    it will get a red background until it is focused.
  */
-class QValidatedLineEdit : public QLineEdit
-{
+class QValidatedLineEdit : public QLineEdit {
     Q_OBJECT
 
-public:
+  public:
     explicit QValidatedLineEdit(QWidget *parent);
     void clear();
     void setCheckValidator(const QValidator *v);
     bool isValid();
 
-protected:
+  protected:
     void focusInEvent(QFocusEvent *evt);
     void focusOutEvent(QFocusEvent *evt);
 
-private:
+  private:
     bool valid;
     const QValidator *checkValidator;
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void setValid(bool valid);
     void setEnabled(bool enabled);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void validationDidChange(QValidatedLineEdit *validatedLineEdit);
-    
-private Q_SLOTS:
+
+  private Q_SLOTS:
     void markValid();
     void checkValidity();
 };

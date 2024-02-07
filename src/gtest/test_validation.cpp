@@ -18,7 +18,7 @@ void ExpectOptionalAmount(CAmount expected, boost::optional<CAmount> actual) {
 
 // Fake an empty view
 class FakeCoinsViewDB : public CCoinsView {
-public:
+  public:
     FakeCoinsViewDB() {}
 
     bool GetSproutAnchorAt(const uint256 &rt, SproutMerkleTree &tree) const {

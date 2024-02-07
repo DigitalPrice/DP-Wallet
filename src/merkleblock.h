@@ -62,9 +62,8 @@
  *  - byte[]     flag bits, packed per 8 in a byte, least significant bit first (<= 2*N-1 bits)
  * The size constraints follow from this.
  */
-class CPartialMerkleTree
-{
-protected:
+class CPartialMerkleTree {
+  protected:
     /** the total number of transactions in the block */
     unsigned int nTransactions;
 
@@ -94,7 +93,7 @@ protected:
      */
     uint256 TraverseAndExtract(int height, unsigned int pos, unsigned int &nBitsUsed, unsigned int &nHashUsed, std::vector<uint256> &vMatch);
 
-public:
+  public:
 
     /** serialization implementation */
     ADD_SERIALIZE_METHODS;
@@ -136,14 +135,13 @@ public:
  * Used to relay blocks as header + vector<merkle branch>
  * to filtered nodes.
  */
-class CMerkleBlock
-{
-public:
+class CMerkleBlock {
+  public:
     /** Public only for unit testing */
     CBlockHeader header;
     CPartialMerkleTree txn;
 
-public:
+  public:
     /** Public only for unit testing and relay testing (not relayed) */
     std::vector<std::pair<unsigned int, uint256> > vMatchedTxn;
 

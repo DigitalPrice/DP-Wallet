@@ -25,101 +25,96 @@
 
 namespace Checkpoints {
 
-    /**
-     * How many times slower we expect checking transactions after the last
-     * checkpoint to be (from checking signatures, which is skipped up to the
-     * last checkpoint). This number is a compromise, as it can't be accurate
-     * for every system. When reindexing from a fast disk with a slow CPU, it
-     * can be up to 20, while when downloading from a slow network with a
-     * fast multicore CPU, it won't be much higher than 1.
-     */
-    static const double SIGCHECK_VERIFICATION_FACTOR = 5.0;
+/**
+ * How many times slower we expect checking transactions after the last
+ * checkpoint to be (from checking signatures, which is skipped up to the
+ * last checkpoint). This number is a compromise, as it can't be accurate
+ * for every system. When reindexing from a fast disk with a slow CPU, it
+ * can be up to 20, while when downloading from a slow network with a
+ * fast multicore CPU, it won't be much higher than 1.
+ */
+static const double SIGCHECK_VERIFICATION_FACTOR = 5.0;
 
-    /******
-     * @param data the collection of checkpoints
-     * @param nHeight the height
-     * @param hash the expected hash at nHight
-     * @returns true if the checkpoint at nHeight is not found or hash matches the found checkpoint
-     */
-    bool CheckBlock(const CChainParams::CCheckpointData& data, int nHeight, const uint256& hash)
-    {
-        const MapCheckpoints& checkpoints = data.mapCheckpoints;
-        
-        MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
-        if (i == checkpoints.end()) 
-            return true;
-        return hash == i->second;
+/******
+ * @param data the collection of checkpoints
+ * @param nHeight the height
+ * @param hash the expected hash at nHight
+ * @returns true if the checkpoint at nHeight is not found or hash matches the found checkpoint
+ */
+bool CheckBlock(const CChainParams::CCheckpointData& data, int nHeight, const uint256& hash) {
+    const MapCheckpoints& checkpoints = data.mapCheckpoints;
+
+    MapCheckpoints::const_iterator i = checkpoints.find(nHeight);
+    if (i == checkpoints.end())
+        return true;
+    return hash == i->second;
+}
+
+/******
+ * @brief Guess how far we are in the verification process at the given block index
+ * @param data the checkpoint collection
+ * @param pindex the block index
+ * @param fsigchecks true to include signature checks in the calculation
+ * @returns
+ */
+double GuessVerificationProgress(const CChainParams::CCheckpointData& data,
+                                 CBlockIndex *pindex, bool fSigchecks) {
+    if (pindex==NULL)
+        return 0.0;
+
+    int64_t nNow = time(NULL);
+
+    double fSigcheckVerificationFactor = fSigchecks ? SIGCHECK_VERIFICATION_FACTOR : 1.0;
+    double fWorkBefore = 0.0; // Amount of work done before pindex
+    double fWorkAfter = 0.0;  // Amount of work left after pindex (estimated)
+    // Work is defined as: 1.0 per transaction before the last checkpoint, and
+    // fSigcheckVerificationFactor per transaction after.
+
+    if (pindex->nChainTx <= data.nTransactionsLastCheckpoint) {
+        double nCheapBefore = pindex->nChainTx;
+        double nCheapAfter = data.nTransactionsLastCheckpoint - pindex->nChainTx;
+        double nExpensiveAfter = (nNow - data.nTimeLastCheckpoint)/86400.0*data.fTransactionsPerDay;
+        fWorkBefore = nCheapBefore;
+        fWorkAfter = nCheapAfter + nExpensiveAfter*fSigcheckVerificationFactor;
+    } else {
+        double nCheapBefore = data.nTransactionsLastCheckpoint;
+        double nExpensiveBefore = pindex->nChainTx - data.nTransactionsLastCheckpoint;
+        double nExpensiveAfter = (nNow - pindex->GetBlockTime())/86400.0*data.fTransactionsPerDay;
+        fWorkBefore = nCheapBefore + nExpensiveBefore*fSigcheckVerificationFactor;
+        fWorkAfter = nExpensiveAfter*fSigcheckVerificationFactor;
     }
 
-    /******
-     * @brief Guess how far we are in the verification process at the given block index
-     * @param data the checkpoint collection
-     * @param pindex the block index
-     * @param fsigchecks true to include signature checks in the calculation
-     * @returns
-     */
-    double GuessVerificationProgress(const CChainParams::CCheckpointData& data, 
-            CBlockIndex *pindex, bool fSigchecks) 
-    {
-        if (pindex==NULL)
-            return 0.0;
+    return std::min(fWorkBefore / (fWorkBefore + fWorkAfter), 1.0);
+}
 
-        int64_t nNow = time(NULL);
+/*****
+ * @brief Return conservative estimate of total number of blocks, 0 if unknown
+ * @param data the collection of checkpoints
+ * @returns the number of blocks
+ */
+int GetTotalBlocksEstimate(const CChainParams::CCheckpointData& data) {
+    const MapCheckpoints& checkpoints = data.mapCheckpoints;
 
-        double fSigcheckVerificationFactor = fSigchecks ? SIGCHECK_VERIFICATION_FACTOR : 1.0;
-        double fWorkBefore = 0.0; // Amount of work done before pindex
-        double fWorkAfter = 0.0;  // Amount of work left after pindex (estimated)
-        // Work is defined as: 1.0 per transaction before the last checkpoint, and
-        // fSigcheckVerificationFactor per transaction after.
+    if (checkpoints.empty())
+        return 0;
 
-        if (pindex->nChainTx <= data.nTransactionsLastCheckpoint) {
-            double nCheapBefore = pindex->nChainTx;
-            double nCheapAfter = data.nTransactionsLastCheckpoint - pindex->nChainTx;
-            double nExpensiveAfter = (nNow - data.nTimeLastCheckpoint)/86400.0*data.fTransactionsPerDay;
-            fWorkBefore = nCheapBefore;
-            fWorkAfter = nCheapAfter + nExpensiveAfter*fSigcheckVerificationFactor;
-        } else {
-            double nCheapBefore = data.nTransactionsLastCheckpoint;
-            double nExpensiveBefore = pindex->nChainTx - data.nTransactionsLastCheckpoint;
-            double nExpensiveAfter = (nNow - pindex->GetBlockTime())/86400.0*data.fTransactionsPerDay;
-            fWorkBefore = nCheapBefore + nExpensiveBefore*fSigcheckVerificationFactor;
-            fWorkAfter = nExpensiveAfter*fSigcheckVerificationFactor;
-        }
+    return checkpoints.rbegin()->first;
+}
 
-        return std::min(fWorkBefore / (fWorkBefore + fWorkAfter), 1.0);
+/******
+ * @param data the collection of checkpoints
+ * @returns last CBlockIndex* in mapBlockIndex that is a checkpoint (can be nullptr)
+ */
+CBlockIndex* GetLastCheckpoint(const CChainParams::CCheckpointData& data) {
+    const MapCheckpoints& checkpoints = data.mapCheckpoints;
+
+    BOOST_REVERSE_FOREACH(const MapCheckpoints::value_type& i, checkpoints) {
+        const uint256& hash = i.second;
+        BlockMap::const_iterator t = mapBlockIndex.find(hash);
+        if (t != mapBlockIndex.end())
+            return t->second;
     }
-
-    /*****
-     * @brief Return conservative estimate of total number of blocks, 0 if unknown
-     * @param data the collection of checkpoints
-     * @returns the number of blocks
-     */
-    int GetTotalBlocksEstimate(const CChainParams::CCheckpointData& data)
-    {
-        const MapCheckpoints& checkpoints = data.mapCheckpoints;
-
-        if (checkpoints.empty())
-            return 0;
-
-        return checkpoints.rbegin()->first;
-    }
-
-    /******
-     * @param data the collection of checkpoints
-     * @returns last CBlockIndex* in mapBlockIndex that is a checkpoint (can be nullptr)
-     */
-    CBlockIndex* GetLastCheckpoint(const CChainParams::CCheckpointData& data)
-    {
-        const MapCheckpoints& checkpoints = data.mapCheckpoints;
-
-        BOOST_REVERSE_FOREACH(const MapCheckpoints::value_type& i, checkpoints)
-        {
-            const uint256& hash = i.second;
-            BlockMap::const_iterator t = mapBlockIndex.find(hash);
-            if (t != mapBlockIndex.end())
-                return t->second;
-        }
-        return nullptr;
-    }
+    return nullptr;
+}
 
 } // namespace Checkpoints

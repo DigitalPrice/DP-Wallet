@@ -23,8 +23,7 @@
 #include "serialize.h"
 #include "streams.h"
 
-int CAddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool> &asmap) const
-{
+int CAddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool> &asmap) const {
     uint64_t hash1 = (CHashWriter(SER_GETHASH, 0) << nKey << GetKey()).GetHash().GetCheapHash();
     uint64_t hash2 = (CHashWriter(SER_GETHASH, 0) << nKey << GetGroup(asmap) << (hash1 % ADDRMAN_TRIED_BUCKETS_PER_GROUP)).GetHash().GetCheapHash();
     int tried_bucket = hash2 % ADDRMAN_TRIED_BUCKET_COUNT;
@@ -33,8 +32,7 @@ int CAddrInfo::GetTriedBucket(const uint256& nKey, const std::vector<bool> &asma
     return tried_bucket;
 }
 
-int CAddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std::vector<bool> &asmap) const
-{
+int CAddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std::vector<bool> &asmap) const {
     std::vector<unsigned char> vchSourceGroupKey = src.GetGroup(asmap);
     uint64_t hash1 = (CHashWriter(SER_GETHASH, 0) << nKey << GetGroup(asmap) << vchSourceGroupKey).GetHash().GetCheapHash();
     uint64_t hash2 = (CHashWriter(SER_GETHASH, 0) << nKey << vchSourceGroupKey << (hash1 % ADDRMAN_NEW_BUCKETS_PER_SOURCE_GROUP)).GetHash().GetCheapHash();
@@ -44,14 +42,12 @@ int CAddrInfo::GetNewBucket(const uint256& nKey, const CNetAddr& src, const std:
     return new_bucket;
 }
 
-int CAddrInfo::GetBucketPosition(const uint256 &nKey, bool fNew, int nBucket) const
-{
+int CAddrInfo::GetBucketPosition(const uint256 &nKey, bool fNew, int nBucket) const {
     uint64_t hash1 = (CHashWriter(SER_GETHASH, 0) << nKey << (fNew ? 'N' : 'K') << nBucket << GetKey()).GetHash().GetCheapHash();
     return hash1 % ADDRMAN_BUCKET_SIZE;
 }
 
-bool CAddrInfo::IsTerrible(int64_t nNow) const
-{
+bool CAddrInfo::IsTerrible(int64_t nNow) const {
     if (nLastTry && nLastTry >= nNow - 60) // never remove things tried in the last minute
         return false;
 
@@ -70,8 +66,7 @@ bool CAddrInfo::IsTerrible(int64_t nNow) const
     return false;
 }
 
-double CAddrInfo::GetChance(int64_t nNow) const
-{
+double CAddrInfo::GetChance(int64_t nNow) const {
     double fChance = 1.0;
 
     int64_t nSinceLastSeen = nNow - nTime;
@@ -92,8 +87,7 @@ double CAddrInfo::GetChance(int64_t nNow) const
     return fChance;
 }
 
-CAddrInfo* CAddrMan::Find(const CNetAddr& addr, int* pnId)
-{
+CAddrInfo* CAddrMan::Find(const CNetAddr& addr, int* pnId) {
     std::map<CNetAddr, int>::iterator it = mapAddr.find(addr);
     if (it == mapAddr.end())
         return NULL;
@@ -105,8 +99,7 @@ CAddrInfo* CAddrMan::Find(const CNetAddr& addr, int* pnId)
     return NULL;
 }
 
-CAddrInfo* CAddrMan::Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId)
-{
+CAddrInfo* CAddrMan::Create(const CAddress& addr, const CNetAddr& addrSource, int* pnId) {
     int nId = nIdCount++;
     mapInfo[nId] = CAddrInfo(addr, addrSource);
     mapAddr[addr] = nId;
@@ -117,8 +110,7 @@ CAddrInfo* CAddrMan::Create(const CAddress& addr, const CNetAddr& addrSource, in
     return &mapInfo[nId];
 }
 
-void CAddrMan::SwapRandom(unsigned int nRndPos1, unsigned int nRndPos2)
-{
+void CAddrMan::SwapRandom(unsigned int nRndPos1, unsigned int nRndPos2) {
     if (nRndPos1 == nRndPos2)
         return;
 
@@ -137,8 +129,7 @@ void CAddrMan::SwapRandom(unsigned int nRndPos1, unsigned int nRndPos2)
     vRandom[nRndPos2] = nId1;
 }
 
-void CAddrMan::Delete(int nId)
-{
+void CAddrMan::Delete(int nId) {
     assert(mapInfo.count(nId) != 0);
     CAddrInfo& info = mapInfo[nId];
     assert(!info.fInTried);
@@ -151,8 +142,7 @@ void CAddrMan::Delete(int nId)
     nNew--;
 }
 
-void CAddrMan::ClearNew(int nUBucket, int nUBucketPos)
-{
+void CAddrMan::ClearNew(int nUBucket, int nUBucketPos) {
     // if there is an entry in the specified bucket, delete it.
     if (vvNew[nUBucket][nUBucketPos] != -1) {
         int nIdDelete = vvNew[nUBucket][nUBucketPos];
@@ -166,8 +156,7 @@ void CAddrMan::ClearNew(int nUBucket, int nUBucketPos)
     }
 }
 
-void CAddrMan::MakeTried(CAddrInfo& info, int nId)
-{
+void CAddrMan::MakeTried(CAddrInfo& info, int nId) {
     // remove the entry from all new buckets
     for (int bucket = 0; bucket < ADDRMAN_NEW_BUCKET_COUNT; bucket++) {
         int pos = info.GetBucketPosition(nKey, true, bucket);
@@ -214,8 +203,7 @@ void CAddrMan::MakeTried(CAddrInfo& info, int nId)
     info.fInTried = true;
 }
 
-void CAddrMan::Good_(const CService& addr, int64_t nTime)
-{
+void CAddrMan::Good_(const CService& addr, int64_t nTime) {
     int nId;
     CAddrInfo* pinfo = Find(addr, &nId);
 
@@ -263,8 +251,7 @@ void CAddrMan::Good_(const CService& addr, int64_t nTime)
     MakeTried(info, nId);
 }
 
-bool CAddrMan::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTimePenalty)
-{
+bool CAddrMan::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTimePenalty) {
     if (!addr.IsRoutable())
         return false;
 
@@ -331,8 +318,7 @@ bool CAddrMan::Add_(const CAddress& addr, const CNetAddr& source, int64_t nTimeP
     return fNew;
 }
 
-void CAddrMan::Attempt_(const CService& addr, int64_t nTime)
-{
+void CAddrMan::Attempt_(const CService& addr, int64_t nTime) {
     CAddrInfo* pinfo = Find(addr);
 
     // if not found, bail out
@@ -350,8 +336,7 @@ void CAddrMan::Attempt_(const CService& addr, int64_t nTime)
     info.nAttempts++;
 }
 
-CAddrInfo CAddrMan::Select_(bool newOnly)
-{
+CAddrInfo CAddrMan::Select_(bool newOnly) {
     if (size() == 0)
         return CAddrInfo();
 
@@ -365,7 +350,7 @@ CAddrInfo CAddrMan::Select_(bool newOnly)
 
     // Use a 50% chance for choosing between tried and new table entries.
     if (!newOnly &&
-       (nTried > 0 && (nNew == 0 || RandomInt(2) == 0))) { 
+            (nTried > 0 && (nNew == 0 || RandomInt(2) == 0))) {
         // use a tried node
         double fChanceFactor = 1.0;
         while (1) {
@@ -410,13 +395,12 @@ CAddrInfo CAddrMan::Select_(bool newOnly)
             fChanceFactor *= 1.2;
         }
     }
-    
+
     return CAddrInfo();
 }
 
 #ifdef DEBUG_ADDRMAN
-int CAddrMan::Check_()
-{
+int CAddrMan::Check_() {
     std::set<int> setTried;
     std::map<int, int> mapNew;
 
@@ -456,15 +440,15 @@ int CAddrMan::Check_()
 
     for (int n = 0; n < ADDRMAN_TRIED_BUCKET_COUNT; n++) {
         for (int i = 0; i < ADDRMAN_BUCKET_SIZE; i++) {
-             if (vvTried[n][i] != -1) {
-                 if (!setTried.count(vvTried[n][i]))
-                     return -11;
-                 if (mapInfo[vvTried[n][i]].GetTriedBucket(nKey, m_asmap) != n)
-                     return -17;
-                 if (mapInfo[vvTried[n][i]].GetBucketPosition(nKey, false, n) != i)
-                     return -18;
-                 setTried.erase(vvTried[n][i]);
-             }
+            if (vvTried[n][i] != -1) {
+                if (!setTried.count(vvTried[n][i]))
+                    return -11;
+                if (mapInfo[vvTried[n][i]].GetTriedBucket(nKey, m_asmap) != n)
+                    return -17;
+                if (mapInfo[vvTried[n][i]].GetBucketPosition(nKey, false, n) != i)
+                    return -18;
+                setTried.erase(vvTried[n][i]);
+            }
         }
     }
 
@@ -492,8 +476,7 @@ int CAddrMan::Check_()
 }
 #endif
 
-void CAddrMan::GetAddr_(std::vector<CAddress>& vAddr)
-{
+void CAddrMan::GetAddr_(std::vector<CAddress>& vAddr) {
     unsigned int nNodes = ADDRMAN_GETADDR_MAX_PCT * vRandom.size() / 100;
     if (nNodes > ADDRMAN_GETADDR_MAX)
         nNodes = ADDRMAN_GETADDR_MAX;
@@ -513,8 +496,7 @@ void CAddrMan::GetAddr_(std::vector<CAddress>& vAddr)
     }
 }
 
-void CAddrMan::Connected_(const CService& addr, int64_t nTime)
-{
+void CAddrMan::Connected_(const CService& addr, int64_t nTime) {
     CAddrInfo* pinfo = Find(addr);
 
     // if not found, bail out
@@ -533,12 +515,11 @@ void CAddrMan::Connected_(const CService& addr, int64_t nTime)
         info.nTime = nTime;
 }
 
-int CAddrMan::RandomInt(int nMax){
+int CAddrMan::RandomInt(int nMax) {
     return GetRandInt(nMax);
 }
 
-std::vector<bool> CAddrMan::DecodeAsmap(fs::path path)
-{
+std::vector<bool> CAddrMan::DecodeAsmap(fs::path path) {
     std::vector<bool> bits;
     FILE *filestr = fsbridge::fopen(path, "rb");
     CAutoFile file(filestr, SER_DISK, CLIENT_VERSION);

@@ -21,8 +21,7 @@ using namespace libsnark;
 
 template<typename ppT>
 void test_r1cs_ppzksnark(size_t num_constraints,
-                         size_t input_size)
-{
+                         size_t input_size) {
     print_header("(enter) Test R1CS ppzkSNARK");
 
     const bool test_serialization = true;
@@ -33,8 +32,7 @@ void test_r1cs_ppzksnark(size_t num_constraints,
     print_header("(leave) Test R1CS ppzkSNARK");
 }
 
-int main()
-{
+int main() {
     default_r1cs_ppzksnark_pp::init_public_params();
     start_profiling();
 

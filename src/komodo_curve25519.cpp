@@ -15,16 +15,14 @@
 #include "komodo_curve25519.h"
 #include "komodo_utils.h" // for vcalc_sha256
 
-void store_limb(uint8_t *out,uint64_t in)
-{
+void store_limb(uint8_t *out,uint64_t in) {
     int32_t i;
     for (i=0; i<8; i++,in>>=8)
         out[i] = (in & 0xff);
 }
 
 // Take a little-endian, 32-byte number and expand it into polynomial form
-bits320 fexpand(bits256 basepoint)
-{
+bits320 fexpand(bits256 basepoint) {
     bits320 out;
     out.ulongs[0] = load_limb(basepoint.bytes) & 0x7ffffffffffffLL;
     out.ulongs[1] = (load_limb(basepoint.bytes+6) >> 3) & 0x7ffffffffffffLL;
@@ -36,9 +34,10 @@ bits320 fexpand(bits256 basepoint)
 
 #if __amd64__
 
-bits320 fmul(const bits320 in2,const bits320 in)
-{
-    uint128_t t[5]; uint64_t r0,r1,r2,r3,r4,s0,s1,s2,s3,s4,c; bits320 out;
+bits320 fmul(const bits320 in2,const bits320 in) {
+    uint128_t t[5];
+    uint64_t r0,r1,r2,r3,r4,s0,s1,s2,s3,s4,c;
+    bits320 out;
     r0 = in.ulongs[0], r1 = in.ulongs[1], r2 = in.ulongs[2], r3 = in.ulongs[3], r4 = in.ulongs[4];
     s0 = in2.ulongs[0], s1 = in2.ulongs[1], s2 = in2.ulongs[2], s3 = in2.ulongs[3], s4 = in2.ulongs[4];
     t[0]  =  ((uint128_t) r0) * s0;
@@ -51,24 +50,37 @@ bits320 fmul(const bits320 in2,const bits320 in)
     t[1] += ((uint128_t) r4) * s2 + ((uint128_t) r2) * s4 + ((uint128_t) r3) * s3;
     t[2] += ((uint128_t) r4) * s3 + ((uint128_t) r3) * s4;
     t[3] += ((uint128_t) r4) * s4;
-    r0 = (uint64_t)t[0] & 0x7ffffffffffffLL; c = (uint64_t)(t[0] >> 51);
-    t[1] += c;      r1 = (uint64_t)t[1] & 0x7ffffffffffffLL; c = (uint64_t)(t[1] >> 51);
-    t[2] += c;      r2 = (uint64_t)t[2] & 0x7ffffffffffffLL; c = (uint64_t)(t[2] >> 51);
-    t[3] += c;      r3 = (uint64_t)t[3] & 0x7ffffffffffffLL; c = (uint64_t)(t[3] >> 51);
-    t[4] += c;      r4 = (uint64_t)t[4] & 0x7ffffffffffffLL; c = (uint64_t)(t[4] >> 51);
-    r0 +=   c * 19; c = r0 >> 51; r0 = r0 & 0x7ffffffffffffLL;
-    r1 +=   c;      c = r1 >> 51; r1 = r1 & 0x7ffffffffffffLL;
+    r0 = (uint64_t)t[0] & 0x7ffffffffffffLL;
+    c = (uint64_t)(t[0] >> 51);
+    t[1] += c;
+    r1 = (uint64_t)t[1] & 0x7ffffffffffffLL;
+    c = (uint64_t)(t[1] >> 51);
+    t[2] += c;
+    r2 = (uint64_t)t[2] & 0x7ffffffffffffLL;
+    c = (uint64_t)(t[2] >> 51);
+    t[3] += c;
+    r3 = (uint64_t)t[3] & 0x7ffffffffffffLL;
+    c = (uint64_t)(t[3] >> 51);
+    t[4] += c;
+    r4 = (uint64_t)t[4] & 0x7ffffffffffffLL;
+    c = (uint64_t)(t[4] >> 51);
+    r0 +=   c * 19;
+    c = r0 >> 51;
+    r0 = r0 & 0x7ffffffffffffLL;
+    r1 +=   c;
+    c = r1 >> 51;
+    r1 = r1 & 0x7ffffffffffffLL;
     r2 +=   c;
     out.ulongs[0] = r0, out.ulongs[1] = r1, out.ulongs[2] = r2, out.ulongs[3] = r3, out.ulongs[4] = r4;
     return(out);
 }
 
-bits320 fsquare_times(const bits320 in,uint64_t count)
-{
-    uint128_t t[5]; uint64_t r0,r1,r2,r3,r4,c,d0,d1,d2,d4,d419; bits320 out;
+bits320 fsquare_times(const bits320 in,uint64_t count) {
+    uint128_t t[5];
+    uint64_t r0,r1,r2,r3,r4,c,d0,d1,d2,d4,d419;
+    bits320 out;
     r0 = in.ulongs[0], r1 = in.ulongs[1], r2 = in.ulongs[2], r3 = in.ulongs[3], r4 = in.ulongs[4];
-    do
-    {
+    do {
         d0 = r0 * 2;
         d1 = r1 * 2;
         d2 = r2 * 2 * 19;
@@ -80,13 +92,26 @@ bits320 fsquare_times(const bits320 in,uint64_t count)
         t[3] = ((uint128_t) d0) * r3 + ((uint128_t) d1) * r2 + (((uint128_t) r4) * (d419   ));
         t[4] = ((uint128_t) d0) * r4 + ((uint128_t) d1) * r3 + (((uint128_t) r2) * (r2     ));
 
-        r0 = (uint64_t)t[0] & 0x7ffffffffffffLL; c = (uint64_t)(t[0] >> 51);
-        t[1] += c;      r1 = (uint64_t)t[1] & 0x7ffffffffffffLL; c = (uint64_t)(t[1] >> 51);
-        t[2] += c;      r2 = (uint64_t)t[2] & 0x7ffffffffffffLL; c = (uint64_t)(t[2] >> 51);
-        t[3] += c;      r3 = (uint64_t)t[3] & 0x7ffffffffffffL; c = (uint64_t)(t[3] >> 51);
-        t[4] += c;      r4 = (uint64_t)t[4] & 0x7ffffffffffffLL; c = (uint64_t)(t[4] >> 51);
-        r0 +=   c * 19; c = r0 >> 51; r0 = r0 & 0x7ffffffffffffLL;
-        r1 +=   c;      c = r1 >> 51; r1 = r1 & 0x7ffffffffffffLL;
+        r0 = (uint64_t)t[0] & 0x7ffffffffffffLL;
+        c = (uint64_t)(t[0] >> 51);
+        t[1] += c;
+        r1 = (uint64_t)t[1] & 0x7ffffffffffffLL;
+        c = (uint64_t)(t[1] >> 51);
+        t[2] += c;
+        r2 = (uint64_t)t[2] & 0x7ffffffffffffLL;
+        c = (uint64_t)(t[2] >> 51);
+        t[3] += c;
+        r3 = (uint64_t)t[3] & 0x7ffffffffffffL;
+        c = (uint64_t)(t[3] >> 51);
+        t[4] += c;
+        r4 = (uint64_t)t[4] & 0x7ffffffffffffLL;
+        c = (uint64_t)(t[4] >> 51);
+        r0 +=   c * 19;
+        c = r0 >> 51;
+        r0 = r0 & 0x7ffffffffffffLL;
+        r1 +=   c;
+        c = r1 >> 51;
+        r1 = r1 & 0x7ffffffffffffLL;
         r2 +=   c;
     } while( --count );
     out.ulongs[0] = r0, out.ulongs[1] = r1, out.ulongs[2] = r2, out.ulongs[3] = r3, out.ulongs[4] = r4;
@@ -94,9 +119,10 @@ bits320 fsquare_times(const bits320 in,uint64_t count)
 }
 
 // donna: Take a fully reduced polynomial form number and contract it into a little-endian, 32-byte array
-bits256 fcontract(const bits320 input)
-{
-    uint128_t t[5]; int32_t i; bits256 out;
+bits256 fcontract(const bits320 input) {
+    uint128_t t[5];
+    int32_t i;
+    bits256 out;
     for (i=0; i<5; i++)
         t[i] = input.ulongs[i];
     fcontract_iter(t,1), fcontract_iter(t,1);
@@ -116,8 +142,7 @@ bits256 fcontract(const bits320 input)
     return(out);
 }
 
-bits256 curve25519(bits256 mysecret,bits256 basepoint)
-{
+bits256 curve25519(bits256 mysecret,bits256 basepoint) {
     bits320 bp,x,z;
     mysecret.bytes[0] &= 0xf8, mysecret.bytes[31] &= 0x7f, mysecret.bytes[31] |= 0x40;
     bp = fexpand(basepoint);
@@ -127,17 +152,17 @@ bits256 curve25519(bits256 mysecret,bits256 basepoint)
 
 #else
 
-bits320 bits320_limbs(limb limbs[10])
-{
-    bits320 output; int32_t i;
+bits320 bits320_limbs(limb limbs[10]) {
+    bits320 output;
+    int32_t i;
     for (i=0; i<10; i++)
         output.uints[i] = limbs[i];
     return(output);
 }
 
-bits256 fmul_donna(bits256 a,bits256 b)
-{
-    limb avals[10],bvals[10],z[11]; bits256 result;
+bits256 fmul_donna(bits256 a,bits256 b) {
+    limb avals[10],bvals[10],z[11];
+    bits256 result;
     fexpand32(avals,a.bytes);
     fexpand32(bvals,b.bytes);
     fmul32(z,avals,bvals);
@@ -145,17 +170,17 @@ bits256 fmul_donna(bits256 a,bits256 b)
     return(result);
 }
 
-bits256 fcontract(const bits320 in)
-{
-    bits256 contracted; limb input[10]; int32_t i;
+bits256 fcontract(const bits320 in) {
+    bits256 contracted;
+    limb input[10];
+    int32_t i;
     for (i=0; i<10; i++)
         input[i] = in.uints[i];
     fcontract32(contracted.bytes,input);
     return(contracted);
 }
 
-bits320 fmul(const bits320 in,const bits320 in2)
-{
+bits320 fmul(const bits320 in,const bits320 in2) {
     /*limb output[11],input[10],input2[10]; int32_t i;
      for (i=0; i<10; i++)
      {
@@ -169,8 +194,7 @@ bits320 fmul(const bits320 in,const bits320 in2)
     return(fexpand(mulval));
 }
 
-bits256 curve25519(bits256 mysecret,bits256 theirpublic)
-{
+bits256 curve25519(bits256 mysecret,bits256 theirpublic) {
     int32_t curve25519_donna(uint8_t *mypublic,const uint8_t *secret,const uint8_t *basepoint);
     bits256 rawkey;
     mysecret.bytes[0] &= 0xf8, mysecret.bytes[31] &= 0x7f, mysecret.bytes[31] |= 0x40;
@@ -184,19 +208,17 @@ bits256 curve25519(bits256 mysecret,bits256 theirpublic)
 // resultx/resultz: the x coordinate of the resulting curve point (short form)
 // n: a little endian, 32-byte number
 // q: a point of the curve (short form)
-void cmult(bits320 *resultx,bits320 *resultz,bits256 secret,const bits320 q)
-{
-    int32_t i,j; bits320 a,b,c,d,e,f,g,h,*t;
+void cmult(bits320 *resultx,bits320 *resultz,bits256 secret,const bits320 q) {
+    int32_t i,j;
+    bits320 a,b,c,d,e,f,g,h,*t;
     bits320 Zero320bits,One320bits, *nqpqx = &a,*nqpqz = &b,*nqx = &c,*nqz = &d,*nqpqx2 = &e,*nqpqz2 = &f,*nqx2 = &g,*nqz2 = &h;
     memset(&Zero320bits,0,sizeof(Zero320bits));
     memset(&One320bits,0,sizeof(One320bits)), One320bits.ulongs[0] = 1;
     a = d = e = g = Zero320bits, b = c = f = h = One320bits;
     *nqpqx = q;
-    for (i=0; i<32; i++)
-    {
+    for (i=0; i<32; i++) {
         uint8_t byte = secret.bytes[31 - i];
-        for (j=0; j<8; j++)
-        {
+        for (j=0; j<8; j++) {
             const uint64_t bit = byte >> 7;
             swap_conditional(nqx,nqpqx,bit), swap_conditional(nqz,nqpqz,bit);
             fmonty(nqx2,nqz2,nqpqx2,nqpqz2,nqx,nqz,nqpqx,nqpqz,q);
@@ -211,45 +233,40 @@ void cmult(bits320 *resultx,bits320 *resultz,bits256 secret,const bits320 q)
     *resultx = *nqx, *resultz = *nqz;
 }
 
-bits256 rand256(int32_t privkeyflag)
-{
+bits256 rand256(int32_t privkeyflag) {
     bits256 randval;
-    #ifndef _WIN32
+#ifndef _WIN32
     OS_randombytes(randval.bytes,sizeof(randval));
-    #else
+#else
     randombytes_buf(randval.bytes,sizeof(randval));
-    #endif
+#endif
     if ( privkeyflag != 0 )
         randval.bytes[0] &= 0xf8, randval.bytes[31] &= 0x7f, randval.bytes[31] |= 0x40;
     return(randval);
 }
 
-bits256 curve25519_basepoint9()
-{
+bits256 curve25519_basepoint9() {
     bits256 basepoint;
     memset(&basepoint,0,sizeof(basepoint));
     basepoint.bytes[0] = 9;
     return(basepoint);
 }
 
-bits256 curve25519_keypair(bits256 *pubkeyp)
-{
+bits256 curve25519_keypair(bits256 *pubkeyp) {
     bits256 privkey;
     privkey = rand256(1);
     *pubkeyp = curve25519(privkey,curve25519_basepoint9());
     return(privkey);
 }
 
-bits256 curve25519_shared(bits256 privkey,bits256 otherpub)
-{
+bits256 curve25519_shared(bits256 privkey,bits256 otherpub) {
     bits256 shared,hash;
     shared = curve25519(privkey,otherpub);
     vcalc_sha256(0,hash.bytes,shared.bytes,sizeof(shared));
     return(hash);
 }
 
-int32_t curve25519_donna(uint8_t *mypublic,const uint8_t *secret,const uint8_t *basepoint)
-{
+int32_t curve25519_donna(uint8_t *mypublic,const uint8_t *secret,const uint8_t *basepoint) {
     bits256 val,p,bp;
     memcpy(p.bytes,secret,sizeof(p));
     memcpy(bp.bytes,basepoint,sizeof(bp));
@@ -265,10 +282,9 @@ int32_t curve25519_donna(uint8_t *mypublic,const uint8_t *secret,const uint8_t *
  * @param[in] passlen the length of pass
  * @return a hash of mypublic (unused)
  */
-uint64_t conv_NXTpassword(unsigned char *mysecret,unsigned char *mypublic,uint8_t *pass,int32_t passlen)
-{
+uint64_t conv_NXTpassword(unsigned char *mysecret,unsigned char *mypublic,uint8_t *pass,int32_t passlen) {
     static uint8_t basepoint[32] = {9};
-    uint64_t addr; 
+    uint64_t addr;
     uint8_t hash[32];
     if ( pass != 0 && passlen != 0 )
         vcalc_sha256(0,mysecret,pass,passlen);

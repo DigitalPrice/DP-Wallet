@@ -13,8 +13,7 @@ PedersenHash PedersenHash::combine(
     const PedersenHash& a,
     const PedersenHash& b,
     size_t depth
-)
-{
+) {
     PedersenHash res = PedersenHash();
 
     librustzcash_merkle_hash(
@@ -39,8 +38,7 @@ SHA256Compress SHA256Compress::combine(
     const SHA256Compress& a,
     const SHA256Compress& b,
     size_t depth
-)
-{
+) {
     SHA256Compress res = SHA256Compress();
 
     CSHA256 hasher;
@@ -53,10 +51,10 @@ SHA256Compress SHA256Compress::combine(
 
 template <size_t Depth, typename Hash>
 class PathFiller {
-private:
+  private:
     std::deque<Hash> queue;
     static EmptyMerkleRoots<Depth, Hash> emptyroots;
-public:
+  public:
     PathFiller() : queue() { }
     PathFiller(std::deque<Hash> queue) : queue(queue) { }
 
@@ -227,7 +225,7 @@ size_t IncrementalMerkleTree<Depth, Hash>::next_depth(size_t skip) const {
 // This calculates the root of the tree.
 template<size_t Depth, typename Hash>
 Hash IncrementalMerkleTree<Depth, Hash>::root(size_t depth,
-                                              std::deque<Hash> filler_hashes) const {
+        std::deque<Hash> filler_hashes) const {
     PathFiller<Depth, Hash> filler(filler_hashes);
 
     Hash combine_left =  left  ? *left  : filler.next(0);
@@ -299,8 +297,7 @@ MerklePath IncrementalMerkleTree<Depth, Hash>::path(std::deque<Hash> filler_hash
     }
 
     std::vector<std::vector<bool>> merkle_path;
-    BOOST_FOREACH(Hash b, path)
-    {
+    BOOST_FOREACH(Hash b, path) {
         std::vector<unsigned char> hashv(b.begin(), b.end());
 
         merkle_path.push_back(convertBytesVectorToVector(hashv));

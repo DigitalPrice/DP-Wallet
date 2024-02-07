@@ -32,37 +32,36 @@ struct CCheckpointData;
  * Block-chain checkpoints are compiled-in sanity checks.
  * They are updated every release or three.
  */
-namespace Checkpoints
-{
-    /******
-     * @param data the collection of checkpoints
-     * @param nHeight the height
-     * @param hash the expected hash at nHight
-     * @returns true if the checkpoint at nHeight is not found or hash matches the found checkpoint
-     */
-    bool CheckBlock(const CChainParams::CCheckpointData& data, int nHeight, const uint256& hash);
+namespace Checkpoints {
+/******
+ * @param data the collection of checkpoints
+ * @param nHeight the height
+ * @param hash the expected hash at nHight
+ * @returns true if the checkpoint at nHeight is not found or hash matches the found checkpoint
+ */
+bool CheckBlock(const CChainParams::CCheckpointData& data, int nHeight, const uint256& hash);
 
-    /*****
-     * @brief Return conservative estimate of total number of blocks, 0 if unknown
-     * @param data the collection of checkpoints
-     * @returns the total number of blocks
-     */
-    int GetTotalBlocksEstimate(const CChainParams::CCheckpointData& data);
+/*****
+ * @brief Return conservative estimate of total number of blocks, 0 if unknown
+ * @param data the collection of checkpoints
+ * @returns the total number of blocks
+ */
+int GetTotalBlocksEstimate(const CChainParams::CCheckpointData& data);
 
-    /******
-     * @param data the collection of checkpoints
-     * @returns last CBlockIndex* in mapBlockIndex that is a checkpoint (can be nullptr)
-     */
-    CBlockIndex* GetLastCheckpoint(const CChainParams::CCheckpointData& data);
+/******
+ * @param data the collection of checkpoints
+ * @returns last CBlockIndex* in mapBlockIndex that is a checkpoint (can be nullptr)
+ */
+CBlockIndex* GetLastCheckpoint(const CChainParams::CCheckpointData& data);
 
-    /******
-     * @brief Guess how far we are in the verification process at the given block index
-     * @param data the checkpoint collection
-     * @param pindex the block index
-     * @param fsigchecks true to include signature checks in the calculation
-     * @returns
-     */
-    double GuessVerificationProgress(const CChainParams::CCheckpointData& data, CBlockIndex* pindex, bool fSigchecks = true);
+/******
+ * @brief Guess how far we are in the verification process at the given block index
+ * @param data the checkpoint collection
+ * @param pindex the block index
+ * @param fsigchecks true to include signature checks in the calculation
+ * @returns
+ */
+double GuessVerificationProgress(const CChainParams::CCheckpointData& data, CBlockIndex* pindex, bool fSigchecks = true);
 
 } // namespace Checkpoints
 

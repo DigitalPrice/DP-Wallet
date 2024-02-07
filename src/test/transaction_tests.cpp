@@ -45,19 +45,18 @@ using namespace std;
 extern UniValue read_json(const std::string& jsondata);
 
 static std::map<string, unsigned int> mapFlagNames = boost::assign::map_list_of
-    (string("NONE"), (unsigned int)SCRIPT_VERIFY_NONE)
-    (string("P2SH"), (unsigned int)SCRIPT_VERIFY_P2SH)
-    (string("STRICTENC"), (unsigned int)SCRIPT_VERIFY_STRICTENC)
-    (string("LOW_S"), (unsigned int)SCRIPT_VERIFY_LOW_S)
-    (string("SIGPUSHONLY"), (unsigned int)SCRIPT_VERIFY_SIGPUSHONLY)
-    (string("MINIMALDATA"), (unsigned int)SCRIPT_VERIFY_MINIMALDATA)
-    (string("NULLDUMMY"), (unsigned int)SCRIPT_VERIFY_NULLDUMMY)
-    (string("DISCOURAGE_UPGRADABLE_NOPS"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS)
-    (string("CLEANSTACK"), (unsigned int)SCRIPT_VERIFY_CLEANSTACK)
-    (string("CHECKLOCKTIMEVERIFY"), (unsigned int)SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY);
+        (string("NONE"), (unsigned int)SCRIPT_VERIFY_NONE)
+        (string("P2SH"), (unsigned int)SCRIPT_VERIFY_P2SH)
+        (string("STRICTENC"), (unsigned int)SCRIPT_VERIFY_STRICTENC)
+        (string("LOW_S"), (unsigned int)SCRIPT_VERIFY_LOW_S)
+        (string("SIGPUSHONLY"), (unsigned int)SCRIPT_VERIFY_SIGPUSHONLY)
+        (string("MINIMALDATA"), (unsigned int)SCRIPT_VERIFY_MINIMALDATA)
+        (string("NULLDUMMY"), (unsigned int)SCRIPT_VERIFY_NULLDUMMY)
+        (string("DISCOURAGE_UPGRADABLE_NOPS"), (unsigned int)SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS)
+        (string("CLEANSTACK"), (unsigned int)SCRIPT_VERIFY_CLEANSTACK)
+        (string("CHECKLOCKTIMEVERIFY"), (unsigned int)SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY);
 
-unsigned int ParseScriptFlags(string strFlags)
-{
+unsigned int ParseScriptFlags(string strFlags) {
     if (strFlags.empty()) {
         return 0;
     }
@@ -65,8 +64,7 @@ unsigned int ParseScriptFlags(string strFlags)
     vector<string> words;
     boost::algorithm::split(words, strFlags, boost::algorithm::is_any_of(","));
 
-    BOOST_FOREACH(string word, words)
-    {
+    BOOST_FOREACH(string word, words) {
         if (!mapFlagNames.count(word))
             BOOST_ERROR("Bad test: unknown verification flag '" << word << "'");
         flags |= mapFlagNames[word];
@@ -75,8 +73,7 @@ unsigned int ParseScriptFlags(string strFlags)
     return flags;
 }
 
-string FormatScriptFlags(unsigned int flags)
-{
+string FormatScriptFlags(unsigned int flags) {
     if (flags == 0) {
         return "";
     }
@@ -93,8 +90,7 @@ string FormatScriptFlags(unsigned int flags)
 
 BOOST_FIXTURE_TEST_SUITE(transaction_tests, JoinSplitTestingSetup)
 
-BOOST_AUTO_TEST_CASE(tx_valid)
-{
+BOOST_AUTO_TEST_CASE(tx_valid) {
     uint32_t consensusBranchId = SPROUT_BRANCH_ID;
 
     // Read tests from test/data/tx_valid.json
@@ -112,10 +108,8 @@ BOOST_AUTO_TEST_CASE(tx_valid)
     for (size_t idx = 0; idx < tests.size(); idx++) {
         UniValue test = tests[idx];
         string strTest = test.write();
-        if (test[0].isArray())
-        {
-            if (test.size() != 3 || !test[1].isStr() || !test[2].isStr())
-            {
+        if (test[0].isArray()) {
+            if (test.size() != 3 || !test[1].isStr() || !test[2].isStr()) {
                 BOOST_ERROR("Bad test: " << strTest << comment);
                 continue;
             }
@@ -124,23 +118,20 @@ BOOST_AUTO_TEST_CASE(tx_valid)
             UniValue inputs = test[0].get_array();
             bool fValid = true;
             for (size_t inpIdx = 0; inpIdx < inputs.size(); inpIdx++) {
-	        const UniValue& input = inputs[inpIdx];
-                if (!input.isArray())
-                {
+                const UniValue& input = inputs[inpIdx];
+                if (!input.isArray()) {
                     fValid = false;
                     break;
                 }
                 UniValue vinput = input.get_array();
-                if (vinput.size() != 3)
-                {
+                if (vinput.size() != 3) {
                     fValid = false;
                     break;
                 }
 
                 mapprevOutScriptPubKeys[COutPoint(uint256S(vinput[0].get_str()), vinput[1].get_int())] = ParseScript(vinput[2].get_str());
             }
-            if (!fValid)
-            {
+            if (!fValid) {
                 BOOST_ERROR("Bad test: " << strTest << comment);
                 continue;
             }
@@ -155,10 +146,8 @@ BOOST_AUTO_TEST_CASE(tx_valid)
             BOOST_CHECK_MESSAGE(state.IsValid(), comment);
 
             PrecomputedTransactionData txdata(tx);
-            for (unsigned int i = 0; i < tx.vin.size(); i++)
-            {
-                if (!mapprevOutScriptPubKeys.count(tx.vin[i].prevout))
-                {
+            for (unsigned int i = 0; i < tx.vin.size(); i++) {
+                if (!mapprevOutScriptPubKeys.count(tx.vin[i].prevout)) {
                     BOOST_ERROR("Bad test: " << strTest << comment);
                     break;
                 }
@@ -172,17 +161,14 @@ BOOST_AUTO_TEST_CASE(tx_valid)
             }
 
             comment = "";
-        }
-        else if (test.size() == 1)
-        {
+        } else if (test.size() == 1) {
             comment += "\n# ";
             comment += test[0].write();
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE(tx_invalid)
-{
+BOOST_AUTO_TEST_CASE(tx_invalid) {
     uint32_t consensusBranchId = SPROUT_BRANCH_ID;
 
     // Read tests from test/data/tx_invalid.json
@@ -200,10 +186,8 @@ BOOST_AUTO_TEST_CASE(tx_invalid)
     for (size_t idx = 0; idx < tests.size(); idx++) {
         UniValue test = tests[idx];
         string strTest = test.write();
-        if (test[0].isArray())
-        {
-            if (test.size() != 3 || !test[1].isStr() || !test[2].isStr())
-            {
+        if (test[0].isArray()) {
+            if (test.size() != 3 || !test[1].isStr() || !test[2].isStr()) {
                 BOOST_ERROR("Bad test: " << strTest << comment);
                 continue;
             }
@@ -211,24 +195,21 @@ BOOST_AUTO_TEST_CASE(tx_invalid)
             map<COutPoint, CScript> mapprevOutScriptPubKeys;
             UniValue inputs = test[0].get_array();
             bool fValid = true;
-	    for (size_t inpIdx = 0; inpIdx < inputs.size(); inpIdx++) {
-	        const UniValue& input = inputs[inpIdx];
-                if (!input.isArray())
-                {
+            for (size_t inpIdx = 0; inpIdx < inputs.size(); inpIdx++) {
+                const UniValue& input = inputs[inpIdx];
+                if (!input.isArray()) {
                     fValid = false;
                     break;
                 }
                 UniValue vinput = input.get_array();
-                if (vinput.size() != 3)
-                {
+                if (vinput.size() != 3) {
                     fValid = false;
                     break;
                 }
 
                 mapprevOutScriptPubKeys[COutPoint(uint256S(vinput[0].get_str()), vinput[1].get_int())] = ParseScript(vinput[2].get_str());
             }
-            if (!fValid)
-            {
+            if (!fValid) {
                 BOOST_ERROR("Bad test: " << strTest << comment);
                 continue;
             }
@@ -242,10 +223,8 @@ BOOST_AUTO_TEST_CASE(tx_invalid)
             fValid = CheckTransaction(tx, state, verifier) && state.IsValid();
 
             PrecomputedTransactionData txdata(tx);
-            for (unsigned int i = 0; i < tx.vin.size() && fValid; i++)
-            {
-                if (!mapprevOutScriptPubKeys.count(tx.vin[i].prevout))
-                {
+            for (unsigned int i = 0; i < tx.vin.size() && fValid; i++) {
+                if (!mapprevOutScriptPubKeys.count(tx.vin[i].prevout)) {
                     BOOST_ERROR("Bad test: " << strTest << comment);
                     break;
                 }
@@ -259,17 +238,14 @@ BOOST_AUTO_TEST_CASE(tx_invalid)
             BOOST_CHECK_MESSAGE(err != SCRIPT_ERR_OK, ScriptErrorString(err) + comment);
 
             comment = "";
-        }
-        else if (test.size() == 1)
-        {
+        } else if (test.size() == 1) {
             comment += "\n# ";
             comment += test[0].write();
         }
     }
 }
 
-BOOST_AUTO_TEST_CASE(basic_transaction_tests)
-{
+BOOST_AUTO_TEST_CASE(basic_transaction_tests) {
     // Random real transaction (e2769b09e784f32f62ef849763d4f45b98e07ba658647343b915ff832b110436)
     unsigned char ch[] = {0x01, 0x00, 0x00, 0x00, 0x01, 0x6b, 0xff, 0x7f, 0xcd, 0x4f, 0x85, 0x65, 0xef, 0x40, 0x6d, 0xd5, 0xd6, 0x3d, 0x4f, 0xf9, 0x4f, 0x31, 0x8f, 0xe8, 0x20, 0x27, 0xfd, 0x4d, 0xc4, 0x51, 0xb0, 0x44, 0x74, 0x01, 0x9f, 0x74, 0xb4, 0x00, 0x00, 0x00, 0x00, 0x8c, 0x49, 0x30, 0x46, 0x02, 0x21, 0x00, 0xda, 0x0d, 0xc6, 0xae, 0xce, 0xfe, 0x1e, 0x06, 0xef, 0xdf, 0x05, 0x77, 0x37, 0x57, 0xde, 0xb1, 0x68, 0x82, 0x09, 0x30, 0xe3, 0xb0, 0xd0, 0x3f, 0x46, 0xf5, 0xfc, 0xf1, 0x50, 0xbf, 0x99, 0x0c, 0x02, 0x21, 0x00, 0xd2, 0x5b, 0x5c, 0x87, 0x04, 0x00, 0x76, 0xe4, 0xf2, 0x53, 0xf8, 0x26, 0x2e, 0x76, 0x3e, 0x2d, 0xd5, 0x1e, 0x7f, 0xf0, 0xbe, 0x15, 0x77, 0x27, 0xc4, 0xbc, 0x42, 0x80, 0x7f, 0x17, 0xbd, 0x39, 0x01, 0x41, 0x04, 0xe6, 0xc2, 0x6e, 0xf6, 0x7d, 0xc6, 0x10, 0xd2, 0xcd, 0x19, 0x24, 0x84, 0x78, 0x9a, 0x6c, 0xf9, 0xae, 0xa9, 0x93, 0x0b, 0x94, 0x4b, 0x7e, 0x2d, 0xb5, 0x34, 0x2b, 0x9d, 0x9e, 0x5b, 0x9f, 0xf7, 0x9a, 0xff, 0x9a, 0x2e, 0xe1, 0x97, 0x8d, 0xd7, 0xfd, 0x01, 0xdf, 0xc5, 0x22, 0xee, 0x02, 0x28, 0x3d, 0x3b, 0x06, 0xa9, 0xd0, 0x3a, 0xcf, 0x80, 0x96, 0x96, 0x8d, 0x7d, 0xbb, 0x0f, 0x91, 0x78, 0xff, 0xff, 0xff, 0xff, 0x02, 0x8b, 0xa7, 0x94, 0x0e, 0x00, 0x00, 0x00, 0x00, 0x19, 0x76, 0xa9, 0x14, 0xba, 0xde, 0xec, 0xfd, 0xef, 0x05, 0x07, 0x24, 0x7f, 0xc8, 0xf7, 0x42, 0x41, 0xd7, 0x3b, 0xc0, 0x39, 0x97, 0x2d, 0x7b, 0x88, 0xac, 0x40, 0x94, 0xa8, 0x02, 0x00, 0x00, 0x00, 0x00, 0x19, 0x76, 0xa9, 0x14, 0xc1, 0x09, 0x32, 0x48, 0x3f, 0xec, 0x93, 0xed, 0x51, 0xf5, 0xfe, 0x95, 0xe7, 0x25, 0x59, 0xf2, 0xcc, 0x70, 0x43, 0xf9, 0x88, 0xac, 0x00, 0x00, 0x00, 0x00, 0x00};
     vector<unsigned char> vch(ch, ch + sizeof(ch) -1);
@@ -292,15 +268,13 @@ BOOST_AUTO_TEST_CASE(basic_transaction_tests)
 // paid to a TX_PUBKEYHASH.
 //
 static std::vector<CMutableTransaction>
-SetupDummyInputs(CBasicKeyStore& keystoreRet, CCoinsViewCache& coinsRet)
-{
+SetupDummyInputs(CBasicKeyStore& keystoreRet, CCoinsViewCache& coinsRet) {
     std::vector<CMutableTransaction> dummyTransactions;
     dummyTransactions.resize(2);
 
     // Add some keys to the keystore:
     CKey key[4];
-    for (int i = 0; i < 4; i++)
-    {
+    for (int i = 0; i < 4; i++) {
         key[i].MakeNewKey(i % 2);
         keystoreRet.AddKey(key[i]);
     }
@@ -323,8 +297,7 @@ SetupDummyInputs(CBasicKeyStore& keystoreRet, CCoinsViewCache& coinsRet)
     return dummyTransactions;
 }
 
-BOOST_AUTO_TEST_CASE(test_basic_joinsplit_verification)
-{
+BOOST_AUTO_TEST_CASE(test_basic_joinsplit_verification) {
     // We only check that joinsplits are constructed properly
     // and verify properly here. libsnark tends to segfault
     // when our snarks or what-have-you are invalid, so
@@ -400,8 +373,7 @@ BOOST_AUTO_TEST_CASE(test_basic_joinsplit_verification)
     }
 }
 
-void test_simple_sapling_invalidity(uint32_t consensusBranchId, CMutableTransaction tx)
-{
+void test_simple_sapling_invalidity(uint32_t consensusBranchId, CMutableTransaction tx) {
     {
         CMutableTransaction newTx(tx);
         CValidationState state;
@@ -463,8 +435,7 @@ void test_simple_sapling_invalidity(uint32_t consensusBranchId, CMutableTransact
     }
 }
 
-void test_simple_joinsplit_invalidity(uint32_t consensusBranchId, CMutableTransaction tx)
-{
+void test_simple_joinsplit_invalidity(uint32_t consensusBranchId, CMutableTransaction tx) {
     auto verifier = libzcash::ProofVerifier::Strict();
     {
         // Ensure that empty vin/vout remain invalid without
@@ -502,7 +473,7 @@ void test_simple_joinsplit_invalidity(uint32_t consensusBranchId, CMutableTransa
         assert(crypto_sign_detached(&newTx.joinSplitSig[0], NULL,
                                     dataToBeSigned.begin(), 32,
                                     joinSplitPrivKey
-                                    ) == 0);
+                                   ) == 0);
 
         BOOST_CHECK(CheckTransactionWithoutProofVerification(newTx, state));
         BOOST_CHECK(ContextualCheckTransaction(0,newTx, state, 0, 100));
@@ -513,7 +484,7 @@ void test_simple_joinsplit_invalidity(uint32_t consensusBranchId, CMutableTransa
         CValidationState state;
 
         newTx.vjoinsplit.push_back(JSDescription());
-        
+
         JSDescription *jsdesc = &newTx.vjoinsplit[0];
         jsdesc->vpub_old = -1;
 
@@ -626,8 +597,7 @@ BOOST_AUTO_TEST_CASE(test_simple_joinsplit_invalidity_driver) {
 }
 
 // Parameterized testing over consensus branch ids
-BOOST_DATA_TEST_CASE(test_Get, boost::unit_test::data::xrange(static_cast<int>(Consensus::MAX_NETWORK_UPGRADES)))
-{
+BOOST_DATA_TEST_CASE(test_Get, boost::unit_test::data::xrange(static_cast<int>(Consensus::MAX_NETWORK_UPGRADES))) {
     uint32_t consensusBranchId = NetworkUpgradeInfo[sample].nBranchId;
 
     CBasicKeyStore keystore;
@@ -744,8 +714,7 @@ BOOST_AUTO_TEST_CASE(test_big_overwinter_transaction) {
     threadGroup.join_all();
 }
 
-BOOST_AUTO_TEST_CASE(test_IsStandard)
-{
+BOOST_AUTO_TEST_CASE(test_IsStandard) {
     LOCK(cs_main);
     CBasicKeyStore keystore;
     CCoinsView coinsDummy;
@@ -803,8 +772,7 @@ BOOST_AUTO_TEST_CASE(test_IsStandard)
     BOOST_CHECK(!IsStandardTx(t, reason));
 }
 
-BOOST_AUTO_TEST_CASE(test_IsStandardV2)
-{
+BOOST_AUTO_TEST_CASE(test_IsStandardV2) {
     LOCK(cs_main);
     CBasicKeyStore keystore;
     CCoinsView coinsDummy;

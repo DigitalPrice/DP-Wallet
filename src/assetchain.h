@@ -15,39 +15,44 @@
  ******************************************************************************/
 #include <string>
 
-class assetchain
-{
-public:
+class assetchain {
+  public:
     assetchain() : symbol_("") {}
-    assetchain(const std::string& symbol) : symbol_(symbol)
-    {
+    assetchain(const std::string& symbol) : symbol_(symbol) {
         if (symbol_.size() > 64)
             symbol_ = symbol_.substr(0, 64);
     }
     /*****
      * @returns true if the chain is Komodo
      */
-    bool isKMD() { return symbol_.empty(); }
+    bool isKMD() {
+        return symbol_.empty();
+    }
     /****
      * @param in the symbol to compare
      * @returns true if this chain's symbol matches
      */
-    bool isSymbol(const std::string& in) { return in == symbol_; }
+    bool isSymbol(const std::string& in) {
+        return in == symbol_;
+    }
     /****
      * @returns this chain's symbol (will be empty for KMD)
      */
-    std::string symbol() { return symbol_; }
+    std::string symbol() {
+        return symbol_;
+    }
     /****
      * @returns this chain's symbol, "KMD" in the case of Komodo
      */
-    std::string ToString() 
-    { 
-        if (symbol_.empty()) 
-            return "KMD"; 
-        return symbol_; 
+    std::string ToString() {
+        if (symbol_.empty())
+            return "KMD";
+        return symbol_;
     }
-    bool SymbolStartsWith(const std::string& in) { return symbol_.find(in) == 0; }
-private:
+    bool SymbolStartsWith(const std::string& in) {
+        return symbol_.find(in) == 0;
+    }
+  private:
     std::string symbol_;
 };
 

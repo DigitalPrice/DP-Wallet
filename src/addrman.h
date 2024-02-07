@@ -40,15 +40,14 @@
 /**
  * Extended statistics about a CAddress
  */
-class CAddrInfo : public CAddress
-{
+class CAddrInfo : public CAddress {
 
 
-public:
+  public:
     //! last try whatsoever by us (memory only)
     int64_t nLastTry;
 
-private:
+  private:
     //! where knowledge about this address first came from
     CNetAddr source;
 
@@ -69,7 +68,7 @@ private:
 
     friend class CAddrMan;
 
-public:
+  public:
 
     ADD_SERIALIZE_METHODS;
 
@@ -81,8 +80,7 @@ public:
         READWRITE(nAttempts);
     }
 
-    void Init()
-    {
+    void Init() {
         nLastSuccess = 0;
         nLastTry = 0;
         nAttempts = 0;
@@ -91,13 +89,11 @@ public:
         nRandomPos = -1;
     }
 
-    CAddrInfo(const CAddress &addrIn, const CNetAddr &addrSource) : CAddress(addrIn), source(addrSource)
-    {
+    CAddrInfo(const CAddress &addrIn, const CNetAddr &addrSource) : CAddress(addrIn), source(addrSource) {
         Init();
     }
 
-    CAddrInfo() : CAddress(), source()
-    {
+    CAddrInfo() : CAddress(), source() {
         Init();
     }
 
@@ -108,8 +104,7 @@ public:
     int GetNewBucket(const uint256 &nKey, const CNetAddr& src, const std::vector<bool> &asmap) const;
 
     //! Calculate in which "new" bucket this entry belongs, using its default source
-    int GetNewBucket(const uint256 &nKey, const std::vector<bool> &asmap) const
-    {
+    int GetNewBucket(const uint256 &nKey, const std::vector<bool> &asmap) const {
         return GetNewBucket(nKey, source, asmap);
     }
 
@@ -186,13 +181,12 @@ public:
 //! the maximum number of nodes to return in a getaddr call
 #define ADDRMAN_GETADDR_MAX 2500
 
-/** 
- * Stochastical (IP) address manager 
+/**
+ * Stochastical (IP) address manager
  */
-class CAddrMan
-{
-friend class CAddrManTest;
-private:
+class CAddrMan {
+    friend class CAddrManTest;
+  private:
     //! critical section to protect the inner data structures
     mutable CCriticalSection cs;
 
@@ -220,7 +214,7 @@ private:
     //! list of "new" buckets
     int vvNew[ADDRMAN_NEW_BUCKET_COUNT][ADDRMAN_BUCKET_SIZE];
 
-protected:
+  protected:
     //! secret key to randomize bucket select with
     uint256 nKey;
 
@@ -263,8 +257,7 @@ protected:
      * @note the mutex should be held before this method is called
      * @note the constructor calls this directly with no lock
      */
-    void Clear_()
-    {
+    void Clear_() {
         std::vector<int>().swap(vRandom);
         nKey = GetRandHash();
         for (size_t bucket = 0; bucket < ADDRMAN_NEW_BUCKET_COUNT; bucket++) {
@@ -296,7 +289,7 @@ protected:
     //! Mark an entry as currently-connected-to.
     void Connected_(const CService &addr, int64_t nTime);
 
-public:
+  public:
     // Compressed IP->ASN mapping, loaded from a file when a node starts.
     // Should be always empty if no file was provided.
     // This mapping is then used for bucketing nodes in Addrman.
@@ -346,9 +339,8 @@ public:
      * We don't use ADD_SERIALIZE_METHODS since the serialization and deserialization code has
      * very little in common.
      */
-        template<typename Stream>
-        void Serialize(Stream &s) const
-    {
+    template<typename Stream>
+    void Serialize(Stream &s) const {
         LOCK(cs);
 
         unsigned char nVersion = 2;
@@ -404,8 +396,7 @@ public:
     }
 
     template<typename Stream>
-    void Unserialize(Stream& s)
-    {
+    void Unserialize(Stream& s) {
         LOCK(cs);
 
         Clear();
@@ -489,12 +480,12 @@ public:
         for (int n = 0; n < nNew; n++) {
             CAddrInfo &info = mapInfo[n];
             int bucket = entryToBucket[n];
-                    int nUBucketPos = info.GetBucketPosition(nKey, true, bucket);
+            int nUBucketPos = info.GetBucketPosition(nKey, true, bucket);
             if (nVersion == 2 && nUBuckets == ADDRMAN_NEW_BUCKET_COUNT && vvNew[bucket][nUBucketPos] == -1 &&
-                info.nRefCount < ADDRMAN_NEW_BUCKETS_PER_ADDRESS && serialized_asmap_version == supplied_asmap_version) {
+                    info.nRefCount < ADDRMAN_NEW_BUCKETS_PER_ADDRESS && serialized_asmap_version == supplied_asmap_version) {
                 // Bucketing has not changed, using existing bucket positions for the new table
                 vvNew[bucket][nUBucketPos] = n;
-                        info.nRefCount++;
+                info.nRefCount++;
             } else {
                 // In case the new table data cannot be used (nVersion unknown, bucket count wrong or new asmap),
                 // try to give them a reference based on their primary source address.
@@ -526,31 +517,26 @@ public:
         Check();
     }
 
-    void Clear()
-    {
+    void Clear() {
         LOCK(cs);
         Clear_();
     }
 
-    CAddrMan()
-    {
+    CAddrMan() {
         Clear_();
     }
 
-    ~CAddrMan()
-    {
+    ~CAddrMan() {
         nKey.SetNull();
     }
 
     //! Return the number of (unique) addresses in all tables.
-    size_t size() const
-    {
+    size_t size() const {
         return vRandom.size();
     }
 
     //! Consistency check
-    void Check()
-    {
+    void Check() {
 #ifdef DEBUG_ADDRMAN
         {
             LOCK(cs);
@@ -562,8 +548,7 @@ public:
     }
 
     //! Add a single address.
-    bool Add(const CAddress &addr, const CNetAddr& source, int64_t nTimePenalty = 0)
-    {
+    bool Add(const CAddress &addr, const CNetAddr& source, int64_t nTimePenalty = 0) {
         bool fRet = false;
         {
             LOCK(cs);
@@ -577,8 +562,7 @@ public:
     }
 
     //! Add multiple addresses.
-    bool Add(const std::vector<CAddress> &vAddr, const CNetAddr& source, int64_t nTimePenalty = 0)
-    {
+    bool Add(const std::vector<CAddress> &vAddr, const CNetAddr& source, int64_t nTimePenalty = 0) {
         int nAdd = 0;
         {
             LOCK(cs);
@@ -593,8 +577,7 @@ public:
     }
 
     //! Mark an entry as accessible.
-    void Good(const CService &addr, int64_t nTime = GetTime())
-    {
+    void Good(const CService &addr, int64_t nTime = GetTime()) {
         {
             LOCK(cs);
             Check();
@@ -604,8 +587,7 @@ public:
     }
 
     //! Mark an entry as connection attempted to.
-    void Attempt(const CService &addr, int64_t nTime = GetTime())
-    {
+    void Attempt(const CService &addr, int64_t nTime = GetTime()) {
         {
             LOCK(cs);
             Check();
@@ -617,8 +599,7 @@ public:
     /**
      * Choose an address to connect to.
      */
-    CAddrInfo Select(bool newOnly = false)
-    {
+    CAddrInfo Select(bool newOnly = false) {
         CAddrInfo addrRet;
         {
             LOCK(cs);
@@ -630,8 +611,7 @@ public:
     }
 
     //! Return a bunch of addresses, selected at random.
-    std::vector<CAddress> GetAddr()
-    {
+    std::vector<CAddress> GetAddr() {
         Check();
         std::vector<CAddress> vAddr;
         {
@@ -643,8 +623,7 @@ public:
     }
 
     //! Mark an entry as currently-connected-to.
-    void Connected(const CService &addr, int64_t nTime = GetTime())
-    {
+    void Connected(const CService &addr, int64_t nTime = GetTime()) {
         {
             LOCK(cs);
             Check();

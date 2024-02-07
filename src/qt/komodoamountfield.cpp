@@ -18,23 +18,20 @@
 /** QSpinBox that uses fixed-point numbers internally and uses our own
  * formatting/parsing functions.
  */
-class AmountSpinBox: public QAbstractSpinBox
-{
+class AmountSpinBox: public QAbstractSpinBox {
     Q_OBJECT
 
-public:
+  public:
     explicit AmountSpinBox(QWidget *parent):
         QAbstractSpinBox(parent),
         currentUnit(KomodoUnits::KMD),
-        singleStep(100000) // satoshis
-    {
+        singleStep(100000) { // satoshis
         setAlignment(Qt::AlignRight);
 
         connect(lineEdit(), &QLineEdit::textEdited, this, &AmountSpinBox::valueChanged);
     }
 
-    QValidator::State validate(QString &text, int &pos) const
-    {
+    QValidator::State validate(QString &text, int &pos) const {
         if(text.isEmpty())
             return QValidator::Intermediate;
         bool valid = false;
@@ -43,30 +40,25 @@ public:
         return valid ? QValidator::Intermediate : QValidator::Invalid;
     }
 
-    void fixup(QString &input) const
-    {
+    void fixup(QString &input) const {
         bool valid = false;
         CAmount val = parse(input, &valid);
-        if(valid)
-        {
+        if(valid) {
             input = KomodoUnits::format(currentUnit, val, false, KomodoUnits::separatorAlways);
             lineEdit()->setText(input);
         }
     }
 
-    CAmount value(bool *valid_out=0) const
-    {
+    CAmount value(bool *valid_out=0) const {
         return parse(text(), valid_out);
     }
 
-    void setValue(const CAmount& value)
-    {
+    void setValue(const CAmount& value) {
         lineEdit()->setText(KomodoUnits::format(currentUnit, value, false, KomodoUnits::separatorAlways));
         Q_EMIT valueChanged();
     }
 
-    void stepBy(int steps)
-    {
+    void stepBy(int steps) {
         bool valid = false;
         CAmount val = value(&valid);
         val = val + steps * singleStep;
@@ -74,8 +66,7 @@ public:
         setValue(val);
     }
 
-    void setDisplayUnit(int unit)
-    {
+    void setDisplayUnit(int unit) {
         bool valid = false;
         CAmount val = value(&valid);
 
@@ -87,15 +78,12 @@ public:
             clear();
     }
 
-    void setSingleStep(const CAmount& step)
-    {
+    void setSingleStep(const CAmount& step) {
         singleStep = step;
     }
 
-    QSize minimumSizeHint() const
-    {
-        if(cachedMinimumSizeHint.isEmpty())
-        {
+    QSize minimumSizeHint() const {
+        if(cachedMinimumSizeHint.isEmpty()) {
             ensurePolished();
 
             const QFontMetrics fm(fontMetrics());
@@ -125,7 +113,7 @@ public:
         return cachedMinimumSizeHint;
     }
 
-private:
+  private:
     int currentUnit;
     CAmount singleStep;
     mutable QSize cachedMinimumSizeHint;
@@ -135,12 +123,10 @@ private:
      * return validity.
      * @note Must return 0 if !valid.
      */
-    CAmount parse(const QString &text, bool *valid_out=0) const
-    {
+    CAmount parse(const QString &text, bool *valid_out=0) const {
         CAmount val = 0;
         bool valid = KomodoUnits::parse(currentUnit, text, &val);
-        if(valid)
-        {
+        if(valid) {
             if(val < 0 || val > KomodoUnits::maxMoney())
                 valid = false;
         }
@@ -149,14 +135,11 @@ private:
         return valid ? val : 0;
     }
 
-protected:
-    bool event(QEvent *event)
-    {
-        if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
-        {
+  protected:
+    bool event(QEvent *event) {
+        if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            if (keyEvent->key() == Qt::Key_Comma)
-            {
+            if (keyEvent->key() == Qt::Key_Comma) {
                 // Translate a comma into a period
                 QKeyEvent periodKeyEvent(event->type(), Qt::Key_Period, keyEvent->modifiers(), ".", keyEvent->isAutoRepeat(), keyEvent->count());
                 return QAbstractSpinBox::event(&periodKeyEvent);
@@ -165,8 +148,7 @@ protected:
         return QAbstractSpinBox::event(event);
     }
 
-    StepEnabled stepEnabled() const
-    {
+    StepEnabled stepEnabled() const {
         if (isReadOnly()) // Disable steps when AmountSpinBox is read-only
             return StepNone;
         if (text().isEmpty()) // Allow step-up with empty field
@@ -175,8 +157,7 @@ protected:
         StepEnabled rv = StepNone;
         bool valid = false;
         CAmount val = value(&valid);
-        if(valid)
-        {
+        if(valid) {
             if(val > 0)
                 rv |= StepDownEnabled;
             if(val < KomodoUnits::maxMoney())
@@ -185,7 +166,7 @@ protected:
         return rv;
     }
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void valueChanged();
 };
 
@@ -193,8 +174,7 @@ Q_SIGNALS:
 
 KomodoAmountField::KomodoAmountField(QWidget *parent) :
     QWidget(parent),
-    amount(nullptr)
-{
+    amount(nullptr) {
     amount = new AmountSpinBox(this);
     amount->setLocale(QLocale::c());
     amount->installEventFilter(this);
@@ -221,68 +201,57 @@ KomodoAmountField::KomodoAmountField(QWidget *parent) :
     unitChanged(unit->currentIndex());
 }
 
-void KomodoAmountField::clear()
-{
+void KomodoAmountField::clear() {
     amount->clear();
     unit->setCurrentIndex(0);
 }
 
-void KomodoAmountField::setEnabled(bool fEnabled)
-{
+void KomodoAmountField::setEnabled(bool fEnabled) {
     amount->setEnabled(fEnabled);
     unit->setEnabled(fEnabled);
 }
 
-bool KomodoAmountField::validate()
-{
+bool KomodoAmountField::validate() {
     bool valid = false;
     value(&valid);
     setValid(valid);
     return valid;
 }
 
-void KomodoAmountField::setValid(bool valid)
-{
+void KomodoAmountField::setValid(bool valid) {
     if (valid)
         amount->setStyleSheet("");
     else
         amount->setStyleSheet(STYLE_INVALID);
 }
 
-bool KomodoAmountField::eventFilter(QObject *object, QEvent *event)
-{
-    if (event->type() == QEvent::FocusIn)
-    {
+bool KomodoAmountField::eventFilter(QObject *object, QEvent *event) {
+    if (event->type() == QEvent::FocusIn) {
         // Clear invalid flag on focus
         setValid(true);
     }
     return QWidget::eventFilter(object, event);
 }
 
-QWidget *KomodoAmountField::setupTabChain(QWidget *prev)
-{
+QWidget *KomodoAmountField::setupTabChain(QWidget *prev) {
     QWidget::setTabOrder(prev, amount);
     QWidget::setTabOrder(amount, unit);
     return unit;
 }
 
-CAmount KomodoAmountField::value(bool *valid_out) const
-{
+CAmount KomodoAmountField::value(bool *valid_out) const {
     return amount->value(valid_out);
 }
 
-void KomodoAmountField::setValue(const CAmount& value)
-{
+void KomodoAmountField::setValue(const CAmount& value) {
     amount->setValue(value);
 }
 
-void KomodoAmountField::setReadOnly(bool fReadOnly)
-{
+void KomodoAmountField::setReadOnly(bool fReadOnly) {
     amount->setReadOnly(fReadOnly);
 }
 
-void KomodoAmountField::unitChanged(int idx)
-{
+void KomodoAmountField::unitChanged(int idx) {
     // Use description tooltip for current unit for the combobox
     unit->setToolTip(unit->itemData(idx, Qt::ToolTipRole).toString());
 
@@ -292,12 +261,10 @@ void KomodoAmountField::unitChanged(int idx)
     amount->setDisplayUnit(newUnit);
 }
 
-void KomodoAmountField::setDisplayUnit(int newUnit)
-{
+void KomodoAmountField::setDisplayUnit(int newUnit) {
     unit->setValue(newUnit);
 }
 
-void KomodoAmountField::setSingleStep(const CAmount& step)
-{
+void KomodoAmountField::setSingleStep(const CAmount& step) {
     amount->setSingleStep(step);
 }

@@ -21,11 +21,11 @@ extern "C" {
 
 /* SimpleSha256Condition */
 typedef struct SimpleSha256Condition {
-	OCTET_STRING_t	 fingerprint;
-	unsigned long	 cost;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 fingerprint;
+    unsigned long	 cost;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } SimpleSha256Condition_t;
 
 /* Implementation */

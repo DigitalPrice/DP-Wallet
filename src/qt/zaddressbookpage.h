@@ -11,7 +11,7 @@ class ZAddressTableModel;
 class PlatformStyle;
 
 namespace Ui {
-    class ZAddressBookPage;
+class ZAddressBookPage;
 }
 
 QT_BEGIN_NAMESPACE
@@ -23,11 +23,10 @@ QT_END_NAMESPACE
 
 /** Widget that shows a list of sending or receiving z-addresses.
   */
-class ZAddressBookPage : public QDialog
-{
+class ZAddressBookPage : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     enum Tabs {
         SendingTab = 0,
         ReceivingTab = 1
@@ -42,12 +41,14 @@ public:
     ~ZAddressBookPage();
 
     void setModel(ZAddressTableModel *model);
-    const QString &getReturnValue() const { return returnValue; }
+    const QString &getReturnValue() const {
+        return returnValue;
+    }
 
-public Q_SLOTS:
+  public Q_SLOTS:
     void done(int retval);
 
-private:
+  private:
     Ui::ZAddressBookPage *ui;
     ZAddressTableModel *model;
     Mode mode;
@@ -58,7 +59,7 @@ private:
     QAction *deleteAction; // to be able to explicitly disable it
     QString newAddressToSelect;
 
-private Q_SLOTS:
+  private Q_SLOTS:
     /** Delete currently selected address entry */
     void on_deleteAddress_clicked();
     /** Create a new address for receiving coins and / or add a new address book entry */
@@ -83,7 +84,7 @@ private Q_SLOTS:
     /** New entry/entries were added to address table */
     void selectNewAddress(const QModelIndex &parent, int begin, int /*end*/);
 
-Q_SIGNALS:
+  Q_SIGNALS:
     void sendCoins(QString addr);
 };
 

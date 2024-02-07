@@ -21,8 +21,7 @@ using namespace std;
 
 BOOST_FIXTURE_TEST_SUITE(util_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(util_criticalsection)
-{
+BOOST_AUTO_TEST_CASE(util_criticalsection) {
     CCriticalSection cs;
 
     do {
@@ -48,8 +47,7 @@ static const unsigned char ParseHex_expected[65] = {
     0xde, 0x5c, 0x38, 0x4d, 0xf7, 0xba, 0x0b, 0x8d, 0x57, 0x8a, 0x4c, 0x70, 0x2b, 0x6b, 0xf1, 0x1d,
     0x5f
 };
-BOOST_AUTO_TEST_CASE(util_ParseHex)
-{
+BOOST_AUTO_TEST_CASE(util_ParseHex) {
     std::vector<unsigned char> result;
     std::vector<unsigned char> expected(ParseHex_expected, ParseHex_expected + sizeof(ParseHex_expected));
     // Basic test vector
@@ -65,8 +63,7 @@ BOOST_AUTO_TEST_CASE(util_ParseHex)
     BOOST_CHECK(result.size() == 2 && result[0] == 0x12 && result[1] == 0x34);
 }
 
-BOOST_AUTO_TEST_CASE(util_HexStr)
-{
+BOOST_AUTO_TEST_CASE(util_HexStr) {
     BOOST_CHECK_EQUAL(
         HexStr(ParseHex_expected, ParseHex_expected + sizeof(ParseHex_expected)),
         "04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f");
@@ -87,8 +84,7 @@ BOOST_AUTO_TEST_CASE(util_HexStr)
 }
 
 
-BOOST_AUTO_TEST_CASE(util_DateTimeStrFormat)
-{
+BOOST_AUTO_TEST_CASE(util_DateTimeStrFormat) {
     BOOST_CHECK_EQUAL(DateTimeStrFormat("%Y-%m-%d %H:%M:%S", 0), "1970-01-01 00:00:00");
     BOOST_CHECK_EQUAL(DateTimeStrFormat("%Y-%m-%d %H:%M:%S", 0x7FFFFFFF), "2038-01-19 03:14:07");
     BOOST_CHECK_EQUAL(DateTimeStrFormat("%Y-%m-%d %H:%M:%S", 1317425777), "2011-09-30 23:36:17");
@@ -96,8 +92,7 @@ BOOST_AUTO_TEST_CASE(util_DateTimeStrFormat)
     BOOST_CHECK_EQUAL(DateTimeStrFormat("%a, %d %b %Y %H:%M:%S +0000", 1317425777), "Fri, 30 Sep 2011 23:36:17 +0000");
 }
 
-BOOST_AUTO_TEST_CASE(util_ParseParameters)
-{
+BOOST_AUTO_TEST_CASE(util_ParseParameters) {
     const char *argv_test[] = {"-ignored", "-a", "-b", "-ccc=argument", "-ccc=multiple", "f", "-d=e"};
 
     ParseParameters(0, (char**)argv_test);
@@ -120,8 +115,7 @@ BOOST_AUTO_TEST_CASE(util_ParseParameters)
     BOOST_CHECK(mapMultiArgs["-ccc"].size() == 2);
 }
 
-BOOST_AUTO_TEST_CASE(util_GetArg)
-{
+BOOST_AUTO_TEST_CASE(util_GetArg) {
     mapArgs.clear();
     mapArgs["strtest1"] = "string...";
     // strtest2 undefined on purpose
@@ -144,8 +138,7 @@ BOOST_AUTO_TEST_CASE(util_GetArg)
     BOOST_CHECK_EQUAL(GetBoolArg("booltest4", false), true);
 }
 
-BOOST_AUTO_TEST_CASE(util_FormatMoney)
-{
+BOOST_AUTO_TEST_CASE(util_FormatMoney) {
     BOOST_CHECK_EQUAL(FormatMoney(0), "0.00");
     BOOST_CHECK_EQUAL(FormatMoney((COIN/10000)*123456789), "12345.6789");
     BOOST_CHECK_EQUAL(FormatMoney(-COIN), "-1.00");
@@ -169,8 +162,7 @@ BOOST_AUTO_TEST_CASE(util_FormatMoney)
     BOOST_CHECK_EQUAL(FormatMoney(COIN/100000000), "0.00000001");
 }
 
-BOOST_AUTO_TEST_CASE(util_ParseMoney)
-{
+BOOST_AUTO_TEST_CASE(util_ParseMoney) {
     CAmount ret = 0;
     BOOST_CHECK(ParseMoney("0.0", ret));
     BOOST_CHECK_EQUAL(ret, 0);
@@ -217,8 +209,7 @@ BOOST_AUTO_TEST_CASE(util_ParseMoney)
     BOOST_CHECK(!ParseMoney("92233720368.54775808", ret));
 }
 
-BOOST_AUTO_TEST_CASE(util_IsHex)
-{
+BOOST_AUTO_TEST_CASE(util_IsHex) {
     BOOST_CHECK(IsHex("00"));
     BOOST_CHECK(IsHex("00112233445566778899aabbccddeeffAABBCCDDEEFF"));
     BOOST_CHECK(IsHex("ff"));
@@ -232,11 +223,9 @@ BOOST_AUTO_TEST_CASE(util_IsHex)
     BOOST_CHECK(!IsHex("0x0000"));
 }
 
-BOOST_AUTO_TEST_CASE(util_seed_insecure_rand)
-{
+BOOST_AUTO_TEST_CASE(util_seed_insecure_rand) {
     seed_insecure_rand(true);
-    for (int mod=2;mod<11;mod++)
-    {
+    for (int mod=2; mod<11; mod++) {
         int mask = 1;
         // Really rough binomal confidence approximation.
         int err = 30*10000./mod*sqrt((1./mod*(1-1./mod))/10000.);
@@ -247,9 +236,9 @@ BOOST_AUTO_TEST_CASE(util_seed_insecure_rand)
         //How often does it get a zero from the uniform range [0,mod)?
         for (int i = 0; i < 10000; i++) {
             uint32_t rval;
-            do{
+            do {
                 rval=insecure_rand()&mask;
-            }while(rval>=(uint32_t)mod);
+            } while(rval>=(uint32_t)mod);
             count += rval==0;
         }
         BOOST_CHECK(count<=10000/mod+err);
@@ -257,8 +246,7 @@ BOOST_AUTO_TEST_CASE(util_seed_insecure_rand)
     }
 }
 
-BOOST_AUTO_TEST_CASE(util_TimingResistantEqual)
-{
+BOOST_AUTO_TEST_CASE(util_TimingResistantEqual) {
     BOOST_CHECK(TimingResistantEqual(std::string(""), std::string("")));
     BOOST_CHECK(!TimingResistantEqual(std::string("abc"), std::string("")));
     BOOST_CHECK(!TimingResistantEqual(std::string(""), std::string("abc")));
@@ -272,8 +260,7 @@ BOOST_AUTO_TEST_CASE(util_TimingResistantEqual)
  * Put a string before and after to ensure sanity of element sizes on stack. */
 #define B "check_prefix"
 #define E "check_postfix"
-BOOST_AUTO_TEST_CASE(strprintf_numbers)
-{
+BOOST_AUTO_TEST_CASE(strprintf_numbers) {
     int64_t s64t = -9223372036854775807LL; /* signed 64 bit test value */
     uint64_t u64t = 18446744073709551615ULL; /* unsigned 64 bit test value */
     BOOST_CHECK(strprintf("%s %d %s", B, s64t, E) == B" -9223372036854775807 " E);
@@ -298,13 +285,11 @@ BOOST_AUTO_TEST_CASE(strprintf_numbers)
 /* Check for mingw/wine issue #3494
  * Remove this test before time.ctime(0xffffffff) == 'Sun Feb  7 07:28:15 2106'
  */
-BOOST_AUTO_TEST_CASE(gettime)
-{
+BOOST_AUTO_TEST_CASE(gettime) {
     BOOST_CHECK((GetTime() & ~0xFFFFFFFFLL) == 0);
 }
 
-BOOST_AUTO_TEST_CASE(test_ParseInt32)
-{
+BOOST_AUTO_TEST_CASE(test_ParseInt32) {
     int32_t n;
     // Valid values
     BOOST_CHECK(ParseInt32("1234", NULL));
@@ -332,8 +317,7 @@ BOOST_AUTO_TEST_CASE(test_ParseInt32)
     BOOST_CHECK(!ParseInt32("32482348723847471234", NULL));
 }
 
-BOOST_AUTO_TEST_CASE(test_ParseInt64)
-{
+BOOST_AUTO_TEST_CASE(test_ParseInt64) {
     int64_t n;
     // Valid values
     BOOST_CHECK(ParseInt64("1234", NULL));
@@ -362,8 +346,7 @@ BOOST_AUTO_TEST_CASE(test_ParseInt64)
     BOOST_CHECK(!ParseInt64("32482348723847471234", NULL));
 }
 
-BOOST_AUTO_TEST_CASE(test_ParseDouble)
-{
+BOOST_AUTO_TEST_CASE(test_ParseDouble) {
     double n;
     // Valid values
     BOOST_CHECK(ParseDouble("1234", NULL));
@@ -390,8 +373,7 @@ BOOST_AUTO_TEST_CASE(test_ParseDouble)
     BOOST_CHECK(!ParseDouble("1e10000", NULL));
 }
 
-BOOST_AUTO_TEST_CASE(test_FormatParagraph)
-{
+BOOST_AUTO_TEST_CASE(test_FormatParagraph) {
     BOOST_CHECK_EQUAL(FormatParagraph("", 79, 0), "");
     BOOST_CHECK_EQUAL(FormatParagraph("test", 79, 0), "test");
     BOOST_CHECK_EQUAL(FormatParagraph(" test", 79, 0), "test");
@@ -402,8 +384,7 @@ BOOST_AUTO_TEST_CASE(test_FormatParagraph)
     BOOST_CHECK_EQUAL(FormatParagraph("This is a very long test string. This is a second sentence in the very long test string."), "This is a very long test string. This is a second sentence in the very long\ntest string.");
 }
 
-BOOST_AUTO_TEST_CASE(test_FormatSubVersion)
-{
+BOOST_AUTO_TEST_CASE(test_FormatSubVersion) {
     std::vector<std::string> comments;
     comments.push_back(std::string("comment1"));
     std::vector<std::string> comments2;
@@ -422,8 +403,7 @@ BOOST_AUTO_TEST_CASE(test_FormatSubVersion)
     BOOST_CHECK_EQUAL(FormatSubVersion("Test", 99950, comments2), std::string("/Test:0.9.99(comment1; Comment2; .,_?@; )/"));
 }
 
-BOOST_AUTO_TEST_CASE(test_ParseFixedPoint)
-{
+BOOST_AUTO_TEST_CASE(test_ParseFixedPoint) {
     int64_t amount = 0;
     BOOST_CHECK(ParseFixedPoint("0", 8, &amount));
     BOOST_CHECK_EQUAL(amount, 0LL);

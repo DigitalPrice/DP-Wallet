@@ -14,14 +14,12 @@ extern "C"
 {
 #endif
 
-typedef struct panelobs
-{
+typedef struct panelobs {
     struct panelobs *above;
     struct panel *pan;
 } PANELOBS;
 
-typedef struct panel
-{
+typedef struct panel {
     WINDOW *win;
     int wstarty;
     int wendy;

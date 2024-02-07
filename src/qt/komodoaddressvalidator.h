@@ -10,29 +10,27 @@
 /** Base58 entry widget validator, checks for valid characters and
  * removes some whitespace.
  */
-class KomodoAddressEntryValidator : public QValidator
-{
+class KomodoAddressEntryValidator : public QValidator {
     Q_OBJECT
 
-public:
+  public:
     explicit KomodoAddressEntryValidator(QObject *parent, bool allowZAddresses = false);
 
     State validate(QString &input, int &pos) const;
-private:
+  private:
     bool _allowZAddresses;
 };
 
 /** Komodo address widget validator, checks for a valid komodo address.
  */
-class KomodoAddressCheckValidator : public QValidator
-{
+class KomodoAddressCheckValidator : public QValidator {
     Q_OBJECT
 
-public:
+  public:
     explicit KomodoAddressCheckValidator(QObject *parent, bool allowZAddresses = false);
 
     State validate(QString &input, int &pos) const;
-private:
+  private:
     bool _allowZAddresses;
 };
 

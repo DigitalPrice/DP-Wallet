@@ -62,13 +62,13 @@
 
 const std::string KomodoOceanGUI::DEFAULT_UIPLATFORM =
 #if defined(Q_OS_MAC)
-        "macosx"
+    "macosx"
 #elif defined(Q_OS_WIN)
-        "windows"
+    "windows"
 #else
-        "other"
+    "other"
 #endif
-        ;
+    ;
 
 /** Display name for default wallet name. Uses tilde to avoid name
  * collisions in the future with additional wallets */
@@ -76,8 +76,7 @@ const QString KomodoOceanGUI::DEFAULT_WALLET = "~Default";
 
 KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const NetworkStyle *networkStyle, QWidget *parent) :
     QMainWindow(parent),
-    platformStyle(_platformStyle)
-{
+    platformStyle(_platformStyle) {
     QSettings settings;
     if (!restoreGeometry(settings.value("MainWindowGeometry").toByteArray())) {
         // Restore failed (perhaps missing setting), center the window
@@ -89,8 +88,7 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
 #ifdef ENABLE_WALLET
     enableWallet = WalletModel::isWalletEnabled();
 #endif // ENABLE_WALLET
-    if(enableWallet)
-    {
+    if(enableWallet) {
         windowTitle += tr("Wallet");
     } else {
         windowTitle += tr("Node");
@@ -104,8 +102,7 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
     rpcConsole = new RPCConsole(_platformStyle, 0);
     helpMessageDialog = new HelpMessageDialog(this, false);
 #ifdef ENABLE_WALLET
-    if(enableWallet)
-    {
+    if(enableWallet) {
         /** Create wallet frame and make it the central widget */
         walletFrame = new WalletFrame(_platformStyle, this);
         setCentralWidget(walletFrame);
@@ -152,8 +149,7 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
     labelWalletHDStatusIcon = new QLabel();
     connectionsControl = new GUIUtil::ClickableLabel();
     labelBlocksIcon = new GUIUtil::ClickableLabel();
-    if(enableWallet)
-    {
+    if(enableWallet) {
         frameBlocksLayout->addStretch();
         frameBlocksLayout->addWidget(unitDisplayControl);
         frameBlocksLayout->addStretch();
@@ -219,16 +215,15 @@ KomodoOceanGUI::KomodoOceanGUI(const PlatformStyle *_platformStyle, const Networ
     std::string StyleSheetNames[2] = { "global", "pulled" };
     QString ThisStyleSheet;
     for (int i = 0; i < 2; i++) {
-		QFile styleFile;
-		styleFile.setFileName (":/themes/" + QString::fromStdString(StyleSheetNames[i]));
-		styleFile.open(QFile::ReadOnly);
-		ThisStyleSheet += QLatin1String(styleFile.readAll());
-	}
-	qApp->setStyleSheet(styleSheet().append(ThisStyleSheet));
+        QFile styleFile;
+        styleFile.setFileName (":/themes/" + QString::fromStdString(StyleSheetNames[i]));
+        styleFile.open(QFile::ReadOnly);
+        ThisStyleSheet += QLatin1String(styleFile.readAll());
+    }
+    qApp->setStyleSheet(styleSheet().append(ThisStyleSheet));
 }
 
-KomodoOceanGUI::~KomodoOceanGUI()
-{
+KomodoOceanGUI::~KomodoOceanGUI() {
     // Unsubscribe from notifications from core
     unsubscribeFromCoreSignals();
 
@@ -244,8 +239,7 @@ KomodoOceanGUI::~KomodoOceanGUI()
     delete rpcConsole;
 }
 
-void KomodoOceanGUI::createActions()
-{
+void KomodoOceanGUI::createActions() {
     QActionGroup *topQToolButtonGroup = new QActionGroup(this);
 
     overviewAction = new QAction(platformStyle->SingleColorIcon(":/icons/overview"), tr("&Overview"), this);
@@ -301,9 +295,9 @@ void KomodoOceanGUI::createActions()
     connect(overviewAction, &QAction::triggered, this, static_cast<void (KomodoOceanGUI::*)()>(&KomodoOceanGUI::showNormalIfMinimized));
     connect(overviewAction, &QAction::triggered, this, &KomodoOceanGUI::gotoOverviewPage);
     connect(sendCoinsAction, &QAction::triggered, this, static_cast<void (KomodoOceanGUI::*)()>(&KomodoOceanGUI::showNormalIfMinimized));
-    connect(sendCoinsAction, &QAction::triggered, [this]{ gotoSendCoinsPage(); });
+    connect(sendCoinsAction, &QAction::triggered, [this] { gotoSendCoinsPage(); });
     connect(sendCoinsMenuAction, &QAction::triggered, this, static_cast<void (KomodoOceanGUI::*)()>(&KomodoOceanGUI::showNormalIfMinimized));
-    connect(sendCoinsMenuAction, &QAction::triggered, [this]{ gotoSendCoinsPage(); });
+    connect(sendCoinsMenuAction, &QAction::triggered, [this] { gotoSendCoinsPage(); });
     connect(receiveCoinsAction, &QAction::triggered, this, static_cast<void (KomodoOceanGUI::*)()>(&KomodoOceanGUI::showNormalIfMinimized));
     connect(receiveCoinsAction, &QAction::triggered, this, &KomodoOceanGUI::gotoReceiveCoinsPage);
     connect(receiveCoinsMenuAction, &QAction::triggered, this, static_cast<void (KomodoOceanGUI::*)()>(&KomodoOceanGUI::showNormalIfMinimized));
@@ -311,9 +305,9 @@ void KomodoOceanGUI::createActions()
     connect(historyAction, &QAction::triggered, this, static_cast<void (KomodoOceanGUI::*)()>(&KomodoOceanGUI::showNormalIfMinimized));
     connect(historyAction, &QAction::triggered, this, &KomodoOceanGUI::gotoHistoryPage);
     connect(zsendCoinsAction, &QAction::triggered, this, static_cast<void (KomodoOceanGUI::*)()>(&KomodoOceanGUI::showNormalIfMinimized));
-    connect(zsendCoinsAction, &QAction::triggered, [this]{ gotoZSendCoinsPage(); });
+    connect(zsendCoinsAction, &QAction::triggered, [this] { gotoZSendCoinsPage(); });
     connect(zsendCoinsMenuAction, &QAction::triggered, this, static_cast<void (KomodoOceanGUI::*)()>(&KomodoOceanGUI::showNormalIfMinimized));
-    connect(zsendCoinsMenuAction, &QAction::triggered, [this]{ gotoZSendCoinsPage(); });
+    connect(zsendCoinsMenuAction, &QAction::triggered, [this] { gotoZSendCoinsPage(); });
 
 #endif // ENABLE_WALLET
 
@@ -382,13 +376,12 @@ void KomodoOceanGUI::createActions()
     connect(quitAction, &QAction::triggered, rpcConsole, &QWidget::hide);
 
 #ifdef ENABLE_WALLET
-    if(walletFrame)
-    {
+    if(walletFrame) {
         connect(encryptWalletAction, &QAction::triggered, walletFrame, &WalletFrame::encryptWallet);
         connect(backupWalletAction, &QAction::triggered, walletFrame, &WalletFrame::backupWallet);
         connect(changePassphraseAction, &QAction::triggered, walletFrame, &WalletFrame::changePassphrase);
-        connect(signMessageAction, &QAction::triggered, [this]{ gotoSignMessageTab(); });
-        connect(verifyMessageAction, &QAction::triggered, [this]{ gotoVerifyMessageTab(); });
+        connect(signMessageAction, &QAction::triggered, [this] { gotoSignMessageTab(); });
+        connect(verifyMessageAction, &QAction::triggered, [this] { gotoVerifyMessageTab(); });
         connect(usedSendingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedSendingAddresses);
         connect(usedReceivingAddressesAction, &QAction::triggered, walletFrame, &WalletFrame::usedReceivingAddresses);
         connect(openAction, &QAction::triggered, this, &KomodoOceanGUI::openClicked);
@@ -401,8 +394,7 @@ void KomodoOceanGUI::createActions()
     connect(new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_D), this), &QShortcut::activated, this, &KomodoOceanGUI::showDebugWindow);
 }
 
-void KomodoOceanGUI::createMenuBar()
-{
+void KomodoOceanGUI::createMenuBar() {
 #ifdef Q_OS_MAC
     // Create a decoupled menu bar on Mac which stays even if the window is closed
     appMenuBar = new QMenuBar();
@@ -413,8 +405,7 @@ void KomodoOceanGUI::createMenuBar()
 
     // Configure the menus
     QMenu *file = appMenuBar->addMenu(tr("&File"));
-    if(walletFrame)
-    {
+    if(walletFrame) {
         file->addAction(openAction);
         file->addAction(backupWalletAction);
         file->addAction(signMessageAction);
@@ -428,8 +419,7 @@ void KomodoOceanGUI::createMenuBar()
     file->addAction(quitAction);
 
     QMenu *settings = appMenuBar->addMenu(tr("&Settings"));
-    if(walletFrame)
-    {
+    if(walletFrame) {
         settings->addAction(encryptWalletAction);
         settings->addAction(changePassphraseAction);
         settings->addSeparator();
@@ -439,8 +429,7 @@ void KomodoOceanGUI::createMenuBar()
     settings->addAction(optionsAction);
 
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
-    if(walletFrame)
-    {
+    if(walletFrame) {
         help->addAction(openRPCConsoleAction);
     }
     help->addAction(showHelpMessageAction);
@@ -449,10 +438,8 @@ void KomodoOceanGUI::createMenuBar()
     help->addAction(aboutQtAction);
 }
 
-void KomodoOceanGUI::createToolBars()
-{
-    if(walletFrame)
-    {
+void KomodoOceanGUI::createToolBars() {
+    if(walletFrame) {
         QToolBar *toolbar = addToolBar(tr("Tabs toolbar"));
         toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
         toolbar->setMovable(false);
@@ -466,11 +453,9 @@ void KomodoOceanGUI::createToolBars()
     }
 }
 
-void KomodoOceanGUI::setClientModel(ClientModel *_clientModel)
-{
+void KomodoOceanGUI::setClientModel(ClientModel *_clientModel) {
     this->clientModel = _clientModel;
-    if(_clientModel)
-    {
+    if(_clientModel) {
         // Create system tray menu (or setup the dock menu) that late to prevent users from calling actions,
         // while the client has not yet fully loaded
         createTrayIconMenu();
@@ -485,41 +470,40 @@ void KomodoOceanGUI::setClientModel(ClientModel *_clientModel)
         connect(_clientModel, &ClientModel::numBlocksChanged, this, &KomodoOceanGUI::setNumBlocks);
 
         // Receive and report messages from client model
-        connect(_clientModel, &ClientModel::message, [this](const QString &title, const QString &message, unsigned int style){ this->message(title, message, style); });
+        connect(_clientModel, &ClientModel::message, [this](const QString &title, const QString &message, unsigned int style) {
+            this->message(title, message, style);
+        });
 
         // Show progress dialog
         connect(_clientModel, &ClientModel::showProgress, this, &KomodoOceanGUI::showProgress);
 
         rpcConsole->setClientModel(_clientModel);
 #ifdef ENABLE_WALLET
-        if(walletFrame)
-        {
+        if(walletFrame) {
             walletFrame->setClientModel(_clientModel);
         }
 #endif // ENABLE_WALLET
         unitDisplayControl->setOptionsModel(_clientModel->getOptionsModel());
-        
+
         OptionsModel* optionsModel = _clientModel->getOptionsModel();
         if (optionsModel && trayIcon) {
             // be aware of the tray icon disable state change reported by the OptionsModel object.
             connect(optionsModel, &OptionsModel::hideTrayIconChanged, this, &KomodoOceanGUI::setTrayIconVisible);
-        
+
             // initialize the disable state of the tray icon with the current value in the model.
             setTrayIconVisible(optionsModel->getHideTrayIcon());
         }
     } else {
         // Disable possibility to show main window via action
         toggleHideAction->setEnabled(false);
-        if(trayIconMenu)
-        {
+        if(trayIconMenu) {
             // Disable context menu on tray icon
             trayIconMenu->clear();
         }
         // Propagate cleared model to child objects
         rpcConsole->setClientModel(nullptr);
 #ifdef ENABLE_WALLET
-        if (walletFrame)
-        {
+        if (walletFrame) {
             walletFrame->setClientModel(nullptr);
         }
 #endif // ENABLE_WALLET
@@ -528,23 +512,20 @@ void KomodoOceanGUI::setClientModel(ClientModel *_clientModel)
 }
 
 #ifdef ENABLE_WALLET
-bool KomodoOceanGUI::addWallet(const QString& name, WalletModel *walletModel)
-{
+bool KomodoOceanGUI::addWallet(const QString& name, WalletModel *walletModel) {
     if(!walletFrame)
         return false;
     setWalletActionsEnabled(true);
     return walletFrame->addWallet(name, walletModel);
 }
 
-bool KomodoOceanGUI::setCurrentWallet(const QString& name)
-{
+bool KomodoOceanGUI::setCurrentWallet(const QString& name) {
     if(!walletFrame)
         return false;
     return walletFrame->setCurrentWallet(name);
 }
 
-void KomodoOceanGUI::removeAllWallets()
-{
+void KomodoOceanGUI::removeAllWallets() {
     if(!walletFrame)
         return;
     setWalletActionsEnabled(false);
@@ -552,8 +533,7 @@ void KomodoOceanGUI::removeAllWallets()
 }
 #endif // ENABLE_WALLET
 
-void KomodoOceanGUI::setWalletActionsEnabled(bool enabled)
-{
+void KomodoOceanGUI::setWalletActionsEnabled(bool enabled) {
     overviewAction->setEnabled(enabled);
     sendCoinsAction->setEnabled(enabled);
     zsendCoinsAction->setEnabled(enabled);
@@ -573,8 +553,7 @@ void KomodoOceanGUI::setWalletActionsEnabled(bool enabled)
     openAction->setEnabled(enabled);
 }
 
-void KomodoOceanGUI::createTrayIcon(const NetworkStyle *networkStyle)
-{
+void KomodoOceanGUI::createTrayIcon(const NetworkStyle *networkStyle) {
 #ifndef Q_OS_MAC
     trayIcon = new QSystemTrayIcon(this);
     QString toolTip = tr("%1 client").arg(tr(PACKAGE_NAME)) + " " + networkStyle->getTitleAddText();
@@ -586,8 +565,7 @@ void KomodoOceanGUI::createTrayIcon(const NetworkStyle *networkStyle)
     notificator = new Notificator(QApplication::applicationName(), trayIcon, this);
 }
 
-void KomodoOceanGUI::createTrayIconMenu()
-{
+void KomodoOceanGUI::createTrayIconMenu() {
 #ifndef Q_OS_MAC
     // return if trayIcon is unset (only on non-Mac OSes)
     if (!trayIcon)
@@ -628,24 +606,20 @@ void KomodoOceanGUI::createTrayIconMenu()
 }
 
 #ifndef Q_OS_MAC
-void KomodoOceanGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason)
-{
-    if(reason == QSystemTrayIcon::Trigger)
-    {
+void KomodoOceanGUI::trayIconActivated(QSystemTrayIcon::ActivationReason reason) {
+    if(reason == QSystemTrayIcon::Trigger) {
         // Click on system tray icon triggers show/hide of the main window
         toggleHidden();
     }
 }
 #else
-void KomodoOceanGUI::macosDockIconActivated()
-{
+void KomodoOceanGUI::macosDockIconActivated() {
     show();
     activateWindow();
 }
 #endif
 
-void KomodoOceanGUI::optionsClicked()
-{
+void KomodoOceanGUI::optionsClicked() {
     if(!clientModel || !clientModel->getOptionsModel())
         return;
 
@@ -654,8 +628,7 @@ void KomodoOceanGUI::optionsClicked()
     dlg.exec();
 }
 
-void KomodoOceanGUI::aboutClicked()
-{
+void KomodoOceanGUI::aboutClicked() {
     if(!clientModel)
         return;
 
@@ -663,87 +636,89 @@ void KomodoOceanGUI::aboutClicked()
     dlg.exec();
 }
 
-void KomodoOceanGUI::showDebugWindow()
-{
+void KomodoOceanGUI::showDebugWindow() {
     rpcConsole->showNormal();
     rpcConsole->show();
     rpcConsole->raise();
     rpcConsole->activateWindow();
 }
 
-void KomodoOceanGUI::showDebugWindowActivateConsole()
-{
+void KomodoOceanGUI::showDebugWindowActivateConsole() {
     rpcConsole->setTabFocus(RPCConsole::TAB_CONSOLE);
     showDebugWindow();
 }
 
-void KomodoOceanGUI::showHelpMessageClicked()
-{
+void KomodoOceanGUI::showHelpMessageClicked() {
     helpMessageDialog->show();
 }
 
 #ifdef ENABLE_WALLET
-void KomodoOceanGUI::openClicked()
-{
+void KomodoOceanGUI::openClicked() {
     OpenURIDialog dlg(this);
-    if(dlg.exec())
-    {
+    if(dlg.exec()) {
         Q_EMIT receivedURI(dlg.getURI());
     }
 }
 
-void KomodoOceanGUI::gotoOverviewPage()
-{
+void KomodoOceanGUI::gotoOverviewPage() {
     overviewAction->setChecked(true);
     if (walletFrame) walletFrame->gotoOverviewPage();
 }
 
-void KomodoOceanGUI::gotoHistoryPage()
-{
+void KomodoOceanGUI::gotoHistoryPage() {
     historyAction->setChecked(true);
     if (walletFrame) walletFrame->gotoHistoryPage();
 }
 
-void KomodoOceanGUI::gotoReceiveCoinsPage()
-{
+void KomodoOceanGUI::gotoReceiveCoinsPage() {
     receiveCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoReceiveCoinsPage();
 }
 
-void KomodoOceanGUI::gotoSendCoinsPage(QString addr)
-{
+void KomodoOceanGUI::gotoSendCoinsPage(QString addr) {
     sendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoSendCoinsPage(addr);
 }
 
-void KomodoOceanGUI::gotoZSendCoinsPage(QString addr)
-{
+void KomodoOceanGUI::gotoZSendCoinsPage(QString addr) {
     zsendCoinsAction->setChecked(true);
     if (walletFrame) walletFrame->gotoZSendCoinsPage(addr);
 }
 
-void KomodoOceanGUI::gotoSignMessageTab(QString addr)
-{
+void KomodoOceanGUI::gotoSignMessageTab(QString addr) {
     if (walletFrame) walletFrame->gotoSignMessageTab(addr);
 }
 
-void KomodoOceanGUI::gotoVerifyMessageTab(QString addr)
-{
+void KomodoOceanGUI::gotoVerifyMessageTab(QString addr) {
     if (walletFrame) walletFrame->gotoVerifyMessageTab(addr);
 }
 #endif // ENABLE_WALLET
 
-void KomodoOceanGUI::updateNetworkState()
-{
+void KomodoOceanGUI::updateNetworkState() {
     int count = clientModel->getNumConnections();
     QString icon;
-    switch(count)
-    {
-    case 0: icon = ":/icons/connect_0"; break;
-    case 1: case 2: case 3: icon = ":/icons/connect_1"; break;
-    case 4: case 5: case 6: icon = ":/icons/connect_2"; break;
-    case 7: case 8: case 9: icon = ":/icons/connect_3"; break;
-    default: icon = ":/icons/connect_4"; break;
+    switch(count) {
+    case 0:
+        icon = ":/icons/connect_0";
+        break;
+    case 1:
+    case 2:
+    case 3:
+        icon = ":/icons/connect_1";
+        break;
+    case 4:
+    case 5:
+    case 6:
+        icon = ":/icons/connect_2";
+        break;
+    case 7:
+    case 8:
+    case 9:
+        icon = ":/icons/connect_3";
+        break;
+    default:
+        icon = ":/icons/connect_4";
+        break;
     }
 
     QString tooltip;
@@ -762,20 +737,17 @@ void KomodoOceanGUI::updateNetworkState()
     connectionsControl->setPixmap(platformStyle->SingleColorIcon(icon).pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
 }
 
-void KomodoOceanGUI::setNumConnections(int count)
-{
+void KomodoOceanGUI::setNumConnections(int count) {
     (void)count;
     updateNetworkState();
 }
 
-void KomodoOceanGUI::setNetworkActive(bool networkActive)
-{
+void KomodoOceanGUI::setNetworkActive(bool networkActive) {
     (void)networkActive;
     updateNetworkState();
 }
 
-void KomodoOceanGUI::updateHeadersSyncProgressLabel()
-{
+void KomodoOceanGUI::updateHeadersSyncProgressLabel() {
     int64_t headersTipTime = clientModel->getHeaderTipTime();
     int headersTipHeight = clientModel->getHeaderTipHeight();
     int estHeadersLeft = (GetTime() - headersTipTime) / Params().GetConsensus().nPowTargetSpacing;
@@ -783,10 +755,8 @@ void KomodoOceanGUI::updateHeadersSyncProgressLabel()
         progressBarLabel->setText(tr("Syncing Headers (%1%)...").arg(QString::number(100.0 / (headersTipHeight+estHeadersLeft)*headersTipHeight, 'f', 1)));
 }
 
-void KomodoOceanGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool header)
-{
-    if (modalOverlay)
-    {
+void KomodoOceanGUI::setNumBlocks(int count, const QDateTime& blockDate, double nVerificationProgress, bool header) {
+    if (modalOverlay) {
         if (header)
             modalOverlay->setKnownBestHeight(count, blockDate);
         else
@@ -801,30 +771,30 @@ void KomodoOceanGUI::setNumBlocks(int count, const QDateTime& blockDate, double 
     // Acquire current block source
     enum BlockSource blockSource = clientModel->getBlockSource();
     switch (blockSource) {
-        case BLOCK_SOURCE_NETWORK:
-            if (header) {
-                updateHeadersSyncProgressLabel();
-                return;
-            }
-            progressBarLabel->setText(tr("Synchronizing with network..."));
+    case BLOCK_SOURCE_NETWORK:
+        if (header) {
             updateHeadersSyncProgressLabel();
-            break;
-        case BLOCK_SOURCE_DISK:
-            if (header) {
-                progressBarLabel->setText(tr("Indexing blocks on disk..."));
-            } else {
-                progressBarLabel->setText(tr("Processing blocks on disk..."));
-            }
-            break;
-        case BLOCK_SOURCE_REINDEX:
-            progressBarLabel->setText(tr("Reindexing blocks on disk..."));
-            break;
-        case BLOCK_SOURCE_NONE:
-            if (header) {
-                return;
-            }
-            progressBarLabel->setText(tr("Connecting to peers..."));
-            break;
+            return;
+        }
+        progressBarLabel->setText(tr("Synchronizing with network..."));
+        updateHeadersSyncProgressLabel();
+        break;
+    case BLOCK_SOURCE_DISK:
+        if (header) {
+            progressBarLabel->setText(tr("Indexing blocks on disk..."));
+        } else {
+            progressBarLabel->setText(tr("Processing blocks on disk..."));
+        }
+        break;
+    case BLOCK_SOURCE_REINDEX:
+        progressBarLabel->setText(tr("Reindexing blocks on disk..."));
+        break;
+    case BLOCK_SOURCE_NONE:
+        if (header) {
+            return;
+        }
+        progressBarLabel->setText(tr("Connecting to peers..."));
+        break;
     }
 
     QString tooltip;
@@ -835,14 +805,12 @@ void KomodoOceanGUI::setNumBlocks(int count, const QDateTime& blockDate, double 
     tooltip = tr("Processed %n block(s) of transaction history.", "", count);
 
     // Set icon state: spinning if catching up, tick otherwise
-    if(secs < 90*60)
-    {
+    if(secs < 90*60) {
         tooltip = tr("Up to date") + QString(".<br>") + tooltip;
         labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
 #ifdef ENABLE_WALLET
-        if(walletFrame)
-        {
+        if(walletFrame) {
             walletFrame->showOutOfSyncWarning(false);
             modalOverlay->showHide(true, true);
         }
@@ -850,9 +818,7 @@ void KomodoOceanGUI::setNumBlocks(int count, const QDateTime& blockDate, double 
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
-    }
-    else
-    {
+    } else {
         QString timeBehindText = GUIUtil::formatNiceTimeOffset(secs);
 
         progressBarLabel->setVisible(true);
@@ -862,18 +828,16 @@ void KomodoOceanGUI::setNumBlocks(int count, const QDateTime& blockDate, double 
         progressBar->setVisible(true);
 
         tooltip = tr("Catching up...") + QString("<br>") + tooltip;
-        if(count != prevBlocks)
-        {
+        if(count != prevBlocks) {
             labelBlocksIcon->setPixmap(platformStyle->SingleColorIcon(QString(
-                ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
-                .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
+                                           ":/movies/spinner-%1").arg(spinnerFrame, 3, 10, QChar('0')))
+                                       .pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
             spinnerFrame = (spinnerFrame + 1) % SPINNER_FRAMES;
         }
         prevBlocks = count;
 
 #ifdef ENABLE_WALLET
-        if(walletFrame)
-        {
+        if(walletFrame) {
             walletFrame->showOutOfSyncWarning(true);
             modalOverlay->showHide();
         }
@@ -893,8 +857,7 @@ void KomodoOceanGUI::setNumBlocks(int count, const QDateTime& blockDate, double 
     progressBar->setToolTip(tooltip);
 }
 
-void KomodoOceanGUI::message(const QString &title, const QString &message, unsigned int style, bool *ret)
-{
+void KomodoOceanGUI::message(const QString &title, const QString &message, unsigned int style, bool *ret) {
     QString strTitle = tr("Komodo"); // default title
     // Default to information icon
     int nMBoxIcon = QMessageBox::Information;
@@ -905,8 +868,7 @@ void KomodoOceanGUI::message(const QString &title, const QString &message, unsig
     // Prefer supplied title over style based title
     if (!title.isEmpty()) {
         msgType = title;
-    }
-    else {
+    } else {
         switch (style) {
         case CClientUIInterface::MSG_ERROR:
             msgType = tr("Error");
@@ -929,8 +891,7 @@ void KomodoOceanGUI::message(const QString &title, const QString &message, unsig
     if (style & CClientUIInterface::ICON_ERROR) {
         nMBoxIcon = QMessageBox::Critical;
         nNotifyIcon = Notificator::Critical;
-    }
-    else if (style & CClientUIInterface::ICON_WARNING) {
+    } else if (style & CClientUIInterface::ICON_WARNING) {
         nMBoxIcon = QMessageBox::Warning;
         nNotifyIcon = Notificator::Warning;
     }
@@ -947,27 +908,20 @@ void KomodoOceanGUI::message(const QString &title, const QString &message, unsig
         int r = mBox.exec();
         if (ret != nullptr)
             *ret = r == QMessageBox::Ok;
-    }
-    else
+    } else
         notificator->notify((Notificator::Class)nNotifyIcon, strTitle, message);
 }
 
-void KomodoOceanGUI::changeEvent(QEvent *e)
-{
+void KomodoOceanGUI::changeEvent(QEvent *e) {
     QMainWindow::changeEvent(e);
 #ifndef Q_OS_MAC // Ignored on Mac
-    if(e->type() == QEvent::WindowStateChange)
-    {
-        if(clientModel && clientModel->getOptionsModel() && clientModel->getOptionsModel()->getMinimizeToTray())
-        {
+    if(e->type() == QEvent::WindowStateChange) {
+        if(clientModel && clientModel->getOptionsModel() && clientModel->getOptionsModel()->getMinimizeToTray()) {
             QWindowStateChangeEvent *wsevt = static_cast<QWindowStateChangeEvent*>(e);
-            if(!(wsevt->oldState() & Qt::WindowMinimized) && isMinimized())
-            {
+            if(!(wsevt->oldState() & Qt::WindowMinimized) && isMinimized()) {
                 QTimer::singleShot(0, this, &KomodoOceanGUI::hide);
                 e->ignore();
-            }
-            else if((wsevt->oldState() & Qt::WindowMinimized) && isMinimized())
-            {
+            } else if((wsevt->oldState() & Qt::WindowMinimized) && isMinimized()) {
                 QTimer::singleShot(0, this, &KomodoOceanGUI::show);
                 e->ignore();
             }
@@ -976,20 +930,15 @@ void KomodoOceanGUI::changeEvent(QEvent *e)
 #endif
 }
 
-void KomodoOceanGUI::closeEvent(QCloseEvent *event)
-{
+void KomodoOceanGUI::closeEvent(QCloseEvent *event) {
 #ifndef Q_OS_MAC // Ignored on Mac
-    if(clientModel && clientModel->getOptionsModel())
-    {
-        if(!clientModel->getOptionsModel()->getMinimizeOnClose())
-        {
+    if(clientModel && clientModel->getOptionsModel()) {
+        if(!clientModel->getOptionsModel()->getMinimizeOnClose()) {
             // close rpcConsole in case it was open to make some space for the shutdown window
             rpcConsole->close();
 
             QApplication::quit();
-        }
-        else
-        {
+        } else {
             QMainWindow::showMinimized();
             event->ignore();
         }
@@ -999,8 +948,7 @@ void KomodoOceanGUI::closeEvent(QCloseEvent *event)
 #endif
 }
 
-void KomodoOceanGUI::showEvent(QShowEvent *event)
-{
+void KomodoOceanGUI::showEvent(QShowEvent *event) {
     (void)event;
     // enable the debug window when the main window shows up
     openRPCConsoleAction->setEnabled(true);
@@ -1009,8 +957,7 @@ void KomodoOceanGUI::showEvent(QShowEvent *event)
 }
 
 #ifdef ENABLE_WALLET
-void KomodoOceanGUI::incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label)
-{
+void KomodoOceanGUI::incomingTransaction(const QString& date, int unit, const CAmount& amount, const QString& type, const QString& address, const QString& label) {
     // On new transaction, make an info balloon
     QString msg = tr("Date: %1\n").arg(date) +
                   tr("Amount: %1\n").arg(KomodoUnits::formatWithUnit(unit, amount, true)) +
@@ -1020,34 +967,28 @@ void KomodoOceanGUI::incomingTransaction(const QString& date, int unit, const CA
     else if (!address.isEmpty())
         msg += tr("Address: %1\n").arg(address);
     message((amount)<0 ? tr("Sent transaction") : tr("Incoming transaction"),
-             msg, CClientUIInterface::MSG_INFORMATION);
+            msg, CClientUIInterface::MSG_INFORMATION);
 }
 #endif // ENABLE_WALLET
 
-void KomodoOceanGUI::dragEnterEvent(QDragEnterEvent *event)
-{
+void KomodoOceanGUI::dragEnterEvent(QDragEnterEvent *event) {
     // Accept only URIs
     if(event->mimeData()->hasUrls())
         event->acceptProposedAction();
 }
 
-void KomodoOceanGUI::dropEvent(QDropEvent *event)
-{
-    if(event->mimeData()->hasUrls())
-    {
-        for (const QUrl &uri : event->mimeData()->urls())
-        {
+void KomodoOceanGUI::dropEvent(QDropEvent *event) {
+    if(event->mimeData()->hasUrls()) {
+        for (const QUrl &uri : event->mimeData()->urls()) {
             Q_EMIT receivedURI(uri.toString());
         }
     }
     event->acceptProposedAction();
 }
 
-bool KomodoOceanGUI::eventFilter(QObject *object, QEvent *event)
-{
+bool KomodoOceanGUI::eventFilter(QObject *object, QEvent *event) {
     // Catch status tip events
-    if (event->type() == QEvent::StatusTip)
-    {
+    if (event->type() == QEvent::StatusTip) {
         // Prevent adding text from setStatusTip(), if we currently use the status bar for displaying other stuff
         if (progressBarLabel->isVisible() || progressBar->isVisible())
             return true;
@@ -1056,11 +997,9 @@ bool KomodoOceanGUI::eventFilter(QObject *object, QEvent *event)
 }
 
 #ifdef ENABLE_WALLET
-bool KomodoOceanGUI::handlePaymentRequest(const SendCoinsRecipient& recipient)
-{
+bool KomodoOceanGUI::handlePaymentRequest(const SendCoinsRecipient& recipient) {
     // URI has to be valid
-    if (walletFrame && walletFrame->handlePaymentRequest(recipient))
-    {
+    if (walletFrame && walletFrame->handlePaymentRequest(recipient)) {
         showNormalIfMinimized();
         gotoSendCoinsPage();
         return true;
@@ -1068,19 +1007,16 @@ bool KomodoOceanGUI::handlePaymentRequest(const SendCoinsRecipient& recipient)
     return false;
 }
 
-void KomodoOceanGUI::setHDStatus(int hdEnabled)
-{
+void KomodoOceanGUI::setHDStatus(int hdEnabled) {
     labelWalletHDStatusIcon->setPixmap(platformStyle->SingleColorIcon(hdEnabled ? ":/icons/hd_enabled" : ":/icons/hd_disabled").pixmap(STATUSBAR_ICONSIZE,STATUSBAR_ICONSIZE));
     labelWalletHDStatusIcon->setToolTip(hdEnabled ? tr("HD key generation is <b>enabled</b>") : tr("HD key generation is <b>disabled</b>"));
 
-    // eventually disable the QLabel to set its opacity to 50% 
+    // eventually disable the QLabel to set its opacity to 50%
     labelWalletHDStatusIcon->setEnabled(hdEnabled);
 }
 
-void KomodoOceanGUI::setEncryptionStatus(int status)
-{
-    switch(status)
-    {
+void KomodoOceanGUI::setEncryptionStatus(int status) {
+    switch(status) {
     case WalletModel::Unencrypted:
         labelWalletEncryptionIcon->hide();
         encryptWalletAction->setChecked(false);
@@ -1107,85 +1043,65 @@ void KomodoOceanGUI::setEncryptionStatus(int status)
 }
 #endif // ENABLE_WALLET
 
-void KomodoOceanGUI::showNormalIfMinimized(bool fToggleHidden)
-{
+void KomodoOceanGUI::showNormalIfMinimized(bool fToggleHidden) {
     if(!clientModel)
         return;
 
     // activateWindow() (sometimes) helps with keyboard focus on Windows
-    if (isHidden())
-    {
+    if (isHidden()) {
         show();
         activateWindow();
-    }
-    else if (isMinimized())
-    {
+    } else if (isMinimized()) {
         showNormal();
         activateWindow();
-    }
-    else if (GUIUtil::isObscured(this))
-    {
+    } else if (GUIUtil::isObscured(this)) {
         raise();
         activateWindow();
-    }
-    else if(fToggleHidden)
+    } else if(fToggleHidden)
         hide();
 }
 
-void KomodoOceanGUI::toggleHidden()
-{
+void KomodoOceanGUI::toggleHidden() {
     showNormalIfMinimized(true);
 }
 
-void KomodoOceanGUI::detectShutdown()
-{
-    if (ShutdownRequested())
-    {
+void KomodoOceanGUI::detectShutdown() {
+    if (ShutdownRequested()) {
         if(rpcConsole)
             rpcConsole->hide();
         qApp->quit();
     }
 }
 
-void KomodoOceanGUI::showProgress(const QString &title, int nProgress)
-{
-    if (nProgress == 0)
-    {
+void KomodoOceanGUI::showProgress(const QString &title, int nProgress) {
+    if (nProgress == 0) {
         progressDialog = new QProgressDialog(title, "", 0, 100);
         progressDialog->setWindowModality(Qt::ApplicationModal);
         progressDialog->setMinimumDuration(0);
         progressDialog->setCancelButton(0);
         progressDialog->setAutoClose(false);
         progressDialog->setValue(0);
-    }
-    else if (nProgress == 100)
-    {
-        if (progressDialog)
-        {
+    } else if (nProgress == 100) {
+        if (progressDialog) {
             progressDialog->close();
             progressDialog->deleteLater();
         }
-    }
-    else if (progressDialog)
+    } else if (progressDialog)
         progressDialog->setValue(nProgress);
 }
 
-void KomodoOceanGUI::setTrayIconVisible(bool fHideTrayIcon)
-{
-    if (trayIcon)
-    {
+void KomodoOceanGUI::setTrayIconVisible(bool fHideTrayIcon) {
+    if (trayIcon) {
         trayIcon->setVisible(!fHideTrayIcon);
     }
 }
 
-void KomodoOceanGUI::showModalOverlay()
-{
+void KomodoOceanGUI::showModalOverlay() {
     if (modalOverlay && (progressBar->isVisible() || modalOverlay->isLayerVisible()))
         modalOverlay->toggleVisibility();
 }
 
-static bool ThreadSafeMessageBox(KomodoOceanGUI *gui, const std::string& message, const std::string& caption, unsigned int style)
-{
+static bool ThreadSafeMessageBox(KomodoOceanGUI *gui, const std::string& message, const std::string& caption, unsigned int style) {
     bool modal = (style & CClientUIInterface::MODAL);
     // The SECURE flag has no effect in the Qt GUI.
     // bool secure = (style & CClientUIInterface::SECURE);
@@ -1193,52 +1109,46 @@ static bool ThreadSafeMessageBox(KomodoOceanGUI *gui, const std::string& message
     bool ret = false;
     // In case of modal message, use blocking connection to wait for user to click a button
     QMetaObject::invokeMethod(gui, "message",
-                               modal ? GUIUtil::blockingGUIThreadConnection() : Qt::QueuedConnection,
-                               Q_ARG(QString, QString::fromStdString(caption)),
-                               Q_ARG(QString, QString::fromStdString(message)),
-                               Q_ARG(unsigned int, style),
-                               Q_ARG(bool*, &ret));
+                              modal ? GUIUtil::blockingGUIThreadConnection() : Qt::QueuedConnection,
+                              Q_ARG(QString, QString::fromStdString(caption)),
+                              Q_ARG(QString, QString::fromStdString(message)),
+                              Q_ARG(unsigned int, style),
+                              Q_ARG(bool*, &ret));
     return ret;
 }
 
-void KomodoOceanGUI::subscribeToCoreSignals()
-{
+void KomodoOceanGUI::subscribeToCoreSignals() {
     // Connect signals to client
     uiInterface.ThreadSafeMessageBox.connect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.connect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
 }
 
-void KomodoOceanGUI::unsubscribeFromCoreSignals()
-{
+void KomodoOceanGUI::unsubscribeFromCoreSignals() {
     // Disconnect signals from client
     uiInterface.ThreadSafeMessageBox.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _2, _3));
     uiInterface.ThreadSafeQuestion.disconnect(boost::bind(ThreadSafeMessageBox, this, _1, _3, _4));
 }
 
-void KomodoOceanGUI::toggleNetworkActive()
-{
+void KomodoOceanGUI::toggleNetworkActive() {
     if (clientModel) {
         clientModel->setNetworkActive(!clientModel->getNetworkActive());
     }
 }
 
-bool KomodoOceanGUI::isPrivacyModeActivated() const
-{
+bool KomodoOceanGUI::isPrivacyModeActivated() const {
     assert(m_mask_values_action);
     return m_mask_values_action->isChecked();
 }
 
 UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *platformStyle) :
     optionsModel(0),
-    menu(0)
-{
+    menu(0) {
     createContextMenu();
     setToolTip(tr("Unit to show amounts in. Click to select another unit."));
     QList<KomodoUnits::Unit> units = KomodoUnits::availableUnits();
     int max_width = 0;
     const QFontMetrics fm(font());
-    for (const KomodoUnits::Unit unit : units)
-    {
+    for (const KomodoUnits::Unit unit : units) {
         max_width = qMax(max_width, GUIUtil::TextWidth(fm, KomodoUnits::name(unit)));
     }
     setMinimumSize(max_width, 0);
@@ -1246,17 +1156,14 @@ UnitDisplayStatusBarControl::UnitDisplayStatusBarControl(const PlatformStyle *pl
 }
 
 /** So that it responds to button clicks */
-void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event)
-{
+void UnitDisplayStatusBarControl::mousePressEvent(QMouseEvent *event) {
     onDisplayUnitsClicked(event->pos());
 }
 
 /** Creates context menu, its actions, and wires up all the relevant signals for mouse events. */
-void UnitDisplayStatusBarControl::createContextMenu()
-{
+void UnitDisplayStatusBarControl::createContextMenu() {
     menu = new QMenu(this);
-    for (KomodoUnits::Unit u : KomodoUnits::availableUnits())
-    {
+    for (KomodoUnits::Unit u : KomodoUnits::availableUnits()) {
         QAction *menuAction = new QAction(QString(KomodoUnits::name(u)), this);
         menuAction->setData(QVariant(u));
         menu->addAction(menuAction);
@@ -1265,10 +1172,8 @@ void UnitDisplayStatusBarControl::createContextMenu()
 }
 
 /** Lets the control know about the Options Model (and its signals) */
-void UnitDisplayStatusBarControl::setOptionsModel(OptionsModel *_optionsModel)
-{
-    if (_optionsModel)
-    {
+void UnitDisplayStatusBarControl::setOptionsModel(OptionsModel *_optionsModel) {
+    if (_optionsModel) {
         this->optionsModel = _optionsModel;
 
         // be aware of a display unit change reported by the OptionsModel object.
@@ -1280,23 +1185,19 @@ void UnitDisplayStatusBarControl::setOptionsModel(OptionsModel *_optionsModel)
 }
 
 /** When Display Units are changed on OptionsModel it will refresh the display text of the control on the status bar */
-void UnitDisplayStatusBarControl::updateDisplayUnit(int newUnits)
-{
+void UnitDisplayStatusBarControl::updateDisplayUnit(int newUnits) {
     setText(KomodoUnits::name(newUnits));
 }
 
 /** Shows context menu with Display Unit options by the mouse coordinates */
-void UnitDisplayStatusBarControl::onDisplayUnitsClicked(const QPoint& point)
-{
+void UnitDisplayStatusBarControl::onDisplayUnitsClicked(const QPoint& point) {
     QPoint globalPos = mapToGlobal(point);
     menu->exec(globalPos);
 }
 
 /** Tells underlying optionsModel to update its current display unit. */
-void UnitDisplayStatusBarControl::onMenuSelection(QAction* action)
-{
-    if (action)
-    {
+void UnitDisplayStatusBarControl::onMenuSelection(QAction* action) {
+    if (action) {
         optionsModel->setDisplayUnit(action->data());
     }
 }

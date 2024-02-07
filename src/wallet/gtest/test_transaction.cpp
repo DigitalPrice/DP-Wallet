@@ -43,18 +43,18 @@ TEST(Transaction, JSDescriptionRandomized) {
 
     {
         auto jsdesc = JSDescription::Randomized(
-            *params, pubKeyHash, rt,
-            inputs, outputs,
-            inputMap, outputMap,
-            0, 0, false);
+                          *params, pubKeyHash, rt,
+                          inputs, outputs,
+                          inputMap, outputMap,
+                          0, 0, false);
 
-        #ifdef __LP64__ // required for building on MacOS
+#ifdef __LP64__ // required for building on MacOS
         std::set<uint64_t> inputSet(inputMap.begin(), inputMap.end());
         std::set<uint64_t> expectedInputSet {0, 1};
-        #else
+#else
         std::set<size_t> inputSet(inputMap.begin(), inputMap.end());
         std::set<size_t> expectedInputSet {0, 1};
-        #endif
+#endif
         EXPECT_EQ(expectedInputSet, inputSet);
 
         std::set<size_t> outputSet(outputMap.begin(), outputMap.end());
@@ -64,10 +64,10 @@ TEST(Transaction, JSDescriptionRandomized) {
 
     {
         auto jsdesc = JSDescription::Randomized(
-            *params, pubKeyHash, rt,
-            inputs, outputs,
-            inputMap, outputMap,
-            0, 0, false, GenZero);
+                          *params, pubKeyHash, rt,
+                          inputs, outputs,
+                          inputMap, outputMap,
+                          0, 0, false, GenZero);
 
         std::array<size_t, ZC_NUM_JS_INPUTS> expectedInputMap {1, 0};
         std::array<size_t, ZC_NUM_JS_OUTPUTS> expectedOutputMap {1, 0};
@@ -77,10 +77,10 @@ TEST(Transaction, JSDescriptionRandomized) {
 
     {
         auto jsdesc = JSDescription::Randomized(
-            *params, pubKeyHash, rt,
-            inputs, outputs,
-            inputMap, outputMap,
-            0, 0, false, GenMax);
+                          *params, pubKeyHash, rt,
+                          inputs, outputs,
+                          inputMap, outputMap,
+                          0, 0, false, GenMax);
 
         boost::array<size_t, ZC_NUM_JS_INPUTS> expectedInputMap {0, 1};
         boost::array<size_t, ZC_NUM_JS_OUTPUTS> expectedOutputMap {0, 1};

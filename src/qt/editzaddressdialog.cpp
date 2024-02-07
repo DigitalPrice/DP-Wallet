@@ -16,16 +16,14 @@ EditZAddressDialog::EditZAddressDialog(Mode _mode, QWidget *parent) :
     ui(new Ui::EditZAddressDialog),
     mapper(0),
     mode(_mode),
-    model(0)
-{
+    model(0) {
     ui->setupUi(this);
 
     GUIUtil::setupAddressWidget(ui->addressEdit, this);
 
     ui->labelEdit->setEnabled(false);
 
-    switch(mode)
-    {
+    switch(mode) {
     case NewReceivingAddress:
         setWindowTitle(tr("New receiving z-address"));
         ui->addressEdit->setEnabled(false);
@@ -46,13 +44,11 @@ EditZAddressDialog::EditZAddressDialog(Mode _mode, QWidget *parent) :
     mapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 }
 
-EditZAddressDialog::~EditZAddressDialog()
-{
+EditZAddressDialog::~EditZAddressDialog() {
     delete ui;
 }
 
-void EditZAddressDialog::setModel(ZAddressTableModel *_model)
-{
+void EditZAddressDialog::setModel(ZAddressTableModel *_model) {
     this->model = _model;
     if(!_model)
         return;
@@ -62,29 +58,25 @@ void EditZAddressDialog::setModel(ZAddressTableModel *_model)
     mapper->addMapping(ui->addressEdit, ZAddressTableModel::Address);
 }
 
-void EditZAddressDialog::loadRow(int row)
-{
+void EditZAddressDialog::loadRow(int row) {
     mapper->setCurrentIndex(row);
 }
 
-bool EditZAddressDialog::saveCurrentRow()
-{
+bool EditZAddressDialog::saveCurrentRow() {
     if(!model)
         return false;
 
-    switch(mode)
-    {
+    switch(mode) {
     case NewReceivingAddress:
     case NewSendingAddress:
         address = model->addRow(
-                mode == NewSendingAddress ? ZAddressTableModel::Send : ZAddressTableModel::Receive,
-                ui->labelEdit->text(),
-                ui->addressEdit->text());
+                      mode == NewSendingAddress ? ZAddressTableModel::Send : ZAddressTableModel::Receive,
+                      ui->labelEdit->text(),
+                      ui->addressEdit->text());
         break;
     case EditReceivingAddress:
     case EditSendingAddress:
-        if(mapper->submit())
-        {
+        if(mapper->submit()) {
             address = ui->addressEdit->text();
         }
         break;
@@ -92,15 +84,12 @@ bool EditZAddressDialog::saveCurrentRow()
     return !address.isEmpty();
 }
 
-void EditZAddressDialog::accept()
-{
+void EditZAddressDialog::accept() {
     if(!model)
         return;
 
-    if(!saveCurrentRow())
-    {
-        switch(model->getEditStatus())
-        {
+    if(!saveCurrentRow()) {
+        switch(model->getEditStatus()) {
         case ZAddressTableModel::OK:
             // Failed with unknown reason. Just reject.
             break;
@@ -109,23 +98,23 @@ void EditZAddressDialog::accept()
             break;
         case ZAddressTableModel::INVALID_ADDRESS:
             QMessageBox::warning(this, windowTitle(),
-                tr("The entered address \"%1\" is not a valid Komodo z-address.").arg(ui->addressEdit->text()),
-                QMessageBox::Ok, QMessageBox::Ok);
+                                 tr("The entered address \"%1\" is not a valid Komodo z-address.").arg(ui->addressEdit->text()),
+                                 QMessageBox::Ok, QMessageBox::Ok);
             break;
         case ZAddressTableModel::DUPLICATE_ADDRESS:
             QMessageBox::warning(this, windowTitle(),
-                tr("The entered address \"%1\" is already in the address book.").arg(ui->addressEdit->text()),
-                QMessageBox::Ok, QMessageBox::Ok);
+                                 tr("The entered address \"%1\" is already in the address book.").arg(ui->addressEdit->text()),
+                                 QMessageBox::Ok, QMessageBox::Ok);
             break;
         case ZAddressTableModel::WALLET_UNLOCK_FAILURE:
             QMessageBox::critical(this, windowTitle(),
-                tr("Could not unlock wallet."),
-                QMessageBox::Ok, QMessageBox::Ok);
+                                  tr("Could not unlock wallet."),
+                                  QMessageBox::Ok, QMessageBox::Ok);
             break;
         case ZAddressTableModel::KEY_GENERATION_FAILURE:
             QMessageBox::critical(this, windowTitle(),
-                tr("New key generation failed."),
-                QMessageBox::Ok, QMessageBox::Ok);
+                                  tr("New key generation failed."),
+                                  QMessageBox::Ok, QMessageBox::Ok);
             break;
 
         }
@@ -134,13 +123,11 @@ void EditZAddressDialog::accept()
     QDialog::accept();
 }
 
-QString EditZAddressDialog::getAddress() const
-{
+QString EditZAddressDialog::getAddress() const {
     return address;
 }
 
-void EditZAddressDialog::setAddress(const QString &_address)
-{
+void EditZAddressDialog::setAddress(const QString &_address) {
     this->address = _address;
     ui->addressEdit->setText(_address);
 }

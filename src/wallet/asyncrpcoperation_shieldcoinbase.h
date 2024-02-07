@@ -48,8 +48,7 @@ struct ShieldCoinbaseUTXO {
 };
 
 // Package of info which is passed to perform_joinsplit methods.
-struct ShieldCoinbaseJSInfo
-{
+struct ShieldCoinbaseJSInfo {
     std::vector<JSInput> vjsin;
     std::vector<JSOutput> vjsout;
     CAmount vpub_old = 0;
@@ -57,7 +56,7 @@ struct ShieldCoinbaseJSInfo
 };
 
 class AsyncRPCOperation_shieldcoinbase : public AsyncRPCOperation {
-public:
+  public:
     AsyncRPCOperation_shieldcoinbase(
         TransactionBuilder builder,
         CMutableTransaction contextualTx,
@@ -80,7 +79,7 @@ public:
     bool testmode = false;  // Set to true to disable sending txs and generating proofs
     bool paymentDisclosureMode = true; // Set to true to save esk for encrypted notes in payment disclosure database.
 
-private:
+  private:
     friend class ShieldToAddress;
     friend class TEST_FRIEND_AsyncRPCOperation_shieldcoinbase;    // class for unit testing
 
@@ -112,12 +111,11 @@ private:
     std::vector<PaymentDisclosureKeyInfo> paymentDisclosureData_;
 };
 
-class ShieldToAddress : public boost::static_visitor<bool>
-{
-private:
+class ShieldToAddress : public boost::static_visitor<bool> {
+  private:
     AsyncRPCOperation_shieldcoinbase *m_op;
     CAmount sendAmount;
-public:
+  public:
     ShieldToAddress(AsyncRPCOperation_shieldcoinbase *op, CAmount sendAmount) :
         m_op(op), sendAmount(sendAmount) {}
 
@@ -129,7 +127,7 @@ public:
 
 // To test private methods, a friend class can act as a proxy
 class TEST_FRIEND_AsyncRPCOperation_shieldcoinbase {
-public:
+  public:
     std::shared_ptr<AsyncRPCOperation_shieldcoinbase> delegate;
 
     TEST_FRIEND_AsyncRPCOperation_shieldcoinbase(std::shared_ptr<AsyncRPCOperation_shieldcoinbase> ptr) : delegate(ptr) {}

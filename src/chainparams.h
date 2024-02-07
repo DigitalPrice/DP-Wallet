@@ -56,9 +56,8 @@ typedef std::map<int, uint256> MapCheckpoints;
  * a regression test mode which is intended for private networks only. It has
  * minimal difficulty to ensure that blocks can be found instantly.
  */
-class CChainParams
-{
-public:
+class CChainParams {
+  public:
     enum Base58Type {
         PUBKEY_ADDRESS,
         SCRIPT_ADDRESS,
@@ -91,98 +90,142 @@ public:
     /****
      * @returns parameters that influence chain consensus
      */
-    const Consensus::Params& GetConsensus() const { return consensus; }
+    const Consensus::Params& GetConsensus() const {
+        return consensus;
+    }
     /***
      * Message header start bytes
      * @returns 4 bytes
      */
-    const CMessageHeader::MessageStartChars& MessageStart() const { return pchMessageStart; }
+    const CMessageHeader::MessageStartChars& MessageStart() const {
+        return pchMessageStart;
+    }
     /****
      * @returns bytes of public key that signs broadcast alert messages
      */
-    const std::vector<unsigned char>& AlertKey() const { return vAlertPubKey; }
+    const std::vector<unsigned char>& AlertKey() const {
+        return vAlertPubKey;
+    }
     /***
      * @returns default TCP port for P2P connections
      */
-    int GetDefaultPort() const { return nDefaultPort; }
+    int GetDefaultPort() const {
+        return nDefaultPort;
+    }
 
     /***
      * @returns the first block of the chain
      */
-    const CBlock& GenesisBlock() const { return genesis; }
-    /** 
+    const CBlock& GenesisBlock() const {
+        return genesis;
+    }
+    /**
      * Make miner wait to have peers to avoid wasting work
-     * @returns true if peers are required before mining begins 
+     * @returns true if peers are required before mining begins
      */
-    bool MiningRequiresPeers() const { return fMiningRequiresPeers; }
-    /** 
+    bool MiningRequiresPeers() const {
+        return fMiningRequiresPeers;
+    }
+    /**
      * Default value for -checkmempool and -checkblockindex argument
-     * @returns true if mempool and indexes should be checked by default 
+     * @returns true if mempool and indexes should be checked by default
      */
-    bool DefaultConsistencyChecks() const { return fDefaultConsistencyChecks; }
-    /** 
+    bool DefaultConsistencyChecks() const {
+        return fDefaultConsistencyChecks;
+    }
+    /**
      * Policy: Filter transactions that do not match well-defined patterns
-     * @returns true to filter, false to be permissive 
+     * @returns true to filter, false to be permissive
      */
-    bool RequireStandard() const { return fRequireStandard; }
+    bool RequireStandard() const {
+        return fRequireStandard;
+    }
     /****
      * @returns height where pruning should happen
      */
-    int64_t PruneAfterHeight() const { return nPruneAfterHeight; }
+    int64_t PruneAfterHeight() const {
+        return nPruneAfterHeight;
+    }
     /****
      * @returns N value for equihash algo
      */
-    unsigned int EquihashN() const { return nEquihashN; }
+    unsigned int EquihashN() const {
+        return nEquihashN;
+    }
     /***
      * @returns K value for equihash algo
      */
-    unsigned int EquihashK() const { return nEquihashK; }
+    unsigned int EquihashK() const {
+        return nEquihashK;
+    }
     /****
      * @returns currency units (i.e. "KMD", "REG", "TAZ"
      */
-    std::string CurrencyUnits() const { return strCurrencyUnits; }
+    std::string CurrencyUnits() const {
+        return strCurrencyUnits;
+    }
     /****
      * @ref https://github.com/satoshilabs/slips/blob/master/slip-0044.md
      * @returns coin identifier for this chain
      */
-    uint32_t BIP44CoinType() const { return bip44CoinType; }
-    /** 
+    uint32_t BIP44CoinType() const {
+        return bip44CoinType;
+    }
+    /**
      * Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated
      * @returns true if on-demand block mining is allowed (true for RegTest, should probably be false for all others)
      */
-    bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
-    /** 
+    bool MineBlocksOnDemand() const {
+        return fMineBlocksOnDemand;
+    }
+    /**
      * Deprecated. Use NetworkIDString() to identify the network
      * @returns true if testnet
      */
-    bool TestnetToBeDeprecatedFieldRPC() const { return fTestnetToBeDeprecatedFieldRPC; }
-    /** 
-     * Return the BIP70 network string ("main", "test" or "regtest") 
+    bool TestnetToBeDeprecatedFieldRPC() const {
+        return fTestnetToBeDeprecatedFieldRPC;
+    }
+    /**
+     * Return the BIP70 network string ("main", "test" or "regtest")
      * @returns the network ID
     */
-    std::string NetworkIDString() const { return strNetworkID; }
+    std::string NetworkIDString() const {
+        return strNetworkID;
+    }
     /****
      * @returns a vector of DNS entries to get seed data
      */
-    const std::vector<CDNSSeedData>& DNSSeeds() const { return vSeeds; }
+    const std::vector<CDNSSeedData>& DNSSeeds() const {
+        return vSeeds;
+    }
     /***
      * @param the type (i.e. PUBKEY_ADDRESS, SCRIPT_ADDRESS)
      * @returns prefix bytes to common encoded strings
      */
-    const std::vector<unsigned char>& Base58Prefix(Base58Type type) const { return base58Prefixes[type]; }
+    const std::vector<unsigned char>& Base58Prefix(Base58Type type) const {
+        return base58Prefixes[type];
+    }
     /****
      * @returns the Human Readable Part of a particular type of Bech32 data
      */
-    const std::string& Bech32HRP(Bech32Type type) const { return bech32HRPs[type]; }
+    const std::string& Bech32HRP(Bech32Type type) const {
+        return bech32HRPs[type];
+    }
     /****
      * Use in case of problems with DNS
      * @returns hard-coded IPv6 addresses of seed nodes
      */
-    const std::vector<SeedSpec6>& FixedSeeds() const { return vFixedSeeds; }
-    const std::vector<std::pair<std::string, std::string> > GenesisNotaries() const { return genesisNotaries; }
-    const CCheckpointData& Checkpoints() const { return checkpointData; }
-    /** 
-     * @returns the founder's reward address for a given block height 
+    const std::vector<SeedSpec6>& FixedSeeds() const {
+        return vFixedSeeds;
+    }
+    const std::vector<std::pair<std::string, std::string> > GenesisNotaries() const {
+        return genesisNotaries;
+    }
+    const CCheckpointData& Checkpoints() const {
+        return checkpointData;
+    }
+    /**
+     * @returns the founder's reward address for a given block height
      */
     std::string GetFoundersRewardAddressAtHeight(int height) const;
     /***
@@ -194,16 +237,20 @@ public:
      * @returns the founder's reward address
      */
     std::string GetFoundersRewardAddressAtIndex(int i) const;
-    /** 
-     * Enforce coinbase consensus rule in regtest mode 
+    /**
+     * Enforce coinbase consensus rule in regtest mode
      */
-    void SetRegTestCoinbaseMustBeProtected() { consensus.fCoinbaseMustBeProtected = true; }
+    void SetRegTestCoinbaseMustBeProtected() {
+        consensus.fCoinbaseMustBeProtected = true;
+    }
 
     /***
      * Set the default P2P IP port
      * @param port the new port
      */
-    void SetDefaultPort(uint16_t port) { nDefaultPort = port; }
+    void SetDefaultPort(uint16_t port) {
+        nDefaultPort = port;
+    }
     /***
      * @param checkpointData the new data
      */
@@ -211,22 +258,32 @@ public:
     /***
      * @param n the new N value for equihash
      */
-    void SetNValue(uint64_t n) { nEquihashN = n; }
+    void SetNValue(uint64_t n) {
+        nEquihashN = n;
+    }
     /****
      * @param k the new K value for equihash
      */
-    void SetKValue(uint64_t k) { nEquihashK = k; }
+    void SetKValue(uint64_t k) {
+        nEquihashK = k;
+    }
     /****
      * @param flag true to require connected peers before mining can begin
      */
-    void SetMiningRequiresPeers(bool flag) { fMiningRequiresPeers = flag; }
-    uint32_t CoinbaseMaturity() const { return coinbaseMaturity; }
-    void SetCoinbaseMaturity(uint32_t in) const { coinbaseMaturity = in; }
+    void SetMiningRequiresPeers(bool flag) {
+        fMiningRequiresPeers = flag;
+    }
+    uint32_t CoinbaseMaturity() const {
+        return coinbaseMaturity;
+    }
+    void SetCoinbaseMaturity(uint32_t in) const {
+        coinbaseMaturity = in;
+    }
 
     CMessageHeader::MessageStartChars pchMessageStart; // message header start bytes
     Consensus::Params consensus; // parameters that influence consensus
 
-protected:
+  protected:
     CChainParams() {}
 
     std::vector<unsigned char> vAlertPubKey; // Raw pub key bytes for the broadcast alert signing key
@@ -261,13 +318,13 @@ protected:
  */
 const CChainParams &Params();
 
-/** 
+/**
  * @param network the network
- * @returns parameters for the given network. 
+ * @returns parameters for the given network.
  */
 CChainParams &Params(CBaseChainParams::Network network);
 
-/** 
+/**
  * Sets the params returned by Params() to those for the given network.
  * @param network the network to use
  */

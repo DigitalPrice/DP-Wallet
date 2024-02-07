@@ -22,9 +22,8 @@
 #include "cryptoconditions/include/cryptoconditions.h"
 
 
-class MoMProof
-{
-public:
+class MoMProof {
+  public:
     MerkleBranch branch;
     uint256 notarisationHash;
     ADD_SERIALIZE_METHODS;
@@ -37,11 +36,10 @@ public:
 
 
 
-class BetProtocol
-{
-protected:
+class BetProtocol {
+  protected:
     std::vector<CC*> playerConditions();
-public:
+  public:
     EvalCode disputeCode;
     std::vector<CPubKey> players;
     std::vector<unsigned char> vmParams;
@@ -57,14 +55,14 @@ public:
     CMutableTransaction MakeSessionTx(CAmount spendFee);
     CMutableTransaction MakeDisputeTx(uint256 signedSessionTxHash, uint256 vmResultHash);
     CMutableTransaction MakePostEvidenceTx(uint256 signedSessionTxHash,
-            int playerIndex, std::vector<unsigned char> state);
+                                           int playerIndex, std::vector<unsigned char> state);
 
     // on KMD
     CC* MakePayoutCond(uint256 signedSessionTxHash);
     CMutableTransaction MakeStakeTx(CAmount totalPayout, uint256 signedSessionTx);
     CMutableTransaction MakeAgreePayoutTx(std::vector<CTxOut> payouts, uint256 signedStakeTxHash);
     CMutableTransaction MakeImportPayoutTx(std::vector<CTxOut> payouts,
-            CTransaction signedDisputeTx, uint256 signedStakeTxHash, MoMProof momProof);
+                                           CTransaction signedDisputeTx, uint256 signedStakeTxHash, MoMProof momProof);
 };
 
 

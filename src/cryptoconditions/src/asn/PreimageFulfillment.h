@@ -20,10 +20,10 @@ extern "C" {
 
 /* PreimageFulfillment */
 typedef struct PreimageFulfillment {
-	OCTET_STRING_t	 preimage;
-	
-	/* Context for parsing across buffer boundaries */
-	asn_struct_ctx_t _asn_ctx;
+    OCTET_STRING_t	 preimage;
+
+    /* Context for parsing across buffer boundaries */
+    asn_struct_ctx_t _asn_ctx;
 } PreimageFulfillment_t;
 
 /* Implementation */

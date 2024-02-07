@@ -155,8 +155,8 @@ int secp256k1_schnorrsig_verify(const secp256k1_context* ctx, const secp256k1_sc
     secp256k1_scalar_set_b32(&e, buf, NULL);
 
     if (!secp256k1_schnorrsig_real_verify(ctx, &rj, &s, &e, pk)
-        || !secp256k1_gej_has_quad_y_var(&rj) /* fails if rj is infinity */
-        || !secp256k1_gej_eq_x_var(&rx, &rj)) {
+            || !secp256k1_gej_has_quad_y_var(&rj) /* fails if rj is infinity */
+            || !secp256k1_gej_eq_x_var(&rx, &rj)) {
         return 0;
     }
 
@@ -204,7 +204,7 @@ static int secp256k1_schnorrsig_verify_batch_ecmult_callback(secp256k1_scalar *s
         if (!secp256k1_ge_set_xquad(pt, &rx)) {
             return 0;
         }
-    /* eP */
+        /* eP */
     } else {
         unsigned char buf[33];
         size_t buflen = sizeof(buf);
@@ -332,7 +332,7 @@ int secp256k1_schnorrsig_verify_batch(const secp256k1_context *ctx, secp256k1_sc
     secp256k1_scalar_negate(&s, &s);
 
     return secp256k1_ecmult_multi_var(&ctx->ecmult_ctx, scratch, &rj, &s, secp256k1_schnorrsig_verify_batch_ecmult_callback, (void *) &ecmult_context, 2 * n_sigs)
-            && secp256k1_gej_is_infinity(&rj);
+           && secp256k1_gej_is_infinity(&rj);
 }
 
 #endif

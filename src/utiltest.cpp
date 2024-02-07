@@ -71,16 +71,16 @@ CWalletTx GetValidReceive(ZCJoinSplit& params,
 }
 
 libzcash::SproutNote GetNote(ZCJoinSplit& params,
-                       const libzcash::SproutSpendingKey& sk,
-                       const CTransaction& tx, size_t js, size_t n) {
+                             const libzcash::SproutSpendingKey& sk,
+                             const CTransaction& tx, size_t js, size_t n) {
     ZCNoteDecryption decryptor {sk.receiving_key()};
     auto hSig = tx.vjoinsplit[js].h_sig(params, tx.joinSplitPubKey);
     auto note_pt = libzcash::SproutNotePlaintext::decrypt(
-        decryptor,
-        tx.vjoinsplit[js].ciphertexts[n],
-        tx.vjoinsplit[js].ephemeralKey,
-        hSig,
-        (unsigned char) n);
+                       decryptor,
+                       tx.vjoinsplit[js].ciphertexts[n],
+                       tx.vjoinsplit[js].ephemeralKey,
+                       hSig,
+                       (unsigned char) n);
     return note_pt.note(sk.address());
 }
 

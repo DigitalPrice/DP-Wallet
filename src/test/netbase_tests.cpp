@@ -14,8 +14,7 @@ using namespace std;
 
 BOOST_FIXTURE_TEST_SUITE(netbase_tests, BasicTestingSetup)
 
-BOOST_AUTO_TEST_CASE(netbase_networks)
-{
+BOOST_AUTO_TEST_CASE(netbase_networks) {
     BOOST_CHECK(CNetAddr("127.0.0.1").GetNetwork()                              == NET_UNROUTABLE);
     BOOST_CHECK(CNetAddr("::1").GetNetwork()                                    == NET_UNROUTABLE);
     BOOST_CHECK(CNetAddr("8.8.8.8").GetNetwork()                                == NET_IPV4);
@@ -23,8 +22,7 @@ BOOST_AUTO_TEST_CASE(netbase_networks)
     BOOST_CHECK(CNetAddr("FD87:D87E:EB43:edb1:8e4:3588:e546:35ca").GetNetwork() == NET_ONION);
 }
 
-BOOST_AUTO_TEST_CASE(netbase_properties)
-{
+BOOST_AUTO_TEST_CASE(netbase_properties) {
     BOOST_CHECK(CNetAddr("127.0.0.1").IsIPv4());
     BOOST_CHECK(CNetAddr("::FFFF:192.168.1.1").IsIPv4());
     BOOST_CHECK(CNetAddr("::1").IsIPv6());
@@ -47,16 +45,14 @@ BOOST_AUTO_TEST_CASE(netbase_properties)
     BOOST_CHECK(CNetAddr("127.0.0.1").IsValid());
 }
 
-bool static TestSplitHost(string test, string host, int port)
-{
+bool static TestSplitHost(string test, string host, int port) {
     string hostOut;
     int portOut = -1;
     SplitHostPort(test, portOut, hostOut);
     return hostOut == host && port == portOut;
 }
 
-BOOST_AUTO_TEST_CASE(netbase_splithost)
-{
+BOOST_AUTO_TEST_CASE(netbase_splithost) {
     BOOST_CHECK(TestSplitHost("www.bitcoin.org", "www.bitcoin.org", -1));
     BOOST_CHECK(TestSplitHost("[www.bitcoin.org]", "www.bitcoin.org", -1));
     BOOST_CHECK(TestSplitHost("www.bitcoin.org:80", "www.bitcoin.org", 80));
@@ -74,16 +70,14 @@ BOOST_AUTO_TEST_CASE(netbase_splithost)
     BOOST_CHECK(TestSplitHost("", "", -1));
 }
 
-bool static TestParse(string src, string canon)
-{
+bool static TestParse(string src, string canon) {
     CService addr;
     if (!LookupNumeric(src.c_str(), addr, 65535))
         return canon == "";
     return canon == addr.ToString();
 }
 
-BOOST_AUTO_TEST_CASE(netbase_lookupnumeric)
-{
+BOOST_AUTO_TEST_CASE(netbase_lookupnumeric) {
     BOOST_CHECK(TestParse("127.0.0.1", "127.0.0.1:65535"));
     BOOST_CHECK(TestParse("127.0.0.1:8333", "127.0.0.1:8333"));
     BOOST_CHECK(TestParse("::ffff:127.0.0.1", "127.0.0.1:65535"));
@@ -93,8 +87,7 @@ BOOST_AUTO_TEST_CASE(netbase_lookupnumeric)
     BOOST_CHECK(TestParse(":::", ""));
 }
 
-BOOST_AUTO_TEST_CASE(onioncat_test)
-{
+BOOST_AUTO_TEST_CASE(onioncat_test) {
     // values from https://web.archive.org/web/20121122003543/http://www.cypherpunk.at/onioncat/wiki/OnionCat
     CNetAddr addr1("5wyqrzbvrdsumnok.onion");
     CNetAddr addr2("FD87:D87E:EB43:edb1:8e4:3588:e546:35ca");
@@ -104,8 +97,7 @@ BOOST_AUTO_TEST_CASE(onioncat_test)
     BOOST_CHECK(addr1.IsRoutable());
 }
 
-BOOST_AUTO_TEST_CASE(subnet_test)
-{
+BOOST_AUTO_TEST_CASE(subnet_test) {
     BOOST_CHECK(CSubNet("1.2.3.0/24") == CSubNet("1.2.3.0/255.255.255.0"));
     BOOST_CHECK(CSubNet("1.2.3.0/24") != CSubNet("1.2.4.0/255.255.255.0"));
     BOOST_CHECK(CSubNet("1.2.3.0/24").Match(CNetAddr("1.2.3.4")));
@@ -146,8 +138,7 @@ BOOST_AUTO_TEST_CASE(subnet_test)
     BOOST_CHECK(!CSubNet("fuzzy").IsValid());
 }
 
-BOOST_AUTO_TEST_CASE(netbase_getgroup)
-{
+BOOST_AUTO_TEST_CASE(netbase_getgroup) {
     BOOST_CHECK(CNetAddr("127.0.0.1").GetGroup() == boost::assign::list_of(0)); // Local -> !Routable()
     BOOST_CHECK(CNetAddr("257.0.0.1").GetGroup() == boost::assign::list_of(0)); // !Valid -> !Routable()
     BOOST_CHECK(CNetAddr("10.0.0.1").GetGroup() == boost::assign::list_of(0)); // RFC1918 -> !Routable()

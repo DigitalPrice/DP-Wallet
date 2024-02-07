@@ -39,8 +39,7 @@ using namespace std;
 using namespace libsnark;
 
 template<>
-void expect_deser_same(const SproutTestingWitness& expected)
-{
+void expect_deser_same(const SproutTestingWitness& expected) {
     // Cannot check this; IncrementalWitness cannot be
     // deserialized because it can only be constructed by
     // IncrementalMerkleTree, and it does not yet have a
@@ -60,8 +59,7 @@ void test_tree(
     UniValue witness_ser_tests,
     UniValue path_tests,
     bool libsnark_test
-)
-{
+) {
     size_t witness_ser_i = 0;
     size_t path_i = 0;
 
@@ -104,8 +102,7 @@ void test_tree(
         expect_ser_test_vector(ser_tests[i], tree, tree);
 
         bool first = true; // The first witness can never form a path
-        BOOST_FOREACH(Witness& wit, witnesses)
-        {
+        BOOST_FOREACH(Witness& wit, witnesses) {
             // Append the same commitment to all the witnesses
             wit.append(test_commitment);
 
@@ -126,8 +123,8 @@ void test_tree(
                     positions.allocate(pb, INCREMENTAL_MERKLE_TREE_DEPTH_TESTING, "pos");
                     merkle_authentication_path_variable<FieldT, sha256_two_to_one_hash_gadget<FieldT>> authvars(pb, INCREMENTAL_MERKLE_TREE_DEPTH_TESTING, "auth");
                     merkle_tree_check_read_gadget<FieldT, sha256_two_to_one_hash_gadget<FieldT>> auth(
-                        pb, INCREMENTAL_MERKLE_TREE_DEPTH_TESTING, positions, commitment, root, authvars, ONE, "path"
-                    );
+                                pb, INCREMENTAL_MERKLE_TREE_DEPTH_TESTING, positions, commitment, root, authvars, ONE, "path"
+                            );
                     commitment.generate_r1cs_constraints();
                     root.generate_r1cs_constraints();
                     authvars.generate_r1cs_constraints();
@@ -179,8 +176,7 @@ void test_tree(
         // Tree should be full now
         ASSERT_THROW(tree.append(uint256()), std::runtime_error);
 
-        BOOST_FOREACH(Witness& wit, witnesses)
-        {
+        BOOST_FOREACH(Witness& wit, witnesses) {
             ASSERT_THROW(wit.append(uint256()), std::runtime_error);
         }
     }

@@ -12,16 +12,14 @@
 
 namespace test_events {
 
-uint256 fill_hash(uint8_t val)
-{
+uint256 fill_hash(uint8_t val) {
     std::vector<uint8_t> bin(32);
     for(uint8_t i = 0; i < 32; ++i)
         bin[i] = val;
     return uint256(bin);
 }
 
-void write_p_record(std::FILE* fp)
-{
+void write_p_record(std::FILE* fp) {
     // a pubkey record with 2 keys
     char data[5+1+(33*2)] = {'P', 10, 0, 0, 0, 2}; // public key record identifier with height of 10 plus number of keys plus keys themselves
     memset(&data[6], 1, 33); // 1st key is all 1s
@@ -29,8 +27,7 @@ void write_p_record(std::FILE* fp)
     std::fwrite(data, sizeof(data), 1, fp);
 }
 
-void write_p_record_new(std::FILE* fp)
-{
+void write_p_record_new(std::FILE* fp) {
     komodo::event_pubkeys evt;
     evt.height = 10;
     evt.num = 2;
@@ -39,10 +36,9 @@ void write_p_record_new(std::FILE* fp)
     write_event(evt, fp);
 }
 
-void write_n_record(std::FILE* fp)
-{
+void write_n_record(std::FILE* fp) {
     // a notarized record has
-    // 5 byte header 
+    // 5 byte header
     // 4 bytes notarized_height
     // 32 bytes notarized hash( blockhash)
     // 32 bytes desttxid
@@ -51,8 +47,7 @@ void write_n_record(std::FILE* fp)
     memset(&data[41], 2, 32); // desttxid
     std::fwrite(data, sizeof(data), 1, fp);
 }
-void write_n_record_new(std::FILE* fp)
-{
+void write_n_record_new(std::FILE* fp) {
     komodo::event_notarized evt;
     evt.height = 10;
     evt.notarizedheight = 2;
@@ -61,10 +56,9 @@ void write_n_record_new(std::FILE* fp)
     write_event(evt, fp);
 }
 
-void write_m_record(std::FILE* fp)
-{
+void write_m_record(std::FILE* fp) {
     // a notarized M record has
-    // 5 byte header 
+    // 5 byte header
     // 4 bytes notarized_height
     // 32 bytes notarized hash( blockhash)
     // 32 bytes desttxid
@@ -77,8 +71,7 @@ void write_m_record(std::FILE* fp)
     memset(&data[105], 4, 4); // MoMdepth
     std::fwrite(data, sizeof(data), 1, fp);
 }
-void write_m_record_new(std::FILE* fp)
-{
+void write_m_record_new(std::FILE* fp) {
     komodo::event_notarized evt;
     evt.height = 10;
     evt.notarizedheight = 3;
@@ -90,10 +83,9 @@ void write_m_record_new(std::FILE* fp)
     write_event(evt, fp);
 }
 
-void write_u_record(std::FILE* fp)
-{
+void write_u_record(std::FILE* fp) {
     // a U record has
-    // 5 byte header 
+    // 5 byte header
     // 1 byte n and 1 byte nid
     // 8 bytes mask
     // 32 bytes hash
@@ -102,8 +94,7 @@ void write_u_record(std::FILE* fp)
     memset(&data[15], 2, 32); // hash
     std::fwrite(data, sizeof(data), 1, fp);
 }
-void write_u_record_new(std::FILE* fp)
-{
+void write_u_record_new(std::FILE* fp) {
     komodo::event_u evt(10);
     evt.n = 'N';
     evt.nid = 'I';
@@ -112,26 +103,23 @@ void write_u_record_new(std::FILE* fp)
     write_event(evt, fp);
 }
 
-void write_k_record(std::FILE* fp)
-{
+void write_k_record(std::FILE* fp) {
     // a K record has
-    // 5 byte header 
+    // 5 byte header
     // 4 bytes height
     char data[9] = {'K', 10, 0, 0, 0 };
     memset(&data[5], 1, 4); // height
     std::fwrite(data, sizeof(data), 1, fp);
 }
-void write_k_record_new(std::FILE* fp)
-{
+void write_k_record_new(std::FILE* fp) {
     komodo::event_kmdheight evt(10);
     evt.kheight = 0x01010101;
     write_event(evt, fp);
 }
 
-void write_t_record(std::FILE* fp)
-{
+void write_t_record(std::FILE* fp) {
     // a T record has
-    // 5 byte header 
+    // 5 byte header
     // 4 bytes height
     // 4 bytes timestamp
     char data[13] = {'T', 10, 0, 0, 0 };
@@ -139,18 +127,16 @@ void write_t_record(std::FILE* fp)
     memset(&data[9], 2, 4); // timestamp
     std::fwrite(data, sizeof(data), 1, fp);
 }
-void write_t_record_new(std::FILE* fp)
-{
+void write_t_record_new(std::FILE* fp) {
     komodo::event_kmdheight evt(10);
     evt.kheight = 0x01010101;
     evt.timestamp = 0x02020202;
     write_event(evt, fp);
 }
 
-void write_r_record(std::FILE* fp)
-{
+void write_r_record(std::FILE* fp) {
     // an R record has
-    // 5 byte header 
+    // 5 byte header
     // 32 byte txid
     // 2 byte v
     // 8 byte ovalue
@@ -165,20 +151,18 @@ void write_r_record(std::FILE* fp)
     memset(&data[49], 4, 1);
     std::fwrite(data, sizeof(data), 1, fp);
 }
-void write_r_record_new(std::FILE* fp)
-{
+void write_r_record_new(std::FILE* fp) {
     komodo::event_opreturn evt(10);
     evt.txid = fill_hash(1);
-    evt.vout = 0x0202; 
+    evt.vout = 0x0202;
     evt.value = 0x0303030303030303;
-    evt.opret = std::vector<uint8_t>{ 0x04 };
+    evt.opret = std::vector<uint8_t> { 0x04 };
     write_event(evt, fp);
 }
 
-void write_v_record(std::FILE* fp)
-{
+void write_v_record(std::FILE* fp) {
     // a V record has
-    // 5 byte header 
+    // 5 byte header
     // 1 byte counter
     // counter * 4 bytes of data
     char data[146] = {'V', 10, 0, 0, 0};
@@ -186,51 +170,41 @@ void write_v_record(std::FILE* fp)
     memset(&data[6], 1, 140); // data
     std::fwrite(data, sizeof(data), 1, fp);
 }
-void write_v_record_new(std::FILE* fp)
-{
+void write_v_record_new(std::FILE* fp) {
     komodo::event_pricefeed evt(10);
     evt.num = 35;
     memset(&evt.prices[0], 1, 140);
     write_event(evt, fp);
 }
 
-void write_b_record(std::FILE* fp)
-{
+void write_b_record(std::FILE* fp) {
     char data[] = {'B', 10, 0, 0, 0};
     std::fwrite(data, sizeof(data), 1, fp);
 }
-void write_b_record_new(std::FILE* fp)
-{
+void write_b_record_new(std::FILE* fp) {
     komodo::event_rewind evt(10);
     write_event(evt, fp);
 }
 
 template<class T>
-bool compare_serialization(const std::string& filename, const T& in)
-{
+bool compare_serialization(const std::string& filename, const T& in) {
     // read contents of file
     std::ifstream s(filename, std::ios::binary);
     std::vector<char> file_contents((std::istreambuf_iterator<char>(s)), std::istreambuf_iterator<char>());
     // get contents of in
     std::stringstream ss;
     ss << in;
-    std::vector<char> in_contents( (std::istreambuf_iterator<char>(ss)), std::istreambuf_iterator<char>()); 
+    std::vector<char> in_contents( (std::istreambuf_iterator<char>(ss)), std::istreambuf_iterator<char>());
     bool retval = file_contents == in_contents;
-    if (!retval)
-    {
-        if (file_contents.size() != in_contents.size())
-        {
+    if (!retval) {
+        if (file_contents.size() != in_contents.size()) {
             std::cout << "File has " << std::to_string( file_contents.size() ) << " bytes but serialized data has " << in_contents.size() << "\n";
-        }
-        else
-        {
-            for(size_t i = 0; i < file_contents.size(); ++i)
-            {
-                if (file_contents[i] != in_contents[i])
-                {
-                    std::cout << "Difference at position " << std::to_string(i) 
-                            << " " << std::hex << std::setfill('0') << std::setw(2) << (int)file_contents[i] 
-                            << " " << std::hex << std::setfill('0') << std::setw(2) << (int)in_contents[i] << "\n";
+        } else {
+            for(size_t i = 0; i < file_contents.size(); ++i) {
+                if (file_contents[i] != in_contents[i]) {
+                    std::cout << "Difference at position " << std::to_string(i)
+                              << " " << std::hex << std::setfill('0') << std::setw(2) << (int)file_contents[i]
+                              << " " << std::hex << std::setfill('0') << std::setw(2) << (int)in_contents[i] << "\n";
                     break;
                 }
             }
@@ -239,8 +213,7 @@ bool compare_serialization(const std::string& filename, const T& in)
     return retval;
 }
 
-bool compare_files(const std::string& file1, const std::string& file2)
-{
+bool compare_files(const std::string& file1, const std::string& file2) {
     std::ifstream f1(file1, std::ifstream::binary|std::ifstream::ate);
     std::ifstream f2(file2, std::ifstream::binary|std::ifstream::ate);
 
@@ -257,14 +230,12 @@ bool compare_files(const std::string& file1, const std::string& file2)
     size_t sz = f1.tellg();
     f1.seekg(0, std::ifstream::beg);
     f2.seekg(0, std::ifstream::beg);
-    for(size_t i = 0; i < sz; ++i)
-    {
+    for(size_t i = 0; i < sz; ++i) {
         char a;
         f1.read(&a, 1);
         char b;
         f2.read(&b, 1);
-        if (a != b)
-        {
+        if (a != b) {
             std::cerr << "Data mismatch at position " << i << std::endl;
             return false;
         }
@@ -272,8 +243,7 @@ bool compare_files(const std::string& file1, const std::string& file2)
     return true;
 }
 
-void clear_state(const char* symbol)
-{
+void clear_state(const char* symbol) {
     komodo_state* state = komodo_stateptrget((char*)symbol);
     ASSERT_TRUE(state != nullptr);
     state->events.clear();
@@ -282,11 +252,10 @@ void clear_state(const char* symbol)
 /****
  * The main purpose of this test is to verify that
  * state files created continue to be readable despite logic
- * changes. Files need to be readable. The record format should 
+ * changes. Files need to be readable. The record format should
  * not change without hardfork protection
  */
-TEST(test_events, komodo_faststateinit_test)
-{
+TEST(test_events, komodo_faststateinit_test) {
     char symbol[] = "TST";
     chainName = assetchain("TST");
     KOMODO_EXTERNAL_NOTARIES = 1;
@@ -296,8 +265,7 @@ TEST(test_events, komodo_faststateinit_test)
 
     boost::filesystem::path temp = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
     boost::filesystem::create_directories(temp);
-    try
-    {
+    try {
         // NOTE: header contains a 5 byte header that is make up of
         // an 8 bit identifier (i.e. 'P', 'N', etc.)
         // plus a 32 bit height. Everything else is record specific
@@ -330,8 +298,8 @@ TEST(test_events, komodo_faststateinit_test)
             ASSERT_TRUE(state->events.size() != 0); // prevent test crash
             // check that the new way is the same
             EXPECT_EQ(state->events.size(), 1);
-            komodo::event_pubkeys& ev2 = 
-                    static_cast<komodo::event_pubkeys&>( *state->events.front() );
+            komodo::event_pubkeys& ev2 =
+                static_cast<komodo::event_pubkeys&>( *state->events.front() );
             EXPECT_EQ(ev2.height, 10);
             EXPECT_EQ(ev2.type, komodo::komodo_event_type::EVENT_PUBKEYS);
             // the serialized version should match the input
@@ -364,8 +332,8 @@ TEST(test_events, komodo_faststateinit_test)
             ASSERT_TRUE(state->events.size() != 0); // prevent test crash
             // check that the new way is the same
             ASSERT_EQ(state->events.size(), 1);
-            komodo::event_notarized& ev2 = 
-                    static_cast<komodo::event_notarized&>( *state->events.front() );
+            komodo::event_notarized& ev2 =
+                static_cast<komodo::event_notarized&>( *state->events.front() );
             EXPECT_EQ(ev2.height, 10);
             EXPECT_EQ(ev2.type, komodo::komodo_event_type::EVENT_NOTARIZED);
             // the serialized version should match the input
@@ -436,7 +404,7 @@ TEST(test_events, komodo_faststateinit_test)
             /* old way
             EXPECT_EQ(state->Komodo_numevents, 3); // does not get added to state
             */
-            ASSERT_TRUE(state->events.size() == 0); // U not used    
+            ASSERT_TRUE(state->events.size() == 0); // U not used
         }
         // record type K (KMD height)
         {
@@ -460,7 +428,7 @@ TEST(test_events, komodo_faststateinit_test)
             EXPECT_EQ(state->Komodo_numevents, 4);
             komodo_event* ev = state->Komodo_events[3];
             EXPECT_EQ(ev->height, 1);
-            EXPECT_EQ(ev->type, 'K');            
+            EXPECT_EQ(ev->type, 'K');
             */
             ASSERT_TRUE(state->events.size() != 0); // prevent test crash
             // check that the new way is the same
@@ -605,7 +573,7 @@ TEST(test_events, komodo_faststateinit_test)
             */
             ASSERT_TRUE(state->events.size() == 0); // 'B' not read
             // check that the new way is the same
-        }        
+        }
         // all together in 1 file
         {
             const std::string full_filename = (temp / "combined_state.tmp").string();
@@ -677,17 +645,14 @@ TEST(test_events, komodo_faststateinit_test)
                 itr++;
             }
         }
-    } 
-    catch(...)
-    {
+    } catch(...) {
         FAIL() << "Exception thrown";
     }
     boost::filesystem::remove_all(temp);
 }
 
 // same test for KMD
-TEST(test_events, komodo_faststateinit_test_kmd)
-{
+TEST(test_events, komodo_faststateinit_test_kmd) {
     // Nothing should be added to events if this is the komodo chain
 
     char symbol[] = "KMD";
@@ -699,8 +664,7 @@ TEST(test_events, komodo_faststateinit_test_kmd)
 
     boost::filesystem::path temp = boost::filesystem::temp_directory_path() / boost::filesystem::unique_path();
     boost::filesystem::create_directories(temp);
-    try
-    {
+    try {
         // NOTE: header contains a 5 byte header that is make up of
         // an 8 bit identifier (i.e. 'P', 'N', etc.)
         // plus a 32 bit height. Everything else is record specific
@@ -891,7 +855,7 @@ TEST(test_events, komodo_faststateinit_test_kmd)
             // compare results
             EXPECT_EQ(result, 1);
             EXPECT_EQ(state->events.size(), 0);
-        }        
+        }
         // all together in 1 file
         {
             const std::string full_filename = (temp / "combined_state.tmp").string();
@@ -917,16 +881,13 @@ TEST(test_events, komodo_faststateinit_test_kmd)
             EXPECT_EQ(result, 1);
             EXPECT_EQ(state->events.size(), 0);
         }
-    } 
-    catch(...)
-    {
+    } catch(...) {
         FAIL() << "Exception thrown";
     }
     boost::filesystem::remove_all(temp);
 }
 
-TEST(test_events, DISABLED_write_test) // test from dev branch from S6 season
-{
+TEST(test_events, DISABLED_write_test) { // test from dev branch from S6 season
     char symbol[] = "TST";
     chainName = assetchain(symbol);
     KOMODO_EXTERNAL_NOTARIES = 1;
@@ -938,8 +899,7 @@ TEST(test_events, DISABLED_write_test) // test from dev branch from S6 season
 
     const std::string full_filename = (temp / "kstate.tmp").string();
     const std::string full_filename2 = (temp / "kstate2.tmp").string();
-    try
-    {
+    try {
         {
             // old way
             std::FILE* fp = std::fopen(full_filename.c_str(), "wb+");
@@ -966,16 +926,13 @@ TEST(test_events, DISABLED_write_test) // test from dev branch from S6 season
             // verify files still exists
             EXPECT_TRUE(boost::filesystem::exists(full_filename));
         }
-    }
-    catch(...)
-    {
+    } catch(...) {
         FAIL() << "Exception thrown";
     }
     boost::filesystem::remove_all(temp);
 }
 
-TEST(test_events, write_test_event_fix3)  // same test from jmj_event_fix3
-{
+TEST(test_events, write_test_event_fix3) { // same test from jmj_event_fix3
     // test serialization of the different event records
     char symbol[] = "TST";
     chainName = assetchain(symbol);
@@ -988,8 +945,7 @@ TEST(test_events, write_test_event_fix3)  // same test from jmj_event_fix3
 
     const std::string full_filename = (temp / "kstate.tmp").string();
     const std::string full_filename2 = (temp / "kstate2.tmp").string();
-    try
-    {
+    try {
         {
             // old way
             std::FILE* fp = std::fopen(full_filename.c_str(), "wb+");
@@ -1025,9 +981,7 @@ TEST(test_events, write_test_event_fix3)  // same test from jmj_event_fix3
             // the two files should be binarily equal
             EXPECT_TRUE( compare_files(full_filename, full_filename2) );
         }
-    }
-    catch(...)
-    {
+    } catch(...) {
         FAIL() << "Exception thrown";
     }
     boost::filesystem::remove_all(temp);
@@ -1035,8 +989,7 @@ TEST(test_events, write_test_event_fix3)  // same test from jmj_event_fix3
 }
 
 
-TEST(test_events, event_copy)
-{
+TEST(test_events, event_copy) {
     // make an object
     komodo::event_pubkeys pk1(1);
     pk1.num = 2;
@@ -1049,10 +1002,8 @@ TEST(test_events, event_copy)
     // are they equal?
     EXPECT_EQ(pk1.height, pk2.height);
     EXPECT_EQ(pk1.num, pk2.num);
-    for(uint8_t i = 0; i < pk1.num; ++i)
-    {
-        for(uint8_t j = 0; j < 33; ++j)
-        {
+    for(uint8_t i = 0; i < pk1.num; ++i) {
+        for(uint8_t j = 0; j < 33; ++j) {
             if (pk1.pubkeys[i][j] != pk2.pubkeys[i][j])
                 FAIL() << "Error at " << (int)i << " " << (int)j;
         }

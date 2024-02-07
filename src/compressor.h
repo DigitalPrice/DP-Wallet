@@ -40,9 +40,8 @@ class CScriptID;
  *  Other scripts up to 121 bytes require 1 byte + script length. Above
  *  that, scripts up to 16505 bytes require 2 bytes + script length.
  */
-class CScriptCompressor
-{
-private:
+class CScriptCompressor {
+  private:
     /**
      * make this static for now (there are only 6 special scripts defined)
      * this can potentially be extended together with a new nVersion for
@@ -52,7 +51,7 @@ private:
     static const unsigned int nSpecialScripts = 6;
 
     CScript &script;
-protected:
+  protected:
     /**
      * These check for scripts for which a special case with a shorter encoding is defined.
      * They are implemented separately from the CScript test, as these test for exact byte
@@ -67,7 +66,7 @@ protected:
     bool Compress(std::vector<unsigned char> &out) const;
     unsigned int GetSpecialSize(unsigned int nSize) const;
     bool Decompress(unsigned int nSize, const std::vector<unsigned char> &out);
-public:
+  public:
     CScriptCompressor(CScript &scriptIn) : script(scriptIn) { }
 
     template<typename Stream>
@@ -105,12 +104,11 @@ public:
 };
 
 /** wrapper for CTxOut that provides a more compact serialization */
-class CTxOutCompressor
-{
-private:
+class CTxOutCompressor {
+  private:
     CTxOut &txout;
 
-public:
+  public:
     static uint64_t CompressAmount(uint64_t nAmount);
     static uint64_t DecompressAmount(uint64_t nAmount);
 

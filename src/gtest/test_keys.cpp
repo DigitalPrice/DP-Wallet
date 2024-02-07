@@ -6,8 +6,7 @@
 
 #include <gtest/gtest.h>
 
-TEST(Keys, EncodeAndDecodeSapling)
-{
+TEST(Keys, EncodeAndDecodeSapling) {
     SelectParams(CBaseChainParams::MAIN);
 
     std::vector<unsigned char, secure_allocator<unsigned char>> rawSeed(32);

@@ -29,12 +29,12 @@ TEST(checktransaction_tests, check_vpub_not_both_nonzero) {
 }
 
 class MockCValidationState : public CValidationState {
-public:
+  public:
     MOCK_METHOD5(DoS, bool(int level, bool ret,
-             unsigned char chRejectCodeIn, std::string strRejectReasonIn,
-             bool corruptionIn));
+                           unsigned char chRejectCodeIn, std::string strRejectReasonIn,
+                           bool corruptionIn));
     MOCK_METHOD3(Invalid, bool(bool ret,
-                 unsigned char _chRejectCode, std::string _strRejectReason));
+                               unsigned char _chRejectCode, std::string _strRejectReason));
     MOCK_METHOD1(Error, bool(std::string strRejectReasonIn));
     MOCK_CONST_METHOD0(IsValid, bool());
     MOCK_CONST_METHOD0(IsInvalid, bool());
@@ -57,7 +57,7 @@ CMutableTransaction GetValidTransaction() {
     mtx.vin[1].prevout.hash = uint256S("0000000000000000000000000000000000000000000000000000000000000002");
     mtx.vin[1].prevout.n = 0;
     mtx.vout.resize(2);
-    // mtx.vout[0].scriptPubKey = 
+    // mtx.vout[0].scriptPubKey =
     mtx.vout[0].nValue = 0;
     mtx.vout[1].nValue = 0;
     mtx.vjoinsplit.resize(2);
@@ -90,9 +90,9 @@ void CreateJoinSplitSignature(CMutableTransaction& mtx, uint32_t consensusBranch
 
     // Add the signature
     assert(crypto_sign_detached(&mtx.joinSplitSig[0], NULL,
-                         dataToBeSigned.begin(), 32,
-                         joinSplitPrivKey
-                        ) == 0);
+                                dataToBeSigned.begin(), 32,
+                                joinSplitPrivKey
+                               ) == 0);
 }
 
 TEST(checktransaction_tests, valid_transaction) {
@@ -508,9 +508,13 @@ TEST(checktransaction_tests, bad_txns_invalid_joinsplit_signature) {
     MockCValidationState state;
     // during initial block download, DoS ban score should be zero, else 100
     EXPECT_CALL(state, DoS(0, false, REJECT_INVALID, "bad-txns-invalid-joinsplit-signature", false)).Times(1);
-    ContextualCheckTransaction(0,tx, state, 0, 100, []() { return true; });
+    ContextualCheckTransaction(0,tx, state, 0, 100, []() {
+        return true;
+    });
     EXPECT_CALL(state, DoS(100, false, REJECT_INVALID, "bad-txns-invalid-joinsplit-signature", false)).Times(1);
-    ContextualCheckTransaction(0,tx, state, 0, 100, []() { return false; });
+    ContextualCheckTransaction(0,tx, state, 0, 100, []() {
+        return false;
+    });
 }
 
 TEST(checktransaction_tests, non_canonical_ed25519_signature) {
@@ -526,11 +530,12 @@ TEST(checktransaction_tests, non_canonical_ed25519_signature) {
     }
 
     // Copied from libsodium/crypto_sign/ed25519/ref10/open.c
-    static const unsigned char L[32] =
-      { 0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58,
+    static const unsigned char L[32] = {
+        0xed, 0xd3, 0xf5, 0x5c, 0x1a, 0x63, 0x12, 0x58,
         0xd6, 0x9c, 0xf7, 0xa2, 0xde, 0xf9, 0xde, 0x14,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10 };
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10
+    };
 
     // Add L to S, which starts at mtx.joinSplitSig[32].
     unsigned int s = 0;
@@ -544,9 +549,13 @@ TEST(checktransaction_tests, non_canonical_ed25519_signature) {
     MockCValidationState state;
     // during initial block download, DoS ban score should be zero, else 100
     EXPECT_CALL(state, DoS(0, false, REJECT_INVALID, "bad-txns-invalid-joinsplit-signature", false)).Times(1);
-    ContextualCheckTransaction(0,tx, state, 0, 100, []() { return true; });
+    ContextualCheckTransaction(0,tx, state, 0, 100, []() {
+        return true;
+    });
     EXPECT_CALL(state, DoS(100, false, REJECT_INVALID, "bad-txns-invalid-joinsplit-signature", false)).Times(1);
-    ContextualCheckTransaction(0,tx, state, 0, 100, []() { return false; });
+    ContextualCheckTransaction(0,tx, state, 0, 100, []() {
+        return false;
+    });
 }
 
 TEST(checktransaction_tests, OverwinterConstructors) {
@@ -714,8 +723,8 @@ TEST(checktransaction_tests, SproutTxVersionTooLow) {
 // from a CMutableTransaction.  This enables us to create a CTransaction
 // with bad values which normally trigger an exception during construction.
 class UNSAFE_CTransaction : public CTransaction {
-    public:
-        UNSAFE_CTransaction(const CMutableTransaction &tx) : CTransaction(tx, true) {}
+  public:
+    UNSAFE_CTransaction(const CMutableTransaction &tx) : CTransaction(tx, true) {}
 };
 
 TEST(checktransaction_tests, SaplingSproutInputSumsTooLarge) {
@@ -742,11 +751,11 @@ TEST(checktransaction_tests, SaplingSproutInputSumsTooLarge) {
         std::array<size_t, ZC_NUM_JS_OUTPUTS> outputMap;
 
         auto jsdesc = JSDescription::Randomized(
-            true,
-            *params, joinSplitPubKey, rt,
-            inputs, outputs,
-            inputMap, outputMap,
-            0, 0, false);
+                          true,
+                          *params, joinSplitPubKey, rt,
+                          inputs, outputs,
+                          inputMap, outputMap,
+                          0, 0, false);
 
         mtx.vjoinsplit.push_back(jsdesc);
     }
@@ -837,9 +846,13 @@ TEST(checktransaction_tests, OverwinterNotActive) {
     MockCValidationState state;
     // during initial block download, DoS ban score should be zero, else 100
     EXPECT_CALL(state, DoS(0, false, REJECT_INVALID, "tx-overwinter-not-active", false)).Times(1);
-    ContextualCheckTransaction(0,tx, state, 1, 100, []() { return true; });
+    ContextualCheckTransaction(0,tx, state, 1, 100, []() {
+        return true;
+    });
     EXPECT_CALL(state, DoS(100, false, REJECT_INVALID, "tx-overwinter-not-active", false)).Times(1);
-    ContextualCheckTransaction(0,tx, state, 1, 100, []() { return false; });
+    ContextualCheckTransaction(0,tx, state, 1, 100, []() {
+        return false;
+    });
 }
 
 // This tests a transaction without the fOverwintered flag set, against the Overwinter consensus rule set.
@@ -875,11 +888,9 @@ TEST(checktransaction_tests, OverwinterInvalidSoftForkVersion) {
     try {
         ss << mtx;
         FAIL() << "Expected std::ios_base::failure 'Unknown transaction format'";
-    }
-    catch(std::ios_base::failure & err) {
+    } catch(std::ios_base::failure & err) {
         EXPECT_THAT(err.what(), testing::HasSubstr(std::string("Unknown transaction format")));
-    }
-    catch(...) {
+    } catch(...) {
         FAIL() << "Expected std::ios_base::failure 'Unknown transaction format', got some other exception";
     }
 }
@@ -896,7 +907,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
 
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, activationHeight - 1);
+                                      consensusParams, activationHeight - 1);
 
         EXPECT_EQ(mtx.nVersion, 1);
         EXPECT_EQ(mtx.fOverwintered, false);
@@ -907,7 +918,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
     // Overwinter activates
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, activationHeight );
+                                      consensusParams, activationHeight );
 
         EXPECT_EQ(mtx.nVersion, 3);
         EXPECT_EQ(mtx.fOverwintered, true);
@@ -918,7 +929,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
     // Close to Sapling activation
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight - expiryDelta - 2);
+                                      consensusParams, saplingActivationHeight - expiryDelta - 2);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, OVERWINTER_VERSION_GROUP_ID);
@@ -928,7 +939,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
 
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight - expiryDelta - 1);
+                                      consensusParams, saplingActivationHeight - expiryDelta - 1);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, OVERWINTER_VERSION_GROUP_ID);
@@ -938,7 +949,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
 
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight - expiryDelta);
+                                      consensusParams, saplingActivationHeight - expiryDelta);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, OVERWINTER_VERSION_GROUP_ID);
@@ -949,7 +960,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
     // Just before Sapling activation
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight - 1);
+                                      consensusParams, saplingActivationHeight - 1);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, OVERWINTER_VERSION_GROUP_ID);
@@ -960,7 +971,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
     // Sapling activates
     {
         CMutableTransaction mtx = CreateNewContextualCMutableTransaction(
-            consensusParams, saplingActivationHeight);
+                                      consensusParams, saplingActivationHeight);
 
         EXPECT_EQ(mtx.fOverwintered, true);
         EXPECT_EQ(mtx.nVersionGroupId, SAPLING_VERSION_GROUP_ID);
@@ -974,8 +985,7 @@ TEST(checktransaction_tests, OverwinteredContextualCreateTx) {
 }
 
 // Test a v1 transaction which has a malformed header, perhaps modified in-flight
-TEST(checktransaction_tests, BadTxReceivedOverNetwork)
-{
+TEST(checktransaction_tests, BadTxReceivedOverNetwork) {
     // First four bytes <01 00 00 00> have been modified to be <FC FF FF FF> (-4 as an int32)
     std::string goodPrefix = "01000000";
     std::string badPrefix = "fcffffff";
@@ -1008,11 +1018,9 @@ TEST(checktransaction_tests, BadTxReceivedOverNetwork)
             CTransaction tx;
             ssData >> tx;
             FAIL() << "Expected std::ios_base::failure 'Unknown transaction format'";
-        }
-        catch(std::ios_base::failure & err) {
+        } catch(std::ios_base::failure & err) {
             EXPECT_THAT(err.what(), testing::HasSubstr(std::string("Unknown transaction format")));
-        }
-        catch(...) {
+        } catch(...) {
             FAIL() << "Expected std::ios_base::failure 'Unknown transaction format', got some other exception";
         }
     }
@@ -1025,11 +1033,9 @@ TEST(checktransaction_tests, BadTxReceivedOverNetwork)
             CMutableTransaction mtx;
             ssData >> mtx;
             FAIL() << "Expected std::ios_base::failure 'Unknown transaction format'";
-        }
-        catch(std::ios_base::failure & err) {
+        } catch(std::ios_base::failure & err) {
             EXPECT_THAT(err.what(), testing::HasSubstr(std::string("Unknown transaction format")));
-        }
-        catch(...) {
+        } catch(...) {
             FAIL() << "Expected std::ios_base::failure 'Unknown transaction format', got some other exception";
         }
     }

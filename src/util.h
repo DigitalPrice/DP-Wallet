@@ -54,9 +54,8 @@ static const bool DEFAULT_LOGIPS        = false;
 static const bool DEFAULT_LOGTIMESTAMPS = true;
 
 /** Signals for translation. */
-class CTranslationInterface
-{
-public:
+class CTranslationInterface {
+  public:
     /** Translate a message to the native language of the user. */
     boost::signals2::signal<std::string (const char* psz)> Translate;
 };
@@ -79,8 +78,7 @@ extern CTranslationInterface translationInterface;
  * Translation function: Call Translate signal on UI interface, which returns a boost::optional result.
  * If no translation slot is registered, nothing is returned, and simply return the input.
  */
-inline std::string _(const char* psz)
-{
+inline std::string _(const char* psz) {
     boost::optional<std::string> rv = translationInterface.Translate(psz);
     return rv ? (*rv) : psz;
 }
@@ -121,13 +119,11 @@ TINYFORMAT_FOREACH_ARGNUM(MAKE_ERROR_AND_LOG_FUNC)
  * Zero-arg versions of logging and error, these are not covered by
  * TINYFORMAT_FOREACH_ARGNUM
  */
-static inline int LogPrint(const char* category, const char* format)
-{
+static inline int LogPrint(const char* category, const char* format) {
     if(!LogAcceptCategory(category)) return 0;
     return LogPrintStr(format);
 }
-static inline bool error(const char* format)
-{
+static inline bool error(const char* format) {
     LogPrintStr(std::string("ERROR: ") + format + "\n");
     return false;
 }
@@ -167,7 +163,7 @@ boost::filesystem::path GetPidFile();
 void CreatePidFile(const boost::filesystem::path &path, pid_t pid);
 #endif
 class missing_zcash_conf : public std::runtime_error {
-public:
+  public:
     missing_zcash_conf() : std::runtime_error("Missing komodo.conf") { }
 };
 void ReadConfigFile(std::map<std::string, std::string>& mapSettingsRet, std::map<std::string, std::vector<std::string> >& mapMultiSettingsRet);
@@ -186,8 +182,7 @@ std::string PrivacyInfo();
 /** Returns licensing information (for -version) */
 std::string LicenseInfo();
 
-inline bool IsSwitchChar(char c)
-{
+inline bool IsSwitchChar(char c) {
 #ifdef _WIN32
     return c == '-' || c == '/';
 #else
@@ -201,7 +196,7 @@ inline bool IsSwitchChar(char c)
  * @param strVal string to split
  * @param outVals array of numbers from string or default
  *      if the string is null, nDefault is used for all array entries
- *      else if the string has fewer than _MAX_ERAS entries, then the last 
+ *      else if the string has fewer than _MAX_ERAS entries, then the last
  *      entry fills remaining entries
  */
 void Split(const std::string& strVal, int32_t outsize, uint64_t *outVals, uint64_t nDefault);
@@ -291,26 +286,20 @@ void RenameThread(const char* name);
 /**
  * .. and a wrapper that just calls func once
  */
-template <typename Callable> void TraceThread(const char* name,  Callable func)
-{
+template <typename Callable> void TraceThread(const char* name,  Callable func) {
     std::string s = strprintf("zcash-%s", name);
     RenameThread(s.c_str());
-    try
-    {
+    try {
         LogPrintf("%s thread start\n", name);
         func();
         LogPrintf("%s thread exit\n", name);
-    }
-    catch (const boost::thread_interrupted&)
-    {
+    } catch (const boost::thread_interrupted&) {
         LogPrintf("%s thread interrupt\n", name);
         throw;
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, name);
         throw;
-    }
-    catch (...) {
+    } catch (...) {
         PrintExceptionContinue(NULL, name);
         throw;
     }

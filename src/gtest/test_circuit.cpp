@@ -27,15 +27,14 @@ void test_value_equals(uint64_t i) {
     num.allocate(pb, 64, "");
     num.fill_with_bits(pb, uint64_to_bool_vector(i));
     pb.add_r1cs_constraint(r1cs_constraint<FieldT>(
-        packed_addition(num),
-        FieldT::one(),
-        FieldT::one() * i
-    ), "");
+                               packed_addition(num),
+                               FieldT::one(),
+                               FieldT::one() * i
+                           ), "");
     ASSERT_TRUE(pb.is_satisfied());
 }
 
-TEST(circuit, values)
-{
+TEST(circuit, values) {
     typedef Fr<default_r1cs_ppzksnark_pp> FieldT;
     test_value_equals<FieldT>(0);
     test_value_equals<FieldT>(1);
@@ -46,11 +45,10 @@ TEST(circuit, values)
     test_value_equals<FieldT>(2205843009213693953);
 }
 
-TEST(circuit, endianness)
-{
+TEST(circuit, endianness) {
     std::vector<unsigned char> before = {
-         0,  1,  2,  3,  4,  5,  6,  7,
-         8,  9, 10, 11, 12, 13, 14, 15,
+        0,  1,  2,  3,  4,  5,  6,  7,
+        8,  9, 10, 11, 12, 13, 14, 15,
         16, 17, 18, 19, 20, 21, 22, 23,
         24, 25, 26, 27, 28, 29, 30, 31,
         32, 33, 34, 35, 36, 37, 38, 39,
@@ -67,8 +65,8 @@ TEST(circuit, endianness)
         32, 33, 34, 35, 36, 37, 38, 39,
         24, 25, 26, 27, 28, 29, 30, 31,
         16, 17, 18, 19, 20, 21, 22, 23,
-         8,  9, 10, 11, 12, 13, 14, 15,
-         0,  1,  2,  3,  4,  5,  6,  7
+        8,  9, 10, 11, 12, 13, 14, 15,
+        0,  1,  2,  3,  4,  5,  6,  7
     };
 
     EXPECT_EQ(after, result);
@@ -83,8 +81,7 @@ bool test_merkle_gadget(
     bool enforce_a,
     bool enforce_b,
     bool write_root_first
-)
-{
+) {
     protoboard<FieldT> pb;
     digest_variable<FieldT> root(pb, 256, "root");
     pb.set_input_sizes(256);
@@ -143,8 +140,7 @@ bool test_merkle_gadget(
     return pb.is_satisfied();
 }
 
-TEST(circuit, merkle_tree_gadget_weirdness)
-{
+TEST(circuit, merkle_tree_gadget_weirdness) {
     /*
     The merkle tree gadget takes a leaf in the merkle tree (the Note commitment),
     a merkle tree authentication path, and a root (anchor). It also takes a parameter

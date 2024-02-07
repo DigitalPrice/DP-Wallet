@@ -11,11 +11,11 @@
 #include <boost/assign/std/vector.hpp> // for 'operator+=()'
 #include <boost/assert.hpp>
 #include <boost/test/unit_test.hpp>
-                    
+
 using namespace std;
 using namespace boost::assign; // bring 'operator+=()' into scope
 using namespace boost::filesystem;
-         
+
 // Test if a string consists entirely of null characters
 bool is_null_key(const vector<unsigned char>& key) {
     bool isnull = true;
@@ -25,11 +25,10 @@ bool is_null_key(const vector<unsigned char>& key) {
 
     return isnull;
 }
- 
+
 BOOST_FIXTURE_TEST_SUITE(dbwrapper_tests, BasicTestingSetup)
-                       
-BOOST_AUTO_TEST_CASE(dbwrapper)
-{
+
+BOOST_AUTO_TEST_CASE(dbwrapper) {
     {
         path ph = temp_directory_path() / unique_path();
         CDBWrapper dbw(ph, (1 << 20), true, false);
@@ -44,8 +43,7 @@ BOOST_AUTO_TEST_CASE(dbwrapper)
 }
 
 // Test batch operations
-BOOST_AUTO_TEST_CASE(dbwrapper_batch)
-{
+BOOST_AUTO_TEST_CASE(dbwrapper_batch) {
     {
         path ph = temp_directory_path() / unique_path();
         CDBWrapper dbw(ph, (1 << 20), true, false);
@@ -79,8 +77,7 @@ BOOST_AUTO_TEST_CASE(dbwrapper_batch)
     }
 }
 
-BOOST_AUTO_TEST_CASE(dbwrapper_iterator)
-{
+BOOST_AUTO_TEST_CASE(dbwrapper_iterator) {
     {
         path ph = temp_directory_path() / unique_path();
         CDBWrapper dbw(ph, (1 << 20), true, false);
@@ -118,8 +115,7 @@ BOOST_AUTO_TEST_CASE(dbwrapper_iterator)
     }
 }
 
-BOOST_AUTO_TEST_CASE(iterator_ordering)
-{
+BOOST_AUTO_TEST_CASE(iterator_ordering) {
     path ph = temp_directory_path() / unique_path();
     CDBWrapper dbw(ph, (1 << 20), true, false);
     for (int x=0x00; x<256; ++x) {
@@ -129,7 +125,9 @@ BOOST_AUTO_TEST_CASE(iterator_ordering)
     }
 
     boost::scoped_ptr<CDBIterator> it(const_cast<CDBWrapper*>(&dbw)->NewIterator());
-    for (int seek_start : {0x00, 0x80}) {
+    for (int seek_start : {
+                0x00, 0x80
+            }) {
         it->Seek((uint8_t)seek_start);
         for (int x=seek_start; x<256; ++x) {
             uint8_t key;
@@ -158,7 +156,9 @@ struct StringContentsSerializer {
         str += s;
         return *this;
     }
-    StringContentsSerializer& operator+=(const StringContentsSerializer& s) { return *this += s.str; }
+    StringContentsSerializer& operator+=(const StringContentsSerializer& s) {
+        return *this += s.str;
+    }
 
     ADD_SERIALIZE_METHODS;
 
@@ -182,8 +182,7 @@ struct StringContentsSerializer {
     }
 };
 
-BOOST_AUTO_TEST_CASE(iterator_string_ordering)
-{
+BOOST_AUTO_TEST_CASE(iterator_string_ordering) {
     char buf[10];
 
     path ph = temp_directory_path() / unique_path();
@@ -201,7 +200,9 @@ BOOST_AUTO_TEST_CASE(iterator_string_ordering)
     }
 
     boost::scoped_ptr<CDBIterator> it(const_cast<CDBWrapper*>(&dbw)->NewIterator());
-    for (int seek_start : {0, 5}) {
+    for (int seek_start : {
+                0, 5
+            }) {
         int n = snprintf(buf, sizeof(buf), "%d", seek_start);
         assert(n > 0 && n < sizeof(buf));
         StringContentsSerializer seek_key(buf);

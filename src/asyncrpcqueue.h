@@ -34,11 +34,11 @@
 #include <memory>
 
 
-typedef std::unordered_map<AsyncRPCOperationId, std::shared_ptr<AsyncRPCOperation> > AsyncRPCOperationMap; 
+typedef std::unordered_map<AsyncRPCOperationId, std::shared_ptr<AsyncRPCOperation> > AsyncRPCOperationMap;
 
 
 class AsyncRPCQueue {
-public:
+  public:
     static shared_ptr<AsyncRPCQueue> sharedInstance();
 
     AsyncRPCQueue();
@@ -65,7 +65,7 @@ public:
     void addOperation(const std::shared_ptr<AsyncRPCOperation> &ptrOperation);
     std::vector<AsyncRPCOperationId> getAllOperationIds() const;
 
-private:
+  private:
     // addWorker() will spawn a new thread on run())
     void run(size_t workerId);
     void wait_for_worker_threads();

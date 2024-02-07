@@ -24,9 +24,8 @@
 #include "wallet/wallet_fees.h"
 
 /** Coin Control Features. */
-class CCoinControl
-{
-public:
+class CCoinControl {
+  public:
     CTxDestination destChange;
     //! If false, allows unselected inputs, but requires all selected inputs be used
     bool fAllowOtherInputs;
@@ -41,50 +40,42 @@ public:
     //! Fee estimation mode to control arguments to estimateSmartFee
     FeeEstimateMode m_fee_mode;
 
-    CCoinControl()
-    {
+    CCoinControl() {
         SetNull();
     }
 
-    void SetNull()
-    {
+    void SetNull() {
         destChange = CNoDestination();
         fAllowOtherInputs = false;
         setSelected.clear();
     }
 
-    bool HasSelected() const
-    {
+    bool HasSelected() const {
         return (setSelected.size() > 0);
     }
 
-    bool IsSelected(const uint256& hash, unsigned int n) const
-    {
+    bool IsSelected(const uint256& hash, unsigned int n) const {
         COutPoint outpt(hash, n);
         return (setSelected.count(outpt) > 0);
     }
 
-    void Select(const COutPoint& output)
-    {
+    void Select(const COutPoint& output) {
         setSelected.insert(output);
     }
 
-    void UnSelect(const COutPoint& output)
-    {
+    void UnSelect(const COutPoint& output) {
         setSelected.erase(output);
     }
 
-    void UnSelectAll()
-    {
+    void UnSelectAll() {
         setSelected.clear();
     }
 
-    void ListSelected(std::vector<COutPoint>& vOutpoints) const
-    {
+    void ListSelected(std::vector<COutPoint>& vOutpoints) const {
         vOutpoints.assign(setSelected.begin(), setSelected.end());
     }
 
-private:
+  private:
     std::set<COutPoint> setSelected;
 };
 

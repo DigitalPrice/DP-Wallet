@@ -24,10 +24,8 @@
  */
 
 template<class T>
-std::size_t mem_read(T& dest, uint8_t *filedata, long &fpos, long datalen)
-{
-    if (fpos + sizeof(T) <= datalen)
-    {
+std::size_t mem_read(T& dest, uint8_t *filedata, long &fpos, long datalen) {
+    if (fpos + sizeof(T) <= datalen) {
         memcpy( &dest, &filedata[fpos], sizeof(T) );
         fpos += sizeof(T);
         return sizeof(T);
@@ -36,11 +34,9 @@ std::size_t mem_read(T& dest, uint8_t *filedata, long &fpos, long datalen)
 }
 
 template<class T, std::size_t N>
-std::size_t mem_read(T(&dest)[N], uint8_t *filedata, long& fpos, long datalen)
-{
+std::size_t mem_read(T(&dest)[N], uint8_t *filedata, long& fpos, long datalen) {
     std::size_t sz = sizeof(T) * N;
-    if (fpos + sz <= datalen)
-    {
+    if (fpos + sz <= datalen) {
         memcpy( &dest, &filedata[fpos], sz );
         fpos += sz;
         return sz;
@@ -52,11 +48,9 @@ std::size_t mem_read(T(&dest)[N], uint8_t *filedata, long& fpos, long datalen)
  * Read a size that is less than the array length
  */
 template<class T, std::size_t N>
-std::size_t mem_nread(T(&dest)[N], size_t num_elements, uint8_t *filedata, long& fpos, long datalen)
-{
+std::size_t mem_nread(T(&dest)[N], size_t num_elements, uint8_t *filedata, long& fpos, long datalen) {
     std::size_t sz = sizeof(T) * num_elements;
-    if (fpos + sz <= datalen)
-    {
+    if (fpos + sz <= datalen) {
         memcpy( &dest, &filedata[fpos], sz );
         fpos += sz;
         return sz;

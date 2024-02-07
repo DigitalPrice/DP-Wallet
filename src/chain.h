@@ -49,8 +49,7 @@ extern const uint32_t nStakedDecemberHardforkTimestamp; //December 2019 hardfork
 extern const int32_t nDecemberHardforkHeight;   //December 2019 hardfork
 uint8_t is_STAKED(const std::string& symbol);*/
 
-struct CDiskBlockPos
-{
+struct CDiskBlockPos {
     int nFile;
     unsigned int nPos;
 
@@ -79,11 +78,15 @@ struct CDiskBlockPos
         return !(a == b);
     }
 
-    void SetNull() { nFile = -1; nPos = 0; }
-    bool IsNull() const { return (nFile == -1); }
+    void SetNull() {
+        nFile = -1;
+        nPos = 0;
+    }
+    bool IsNull() const {
+        return (nFile == -1);
+    }
 
-    std::string ToString() const
-    {
+    std::string ToString() const {
         return strprintf("CBlockDiskPos(nFile=%i, nPos=%i)", nFile, nPos);
     }
 
@@ -114,9 +117,9 @@ enum BlockStatus: uint32_t {
     //! Scripts & signatures ok. Implies all parents are also at least SCRIPTS.
     BLOCK_VALID_SCRIPTS      =    5,
 
-    // flag to check if contextual check block has passed in Accept block, if it has not check at connect block. 
+    // flag to check if contextual check block has passed in Accept block, if it has not check at connect block.
     BLOCK_VALID_CONTEXT      =    6,
-    
+
     //! All validity bits.
     BLOCK_VALID_MASK         =   BLOCK_VALID_HEADER | BLOCK_VALID_TREE | BLOCK_VALID_TRANSACTIONS |
                                  BLOCK_VALID_CHAIN | BLOCK_VALID_SCRIPTS,
@@ -130,7 +133,7 @@ enum BlockStatus: uint32_t {
     BLOCK_FAILED_MASK        =   BLOCK_FAILED_VALID | BLOCK_FAILED_CHILD,
 
     BLOCK_ACTIVATES_UPGRADE  =   128, //! block activates a network upgrade
-    BLOCK_IN_TMPFILE         =   256 
+    BLOCK_IN_TMPFILE         =   256
 };
 
 //! Short-hand for the highest consensus validity we implement.
@@ -142,9 +145,8 @@ static const BlockStatus BLOCK_VALID_CONSENSUS = BLOCK_VALID_SCRIPTS;
  * candidates to be the next block. A blockindex may have multiple pprev pointing
  * to it, but at most one of them can be part of the currently active branch.
  */
-class CBlockIndex
-{
-public:
+class CBlockIndex {
+  public:
     //! pointer to the hash of the block, if any. Memory is owned by this CBlockIndex
     const uint256* phashBlock;
 
@@ -157,7 +159,8 @@ public:
     //! height of the entry in the chain. The genesis block has height 0
     int nHeight;
 
-    int64_t newcoins,zfunds,sproutfunds,nNotaryPay; int8_t segid; // jl777 fields
+    int64_t newcoins,zfunds,sproutfunds,nNotaryPay;
+    int8_t segid; // jl777 fields
     //! Which # file this block is stored in (blk?????.dat)
     int nFile;
 
@@ -256,18 +259,17 @@ public:
     unsigned int nTime;
     unsigned int nBits;
     uint256 nNonce;
-protected:
+  protected:
     // The Equihash solution, if it is stored. Once we know that the block index
     // entry is present in leveldb, this field can be cleared via the TrimSolution
     // method to save memory.
     std::vector<unsigned char> nSolution;
 
-public:
+  public:
     //! (memory only) Sequential id assigned to distinguish order in which blocks are received.
     uint32_t nSequenceId;
-    
-    void SetNull()
-    {
+
+    void SetNull() {
         phashBlock = NULL;
         newcoins = zfunds = 0;
         segid = -2;
@@ -307,13 +309,11 @@ public:
         nSolution.clear();
     }
 
-    CBlockIndex()
-    {
+    CBlockIndex() {
         SetNull();
     }
 
-    CBlockIndex(const CBlockHeader& block)
-    {
+    CBlockIndex(const CBlockHeader& block) {
         SetNull();
 
         nVersion       = block.nVersion;
@@ -349,14 +349,12 @@ public:
     //! Clear the Equihash solution to save memory. Requires cs_main.
     void TrimSolution();
 
-    uint256 GetBlockHash() const
-    {
+    uint256 GetBlockHash() const {
         assert(phashBlock);
         return *phashBlock;
     }
 
-    int64_t GetBlockTime() const
-    {
+    int64_t GetBlockTime() const {
         return (int64_t)nTime;
     }
 
@@ -368,8 +366,7 @@ public:
      * @note storing this as 32 bits can cause a "Year 2038" problem.
      * @returns the median time (uinx epoch) of the last nMedianTimeSpan (currently 11) blocks
      */
-    int64_t GetMedianTimePast() const
-    {
+    int64_t GetMedianTimePast() const {
         int64_t pmedian[nMedianTimeSpan];
         int64_t* pbegin = &pmedian[nMedianTimeSpan];
         int64_t* pend = &pmedian[nMedianTimeSpan];
@@ -383,18 +380,16 @@ public:
         return pbegin[(pend - pbegin)/2];
     }
 
-    std::string ToString() const
-    {
+    std::string ToString() const {
         return strprintf("CBlockIndex(pprev=%p, nHeight=%d, merkle=%s, hashBlock=%s, HasSolution=%s)",
-            pprev, nHeight,
-            hashMerkleRoot.ToString(),
-            phashBlock ? GetBlockHash().ToString() : "(nil)",
-            HasSolution());
+                         pprev, nHeight,
+                         hashMerkleRoot.ToString(),
+                         phashBlock ? GetBlockHash().ToString() : "(nil)",
+                         HasSolution());
     }
 
     //! Check whether this block index entry is valid up to the passed validity level.
-    bool IsValid(enum BlockStatus nUpTo = BLOCK_VALID_TRANSACTIONS) const
-    {
+    bool IsValid(enum BlockStatus nUpTo = BLOCK_VALID_TRANSACTIONS) const {
         assert(!(nUpTo & ~BLOCK_VALID_MASK)); // Only validity flags allowed.
         if (nStatus & BLOCK_FAILED_MASK)
             return false;
@@ -402,15 +397,13 @@ public:
     }
 
     //! Is the Equihash solution stored?
-    bool HasSolution() const
-    {
+    bool HasSolution() const {
         return !nSolution.empty();
     }
 
     //! Raise the validity level of this block index entry.
     //! Returns true if the validity was changed.
-    bool RaiseValidity(enum BlockStatus nUpTo)
-    {
+    bool RaiseValidity(enum BlockStatus nUpTo) {
         assert(!(nUpTo & ~BLOCK_VALID_MASK)); // Only validity flags allowed.
         if (nStatus & BLOCK_FAILED_MASK)
             return false;
@@ -430,9 +423,8 @@ public:
 };
 
 /** Used to marshal pointers into hashes for db storage. */
-class CDiskBlockIndex : public CBlockIndex
-{
-public:
+class CDiskBlockIndex : public CBlockIndex {
+  public:
     uint256 hashPrev;
 
     CDiskBlockIndex() : CBlockIndex() {
@@ -511,25 +503,22 @@ public:
         if ((s.GetType() & SER_DISK) && (nVersion >= SAPLING_VALUE_VERSION)) {
             READWRITE(nSaplingValue);
         }
-        
+
         // leave the existing LABS exemption here for segid and notary pay, but also add a timestamp activated segid for non LABS PoS64 chains.
-        if ( (s.GetType() & SER_DISK) && isStakedAndNotaryPay() /*is_STAKED(chainName.symbol()) != 0 && ASSETCHAINS_NOTARY_PAY[0] != 0*/ )
-        {
+        if ( (s.GetType() & SER_DISK) && isStakedAndNotaryPay() /*is_STAKED(chainName.symbol()) != 0 && ASSETCHAINS_NOTARY_PAY[0] != 0*/ ) {
             READWRITE(nNotaryPay);
         }
-        if ( (s.GetType() & SER_DISK) && isStakedAndAfterDec2019(nTime) /*ASSETCHAINS_STAKED != 0 && (nTime > nStakedDecemberHardforkTimestamp || is_STAKED(chainName.symbol()) != 0)*/ ) //December 2019 hardfork
-        {
+        if ( (s.GetType() & SER_DISK) && isStakedAndAfterDec2019(nTime) /*ASSETCHAINS_STAKED != 0 && (nTime > nStakedDecemberHardforkTimestamp || is_STAKED(chainName.symbol()) != 0)*/ ) { //December 2019 hardfork
             READWRITE(segid);
         }
     }
-private:
+  private:
     bool isStakedAndNotaryPay() const;
     bool isStakedAndAfterDec2019(unsigned int nTime) const;
 
-public:
+  public:
     //! Get the block header for this block index.
-    CBlockHeader GetBlockHeader() const
-    {
+    CBlockHeader GetBlockHeader() const {
         CBlockHeader header;
         header.nVersion             = nVersion;
         header.hashPrevBlock        = hashPrev;
@@ -542,45 +531,41 @@ public:
         return header;
     }
 
-    uint256 GetBlockHash() const
-    {
+    uint256 GetBlockHash() const {
         return GetBlockHeader().GetHash();
     }
 
-    std::vector<unsigned char> GetSolution() const
-    {
+    std::vector<unsigned char> GetSolution() const {
         assert(HasSolution());
         return nSolution;
     }
 
-    std::string ToString() const
-    {
+    std::string ToString() const {
         std::string str = "CDiskBlockIndex(";
         str += CBlockIndex::ToString();
         str += strprintf("\n                hashBlock=%s, hashPrev=%s)",
-            GetBlockHash().ToString(),
-            hashPrev.ToString());
+                         GetBlockHash().ToString(),
+                         hashPrev.ToString());
         return str;
     }
 
-private:
+  private:
     //! This method should not be called on a CDiskBlockIndex.
-    void TrimSolution()
-    {
+    void TrimSolution() {
         assert(!"called CDiskBlockIndex::TrimSolution");
     }
 };
 
 /** An in-memory indexed chain of blocks. */
 class CChain {
-protected:
+  protected:
     std::vector<CBlockIndex*> vChain;
     CBlockIndex *at(int nHeight) const {
         if (nHeight < 0 || nHeight >= (int)vChain.size())
             return NULL;
         return vChain[nHeight];
     }
-public:
+  public:
     /** Returns the index entry for the genesis block of this chain, or NULL if none. */
     CBlockIndex *Genesis() const {
         AssertLockHeld(cs_main);

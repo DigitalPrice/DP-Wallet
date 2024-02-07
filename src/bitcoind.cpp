@@ -64,40 +64,34 @@
 static bool fDaemon;
 
 int32_t komodo_longestchain();
-void WaitForShutdown(boost::thread_group* threadGroup)
-{
-    int32_t i,height; CBlockIndex *pindex; bool fShutdown = ShutdownRequested();
+void WaitForShutdown(boost::thread_group* threadGroup) {
+    int32_t i,height;
+    CBlockIndex *pindex;
+    bool fShutdown = ShutdownRequested();
     static const uint256 zeroid; //!< null uint256 constant
 
     // Tell the main threads to shutdown.
-    if (komodo_currentheight()>KOMODO_EARLYTXID_HEIGHT && KOMODO_EARLYTXID!=zeroid && ((height=tx_height(KOMODO_EARLYTXID))==0 || height>KOMODO_EARLYTXID_HEIGHT))
-    {
+    if (komodo_currentheight()>KOMODO_EARLYTXID_HEIGHT && KOMODO_EARLYTXID!=zeroid && ((height=tx_height(KOMODO_EARLYTXID))==0 || height>KOMODO_EARLYTXID_HEIGHT)) {
         LogPrintf("error: earlytx must be before block height %d or tx does not exist\n",KOMODO_EARLYTXID_HEIGHT);
         StartShutdown();
     }
 
-    while (!fShutdown)
-    {
+    while (!fShutdown) {
         /* TODO: move to ThreadUpdateKomodoInternals */
-        if ( chainName.isKMD() )
-        {
+        if ( chainName.isKMD() ) {
             if ( KOMODO_NSPV_FULLNODE ) {
                 komodo_update_interest();
                 komodo_longestchain();
             }
-            for (i=0; i<10; i++)
-            {
+            for (i=0; i<10; i++) {
                 fShutdown = ShutdownRequested();
                 if ( fShutdown != 0 )
                     break;
                 MilliSleep(1000);
             }
-        }
-        else
-        {
+        } else {
             /* for ACs we do nothing at present */
-            for (i=0; i<=ASSETCHAINS_BLOCKTIME/5; i++)
-            {
+            for (i=0; i<=ASSETCHAINS_BLOCKTIME/5; i++) {
                 fShutdown = ShutdownRequested();
                 if ( fShutdown != 0 )
                     break;
@@ -106,8 +100,7 @@ void WaitForShutdown(boost::thread_group* threadGroup)
         }
         fShutdown = ShutdownRequested();
     }
-    if (threadGroup)
-    {
+    if (threadGroup) {
         Interrupt(*threadGroup);
         threadGroup->join_all();
     }
@@ -118,8 +111,7 @@ void WaitForShutdown(boost::thread_group* threadGroup)
 // Start
 //
 
-bool AppInit(int argc, char* argv[])
-{
+bool AppInit(int argc, char* argv[]) {
     boost::thread_group threadGroup;
     CScheduler scheduler;
 
@@ -132,18 +124,14 @@ bool AppInit(int argc, char* argv[])
     ParseParameters(argc, argv);
 
     // Process help and version before taking care about datadir
-    if (mapArgs.count("-?") || mapArgs.count("-h") ||  mapArgs.count("-help") || mapArgs.count("-version"))
-    {
+    if (mapArgs.count("-?") || mapArgs.count("-h") ||  mapArgs.count("-help") || mapArgs.count("-version")) {
         std::string strUsage = _("Komodo Daemon") + " " + _("version") + " " + FormatFullVersion() + "\n" + PrivacyInfo();
 
-        if (mapArgs.count("-version"))
-        {
+        if (mapArgs.count("-version")) {
             strUsage += LicenseInfo();
-        }
-        else
-        {
+        } else {
             strUsage += "\n" + _("Usage:") + "\n" +
-                  "  komodod [options]                     " + _("Start Komodo Daemon") + "\n";
+                        "  komodod [options]                     " + _("Start Komodo Daemon") + "\n";
 
             strUsage += "\n" + HelpMessage(HMM_BITCOIND);
         }
@@ -152,8 +140,7 @@ bool AppInit(int argc, char* argv[])
         return true;
     }
 
-    try
-    {
+    try {
         // Check for -testnet or -regtest parameter (Params() calls are only valid after this clause)
         if (!SelectParamsFromCommandLine()) {
             LogPrintf("Error: Invalid combination of -regtest and -testnet.\n");
@@ -166,13 +153,11 @@ bool AppInit(int argc, char* argv[])
 
         LogPrintf("call komodo_args.(%s) NOTARY_PUBKEY.(%s)\n",argv[0],NOTARY_PUBKEY.c_str());
         LogPrintf("initialized %s at %u\n",chainName.symbol().c_str(),(uint32_t)time(NULL));
-        if (!boost::filesystem::is_directory(GetDataDir(false)))
-        {
+        if (!boost::filesystem::is_directory(GetDataDir(false))) {
             LogPrintf("Error: Specified data directory \"%s\" does not exist.\n", mapArgs["-datadir"].c_str());
             return false;
         }
-        try
-        {
+        try {
             ReadConfigFile(mapArgs, mapMultiArgs);
         } catch (const missing_zcash_conf& e) {
             LogPrintf(
@@ -203,27 +188,23 @@ bool AppInit(int argc, char* argv[])
             if (!IsSwitchChar(argv[i][0]) && !boost::algorithm::istarts_with(argv[i], "komodo:"))
                 fCommandLine = true;
 
-        if (fCommandLine)
-        {
+        if (fCommandLine) {
             LogPrintf( "Error: There is no RPC client functionality in komodod. Use the komodo-cli utility instead.\n");
             exit(EXIT_FAILURE);
         }
 
 #ifndef _WIN32
         fDaemon = GetBoolArg("-daemon", false);
-        if (fDaemon)
-        {
+        if (fDaemon) {
             LogPrintf("Komodo %s server starting\n",chainName.symbol().c_str());
 
             // Daemonize
             pid_t pid = fork();
-            if (pid < 0)
-            {
+            if (pid < 0) {
                 LogPrintf( "Error: fork() returned %d errno %d\n", pid, errno);
                 return false;
             }
-            if (pid > 0) // Parent process, pid is child process id
-            {
+            if (pid > 0) { // Parent process, pid is child process id
                 return true;
             }
             // Child process falls through to rest of initialization
@@ -236,14 +217,12 @@ bool AppInit(int argc, char* argv[])
         SoftSetBoolArg("-server", true);
 
         fRet = AppInit2(threadGroup, scheduler);
-    }
-    catch (const std::exception& e) {
+    } catch (const std::exception& e) {
         PrintExceptionContinue(&e, "AppInit()");
     } catch (...) {
         PrintExceptionContinue(NULL, "AppInit()");
     }
-    if (!fRet)
-    {
+    if (!fRet) {
         Interrupt(threadGroup);
         // threadGroup.join_all(); was left out intentionally here, because we didn't re-test all of
         // the startup-failure cases to make sure they don't result in a hang due to some
@@ -256,8 +235,7 @@ bool AppInit(int argc, char* argv[])
     return fRet;
 }
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
     SetupEnvironment();
 
     // Connect bitcoind signal handlers

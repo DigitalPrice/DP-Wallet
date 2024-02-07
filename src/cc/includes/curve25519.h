@@ -21,10 +21,22 @@
 #include <string.h>
 #include "bits256.h"
 
-struct sha256_vstate { uint64_t length; uint32_t state[8],curlen; uint8_t buf[64]; };
-struct rmd160_vstate { uint64_t length; uint8_t buf[64]; uint32_t curlen, state[5]; };
+struct sha256_vstate {
+    uint64_t length;
+    uint32_t state[8],curlen;
+    uint8_t buf[64];
+};
+struct rmd160_vstate {
+    uint64_t length;
+    uint8_t buf[64];
+    uint32_t curlen, state[5];
+};
 
-struct acct777_sig { bits256 sigbits,pubkey; uint64_t signer64bits; uint32_t timestamp,allocsize; };
+struct acct777_sig {
+    bits256 sigbits,pubkey;
+    uint64_t signer64bits;
+    uint32_t timestamp,allocsize;
+};
 
 //#undef force_inline
 //#define force_inline __attribute__((always_inline))

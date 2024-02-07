@@ -19,8 +19,7 @@
 using namespace libsnark;
 
 template<typename ppT>
-void pairing_test()
-{
+void pairing_test() {
     GT<ppT> GT_one = GT<ppT>::one();
 
     printf("Running bilinearity tests:\n");
@@ -58,8 +57,7 @@ void pairing_test()
 }
 
 template<typename ppT>
-void double_miller_loop_test()
-{
+void double_miller_loop_test() {
     const G1<ppT> P1 = (Fr<ppT>::random_element()) * G1<ppT>::one();
     const G1<ppT> P2 = (Fr<ppT>::random_element()) * G1<ppT>::one();
     const G2<ppT> Q1 = (Fr<ppT>::random_element()) * G2<ppT>::one();
@@ -77,8 +75,7 @@ void double_miller_loop_test()
 }
 
 template<typename ppT>
-void affine_pairing_test()
-{
+void affine_pairing_test() {
     GT<ppT> GT_one = GT<ppT>::one();
 
     printf("Running bilinearity tests:\n");
@@ -110,8 +107,7 @@ void affine_pairing_test()
     printf("\n\n");
 }
 
-int main(void)
-{
+int main(void) {
     start_profiling();
     edwards_pp::init_public_params();
     pairing_test<edwards_pp>();

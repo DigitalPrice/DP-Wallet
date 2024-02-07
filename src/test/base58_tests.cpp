@@ -27,36 +27,32 @@ extern UniValue read_json(const std::string& jsondata);
 BOOST_FIXTURE_TEST_SUITE(base58_tests, BasicTestingSetup)
 
 // Goal: test low-level base58 encoding functionality
-BOOST_AUTO_TEST_CASE(base58_EncodeBase58)
-{
+BOOST_AUTO_TEST_CASE(base58_EncodeBase58) {
     UniValue tests = read_json(std::string(json_tests::base58_encode_decode, json_tests::base58_encode_decode + sizeof(json_tests::base58_encode_decode)));
     for (size_t idx = 0; idx < tests.size(); idx++) {
         UniValue test = tests[idx];
         std::string strTest = test.write();
-        if (test.size() < 2) // Allow for extra stuff (useful for comments)
-        {
+        if (test.size() < 2) { // Allow for extra stuff (useful for comments)
             BOOST_ERROR("Bad test: " << strTest);
             continue;
         }
         std::vector<unsigned char> sourcedata = ParseHex(test[0].get_str());
         std::string base58string = test[1].get_str();
         BOOST_CHECK_MESSAGE(
-                    EncodeBase58(begin_ptr(sourcedata), end_ptr(sourcedata)) == base58string,
-                    strTest);
+            EncodeBase58(begin_ptr(sourcedata), end_ptr(sourcedata)) == base58string,
+            strTest);
     }
 }
 
 // Goal: test low-level base58 decoding functionality
-BOOST_AUTO_TEST_CASE(base58_DecodeBase58)
-{
+BOOST_AUTO_TEST_CASE(base58_DecodeBase58) {
     UniValue tests = read_json(std::string(json_tests::base58_encode_decode, json_tests::base58_encode_decode + sizeof(json_tests::base58_encode_decode)));
     std::vector<unsigned char> result;
 
     for (size_t idx = 0; idx < tests.size(); idx++) {
         UniValue test = tests[idx];
         std::string strTest = test.write();
-        if (test.size() < 2) // Allow for extra stuff (useful for comments)
-        {
+        if (test.size() < 2) { // Allow for extra stuff (useful for comments)
             BOOST_ERROR("Bad test: " << strTest);
             continue;
         }
@@ -76,8 +72,7 @@ BOOST_AUTO_TEST_CASE(base58_DecodeBase58)
 }
 
 // Goal: check that parsed keys match test payload
-BOOST_AUTO_TEST_CASE(base58_keys_valid_parse)
-{
+BOOST_AUTO_TEST_CASE(base58_keys_valid_parse) {
     UniValue tests = read_json(std::string(json_tests::base58_keys_valid, json_tests::base58_keys_valid + sizeof(json_tests::base58_keys_valid)));
     CKey privkey;
     CTxDestination destination;
@@ -126,15 +121,13 @@ BOOST_AUTO_TEST_CASE(base58_keys_valid_parse)
 }
 
 // Goal: check that generated keys match test vectors
-BOOST_AUTO_TEST_CASE(base58_keys_valid_gen)
-{
+BOOST_AUTO_TEST_CASE(base58_keys_valid_gen) {
     UniValue tests = read_json(std::string(json_tests::base58_keys_valid, json_tests::base58_keys_valid + sizeof(json_tests::base58_keys_valid)));
 
     for (size_t idx = 0; idx < tests.size(); idx++) {
         UniValue test = tests[idx];
         std::string strTest = test.write();
-        if (test.size() < 3) // Allow for extra stuff (useful for comments)
-        {
+        if (test.size() < 3) { // Allow for extra stuff (useful for comments)
             BOOST_ERROR("Bad test: " << strTest);
             continue;
         }
@@ -167,8 +160,7 @@ BOOST_AUTO_TEST_CASE(base58_keys_valid_gen)
 }
 
 // Goal: check that base58 parsing code is robust against a variety of corrupted data
-BOOST_AUTO_TEST_CASE(base58_keys_invalid)
-{
+BOOST_AUTO_TEST_CASE(base58_keys_invalid) {
     UniValue tests = read_json(std::string(json_tests::base58_keys_invalid, json_tests::base58_keys_invalid + sizeof(json_tests::base58_keys_invalid))); // Negative testcases
     CKey privkey;
     CTxDestination destination;
@@ -176,8 +168,7 @@ BOOST_AUTO_TEST_CASE(base58_keys_invalid)
     for (size_t idx = 0; idx < tests.size(); idx++) {
         UniValue test = tests[idx];
         std::string strTest = test.write();
-        if (test.size() < 1) // Allow for extra stuff (useful for comments)
-        {
+        if (test.size() < 1) { // Allow for extra stuff (useful for comments)
             BOOST_ERROR("Bad test: " << strTest);
             continue;
         }

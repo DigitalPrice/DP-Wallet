@@ -11,14 +11,13 @@ class PlatformStyle;
 class WalletModel;
 
 namespace Ui {
-    class SignVerifyMessageDialog;
+class SignVerifyMessageDialog;
 }
 
-class SignVerifyMessageDialog : public QDialog
-{
+class SignVerifyMessageDialog : public QDialog {
     Q_OBJECT
 
-public:
+  public:
     explicit SignVerifyMessageDialog(const PlatformStyle *platformStyle, QWidget *parent);
     ~SignVerifyMessageDialog();
 
@@ -29,15 +28,15 @@ public:
     void showTab_SM(bool fShow);
     void showTab_VM(bool fShow);
 
-protected:
+  protected:
     bool eventFilter(QObject *object, QEvent *event);
 
-private:
+  private:
     Ui::SignVerifyMessageDialog *ui;
     WalletModel *model;
     const PlatformStyle *platformStyle;
 
-private Q_SLOTS:
+  private Q_SLOTS:
     /* sign message */
     void on_addressBookButton_SM_clicked();
     void on_pasteButton_SM_clicked();
