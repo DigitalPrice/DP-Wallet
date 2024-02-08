@@ -1,4 +1,4 @@
-package=native_clang
+package=native_llvm
 $(package)_version=15.0.6
 $(package)_download_path=https://github.com/llvm/llvm-project/releases/download/llvmorg-$($(package)_version)
 ifneq (,$(findstring aarch64,$(BUILD)))
