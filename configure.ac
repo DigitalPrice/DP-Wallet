@@ -9,7 +9,7 @@ define(_CLIENT_VERSION_SUFFIX, m4_if(m4_eval(_CLIENT_VERSION_BUILD < 25), 1, _CL
 define(_CLIENT_VERSION_IS_RELEASE, true)
 define(_COPYRIGHT_YEAR, 2024)
 define(_COPYRIGHT_HOLDERS, "The %s developers")
-define(_COPYRIGHT_HOLDERS_SUBSTITUTION, "Ocean and Decker")
+define(_COPYRIGHT_HOLDERS_SUBSTITUTION, "Ocean")
 
 AC_INIT([KomodoOcean],[_CLIENT_VERSION_MAJOR._CLIENT_VERSION_MINOR._CLIENT_VERSION_SUFFIX(_ZC_BUILD_VAL)],[https://github.com/KomodoPlatform/KomodoOcean/issues],[KomodoOcean],[https://komodoplatform.com/en/wallets.html])
 AC_CONFIG_SRCDIR([src/main.cpp])
